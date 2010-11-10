@@ -1,0 +1,16 @@
+
+begintemplate RandomStream
+public r, repick, start, rseed
+objref r
+proc init() {
+	rseed = $1					// The gid of the cell is arg 1 here
+	r = new Random()
+	start()
+}
+func start() {
+	return r.MCellRan4(rseed)
+}
+func repick() {
+	return r.repick()
+}
+endtemplate RandomStream

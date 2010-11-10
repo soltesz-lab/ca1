@@ -1,0 +1,12 @@
+syntax: glob
+x86_64/**
+none/**
+*.*~
+spikeraster.dat
+position.dat
+numcons.dat
+celltype.dat
+ranseeds.dat
+runtimes.dat
+lowindex.hoc
+

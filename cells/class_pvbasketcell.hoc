@@ -1,0 +1,281 @@
+
+
+	begintemplate pvbasketcell
+ndend1=4
+ndend2=4
+ndend3=4
+ndend4=4
+
+public  pre_list, connect_pre, subsets, is_art, is_connected
+public soma, bcdend1, bcdend2, bcdend3, bcdend4
+public all, adend, bdend, cdend, ddend
+create soma, bcdend1[ndend1], bcdend2[ndend2], bcdend3[ndend3], bcdend4[ndend4]
+objref syn, pre_list, templist
+public xx, yy, zz, position
+external numCellTypes, cellType
+
+
+proc init() {
+	pre_list = new List()
+	subsets()
+	temp()
+	synapse()
+}
+
+objref all, adend, bdend, cdend, ddend
+
+proc subsets() { local i
+	objref all, adend, bdend, cdend, ddend
+	all = new SectionList()
+		soma all.append()
+		for i=0, 3 bcdend1 [i] all.append()
+		for i=0, 3 bcdend2 [i] all.append()
+		for i=0, 3 bcdend3 [i] all.append()
+		for i=0, 3 bcdend4 [i] all.append()
+
+	adend  = new SectionList()
+		bcdend1 [0] adend.append()
+		bcdend2 [0] adend.append()
+		bcdend3 [0] adend.append()
+		bcdend4 [0] adend.append()
+
+	bdend  = new SectionList()
+		bcdend1 [1] bdend.append()
+		bcdend2 [1] bdend.append()
+		bcdend3 [1] bdend.append()
+		bcdend4 [1] bdend.append()
+
+	cdend  = new SectionList()
+		bcdend1 [2] cdend.append()
+		bcdend2 [2] cdend.append()
+		bcdend3 [2] cdend.append()
+		bcdend4 [2] cdend.append()
+
+	ddend  = new SectionList()
+		bcdend1 [3] ddend.append()
+		bcdend2 [3] ddend.append()
+		bcdend3 [3] ddend.append()
+		bcdend4 [3] ddend.append()
+}
+
+proc temp() {
+
+	soma {nseg=1 L=20 diam=15} // changed L & diam
+		
+	bcdend1 [0] {nseg=1 L=75 diam=4}	// bcdend 1 and 2 are apical
+	bcdend1 [1] {nseg=1 L=75 diam=3}
+	bcdend1 [2] {nseg=1 L=75 diam=2}
+ 	bcdend1 [3] {nseg=1 L=75 diam=1}
+
+	bcdend2 [0] {nseg=1 L=75 diam=4}
+	bcdend2 [1] {nseg=1 L=75 diam=3}
+	bcdend2 [2] {nseg=1 L=75 diam=2}
+	bcdend2 [3] {nseg=1 L=75 diam=1}
+ 		 
+	bcdend3 [0] {nseg=1 L=50 diam=4} 	// bcdend 3 and 4 are basal
+	bcdend3 [1] {nseg=1 L=50 diam=3}
+	bcdend3 [2] {nseg=1 L=50 diam=2}
+	bcdend3 [3] {nseg=1 L=50 diam=1} 
+	
+	bcdend4 [0] {nseg=1 L=50 diam=4}
+	bcdend4 [1] {nseg=1 L=50 diam=3}
+	bcdend4 [2] {nseg=1 L=50 diam=2}
+	bcdend4 [3] {nseg=1 L=50 diam=1} 	
+
+    
+	forsec all {
+		insert iconc_Ca
+			catau_iconc_Ca = 10
+			caiinf_iconc_Ca = 5.e-6
+		insert ch_KvA
+			gkabar_ch_KvA=0.00015
+		insert ch_CavN
+			gncabar_ch_CavN=0.0008   
+		insert ch_CavL 
+			glcabar_ch_CavL=0.005
+		insert ch_KCaS
+			gmax_ch_KCaS=0.000002
+		insert ch_KvCaB
+			gmax_ch_KvCaB=0.0002
+	}
+
+	soma {
+		insert ch_Nav
+			gmax_ch_Nav=0.12  
+		insert ch_Kdrfast
+			gmax_ch_Kdrfast=0.013  
+		insert ch_leak
+			g_ch_leak  = 0.00018
+		cm=1.4
+	} 
+
+	forsec adend {
+		insert ch_Nav
+			gmax_ch_Nav=0.12  
+		insert ch_Kdrfast
+			gmax_ch_Kdrfast=0.013
+		insert ch_leak
+			g_ch_leak  = 0.00018
+		cm=1.4
+	}	
+		
+	forsec	bdend {
+		insert na_ion
+		insert ch_leak
+			g_ch_leak  = 0.00018
+		cm=1.4
+	}
+		
+	forsec 	cdend {
+		insert na_ion
+		insert ch_leak
+			g_ch_leak  = 0.00018
+		cm=1.4
+	}
+
+	forsec	ddend {
+		insert na_ion
+		insert ch_leak
+			g_ch_leak  = 0.00018
+		cm=1.4
+	}
+
+
+	connect bcdend1[0](0), soma(1)
+	connect bcdend2[0](0), soma(1)
+	connect bcdend3[0](0), soma(0)
+	connect bcdend4[0](0), soma(0)
+	for i=1,3 {
+	connect bcdend1[i](0), bcdend1[i-1](1)
+	}
+	for i=1,3 {
+	connect bcdend2[i](0), bcdend2[i-1](1)
+	}
+	for i=1,3 {
+	connect bcdend3[i](0), bcdend3[i-1](1)
+	}
+	for i=1,3 {
+	connect bcdend4[i](0), bcdend4[i-1](1)
+	}
+
+
+	forsec all {
+	Ra=100
+	ek=-90
+	elca=130
+	ena = 55 
+	e_ch_leak =-60.06
+	cao_iconc_Ca=2  // make catau slower70e-3 	cao=2 cai=50.e-6 
+	}
+}
+
+	objref syn  
+	proc synapse() {
+		for celltype=0, numCellTypes-1 {
+			findme=0
+			if (strcmp(cellType[celltype].cellType_string,"ppstim")==0) {	// Connect to some pp stim cells
+				templist = new List ()
+
+				bcdend1 [3] syn = new Exp2Sid(0.5)	//PP(AMPA) syn to apical dist dend Dingledine '95
+				syn.tau1 = 2	syn.tau2 = 6.3	syn.e = 0 	syn.sid=0	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				bcdend2 [3] syn = new Exp2Sid(0.5)	//PP(AMPA) syn to apical dist dend Dingledine '95
+				syn.tau1 = 2	syn.tau2 = 6.3	syn.e = 0  	syn.sid=1	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				pre_list.append(templist)
+				findme=1
+			}
+		
+			if (strcmp(cellType[celltype].cellType_string,"granulecell")==0) {	// Connect to some granule cells
+				templist = new List ()
+
+				bcdend1 [0] syn = new Exp2Sid(0.5)	//GC(AMPA) syn to prox dend Geiger '97
+				syn.tau1 = .3	syn.tau2 = .6	syn.e = 0 	syn.sid=2	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				bcdend2 [0] syn = new Exp2Sid(0.5)	//GC(AMPA) syn to prox dend Geiger '97
+				syn.tau1 = .3	syn.tau2 = .6	syn.e = 0 	syn.sid=3	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				bcdend3 [0] syn = new Exp2Sid(0.5)	//GC(AMPA) syn to prox dend Geiger '97
+				syn.tau1 = .3	syn.tau2 = .6	syn.e = 0 	syn.sid=4	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				bcdend4 [0] syn = new Exp2Sid(0.5)	//GC(AMPA) syn to prox dend Geiger '97
+				syn.tau1 = .3	syn.tau2 = .6	syn.e = 0 	syn.sid=5	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				pre_list.append(templist)
+				findme=1
+			}
+		
+			if (strcmp(cellType[celltype].cellType_string,"mossycell")==0) {	// Connect to some mossy cells
+				templist = new List ()
+
+				bcdend1 [1] syn = new Exp2Sid(0.5)	//MC(AMPA) syn to apical IML dend
+				syn.tau1 = 0.9	syn.tau2 = 3.6	syn.e = 0 // *** Estimated based on CA3>BC min stim Dingledine '95
+															syn.sid=6	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				bcdend2 [1] syn = new Exp2Sid(0.5)	//MC(AMPA) syn to apical IML dend
+				syn.tau1 = 0.9	syn.tau2 = 3.6	syn.e = 0 // *** Estimated based on CA3>BC min stim Dingledine '95
+															syn.sid=7	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				pre_list.append(templist)
+				findme=1
+			}
+		
+			if (strcmp(cellType[celltype].cellType_string,"pvbasketcell")==0) {	// Connect to some basket cells
+				templist = new List ()
+
+				bcdend1 [1] syn = new Exp2Sid(0.5)	//BC(GABA) syn to apical IML dend Bartos
+				syn.tau1 = 0.16		syn.tau2 = 1.8	syn.e = -70 	syn.sid=8	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				bcdend2 [1] syn = new Exp2Sid(0.5)	//BC(GABA) syn to apical IML dend Bartos
+				syn.tau1 = 0.16		syn.tau2 = 1.8	syn.e = -70 	syn.sid=9	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				pre_list.append(templist)
+				findme=1
+			}
+
+		
+			if (strcmp(cellType[celltype].cellType_string,"olmcell")==0) {	// Connect to some hipp cells
+				templist = new List ()
+
+				bcdend1 [3] syn = new Exp2Sid(0.5)	//HIPP(GABA) syn to apical distal dend 
+				syn.tau1 = 0.4	syn.tau2 = 5.8	syn.e = -70 // *** Estimated as HIPP>GC
+															syn.sid=10	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				bcdend2 [3] syn = new Exp2Sid(0.5)	//HIPP(GABA) syn to apical distal dend 
+				syn.tau1 = 0.4	syn.tau2 = 5.8	syn.e = -70 // *** Estimated as HIPP>GC
+															syn.sid=11	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				pre_list.append(templist)
+				findme=1
+			}
+			if (findme==0) {
+				templist = new List ()
+				pre_list.append(templist)		
+				findme=1
+			}
+		}
+	}
+
+	proc connect_pre() {  // $o1 target point process, $o2 returned NetCon
+	soma $o2 = new NetCon (&v(1), $o1)
+			$o2.threshold = 10 //except for bcell to bcell, which is -10???
+
+	}
+
+	func is_art()  { return 0 }
+
+	proc position(){xx=$1  yy=$2  zz=$3}
+
+	endtemplate pvbasketcell

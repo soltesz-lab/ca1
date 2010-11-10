@@ -1,0 +1,39 @@
+//'model-3.0'
+// Operational parameters
+flagprint= 1		// controls how many notes print to screen. 0=few, 1=some, 2=many
+printNumCon = 1		// Controls whether to print the Number of Connections (1=yes, 0=no)
+printPosition = 1	// Controls whether to print the position list (1=yes, 0=no)
+printConMat = 0		// Controls whether to print the detailed Connection list
+					//	(2=yes immediately, 1=yes at end of program, 0=no)
+
+// Model parameters
+dentateXLength = 10000 // X Length of dentate in microns
+dentateYLength = 2000 // Y Length of dentate in microns
+
+objref dentateZLength
+dentateZLength=new Vector(3)	// List of Zo (starting height) values, 1 for each layer (3 layers)
+dentateZLength.x[0] = 500		// Height of the hilar layer in microns
+dentateZLength.x[1] = 100 		// Height of the granule cell layer in microns
+dentateZLength.x[2] = 400 	// Height of the molecular layer in microns
+
+tstart = 0		// Start time of simulation
+tstop = 200		// Stop time of simulation
+dt = 0.1		// Integration interval for fadvance (see NEURON reference)
+
+percentSprouting = 0	// Set % of mossy fiber (granule cell) sprouting
+percentSclerosis = 0	// Set % of cell death, for cells flagged as susceptible to death
+connectionFactor = 500 // Set factor to control # connections formed in the network;
+						// 	changes depending on total # cells
+axconvel = 250			// axonal conduction velocity in microns/ms (Bartos et al. 2002)
+
+secondorder= 2	// A global variable which specifies the time integration method
+				// 	(see NEURON reference)
+v_init = -60				// All voltages of all sections are initialized to this voltage (mV)
+N = 1						// Specifies step resolution (see NEURON reference for steps_per_ms),
+							// 	sometimes 1, sometimes 4
+steps_per_ms = 1*N/(dt)		// Controls the intervals at which points are plotted
+noise_random_stream_offset_ = (tstop - tstart)/dt + 1	// Each noise generator picks a number every
+														// 	dt for the full time range, so stream
+														// 	sections must be at least this long to
+														// 	prevent overlap
+
