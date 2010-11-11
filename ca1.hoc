@@ -1,34 +1,4 @@
 /************************************************************
-Current version:
-Model-3.0
-	Delay,rands,adj layer height-MC	2010-01-28
-
-Previous version:
-Model-2.6
-	Multiple synapses allowed by MC	2009-12-03
-Model-2.5
-	3D model, adjustable bins by MC	2009-11-12
-Model-2.4
-	2D model, adjustable bins by MC	2009-11-12
-Model-2.3
-	more print options by MC		2009-10-15
-Model-2.2
-	Option-print ConMat/Pos by MC	2009-09-28
-Model-2.1
-	Print outs ASAP by Marianne		2009-09-08
-Model-2.0
-	Restructured by Marianne Case	2009-09-02
-	Parallelized by Michael Hines	2009-08-03
-50knet
-	Inherited from Rob Morgan		2009-04-20
-
-For the following details, consult the README.txt file:
-Version History
-Purpose of code
-Input files
-Output files
-Code Outline
-
 For even more information, consult ModelDoc.pdf
 ************************************************************/
 
@@ -43,11 +13,40 @@ I.  LOAD LIBRARIES &
 										// 	for the cell noise
 {load_file("./setupfiles/CellCategoryInfo.hoc")}		// Defines a CellCategoryInfo class used to store
 										// 	celltype-specific parameters
+{load_file("./setupfiles/defaultvar.hoc")} // proc definition for default_var procedure
 {load_file("./setupfiles/parameters.hoc")}			// Loads in operational and model parameters
 
 /***********************************************************************************************
 II. SET MODEL SIZE, CELL DEFINITIONS
 ***********************************************************************************************/
+objref dentateZLength
+proc SetOtherParameters() {
+	dentateZLength=new Vector(3)	// List of Zo (starting height) values, 1 for each layer (3 layers)
+	dentateZLength.x[0] = HilarHeight		// Height of the hilar layer in microns
+	dentateZLength.x[1] = GCLHeight 		// Height of the granule cell layer in microns
+	dentateZLength.x[2] = MolecularHeight 	// Height of the molecular layer in microns
+
+	axconvel = 250	// axonal conduction velocity in microns/ms (Bartos et al. 2002)
+	tstart = 0		// Start time of simulation
+	tstop = mytstop
+	dt = mydt		// Integration interval for fadvance (see NEURON reference)
+	secondorder = 2	// A global variable which specifies the time integration method
+								// 	(see NEURON reference)
+	v_init = -60	// All voltages of all sections are initialized to this voltage (mV)
+	N = 1			// Specifies step resolution (see NEURON reference for steps_per_ms),
+							// 	sometimes 1, sometimes 4
+
+	steps_per_ms = 1*N/(dt)		// Controls the intervals at which points are plotted
+	noise_random_stream_offset_ = (tstop - tstart)/dt + 1	// Each noise generator picks a number every
+															// 	dt for the full time range, so stream
+															// 	sections must be at least this long to
+															// 	prevent overlap
+	connectionFactor = 1 // Set factor to control # connections formed in the network;
+						// 	changes depending on total # cells and model size (Scale)
+	if (Scale==20) {connectionFactor = 5}
+	if (Scale==2000) {connectionFactor = 500}
+}	
+SetOtherParameters()	
 objref f2								// Define object reference for the cells2include file
 objref celltypestring[1], cellType[1]	// Define placeholder objects, redefine with correct size in fcn
 double cellnumvar[1], cellLayerflag[1], numCellTypes[1]	// Define placeholder doubles, redefine with correct size in fcn
@@ -146,10 +145,64 @@ iterator pcitr() {local i2, startgid	// Create iterator for use as a standard 'f
 		}
 	}
 }
-
+objref frec
+strdef cmd, dircmd, direx, comper, version, vercomment, mypath, userstr, machname, outfile
 proc typeout() {local i, rank, gid, srcid localobj tgt, f, cell// Write out the cell types & gid ranges
+	if (pc.id == 0) { 				// Write header to file 1 time only
+		sprint(dircmd, "ls results/%s", runname)
+		{system(dircmd, direx)}
+		{sprint(comper, "ls: cannot access results/%s: No such file or directory", runname)}
+		while (strcmp(direx,comper)!=0 && strcmp(direx,"")!=0 ) {
+			sprint(runname, "%sa", runname)
+			sprint(dircmd, "ls results/%s", runname)
+			{system(dircmd, direx)}
+			{sprint(comper, "ls: cannot access results/%s: No such file or directory", runname)}
+		}
+		printf(" so I will create it now\n")
+		sprint(dircmd, "mkdir results/%s", runname)
+		{system(dircmd, direx)}
+		sprint(dircmd, "cp ./setupfiles/lowindex.hoc ./results/%s", runname)
+		{system(dircmd, direx)}
+		
+		sprint(dircmd, "hg status", runname)
+		{system(dircmd, direx)}
+		if (strcmp(direx,"")>0 && testrun==0) {
+			printf("The current code version has not been committed")
+			{pc.runworker()} 	// Everything after this line is executed only by the host node
+								// "The master host returns immediately. Worker hosts start an infinite loop of requesting tasks for execution." 
+			{pc.done()}			// Sends the quit message to the worker processors, which then quit neuron
+			quit()	// Sends the quit message to the host processor, which then quits neuron
+		} else {
+			sprint(dircmd, "hg parent --template '{rev}: {desc}\n'")
+			{system(dircmd, direx)}
+			vercomment=direx
+			sprint(dircmd, "hg parent --template '{node}\n'")
+			{system(dircmd, direx)}
+			version=direx
+
+			system("pwd",mypath)
+			system("whoami", userstr)
+			{system("hostname", machname)}
+			sprint(outfile, "./results/%s/runreceipt.txt", runname)
+			frec = new File(outfile)
+			frec.wopen()
+			frec.printf("time=%f\n", startsw())
+			frec.printf("runname='%s'\n", runname)
+			frec.printf("runcomments='%s'\n", RunComments)
+			frec.printf("username='s'\n", userstr)
+			frec.printf("host0='%s'\n", machname)
+			frec.printf("model_vercomment='%s'\n", vercomment)
+			frec.printf("model_version='%s'\n", version)
+			frec.printf("model_path='%s'\n", mypath)
+			frec.printf("neuron_version='%s'\n", nrnversion(2)) // version number and mercurial changeset
+			printmyvars()
+			frec.close()
+		}	
+	}
+
 	pc.barrier()					// Wait for all ranks to get to this point
-	f = new File("./none/celltype.dat")
+	sprint(cmd,"./results/%s/celltype.dat", runname)
+	f = new File(cmd)
 	if (pc.id == 0) { 				// Write header to file 1 time only
 		f.wopen()
 		f.printf("celltype\ttypeIndex\trangeStart\trangeEnd\n")
@@ -159,7 +212,36 @@ proc typeout() {local i, rank, gid, srcid localobj tgt, f, cell// Write out the 
 		f.close()
 	}
 }
+/**/strdef thisline, getval, result, paramstr, testline
+/**/proc printmyvars() {local strlen localobj strobj, pfobj
+    strobj = new StringFunctions()
+
+	pfobj = new File()
+	pfobj.ropen("./setupfiles/parameters.hoc")
+	while (pfobj.gets(thisline)>-1) {
+		testline=thisline
+		strobj.left(testline, 1)
+		if (strcmp(testline,"d")==0) {
+			result=thisline
+			strobj.right(result, 13)
+			strlen = strobj.head(result, "\",", paramstr)
+			{sprint(getval, "printnow(%s, paramstr, %g)", paramstr, strobj.len(paramstr))}
+			{execute1(getval)}
+		}
+	}
+	pfobj.close
+}
+/**/proc printnow() {
+		if (argtype(1)==0) {
+			if ($3>0) {
+				sprint(getval, "paramval = %s", $s2) // Note that paramval cannot be a local variable
+				{execute1(getval)}
+				{frec.printf("%s = %g\n", paramstr, $1)}
+			}
+		}
+	}
 typeout()
+{pc.broadcast(runname, 0)}
 
 loadtime = startsw() - loadstart		// Calculate the set up time (now - recorded start time) in seconds
 if (pc.id == 0) {printf("\nTIME HOST 0: %g seconds (set up)\n************\n", loadtime)}
@@ -167,23 +249,22 @@ createstart = startsw()					// Record the start time of the cell creation
 /***********************************************************************************************
 IV. CREATE, UNIQUELY ID, AND POSITION CELLS
 ***********************************************************************************************/
-strdef cmd
 objref cells, ranconlist, ransynlist
 cells = new List()						
 ranconlist = new List()
 ransynlist = new List()
-	objref tblf						
-		tblf = new File("./none/ranseeds.dat")
+	objref tblf
+	{sprint(cmd,"./results/%s/ranseeds.dat", runname)}						
+	tblf = new File(cmd)
 if (pc.id == 0) { 								// Write header to file 1 time only
 		tblf.wopen()
-		tblf.printf("host\tcell\tseed\n")
+		{tblf.printf("host\tcell\tseed\n")}
 		tblf.close()
 	}
-
 proc createCells(){ local i, si, pci, cellind, runresult, gid	// Create cells and assign a GID to each cell
 	for cellind=1, numCellTypes-1 {
 		if (strcmp(cellType[cellind].cellType_string,"mossycell")==0) {	// Update the seed for the random # generators
-			usedseeds=noise_random_stream_offset_*(cellType[cellind].numCells+1)+1	// Calculate which section(s) of the random
+			{usedseeds=noise_random_stream_offset_*(cellType[cellind].numCells+1)+1}	// Calculate which section(s) of the random
 		}																			//	number stream have already been used
 	}
 
@@ -191,7 +272,7 @@ proc createCells(){ local i, si, pci, cellind, runresult, gid	// Create cells an
 		for pcitr(&i, &gid, cellType[cellind].cellStartGid, cellType[cellind].cellEndGid) {// use the pciter over all cells of this type
 			if (pc.gid_exists(gid)) {
 				sprint(cmd, "cellType[%g].CellList[%g]=new %s(%g)", cellind, i, cellType[cellind].cellType_string, gid+cellType[cellind].cellStartGid)
-				runresult=execute1(cmd) 		// This command was written as a string so
+				{runresult=execute1(cmd)} 		// This command was written as a string so
 												//	the cell object doesn't have to be hard coded
 				cells.append(cellType[cellind].CellList[i])	// Append each cell to cells list
 				ranconlist.append(new RandomStream(usedseeds+(gid*2*4)*random_stream_offset_))	// Create a new random number generator for each cell,
@@ -199,7 +280,7 @@ proc createCells(){ local i, si, pci, cellind, runresult, gid	// Create cells an
 																	//	will be used to determine which connections are made
 							//if (precellType==1 && postcellType==2) {
 								tblf.aopen()
-								tblf.printf("%d\t%d\t%d\n",  pc.id, gid, usedseeds+(gid*2*4)*random_stream_offset_)
+								{tblf.printf("%d\t%d\t%d\n",  pc.id, gid, usedseeds+(gid*2*4)*random_stream_offset_)}
 								tblf.close()
 							//}
 
@@ -248,10 +329,11 @@ proc createCells(){ local i, si, pci, cellind, runresult, gid	// Create cells an
 		return ((CellNum-1)%$4)*$5+$5/2+addheight
 	}
 createCells()
-
+strdef cmd
 proc posout() {local pci, rank, gid, srcid localobj tgt, f, cell	// Write out the 3d position coordinates of each cell
 	pc.barrier()					// Wait for all ranks to get to this point
-	f = new File("./none/position.dat")
+	sprint(cmd,"./results/%s/position.dat", runname)
+	f = new File(cmd)
 	if (pc.id == 0) { 				// Write header to file 1 time only
 		f.wopen()
 		f.printf("cell\tx\ty\tz\thost\n")
@@ -263,7 +345,7 @@ proc posout() {local pci, rank, gid, srcid localobj tgt, f, cell	// Write out th
 			for pcitr(&pci, &gid, cellType[1].cellStartGid, cellType[numCellTypes-1].cellEndGid) {		// Use the pciter over all non ppStim cells
 				if (pc.gid_exists(gid)) {	// If cell exists on this machine
 					cell = pc.gid2cell(gid)	// Refer to cell
-					f.printf("%d\t%d\t%d\t%d\t%d\n", gid, cell.xx, cell.yy, cell.zz, pc.id)
+					f.printf("%d\t%d\t%d\t%d\t%d\n", gid, cell.x, cell.y, cell.z, pc.id)
 				}
 			}		
 			f.close()
@@ -370,9 +452,15 @@ proc makeConnections () {local precellType, postcellType, precellStart, precellE
 
 			 sprint(tempString,"./connections/%s.%s",$s1,$s2)	// Get the file that specifies connection properties between these two cell types
 			 f2.ropen(tempString)
+			 if (f2.isopen) {
 			 synWeight = f2.scanvar
 			 synDelay = f2.scanvar
 			 synProb = f2.scanvar
+		 } else {
+			 synWeight = 0
+			 synDelay = 0
+			 synProb = 0
+		 }
 			 if ((strcmp($s1,"granulecell")==0) && (strcmp($s2,"granulecell")==0)) {synProb = synProb * percentSprouting/100}
 		}	 	// Reduce the probability of granule cell connection by the same degree as the sclerosis
 				//	because mossy fibers connecting back to granule cells are subject to sclerosis (?)
@@ -400,24 +488,24 @@ makeConnections()								// Try making connections between every type of cell
 proc perfPathConns() { local i, pci, jgid, celltype, counter localobj cell		// Connect the perforant path cells to the model cells
 	for i= cellType[0].cellStartGid, cellType[0].cellEndGid {
 		for celltype=1, numCellTypes-1 {
-			if (strcmp(cellType[celltype].cellType_string,"granulecell")==0) {	// Connect to some granule cells
+			if (strcmp(cellType[celltype].cellType_string,"pyramidalcell")==0) {	// Connect to some granule cells
 				// Make 1 connection to each cell in the middle 10% (45th - 54th percentiles) of the cell group -- only works if >2 granule cells
 				for pcitr(&pci, &jgid, cellType[celltype].cellStartGid + int(45/100*cellType[celltype].numCells) - 1, cellType[celltype].cellStartGid + int(54/100*cellType[celltype].numCells) - 1) {
 					if (pc.gid_exists(jgid)) {
 						cell = pc.gid2cell(jgid)
-						nc_appendo(i, cell, celltype, 0, 2e-2, 3)  
-						nc_appendo(i, cell, celltype, 1, 2e-2, 3) 
+						nc_appendo(i, cell, 0, 0, 2e-2, 3)  
+						nc_appendo(i, cell, 0, 1, 2e-2, 3) 
 						cellType[0].numCons.x[celltype] +=2
 					}
 				}
 			}
-			if (strcmp(cellType[celltype].cellType_string,"basketcell")==0) {	// Connect to some basket cells
+			if (strcmp(cellType[celltype].cellType_string,"pvbasketcell")==0) {	// Connect to some basket cells
 				// Make 1 connection to each cell in the middle 10% (45th - 54th percentiles) of the cell group -- only works if >2 basket cells
 				for pcitr(&pci, &jgid, cellType[celltype].cellStartGid + int(45/100*cellType[celltype].numCells) - 1, cellType[celltype].cellStartGid + int(54/100*cellType[celltype].numCells) - 1) {
 					if (pc.gid_exists(jgid)) {
 						cell = pc.gid2cell(jgid)
-						nc_appendo(i, cell, celltype, 0, 1e-2, 3) 
-						nc_appendo(i, cell, celltype, 1, 1e-2, 3)  
+						nc_appendo(i, cell, 0, 0, 1e-2, 3) 
+						nc_appendo(i, cell, 0, 1, 1e-2, 3)  
 						cellType[0].numCons.x[celltype] +=2
 					}
 				}	
@@ -441,7 +529,8 @@ perfPathConns()									// Make connections between the perforant path and some 
 
 proc printNumConFile() {local i, j localobj f
 	pc.barrier()									// Wait for all ranks to get to this point
-	f = new File("./none/numcons.dat")
+	sprint(cmd,"./results/%s/numcons.dat", runname)
+	f = new File(cmd)
 	if (pc.id == 0) { 								// Write header to file 1 time only
 		f.wopen()
 		f.printf("host\tpretype\tposttype\tnumCons\n")
@@ -464,7 +553,8 @@ if (printNumCon==1) {printNumConFile()}	// Write a summary file of all cell conn
 
 proc tracenet() {local i, rank, srcid localobj tgt, f	// Write out the connections list, including synapse type
 	pc.barrier()									// Wait for all ranks to get to this point
-	f = new File("./none/connections.dat")
+	sprint(cmd,"./results/%s/connections.dat", runname)
+	f = new File(cmd)
 	if (pc.id == 0) { 								// Write header to file 1 time only
 		f.wopen()
 		f.printf("source\ttarget\tsynapse\n")
@@ -527,14 +617,15 @@ proc rrun(){												// Run the network simulation
 	stdinit()									// Call the init fcn (which is redefined in this code) and then make other standard calls (to stop watch, etc)
 	pc.psolve(tstop)							// Equivalent to calling cvode.solve(tstop), for parallel NEURON, where solve will be broken into steps determined by the result of set_maxstep
 	runtime = startsw() - runstart				// Calculate runtime of simulation
-	if (pc.id == 0) {printf("****\nTIME SUMMARY for host 0\nset up in %g seconds\ncreated cells in %g seconds\nconnected cells in %g seconds\nran simulation in %g seconds\n************\n", loadtime, createtime, connecttime, runtime)}
+	if (pc.id == 0) {printf("****\nTIME SUMMARY for host 0\nset up in %g seconds\ncreated cells in %g seconds\nconnected cells in %g seconds\nran simulation in %g seconds\n************\nThis run is called: %s\n************\n", loadtime, createtime, connecttime, runtime, runname)}
 	spikeout()	// Write the file of spike times and spiking cells, "spikeraster.dat"
 	timeout()	// Write out a file of run times for each code section
 	if (printConMat==1) {tracenet()}	// Write the file of all cell connections (pre and post gids, synapse type, host on which cell exists), "connections.dat"
 }
 /**/proc spikeout() {local i, rank  localobj f				// Write out a spike raster (cell, spike time)
 		pc.barrier()									// Wait for all ranks to get to this point
-		f = new File("./none/spikeraster.dat")
+	sprint(cmd,"./results/%s/spikeraster.dat", runname)
+	f = new File(cmd)
 		if (pc.id == 0) { 								// Write header to file 1 time only
 			f.wopen()
 			f.close()
@@ -554,7 +645,8 @@ proc rrun(){												// Run the network simulation
 
 /**/proc timeout() {local i, rank, gid, srcid localobj tgt, f, cell// Write out runtimes for each processor
 		pc.barrier()					// Wait for all ranks to get to this point
-		f = new File("./none/runtimes.dat")
+	sprint(cmd,"./results/%s/runtimes.dat", runname)
+	f = new File(cmd)
 		if (pc.id == 0) { 				// Write header to file 1 time only
 			f.wopen()
 			f.printf("host\tset up\tcreated cells\tconnected cells\tran simulation\t\n")
@@ -572,4 +664,8 @@ proc rrun(){												// Run the network simulation
 	}
 
 rrun()	// Run the network simulation
-quit()	// Quit the program when finished to return control to command line
+
+{pc.runworker()} 	// Everything after this line is executed only by the host node
+					// "The master host returns immediately. Worker hosts start an infinite loop of requesting tasks for execution." 
+{pc.done()}			// Sends the quit message to the worker processors, which then quit neuron
+quit()	// Sends the quit message to the host processor, which then quits neuron

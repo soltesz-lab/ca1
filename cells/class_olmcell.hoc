@@ -1,31 +1,57 @@
 begintemplate olmcell
 
-ndend1=3
-ndend2=3
-ndend3=3
-ndend4=3
-public  pre_list, connect_pre, subsets, is_art, is_connected
+// public variables
+public  pre_list, connect_pre, append_sections, is_art, is_connected
 public soma, hcdend1, hcdend2, hcdend3, hcdend4
-create soma, hcdend1[ndend1], hcdend2[ndend2], hcdend3[ndend3], hcdend4[ndend4]
 public all, pdend, ddend
+public x, y, z, position
+
+// objects
 objref syn, pre_list, templist
-public xx, yy, zz, position
+
+// external variables
 external numCellTypes, cellType
 
+// create the sections[segments]
+create soma, hcdend1[3], hcdend2[3], hcdend3[3], hcdend4[3]
+
+// set the initialization code, which is run whenever a new object
+// of this class is instantiated
 proc init() {
-	pre_list = new List()
-	subsets()
-	temp()
-	synapse()
+	// cell sections: soma, dendrites, axon
+	append_sections() // append all sections to the section list
+	connect_sections()// connect soma, dendrites, axon
+	size_sections()	// set the size dimensions of each section
+	set_nseg()		// set the number of segments in each section
+	
+	// subcellular mechanisms: channels, pumps, transporters
+	insert_mechs()
+	set_biophys()
+	define_shape()
+
+	pre_list = new List() // define a list for the presynaptic connections
+	define_synapses()
 }
 
 objref all, pdend, ddend
+proc connect_sections() { local i
+	connect hcdend1[0](0), soma(1)
+	connect hcdend2[0](0), soma(1)
+	connect hcdend3[0](0), soma(0)
+	connect hcdend4[0](0), soma(0)
+	for i=1,2 {connect hcdend1[i](0), hcdend1[i-1](1)} // upper bound is # of segments - 1
+	for i=1,2 {connect hcdend2[i](0), hcdend2[i-1](1)} // upper bound is # of segments - 1
+	for i=1,2 {connect hcdend3[i](0), hcdend3[i-1](1)} // upper bound is # of segments - 1
+	for i=1,2 {connect hcdend4[i](0), hcdend4[i-1](1)} // upper bound is # of segments - 1
+}
 
-proc subsets() { local i
+
+
+proc append_sections() { local i
 	objref all, pdend, ddend
 	all = new SectionList()
 		soma all.append()
-		for i=0, 2 hcdend1 [i] all.append()
+		for i=0, 2 hcdend1 [i] all.append() // upper bound is # of segments - 1
 		for i=0, 2 hcdend2 [i] all.append()
 		for i=0, 2 hcdend3 [i] all.append()
 		for i=0, 2 hcdend4 [i] all.append()
@@ -37,101 +63,115 @@ proc subsets() { local i
 		hcdend4 [0] pdend.append()
 
 	ddend  = new SectionList()
-		for i=1, 2 hcdend1 [i] ddend.append()
+		for i=1, 2 hcdend1 [i] ddend.append() // upper bound is # of segments - 1
 		for i=1, 2 hcdend2 [i] ddend.append()
 		for i=1, 2 hcdend3 [i] ddend.append()
 		for i=1, 2 hcdend4 [i] ddend.append()
 }
 
-proc temp() {
-
-	soma {nseg=1 L=20 diam=10} // changed L & diam
+proc size_sections() {
+	soma {L=20 diam=10} // changed L & diam
 		
-	hcdend1 [0] {nseg=1 L=75 diam=3}
-	hcdend1 [1] {nseg=1 L=75 diam=2}
-	hcdend1 [2] {nseg=1 L=75 diam=1}
+	hcdend1 [0] {L=75 diam=3}
+	hcdend1 [1] {L=75 diam=2}
+	hcdend1 [2] {L=75 diam=1}
 
-	hcdend2 [0] {nseg=1 L=75 diam=3}
-	hcdend2 [1] {nseg=1 L=75 diam=2}
-	hcdend2 [2] {nseg=1 L=75 diam=1}
+	hcdend2 [0] {L=75 diam=3}
+	hcdend2 [1] {L=75 diam=2}
+	hcdend2 [2] {L=75 diam=1}
  		 
-	hcdend3 [0] {nseg=1 L=50 diam=3}
-	hcdend3 [1] {nseg=1 L=50 diam=2}
-	hcdend3 [2] {nseg=1 L=50 diam=1}
+	hcdend3 [0] {L=50 diam=3}
+	hcdend3 [1] {L=50 diam=2}
+	hcdend3 [2] {L=50 diam=1}
 	
-	hcdend4 [0] {nseg=1 L=50 diam=3}
-	hcdend4 [1] {nseg=1 L=50 diam=2}
-	hcdend4 [2] {nseg=1 L=50 diam=1}	
+	hcdend4 [0] {L=50 diam=3}
+	hcdend4 [1] {L=50 diam=2}
+	hcdend4 [2] {L=50 diam=1}	
+}
 
-    
+proc set_nseg() {
+  forsec all { nseg = 1 }
+}
+
+proc insert_mechs() {
 	forsec all {
 		insert iconc_Ca
 			catau_iconc_Ca = 10
 			caiinf_iconc_Ca = 5.e-6
 		insert ch_KvA
 			gkabar_ch_KvA=0.0008
+		insert ch_CavN  // HAV-N- Ca channel
+			gncabar_ch_CavN=0.0  
 		insert ch_CavL
 			glcabar_ch_CavL=0.0015
 		insert ch_KCaS
-			gmax_ch_KCaS=0.003
+			gskbar_ch_KCaS=0.003
 		insert ch_KvCaB
-			gmax_ch_KvCaB=0.003
+			gkbar_ch_KvCaB=0.003
 		insert ch_HCN
 			ghbar_ch_HCN=0.000015
 	}
 
 	soma {
-		insert ch_Nav
-			gmax_ch_Nav=0.2  
-		insert ch_Kdrfast
-			gmax_ch_Kdrfast=0.006  
-		insert ch_leak
-			g_ch_leak  = 0.000036
 		cm=1.1
+		
+		insert ch_Nav
+			gnatbar_ch_Nav=0.2  
+		insert ch_leak
+			g_ch_leak = 0.000036
+		insert ch_Kdrfast  //ildikos ichan
+			gkfbar_ch_Kdrfast=0.006  
 	} 
 
 	forsec pdend {
-		insert ch_Nav
-			gmax_ch_Nav=0.2  
-		insert ch_Kdrfast
-			gmax_ch_Kdrfast=0.006
-		insert ch_leak
-			g_ch_leak  = 0.000036
 		cm=1.1
+		
+		insert ch_Nav
+			gnatbar_ch_Nav=0.2  
+		insert ch_leak
+			g_ch_leak = 0.000036
+		insert ch_Kdrfast
+			gkfbar_ch_Kdrfast=0.006
 	}
 		
 	forsec ddend {
-		insert na_ion
-		insert ch_leak
-			g_ch_leak  = 0.000036
 		cm=1.1
+		
+		insert ch_Nav
+			gnatbar_ch_Nav=0.0
+		insert ch_leak
+			g_ch_leak = 0.000036
+		insert ch_Kdrfast
+			gkfbar_ch_Kdrfast=0.00
 	}
+}
 
-	connect hcdend1[0](0), soma(1)
-	connect hcdend2[0](0), soma(1)
-	connect hcdend3[0](0), soma(0)
-	connect hcdend4[0](0), soma(0)
-	for i=1,2 {connect hcdend1[i](0), hcdend1[i-1](1)}
-	for i=1,2 {connect hcdend2[i](0), hcdend2[i-1](1)}
-	for i=1,2 {connect hcdend3[i](0), hcdend3[i-1](1)}
-	for i=1,2 {connect hcdend4[i](0), hcdend4[i-1](1)}
-
+proc set_biophys() {
 	forsec all {
-		Ra=100
-		ek=-90
-		ena = 55 
+		Ra=100		// Ra = Axial resistivity in ohm-cm. Ra is a
+					//  section variable that must be set for each
+					//  section. Default is 35.4.
+	
+		ena = 55
+		ek=-90  
+		ekca=-90		// ek = reversal potential in mV. Associated with 
+		ekfa=-90		// ek = reversal potential in mV. Associated with 
+		ekls=-90		// ek = reversal potential in mV. Associated with 
 		elca=130
-		e_ch_leak =-70.45
-		eh = -40 
-		cao_iconc_Ca=2  // make catau slower70e-3 	cao=2 cai=50.e-6 
-	}
-	}
+		e_ch_leak =-70.45	
+		eh=-40 
+		ehys = eh
+		ehyf = eh
+		cao_iconc_Ca=2
+		
+		}  // make catau slower70e-3 	cao=2 cai=50.e-6 
+}
 
-	proc synapse() {	// Currently, there are no synapses defined for pp --> hipp (though previous code versions had this)
+	proc define_synapses() {	// Currently, there are no synapses defined for pp --> hipp (though previous code versions had this)
 		for celltype=0, numCellTypes-1 {
 			findme=0
 
-			if (strcmp(cellType[celltype].cellType_string,"pvbasketcell")==0) {	// Connect to some granule cells
+			if (strcmp(cellType[celltype].cellType_string,"pyramidalcell")==0) {	// Connect to some granule cells
 				templist = new List ()
 
 				hcdend1 [0] syn = new Exp2Sid(0.5)	//GC(AMPA) syn to prox dend similar to GC>BC
@@ -154,7 +194,30 @@ proc temp() {
 				findme=1
 			}
 
-			if (strcmp(cellType[celltype].cellType_string,"olmcell")==0) {	// Connect to some mossy cells
+			if (strcmp(cellType[celltype].cellType_string,"olmcell")==0) {	// Connect to some granule cells
+				templist = new List ()
+
+				hcdend1 [0] syn = new Exp2Sid(0.5)	//GC(AMPA) syn to prox dend similar to GC>BC
+				syn.tau1 = .3	syn.tau2 = .6	syn.e = 0 	syn.sid=0	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				hcdend2 [0] syn = new Exp2Sid(0.5)	//GC(AMPA) syn to prox dend similar to GC>BC
+				syn.tau1 = .3	syn.tau2 = .6	syn.e = 0 	syn.sid=1	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				hcdend3 [0] syn = new Exp2Sid(0.5)	//GC(AMPA) syn to prox dend similar to GC>BC
+				syn.tau1 = .3 syn.tau2 = .6	syn.e = 0 	syn.sid=2	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				hcdend4 [0] syn = new Exp2Sid(0.5)	//GC(AMPA) syn to prox dend similar to GC>BC
+				syn.tau1 = .3	syn.tau2 = .6	syn.e = 0 	syn.sid=3	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				pre_list.append(templist)
+				findme=1
+			}
+
+			if (strcmp(cellType[celltype].cellType_string,"pvbasketcell")==0) {	// Connect to some mossy cells
 				templist = new List ()
 
 				hcdend1 [1] syn = new Exp2Sid(0.5)	//MC(AMPA) syn to mid dend similar to CA3>int Aaron
@@ -196,6 +259,12 @@ proc temp() {
 
 	func is_art()  { return 0 }
 
-	proc position(){xx=$1  yy=$2  zz=$3}
-
+proc position(){ local i
+		forall {
+		for i = 0, n3d()-1 {
+			pt3dchange(i, $1-x+x3d(i), $2-y+y3d(i), $3-z+z3d(i), diam3d(i))
+		}
+}
+	x = $1  y = $2  z = $3	
+}
 	endtemplate olmcell

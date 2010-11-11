@@ -1,5 +1,6 @@
 syntax: glob
 x86_64/**
+jobscripts/**
 none/**
 *.*~
 spikeraster.dat
