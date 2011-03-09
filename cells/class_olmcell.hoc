@@ -160,8 +160,8 @@ proc set_biophys() {
 		elca=130
 		e_ch_leak =-70.45	
 		eh=-40 
-		ehys = eh
-		ehyf = eh
+		//ehys = eh
+		//ehyf = eh
 		cao_iconc_Ca=2
 		
 		}  // make catau slower70e-3 	cao=2 cai=50.e-6 
@@ -217,27 +217,31 @@ proc set_biophys() {
 				findme=1
 			}
 
+  	
+    	// from basket cell to here
+			if (strcmp(cellType[celltype].cellType_string,"cckcell")==0) {	// Connect to some pp stim cells
+				templist = new List ()
+
+  	/* I5 */   	soma syn = new MyExp2Sid(0.5)  //pre_list.append(syn)		// GABA-A	B cell
+    	syn.tau1 = 1
+    	syn.tau2 = 8
+    	syn.e = -75
+    	syn.sid=6
+				templist.append(syn)
+ 
+				pre_list.append(templist)
+				findme=1
+			}
+
+
 			if (strcmp(cellType[celltype].cellType_string,"pvbasketcell")==0) {	// Connect to some mossy cells
 				templist = new List ()
 
-				hcdend1 [1] syn = new Exp2Sid(0.5)	//MC(AMPA) syn to mid dend similar to CA3>int Aaron
-				syn.tau1 = .9	syn.tau2 = 3.6	syn.e = 0 //*** Assumed data at physio temp
+  	/* I5 */   	soma syn = new MyExp2Sid(0.5)  //pre_list.append(syn)		// GABA-A	B cell
+    	syn.tau1 = 1
+    	syn.tau2 = 8
+    	syn.e = -75
 															syn.sid=4	// sid: Set the synapse id for each synapse defined for cell
-				templist.append(syn)
-
-				hcdend2 [1] syn = new Exp2Sid(0.5)	//MC(AMPA) syn to mid dend similar to CA3>int Aaron
-				syn.tau1 = 0.9	syn.tau2 = 3.6	syn.e = 0 //*** Assumed data at physio temp
-															syn.sid=5	// sid: Set the synapse id for each synapse defined for cell
-				templist.append(syn)
-
-				hcdend3 [1] syn = new Exp2Sid(0.5)	//MC(AMPA) syn to mid dend similar to CA3>int Aaron
-				syn.tau1 = 0.9	syn.tau2 = 3.6	syn.e = 0  //*** Assumed data at physio temp
-															syn.sid=6	// sid: Set the synapse id for each synapse defined for cell
-				templist.append(syn)
-
-				hcdend4 [1] syn = new Exp2Sid(0.5)	//MC(AMPA) syn to mid dend similar to CA3>int Aaron
-				syn.tau1 = 0.9		syn.tau2 = 3.6 	syn.e = 0  //*** Assumed data at physio temp
-															syn.sid=7	// sid: Set the synapse id for each synapse defined for cell
 				templist.append(syn)
 
 				pre_list.append(templist)
@@ -254,7 +258,7 @@ proc set_biophys() {
 
 	proc connect_pre() {  // $o1 target point process, $o2 returned NetCon
 	soma $o2 = new NetCon (&v(1), $o1)
-			$o2.threshold = 10
+			$o2.threshold = -10
 	}
 
 	func is_art()  { return 0 }

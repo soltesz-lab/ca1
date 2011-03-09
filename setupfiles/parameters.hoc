@@ -1,4 +1,7 @@
-default_var("testrun",0)		// stop run if not using a committed Mercurial version
+// This file sets the default values of parameters
+//  in such a way that they can be overridden using
+//  certain options at the command line
+default_var("testrun",0)		// stop run if not using a committed Mercurial version (unless doing a testrun before commit)
 
 // Files to print
 default_var("flagprint",1)		// controls how many notes print to screen. 0=few, 1=some, 2=many
@@ -33,7 +36,7 @@ default_var("percentSprouting",0)	// Set % of mossy fiber (granule cell) sprouti
 default_var("percentSclerosis",percentSprouting)	// Set % of cell death, for cells flagged as susceptible to death
 
 // Model scale (1:X)
-default_var("Scale",2000) // Scale of model (1:X), so 1 is 1M cells, 20 is 50K cells, etc
+default_var("Scale",1000) // Scale of model (1:X), so 1 is 1M cells, 20 is 50K cells, etc
 
 // Simulation time and other settings
 default_var("mytstop",300)	// Stop time of simulation

@@ -1,5 +1,6 @@
 README for ca1.hoc
-Produced by: marianne.case@uci.edu
+For detailed information, view Model_Manual.pdf
+Produced by: marianne.case@uci.edu 2010
 
 PURPOSE OF CODE:
 This code creates a scalable network of cells and runs a simulation.
@@ -61,8 +62,13 @@ ranseeds.dat
 runreceipt.txt
 lowindex.hoc
 
+VIEWING THE RESULTS
+In the tools folder, there are several MATLAB scripts useful for viewing the model characteristics or simulation results:
+- Run Organizer
+- AutoRig
+
 USING MERCURIAL
-Mercurial is a code versioning program and this model is meant to be used with Mercurial.
+Mercurial is a code versioning program; this model is meant to be used with Mercurial.
 To get started:
 1. Download and install Mercurial from http://mercurial.selenic.com/
 2. At the command prompt, cd to the root folder of this model
@@ -84,7 +90,7 @@ To get started:
 SPECIFYING PARAMETER VALUES AT EXECUTION TIME
 Add the '-c' option, followed by the equation to set the parameter in quotes:
 	$ mpiexec -n 2 $NEURONHOME/nrn/x86_64/bin/nrniv -nobanner -nogui -mpi -c "mytstop=100" ca1.hoc	
-For strings, include another '-c' option to define the string and enclose the string value in with '\"':
+For strings, include another '-c' option to define the string and enclose the string value in '\"':
 	$ mpiexec -n 2 $NEURONHOME/nrn/x86_64/bin/nrniv -nobanner -nogui -mpi -c "strdef runname" "runname=\"myrun\"" ca1.hoc	
 
 CODE OUTLINE:

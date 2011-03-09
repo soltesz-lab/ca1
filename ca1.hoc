@@ -1,120 +1,112 @@
 /************************************************************
-For even more information, consult ModelDoc.pdf
+For more information, consult ModelDoc.pdf
 ************************************************************/
 
 loadstart = startsw()					// record the start time of the set up
 /***********************************************************************************************
-I.  LOAD LIBRARIES & 
+I.  LOAD LIBRARIES
 ***********************************************************************************************/
 {load_file("nrngui.hoc")}				// Standard definitions - NEURON library file
-{load_file("netparmpi.hoc")}			// Contains the template that defines the properties of the
-										// 	ParallelNetManager class
-{load_file("./setupfiles/ranstream.hoc")}			// Defines a RandomStream class used to produce random numbers
-										// 	for the cell noise
-{load_file("./setupfiles/CellCategoryInfo.hoc")}		// Defines a CellCategoryInfo class used to store
-										// 	celltype-specific parameters
-{load_file("./setupfiles/defaultvar.hoc")} // proc definition for default_var procedure
-{load_file("./setupfiles/parameters.hoc")}			// Loads in operational and model parameters
+
+{load_file("netparmpi.hoc")}			// Contains the template that defines the properties of
+										//  the ParallelNetManager class, which is used to set
+										//   up a network that runs on parallel processors
+										
+{load_file("./setupfiles/ranstream.hoc")}	// Contains the template that defines a RandomStream
+											//  class used to produce random numbers
+											// 	for the cell noise (what type of noise?)
+											
+{load_file("./setupfiles/CellCategoryInfo.hoc")}	// Contains the template that defines a 
+													//  CellCategoryInfo class used to store
+													// 	celltype-specific parameters
+													
+{load_file("./setupfiles/defaultvar.hoc")}	// Contains the proc definition for default_var proc
+
+{load_file("./setupfiles/parameters.hoc")}	// Loads in operational and model parameters that can
+											//  be changed at command line
+											
+{load_file("./setupfiles/set_other_parameters.hoc")}// Loads in operational and model parameters
+													//  that can't be changed at command line
 
 /***********************************************************************************************
 II. SET MODEL SIZE, CELL DEFINITIONS
 ***********************************************************************************************/
-objref dentateZLength
-proc SetOtherParameters() {
-	dentateZLength=new Vector(3)	// List of Zo (starting height) values, 1 for each layer (3 layers)
-	dentateZLength.x[0] = HilarHeight		// Height of the hilar layer in microns
-	dentateZLength.x[1] = GCLHeight 		// Height of the granule cell layer in microns
-	dentateZLength.x[2] = MolecularHeight 	// Height of the molecular layer in microns
+{load_file("./setupfiles/load_cell_category_info.hoc")}	// Reads the 'cells2include.hoc' file and
+														//  loads the information into one
+														//  'CellCategoryInfo' object for each cell
+														//  type (bio or art cells?). Info includes
+														//  number of cells, gid ranges, type name 
 
-	axconvel = 250	// axonal conduction velocity in microns/ms (Bartos et al. 2002)
-	tstart = 0		// Start time of simulation
-	tstop = mytstop
-	dt = mydt		// Integration interval for fadvance (see NEURON reference)
-	secondorder = 2	// A global variable which specifies the time integration method
-								// 	(see NEURON reference)
-	v_init = -60	// All voltages of all sections are initialized to this voltage (mV)
-	N = 1			// Specifies step resolution (see NEURON reference for steps_per_ms),
-							// 	sometimes 1, sometimes 4
+strdef tempFileStr						// Define a string reference to store the name of the
+										//  current cell template file
 
-	steps_per_ms = 1*N/(dt)		// Controls the intervals at which points are plotted
-	noise_random_stream_offset_ = (tstop - tstart)/dt + 1	// Each noise generator picks a number every
-															// 	dt for the full time range, so stream
-															// 	sections must be at least this long to
-															// 	prevent overlap
-	connectionFactor = 1 // Set factor to control # connections formed in the network;
-						// 	changes depending on total # cells and model size (Scale)
-	if (Scale==20) {connectionFactor = 5}
-	if (Scale==2000) {connectionFactor = 500}
-}	
-SetOtherParameters()	
-objref f2								// Define object reference for the cells2include file
-objref celltypestring[1], cellType[1]	// Define placeholder objects, redefine with correct size in fcn
-double cellnumvar[1], cellLayerflag[1], numCellTypes[1]	// Define placeholder doubles, redefine with correct size in fcn
-proc loadCellCategoryInfo() {local i, startpos	// Load celltype info into a CellCategoryInfo object, 1 per cell type 
-	f2 = new File()
-	f2.ropen("./setupfiles/cells2include.hoc")
-	numCellTypes = f2.scanvar			// # cell types, including pp cells
+proc loadCellTemplates(){local i		// Proc to load the template that defines (each) cell class
 
-	objref celltypestring[numCellTypes], cellType[numCellTypes]	// Define variables to temporarily hold data scanned from file
-	double cellnumvar[numCellTypes], cellLayerflag[numCellTypes]
-
-	for i=0, numCellTypes-1 {
-		celltypestring[i]= new String()
-		f2.scanstr(celltypestring[i].s)	// Scan in the cell name
-		cellnumvar[i]=f2.scanvar			// Scan in the initial (before sclerosis) number of each cell type
-		cellLayerflag[i]=f2.scanvar			// Scan the layer flag (hilar=2, granular=1, molecular=0), where hilar cells
-											//	are subject to sclerosis
-	}
-	f2.close()
-
-	startpos=0
-	for i=0, numCellTypes-1 {
-	cellType[i] = new CellCategoryInfo(i)	// Make one object for each cell type to store cell type info
-	cellType[i].setCellTypeParams(celltypestring[i].s, startpos, cellnumvar[i], cellLayerflag[i])	// Set parameters
-	cellType[i].numCons = new Vector(numCellTypes,0)
-	if (i>0) {cellType[i].setCellTypeDist}	// Load distribution file
-	startpos = startpos + cellnumvar[i]		// Increment the startGid for the next cell type's call to setCellTypeParams
-	}
-}
-loadCellCategoryInfo()
-
-strdef tempFileStr						// Define string reference for the names of the cell template files
-proc loadCellTemplates(){local i		// Define one template for each cell type in cells2include, plus perforant path cell(s)
-	for i=0, numCellTypes-1 {
-		sprint(tempFileStr,"./cells/class_%s.hoc",cellType[i].cellType_string)
-		load_file(tempFileStr)			// Load the cell type's class template
+	for i=0, numCellTypes-1 {			// Iterate over each cell type in cells2include (and art cells?)
+	
+		sprint(tempFileStr,"./cells/class_%s.hoc",cellType[i].cellType_string)	// Concatenate the
+																				//  path and file
+																				
+		load_file(tempFileStr)			// Load the file with the template that defines the class
+										//  for each cell type
 	}
 }	
+loadCellTemplates()						// Run the newly defined proc
 
-loadCellTemplates()
+proc calcNetSize(){local i				// Calculate the final network size (after any cell death)
 
-proc calcNetSize(){local i				// Calculate final network size after sclerosis
-	totalCells = 0						// Initialize totalCells so we can add to it iteratively in the for loop
-	ncell = cellType[0].numCells		// Initialize ncell so we can add to it iteratively in the for loop
-	for i=1,numCellTypes-1 {			// Run the following code for non ppstim cell types only
-		if (cellType[i].layerflag==0) {	// For cell types that are susceptible to death (sclerosis)
-			cellType[i].numCells = int(cellType[i].numCells * ((100-percentSclerosis)/100))	// Calculate the # of cells after sclerosis
-			if (cellType[i].numCells == 0) {cellType[i].numCells = 1}		// If all cells of a type are killed, add 1 back
+	totalCells = 0						// Initialize totalCells (which counts the number of 'real'
+										//  cells) so we can add to it iteratively in the 'for' loop
+										
+	ncell = cellType[0].numCells		// Initialize ncell (which counts all 'real' and 'artificial'
+										//  cells) so we can add to it iteratively in the 'for' loop
+										
+	for i=1,numCellTypes-1 {			// Run the following code for 'real' cell types only - need a different way of singling out real cells?
+	
+		if (cellType[i].layerflag==0) {	// For cell types in layer 0, which are susceptible to death
+		
+			cellType[i].numCells = int(cellType[i].numCells * ((100-percentSclerosis)/100))
+										// Calculate the number of cells surviving after cell loss
+			
+			if (cellType[i].numCells == 0) {cellType[i].numCells = 1}	// If all cells of one type
+																		//  are killed, let 1 live
 		}
-		cellType[i].updateGidRange(cellType[i-1].cellEndGid+1)	// Update the gid ranges for each cell type
-		totalCells = totalCells + cellType[i].numCells			// Total number of cells after sclerosis, not including pp cells
-		ncell = ncell + cellType[i].numCells 					// Total # cells including pp cells
+		cellType[i].updateGidRange(cellType[i-1].cellEndGid+1)	// Update the gid range for each
+																//  cell type
+		
+		totalCells = totalCells + cellType[i].numCells			// Update the total number of cells
+																//   after sclerosis, not including
+																//   artificial cells
+		
+		ncell = ncell + cellType[i].numCells 					// Update the total number of cells
+																//   after sclerosis, including
+																//   artificial cells
 	}
-	random_stream_offset_= (totalCells*2+2)	// How far down the stream to start the next stream section -
-											// 	must be higher than the length of each stream section, which
-											// 	is the # of times this thing will be called per cell x random type
+	random_stream_offset_= (totalCells*2+2)	// How far down the random 'stream' to start the next
+											//  stream section -the difference between the next
+											//  starting point and the previous one must be higher
+											//  than the length of each stream section, where each
+											//  section's length is equal to the # of times this 
+											//  generator will be called per cell x random type (what is x random type?)
 }
 calcNetSize()
 
 proc calcBinSize(){local NumGCells
-	for i=1, numCellTypes-1 {		// Set the number of bins in X, Y, Z dimensions using the dentate size and # granule cells
-		cellType[i].setBins(dentateXLength,dentateYLength,dentateZLength.x[cellType[i].layerflag])  //dentateZLength)
+
+	for i=1, numCellTypes-1 {		// Using the specified dimensions of the network (in um) and
+									//  the total number of cells of each type, set the number
+									//  of bins in X, Y, Z dimensions such that the cells will be
+									//  evenly distributed throughout the allotted volume
+	
+		cellType[i].setBins(dentateXLength,dentateYLength,dentateZLength.x[cellType[i].layerflag])  
+									// For the z length, use the height of the layer in which the
+									// cell somata are found for this cell type
 	}
 }
 calcBinSize()
 
 /***********************************************************************************************
-III.SET UP PARALLEL CAPABILITY
+III.SET UP PARALLEL CAPABILITY AND WRITE OUT RUN RECEIPT
 ***********************************************************************************************/
 objref pnm, pc, nc, nil
 proc parallelizer() {
@@ -126,9 +118,11 @@ proc parallelizer() {
 }
 parallelizer()
 
-iterator pcitr() {local i2, startgid	// Create iterator for use as a standard 'for' loop throughout given # cells
-// usage:
-// for pcitr(&i, &gid, it_start, it_end) {do stuff}	// it_start and it_end let you define range over which to iterate
+iterator pcitr() {local i2, startgid	// Create iterator for use as a standard 'for' loop
+										//  throughout given # cells usage:
+										//  for pcitr(&i, &gid, it_start, it_end) {do stuff}
+										//  it_start and it_end let you define range over
+										//  which to iterate
 	i1 = 0
 	numcycles = int($3/pc.nhost)
 	extra = $3%pc.nhost
@@ -136,8 +130,13 @@ iterator pcitr() {local i2, startgid	// Create iterator for use as a standard 'f
 	if (extra>pc.id) {addcycle=1}
 	startgid=(numcycles+addcycle)*pc.nhost+pc.id
 	if (startgid<=$4) {
-		for (i2=startgid; i2 <= $4; i2 += pc.nhost) {	// Just iterate through the cells on this host
-														//	(this works because of the roundrobin call made earlier)
+		for (i2=startgid; i2 <= $4; i2 += pc.nhost) {	// Just iterate through the cells on
+														//  this host(this simple statement
+														//  iterates through all the cells on
+														//  this host and only these cells because 
+														//  the roundrobin call made earlier dealt
+														//  the cells among the processors in an
+														//  orderly manner (like a deck of cards)
 				$&1 = i1
 				$&2 = i2
 				iterator_statement
@@ -145,107 +144,13 @@ iterator pcitr() {local i2, startgid	// Create iterator for use as a standard 'f
 		}
 	}
 }
-objref frec
-strdef cmd, dircmd, direx, comper, version, vercomment, mypath, userstr, machname, outfile
-proc typeout() {local i, rank, gid, srcid localobj tgt, f, cell// Write out the cell types & gid ranges
-	if (pc.id == 0) { 				// Write header to file 1 time only
-		sprint(dircmd, "ls results/%s", runname)
-		{system(dircmd, direx)}
-		{sprint(comper, "ls: cannot access results/%s: No such file or directory", runname)}
-		while (strcmp(direx,comper)!=0 && strcmp(direx,"")!=0 ) {
-			sprint(runname, "%sa", runname)
-			sprint(dircmd, "ls results/%s", runname)
-			{system(dircmd, direx)}
-			{sprint(comper, "ls: cannot access results/%s: No such file or directory", runname)}
-		}
-		printf(" so I will create it now\n")
-		sprint(dircmd, "mkdir results/%s", runname)
-		{system(dircmd, direx)}
-		sprint(dircmd, "cp ./setupfiles/lowindex.hoc ./results/%s", runname)
-		{system(dircmd, direx)}
-		
-		sprint(dircmd, "hg status", runname)
-		{system(dircmd, direx)}
-		if (strcmp(direx,"")>0 && testrun==0) {
-			printf("The current code version has not been committed")
-			{pc.runworker()} 	// Everything after this line is executed only by the host node
-								// "The master host returns immediately. Worker hosts start an infinite loop of requesting tasks for execution." 
-			{pc.done()}			// Sends the quit message to the worker processors, which then quit neuron
-			quit()	// Sends the quit message to the host processor, which then quits neuron
-		} else {
-			sprint(dircmd, "hg parent --template '{rev}: {desc}\n'")
-			{system(dircmd, direx)}
-			vercomment=direx
-			sprint(dircmd, "hg parent --template '{node}\n'")
-			{system(dircmd, direx)}
-			version=direx
 
-			system("pwd",mypath)
-			system("whoami", userstr)
-			{system("hostname", machname)}
-			sprint(outfile, "./results/%s/runreceipt.txt", runname)
-			frec = new File(outfile)
-			frec.wopen()
-			frec.printf("time=%f\n", startsw())
-			frec.printf("runname='%s'\n", runname)
-			frec.printf("runcomments='%s'\n", RunComments)
-			frec.printf("username='s'\n", userstr)
-			frec.printf("host0='%s'\n", machname)
-			frec.printf("model_vercomment='%s'\n", vercomment)
-			frec.printf("model_version='%s'\n", version)
-			frec.printf("model_path='%s'\n", mypath)
-			frec.printf("neuron_version='%s'\n", nrnversion(2)) // version number and mercurial changeset
-			printmyvars()
-			frec.close()
-		}	
-	}
-
-	pc.barrier()					// Wait for all ranks to get to this point
-	sprint(cmd,"./results/%s/celltype.dat", runname)
-	f = new File(cmd)
-	if (pc.id == 0) { 				// Write header to file 1 time only
-		f.wopen()
-		f.printf("celltype\ttypeIndex\trangeStart\trangeEnd\n")
-		for i=0, numCellTypes-1 {
-			f.printf("%s\t%d\t%d\t%d\n", cellType[i].cellType_string, i, cellType[i].cellStartGid, cellType[i].cellEndGid)
-		}
-		f.close()
-	}
-}
-/**/strdef thisline, getval, result, paramstr, testline
-/**/proc printmyvars() {local strlen localobj strobj, pfobj
-    strobj = new StringFunctions()
-
-	pfobj = new File()
-	pfobj.ropen("./setupfiles/parameters.hoc")
-	while (pfobj.gets(thisline)>-1) {
-		testline=thisline
-		strobj.left(testline, 1)
-		if (strcmp(testline,"d")==0) {
-			result=thisline
-			strobj.right(result, 13)
-			strlen = strobj.head(result, "\",", paramstr)
-			{sprint(getval, "printnow(%s, paramstr, %g)", paramstr, strobj.len(paramstr))}
-			{execute1(getval)}
-		}
-	}
-	pfobj.close
-}
-/**/proc printnow() {
-		if (argtype(1)==0) {
-			if ($3>0) {
-				sprint(getval, "paramval = %s", $s2) // Note that paramval cannot be a local variable
-				{execute1(getval)}
-				{frec.printf("%s = %g\n", paramstr, $1)}
-			}
-		}
-	}
-typeout()
-{pc.broadcast(runname, 0)}
+{load_file("./setupfiles/save_run_info.hoc")}
 
 loadtime = startsw() - loadstart		// Calculate the set up time (now - recorded start time) in seconds
 if (pc.id == 0) {printf("\nTIME HOST 0: %g seconds (set up)\n************\n", loadtime)}
 createstart = startsw()					// Record the start time of the cell creation
+
 /***********************************************************************************************
 IV. CREATE, UNIQUELY ID, AND POSITION CELLS
 ***********************************************************************************************/
@@ -253,419 +158,159 @@ objref cells, ranconlist, ransynlist
 cells = new List()						
 ranconlist = new List()
 ransynlist = new List()
-	objref tblf
-	{sprint(cmd,"./results/%s/ranseeds.dat", runname)}						
-	tblf = new File(cmd)
-if (pc.id == 0) { 								// Write header to file 1 time only
-		tblf.wopen()
-		{tblf.printf("host\tcell\tseed\n")}
-		tblf.close()
-	}
-proc createCells(){ local i, si, pci, cellind, runresult, gid	// Create cells and assign a GID to each cell
-	for cellind=1, numCellTypes-1 {
-		if (strcmp(cellType[cellind].cellType_string,"mossycell")==0) {	// Update the seed for the random # generators
-			{usedseeds=noise_random_stream_offset_*(cellType[cellind].numCells+1)+1}	// Calculate which section(s) of the random
-		}																			//	number stream have already been used
-	}
 
-	for cellind=0, numCellTypes-1 {
-		for pcitr(&i, &gid, cellType[cellind].cellStartGid, cellType[cellind].cellEndGid) {// use the pciter over all cells of this type
-			if (pc.gid_exists(gid)) {
-				sprint(cmd, "cellType[%g].CellList[%g]=new %s(%g)", cellind, i, cellType[cellind].cellType_string, gid+cellType[cellind].cellStartGid)
-				{runresult=execute1(cmd)} 		// This command was written as a string so
-												//	the cell object doesn't have to be hard coded
-				cells.append(cellType[cellind].CellList[i])	// Append each cell to cells list
-				ranconlist.append(new RandomStream(usedseeds+(gid*2*4)*random_stream_offset_))	// Create a new random number generator for each cell,
-																	//	with a unique stream section defined by the starting location.  This
-																	//	will be used to determine which connections are made
-							//if (precellType==1 && postcellType==2) {
-								tblf.aopen()
-								{tblf.printf("%d\t%d\t%d\n",  pc.id, gid, usedseeds+(gid*2*4)*random_stream_offset_)}
-								tblf.close()
-							//}
+{load_file("./setupfiles/position_functions.hoc")}	// Defines the algorithm used to set the
+													//  positions of the cells
+													
+{load_file("./setupfiles/create_cells_pos.hoc")}	// Creates each cell on its assigned host
+													//  and sets its position using the algorithm
+													//  defined above
 
-				ranconlist.object(int(gid/pc.nhost)).r.uniform(0,1)// Set up the generator to pick a uniform dist of numbers between 0 and 1
-																	// int(gid/pc.nhost) gives the stream number on that host
-
-				ransynlist.append(new RandomStream(usedseeds+(gid*2+1)*random_stream_offset_))	// Create a new random number generator for each cell,
-																								//	with a unique stream. This will be used to determine
-																								//	what type of synapse is used in connections
-				cellType[cellind].CellList[i].connect_pre(nil, nc)	// Create an empty connection for use by the spike detector
-				pc.cell(gid, nc)									// Associate the cell with its gid and its spike generation location
-				
-				if (cellind>0) {									// For non ppstim cells, assign position, initialize synapse cid and sid
-					for si=0, cellType[cellind].CellList[i].pre_list.count-1 {	// Iterate over each pre cell type's synapse list
-						for j=0, cellType[cellind].CellList[i].pre_list.o(si).count-1 {		// Iterate through each synapse in the list
-							cellType[cellind].CellList[i].pre_list.o(si).o(j).cid=gid			// Set the cell id for each synapse
-																								//  Note: Parameters added to Syn2Gid mechanism
-						}
-					}
-					xpos=xpos_algorithm(gid,cellType[cellind].numCells,cellType[cellind].cellStartGid,cellType[cellind].dentateXBins,cellType[cellind].dentateYBins*cellType[cellind].dentateZBins,cellType[cellind].dentateXBinSize)	// Algorithmically generate cell position
-					ypos=ypos_algorithm(gid,cellType[cellind].numCells,cellType[cellind].cellStartGid,cellType[cellind].dentateYBins,cellType[cellind].dentateZBins,cellType[cellind].dentateYBinSize)	// Algorithmically generate cell position
-					zpos=zpos_algorithm(gid,cellType[cellind].numCells,cellType[cellind].cellStartGid,cellType[cellind].dentateZBins,cellType[cellind].dentateZBinSize,cellType[cellind].layerflag)	// Algorithmically generate cell position
-					cellType[cellind].CellList[i].position(xpos,ypos,zpos)									// Record cell position in cell object
-					
-					if ((i%int(cellType[cellind].numCells/10+1) == 0) && (flagprint>1)) {print cellType[cellind].cellType_string, ": ", i}
-				}
-			}
-		} 
-	}
-
-	nc = nil // Then clear the reference to the netcon object, which should destroy the netcon (because all refs would have been removed)
-	if  (flagprint>0) {print "Host ", pc.id, " created cells."}
-}
-/**/func xpos_algorithm() {local addamt CellNum // Arguments: 1-gid, 2-numCells, 3-startGid, 4-binNum, 5- binNum, 6-binSize; Return: x position of cell
-		CellNum=$1 - $3+1
-		return (int((CellNum-1)/$5)%$4)*$6+$6/2
-	}
-/**/func ypos_algorithm() {local CellNum // Arguments: gid, numCells, startGid, binNum, binNum, binSize; Return: y position of cell
-		CellNum=$1 - $3+1
-		return (int((CellNum-1)/$5)%$4)*$6+$6/2
-	}
-/**/func zpos_algorithm() {local CellNum, addheight // Arguments: 1-gid, 2-numCells, 3-startGid, 4-binNum, 5-binSize, cell layer Zo; Return: z position of cell
-		CellNum=$1 - $3+1
-		addheight=0
-		if ($6>0) {addheight=dentateZLength.sum(0,$6-1)}
-		return ((CellNum-1)%$4)*$5+$5/2+addheight
-	}
-createCells()
 strdef cmd
-proc posout() {local pci, rank, gid, srcid localobj tgt, f, cell	// Write out the 3d position coordinates of each cell
-	pc.barrier()					// Wait for all ranks to get to this point
-	sprint(cmd,"./results/%s/position.dat", runname)
-	f = new File(cmd)
-	if (pc.id == 0) { 				// Write header to file 1 time only
-		f.wopen()
-		f.printf("cell\tx\ty\tz\thost\n")
-		f.close()
-	}
-	for rank = 0, pc.nhost-1 {				// For each processor, allow processor to append to file the positions of its cells
-		if (rank == pc.id) {				// Ensure that each processor runs once
-			f.aopen() 						// Open for appending to file
-			for pcitr(&pci, &gid, cellType[1].cellStartGid, cellType[numCellTypes-1].cellEndGid) {		// Use the pciter over all non ppStim cells
-				if (pc.gid_exists(gid)) {	// If cell exists on this machine
-					cell = pc.gid2cell(gid)	// Refer to cell
-					f.printf("%d\t%d\t%d\t%d\t%d\n", gid, cell.x, cell.y, cell.z, pc.id)
-				}
-			}		
-			f.close()
-		}
-		pc.barrier()
-	}
-}
-if (printPosition>0) {posout()}	// Write the 3d position of each cell (gid, x, y, z), "position.dat"
-
+{load_file("./setupfiles/write_positions.hoc")}		// Defines the proc to write the position
+													//  of each cell to file
+													
+if (printPosition>0) {posout()}	// Calls the proc that writes the position of each cell to the
+								//  file "position.dat" in the format: gid, x, y, z
 
 createtime = startsw() - createstart	// Calculate time taken to create the cells
 if (pc.id == 0) {printf("\nTIME HOST 0: %g seconds (created cells)\n************\n", createtime)}
 connectstart = startsw()				// Grab start time of cell connection
+
 /***********************************************************************************************
-V.	CONNECT THE CELLS AND CONNECT THE PERFORANT PATH TO SOME CELLS
+V.	CONNECT THE MODEL CELLS AND CONNECT THE STIMULATION CELLS TO SOME MODEL CELLS
 ***********************************************************************************************/
-strdef precellType_string, postcellType_string
-proc makeConnections () {local precellType, postcellType, precellStart, precellEnd, postcellStart, postcellEnd, i, j
-	// Attempt to connect all cells of each pre and post type
+{load_file("./setupfiles/nc_append_functions.hoc")}	// Defines nc_append and nc_appendo, which 
+													//  are procs (?) needed to create the netcon
+													//  object associated with each connection
+													//  (synapse)
+													
+strdef conntype
+{conntype="try_all_random"} // conntype = [try_all_random]
+{sprint(cmd,"./setupfiles/%s_connections.hoc", conntype)}
+{load_file(cmd)}			// Loads in a particular definition of the connectCells function,
+							//  depending on the value of the conntype string
 
-	for i = 1, numCellTypes-1 {		// Don't connect pp stim cells here - they have own function later
-		precellType_string =  cellType[i].cellType_string	// Load cell type string used to grab connection-specific properties later
-		precellStart = cellType[i].cellStartGid				// Load cell type start gid
-		precellEnd = cellType[i].cellEndGid					// Load cell type end gid
+strdef stimtype
+{stimtype="spontaneous"} // stimtype = [pulse | spontaneous | grid]
+{sprint(cmd,"./stimulation/%s_stimulation.hoc", stimtype)}
+{load_file(cmd)}			// Loads in a particular stimulation protocol, including the spike
+							//  vectors for the artificial cells and their connections to the
+							//  'real' cells (where do we define the # of art cells and create them?)
 
-		for j = 1, numCellTypes-1 {	// ppstim cells are never the post synaptic cell in a connection, so exclude here
-			postcellStart = cellType[j].cellStartGid		// Load cell type start gid
-			postcellEnd = cellType[j].cellEndGid			// Load cell type end gid
-			postcellType_string = cellType[j].cellType_string	// Load cell type string used to grab connection-specific properties later
-			cellType[i].numCons.x[j]=connectCells (i, j, precellStart, precellEnd, postcellStart, postcellEnd, precellType_string, postcellType_string)
-		}			
-	}
-	if ((flagprint>0)) {print "Host ", pc.id, " connected cells."}
-}
-	objref randnum, synRand
-
-/**/func connectCells () {local rnum, syn, distance, counter, preNum, postNum, pcj, igid, jgid, xrand, precellType, postcellType, precellStart, precellEnd, postcellStart, postcellEnd, i, j, randSynNumber, pre_zpos, post_zpos , pre_xpos, post_xpos, pre_ypos, post_ypos, numSynTypes localobj cell
-		// Args: precellType, postcellType, precellStart, precellEnd, postcellStart
-		// 		 postcellEnd, precellType_string, postcellType_string.
-		 precellType = $1
-		 postcellType = $2
-		 precellStart = $3
-		 precellEnd = $4
-		 postcellStart = $5
-		 postcellEnd = $6
-		 preNum =cellType[precellType].numCells		// Look up the number of cells of the pre-synaptic type
-		 postNum =cellType[postcellType].numCells	// Look up the number of cells of the post-synaptic type
-		 counter=0
-
-		getSynapseData($s7, $s8)	// Given the pre and post cell types, look up the weight, delay,
-									//	and probability of connection between these two types
-
-		if (flagprint>1) {print "Host ", pc.id, " is connecting: ", $s7, "s to ", $s8, "s."}
-
-		if (synProb != 0) {
-			for pcitr(&j, &jgid, postcellStart, postcellEnd) {	// For each post-syn cell on this host (limit only the
-																//	post-syn cell to ensure we try all connection possibilities
-																//	(this limit ensures the hosts don't duplicate work)
-				pcj=int(jgid/pc.nhost)
-				if (pc.gid_exists(jgid)) {			// Check if cell exists on this machine
-					cell = pc.gid2cell(jgid)
-					numSynTypes = cell.pre_list.o(precellType).count
-					post_xpos = xpos_algorithm(jgid,postNum,postcellStart,cellType[postcellType].dentateXBins,cellType[postcellType].dentateYBins*cellType[postcellType].dentateZBins,cellType[postcellType].dentateXBinSize)	// Calculate the position algorithmically rather than trying to look it up
-					post_ypos = ypos_algorithm(jgid,postNum,postcellStart,cellType[postcellType].dentateYBins,cellType[postcellType].dentateZBins,cellType[postcellType].dentateYBinSize)	// Calculate the position algorithmically rather than trying to look it up
-					post_zpos = zpos_algorithm(jgid,postNum,postcellStart,cellType[postcellType].dentateZBins,cellType[postcellType].dentateZBinSize,cellType[postcellType].layerflag)	// Calculate the position algorithmically rather than trying to look it up
-					ransynlist.object(pcj).r.discunif(0,numSynTypes-1)		// Create a uniform random INTEGER variable over the range specified (0 to # synapse types-1),
-					for igid = precellStart, precellEnd {					// For each pre-syn cell
-						pre_xpos=xpos_algorithm(igid,preNum,precellStart,cellType[precellType].dentateXBins,cellType[precellType].dentateYBins*cellType[precellType].dentateZBins,cellType[precellType].dentateXBinSize)	// Calculate the position algorithmically
-						pre_ypos=ypos_algorithm(igid,preNum,precellStart,cellType[precellType].dentateYBins,cellType[precellType].dentateZBins,cellType[precellType].dentateYBinSize)	// Calculate the position algorithmically
-						pre_zpos=zpos_algorithm(igid,preNum,precellStart,cellType[precellType].dentateZBins,cellType[precellType].dentateZBinSize,cellType[precellType].layerflag)	// Calculate the position algorithmically
-						distance = sqrt((pre_xpos - post_xpos)^2 + (pre_ypos - post_ypos)^2 + (pre_zpos - post_zpos)^2)	// Find the distance between the pre and post cell in microns
-						distprob = (1/cellType[precellType].dist.x[0])*exp(-((distance-cellType[precellType].dist.x[1])/cellType[precellType].dist.x[2])^2)
-						conDelay=distance/axconvel
-						if (conDelay<2*dt) {conDelay=2*dt}	// conDelay can't be 0 and can't be less than dt for fixed step method
-						gapDelay=dt // Use this for gap junction synapses
-						// Two possible approaches
-						// DETERMINE WHETHER TO MAKE CONNECTION, THEN WHICH TYPE TO MAKE  - how Rob did it
-						if (ranconlist.object(pcj).repick < (connectionFactor * synProb * distprob)) { // Determine whether a
-																								//	connection will be made between these two cells
-							randSynNumber = ransynlist.object(pcj).repick	// Randomly pick a synapse type from the available synapse types
-							nc_append(igid, jgid, precellType, randSynNumber, synWeight, conDelay)	// Make the connection
-							counter +=1
-						}
-						// DETERMINE WHETHER TO MAKE EACH TYPE OF CONNECTION - How we may do it if we need to make multiple conns between 2 cells
-						//for syn = 0, numSynTypes-1 {
-						//	rnum=ranconlist.object(pcj).repick
-						//	if (rnum < ((synProb*distprob/numSynTypes + connectionFactor)/(1 + connectionFactor))) {	// Determine whether a
-						//																					//	connection will be made between these two cells
-						//		randSynNumber = ransynlist.object(pcj).repick	// Randomly pick a synapse type from the available synapse types
-						//		nc_appendo(igid, cell, precellType, syn, synWeight, synDelay)	// Make the connection
-						//		counter +=1
-						//	}
-						//}							
-					}
-				} else {print "Host ", pc.id, " couldn't make connections to cell ", jgid}
-			}
-		}
-		return counter
-	}
-		objref  f2
-/**/	proc getSynapseData () {	// Args: precelltype name, postcelltype name
-			 strdef tempString
-			 f2 = new File()
-
-			 sprint(tempString,"./connections/%s.%s",$s1,$s2)	// Get the file that specifies connection properties between these two cell types
-			 f2.ropen(tempString)
-			 if (f2.isopen) {
-			 synWeight = f2.scanvar
-			 synDelay = f2.scanvar
-			 synProb = f2.scanvar
-		 } else {
-			 synWeight = 0
-			 synDelay = 0
-			 synProb = 0
-		 }
-			 if ((strcmp($s1,"granulecell")==0) && (strcmp($s2,"granulecell")==0)) {synProb = synProb * percentSprouting/100}
-		}	 	// Reduce the probability of granule cell connection by the same degree as the sclerosis
-				//	because mossy fibers connecting back to granule cells are subject to sclerosis (?)
-		objref nclist
-		nclist = new List()
-/**/	func nc_append() { localobj cell, nc	// Connect cell to synapse and set synapse properties
-			if (pc.gid_exists($2)) {			// Check if cell exists on this machine
-				cell = pc.gid2cell($2)			
-				nc = pc.gid_connect($1, cell.pre_list.o($3).o($4))	// Connect the soma of the pre cell to the synapse on the post cell
-				nc.weight = $5					// Set a synaptic connection weight
-				nc.delay = $6					// Set a delay time (axonal delay)
-				nclist.append(nc)
-			}
-			return nclist.count-1
-		}
-/**/	func nc_appendo() { localobj  nc	// Connect cell to synapse and set synapse properties
-				nc = pc.gid_connect($1, $o2.pre_list.o($3).o($4))	// Connect the soma of the pre cell to the synapse on the post cell
-				nc.weight = $5					// Set a synaptic connection weight
-				nc.delay = $6					// Set a delay time (axonal delay)
-				nclist.append(nc)
-			return nclist.count-1
-		}
-makeConnections()								// Try making connections between every type of cell
-
-proc perfPathConns() { local i, pci, jgid, celltype, counter localobj cell		// Connect the perforant path cells to the model cells
-	for i= cellType[0].cellStartGid, cellType[0].cellEndGid {
-		for celltype=1, numCellTypes-1 {
-			if (strcmp(cellType[celltype].cellType_string,"pyramidalcell")==0) {	// Connect to some granule cells
-				// Make 1 connection to each cell in the middle 10% (45th - 54th percentiles) of the cell group -- only works if >2 granule cells
-				for pcitr(&pci, &jgid, cellType[celltype].cellStartGid + int(45/100*cellType[celltype].numCells) - 1, cellType[celltype].cellStartGid + int(54/100*cellType[celltype].numCells) - 1) {
-					if (pc.gid_exists(jgid)) {
-						cell = pc.gid2cell(jgid)
-						nc_appendo(i, cell, 0, 0, 2e-2, 3)  
-						nc_appendo(i, cell, 0, 1, 2e-2, 3) 
-						cellType[0].numCons.x[celltype] +=2
-					}
-				}
-			}
-			if (strcmp(cellType[celltype].cellType_string,"pvbasketcell")==0) {	// Connect to some basket cells
-				// Make 1 connection to each cell in the middle 10% (45th - 54th percentiles) of the cell group -- only works if >2 basket cells
-				for pcitr(&pci, &jgid, cellType[celltype].cellStartGid + int(45/100*cellType[celltype].numCells) - 1, cellType[celltype].cellStartGid + int(54/100*cellType[celltype].numCells) - 1) {
-					if (pc.gid_exists(jgid)) {
-						cell = pc.gid2cell(jgid)
-						nc_appendo(i, cell, 0, 0, 1e-2, 3) 
-						nc_appendo(i, cell, 0, 1, 1e-2, 3)  
-						cellType[0].numCons.x[celltype] +=2
-					}
-				}	
-			}
-			if (strcmp(cellType[celltype].cellType_string,"mossycell")==0) {	// Connect to some mossy cells
-				// Make 10 connections to the middle 10% (45th - 54th percentiles) of mossy cells; may make multiple connections on one cell
-				for j = 45, 54 {
-					jgid=cellType[celltype].cellStartGid + int(j/100*cellType[celltype].numCells) -1
-					if (pc.gid_exists(jgid)) {
-						cell = pc.gid2cell(jgid)
-						ransynlist.object(int(jgid/pc.nhost)).r.discunif(0,3)	// There are 4 types of synapses pp can make onto mossy cells
-						nc_appendo(i, cell, celltype, ransynlist.object(int(jgid/pc.nhost)).repick, 1.75e-2, 3)
-						cellType[0].numCons.x[celltype] +=1
-					}
-				}
-			}
-		}
-	}
-}
-perfPathConns()									// Make connections between the perforant path and some cells
-
-proc printNumConFile() {local i, j localobj f
-	pc.barrier()									// Wait for all ranks to get to this point
-	sprint(cmd,"./results/%s/numcons.dat", runname)
-	f = new File(cmd)
-	if (pc.id == 0) { 								// Write header to file 1 time only
-		f.wopen()
-		f.printf("host\tpretype\tposttype\tnumCons\n")
-		f.close()
-	}
-	for rank = 0, pc.nhost-1 {				// For each processor, allow processor to append to file the positions of its cells
-		if (rank == pc.id) {				// Ensure that each processor runs once
-			f.aopen() 						// Open for appending to file
-			for i = 0, numCellTypes-1 {
-				for j = 0, numCellTypes-1 {
-					f.printf("%g\t%d\t%d\t%d\n", pc.id, i, j, cellType[i].numCons.x[j])	// Print host id, precell type, postcell type, num connections
-				}
-			}
-			f.close()
-		}		
-		pc.barrier()
-	}
-}
-if (printNumCon==1) {printNumConFile()}	// Write a summary file of all cell connections by pre and post cell types "numcons.dat"
-
-proc tracenet() {local i, rank, srcid localobj tgt, f	// Write out the connections list, including synapse type
-	pc.barrier()									// Wait for all ranks to get to this point
-	sprint(cmd,"./results/%s/connections.dat", runname)
-	f = new File(cmd)
-	if (pc.id == 0) { 								// Write header to file 1 time only
-		f.wopen()
-		f.printf("source\ttarget\tsynapse\n")
-		f.close()
-	}
-	for rank = 0, pc.nhost-1 {				// For each processor, allow processor to append to file its connection info
-		if (rank == pc.id) {				// Ensure that each processor runs once
-			f.aopen() 						// Open for appending to file
-			for i=0, nclist.count -1 {		// For each connection in the list
-				srcid = nclist.o(i).srcgid()	// Get the gid of the source cell
-				tgt = nclist.o(i).syn			// Get a reference to the target cell
-				f.printf("%d\t%d\t%d\n", srcid, tgt.cid, tgt.sid)	// Print source gid, target gid, synapse id
-			}
-			f.close()
-		}		
-		pc.barrier()
-	}
-}
-if (printConMat==2) {tracenet()}	// Write the file of all cell connections (pre and post gids, synapse type, host on which cell exists), "connections.dat"
+{load_file("./setupfiles/write_conns_functions.hoc")}	// Defines two funcs (procs?): printNumConFile()
+														//  writes the number of synapses between every
+														//  combination of pre- and post-synaptic cell type
+														//  and tracenet() lists the presynaptic cell type,
+														//  postsynaptic cell type, and synapse type for
+														//  every connection
+														
+if (printNumCon==1) {printNumConFile()}	// Write "numcons.dat": a QUICK, SMALL summary file of the # of
+										//  connections by pre and post cell types
+										
+if (printConMat==2) {tracenet()}		// Write "connections.dat": a VERY SLOW, LARGE file of all cell
+										//	connections (pre and post gids, synapse type, host on which
+										//  (target?) cell exists)
 
 connecttime = startsw() - connectstart			// calculate time taken to connect the cells
 if (pc.id == 0) {printf("\nTIME HOST 0: %g seconds (connected cells)\n************\n", connecttime)}
 runstart = startsw()							// grab start time of the simulation
+
 /***********************************************************************************************
 VI.	INITIALIZE AND RUN NETWORK, OUTPUT RESULT FILES
 ***********************************************************************************************/
-proc init() { local dtsav, temp, secsav, secondordersav	// initialize the simulation
-	dtsav = dt						// Save desired dt value to reset after temporarily changing dt
-	secondordersav = secondorder	// Save desired secondorder value to reset after temporarily changing secondorder
+proc init() { local dtsav, temp, secsav, secondordersav	// Redefine the proc that initializes the
+														//  simulation (why?)
+														
+	dtsav = dt						// Save the desired dt value to reset it after temporarily
+									//  changing dt to run a quick presimulation to allow the
+									//  network to reach steady state before we start 'recording'
+									
+	secondordersav = secondorder	// Save the desired secondorder value to reset it after
+									//  temporarily changing secondorder to run a quick presimulation
+									//  to allow the network to reach steady state before we start
+									//  'recording' its results
 
-	finitialize(v_init)	// Call finitialize (since we are replacing the default init proc that calls this)
-						// finitialize will Call the INITIAL block for all mechanisms and point processes inserted in the sections
-						//	and set the initial voltage to v_init for all sections
+	finitialize(v_init)	// Call finitialize from within the custom init proc, just as the default
+						//  init proc does. Note that finitialize will call the INITIAL block for
+						//  all mechanisms and point processes inserted in the sections and set the
+						//	initial voltage to v_init for all sections
 
-	t = -500			// Set the start time for (pre) simulation; -500 to prepare network in advance of start at 0
-	dt= 10				// Set dt to large value
-	secondorder = 0		// Set secondorder to 0 to set the default fully implicit backward euler for numerical integration (see NEURON ref)
+	t = -500			// Set the start time for (pre) simulation; -500 ms to allow the network to
+						// reach steady state before t = 0, when the real simulation begins
+						
+	dt= 10				// Set dt to a large value so that the presimulation runs quickly
+	
+	secondorder = 0		// Set secondorder to 0 to set the solver to the default fully implicit backward
+						//  euler for numerical integration (see NEURON ref)
 		
-	temp= cvode.active()
-	if (temp!=0) {cvode.active(0)}	// If cvode is on, turn off temporarily to do large fixed step
-	// Now, do a large pre run from t = -500 to t = -100 to set the network 'settle' and all components to reach steady state
-	while(t<-100) { fadvance() if (flagprint>1) {print t}}	// Integrate all section equations over the interval dt. increment t by dt
-															//	and repeat till t at -100
+	temp= cvode.active()			// Check whether cvode, a type of solver (?) is on
+	if (temp!=0) {cvode.active(0)}	// If cvode is on, turn it off while running the presimulation
+															
+	while(t<-100) { fadvance() if (flagprint>1) {print t}}	// Run the presimulation from t = -500
+															//  to t = -100 (why not 0?) to let the
+															//  network and all its components reach
+															//  steady state. Integrate all section
+															//  equations over the interval dt,
+															//  increment t by dt, and repeat until
+															//  t at -100
+															
 	if (temp!=0) {cvode.active(1)}	// If cvode was on and then turned off, turn it back on now
 	
-	t = tstart 						// Start time of the simulation
-	dt = dtsav						// Reset dt to specified value
-	secondorder = secondordersav	// Reset secondorder to specified value
+	t = tstart 						// Set t to the start time of the simulation
+	
+	dt = dtsav						// Reset dt to the specified value for the simulation
+	
+	secondorder = secondordersav	// Reset secondorder to the specified value for the simulation
+	
 	if (cvode.active()){
 		cvode.re_init()				// If cvode is active, initialize the integrator
 	} else {
-		fcurrent()					// If cvode is not active, make all assigned variables (currents, conductances, etc)
-									//	consistent with the values of the states
+		fcurrent()					// If cvode is not active, make all assigned variables
+									//	 (currents, conductances, etc) consistent with the
+									//   values of the states
 	}
 }
 
-proc rrun(){												// Run the network simulation
-	pnm.want_all_spikes() 						// Record all spikes of all cells on this machine into the pnm.spikevec (spiketimes) and pnm.idvec (gids)
-	pc.set_maxstep(10)							// Set every machine's max step size to minimum delay of all netcons created on pc using pc.gid_connect, but not larger than 10
-	stdinit()									// Call the init fcn (which is redefined in this code) and then make other standard calls (to stop watch, etc)
-	pc.psolve(tstop)							// Equivalent to calling cvode.solve(tstop), for parallel NEURON, where solve will be broken into steps determined by the result of set_maxstep
+{load_file("./setupfiles/write_results_functions.hoc")}		// Defines the procs spikeout() and timeout()
+															//  which write out the spikeraster (spikeout)
+															//  and the time taken to run each section of
+															//  the code (timeout)
+
+proc rrun(){									// Run the network simulation and write out the results
+
+	pnm.want_all_spikes() 						// Record all spikes of all cells on this machine into the
+												//  vectors pnm.spikevec (spiketimes) and pnm.idvec (gids)
+												
+	pc.set_maxstep(10)							// Set every machine's max step size to minimum delay of
+												//  all netcons created on pc using pc.gid_connect, but
+												//  not larger than 10
+												
+	stdinit()									// Call the init fcn (which is redefined in this code) and
+												//  then make other standard calls (to stop watch, etc)
+												
+	pc.psolve(tstop)							// Equivalent to calling cvode.solve(tstop) but for parallel NEURON;
+												//  solve will be broken into steps determined by the result of
+												//  set_maxstep
+												
 	runtime = startsw() - runstart				// Calculate runtime of simulation
+	
 	if (pc.id == 0) {printf("****\nTIME SUMMARY for host 0\nset up in %g seconds\ncreated cells in %g seconds\nconnected cells in %g seconds\nran simulation in %g seconds\n************\nThis run is called: %s\n************\n", loadtime, createtime, connecttime, runtime, runname)}
-	spikeout()	// Write the file of spike times and spiking cells, "spikeraster.dat"
+												// Print a time summary message to screen
+
+	spikeout()	// Write the spike times (in ms) and spiking cells (by gid) into a file called "spikeraster.dat"
+	
 	timeout()	// Write out a file of run times for each code section
-	if (printConMat==1) {tracenet()}	// Write the file of all cell connections (pre and post gids, synapse type, host on which cell exists), "connections.dat"
+	
+	if (printConMat==1) {tracenet()}	// Write the file of all cell connections (pre and post gids, synapse type,
+										//  host on which cell exists), "connections.dat"
 }
-/**/proc spikeout() {local i, rank  localobj f				// Write out a spike raster (cell, spike time)
-		pc.barrier()									// Wait for all ranks to get to this point
-	sprint(cmd,"./results/%s/spikeraster.dat", runname)
-	f = new File(cmd)
-		if (pc.id == 0) { 								// Write header to file 1 time only
-			f.wopen()
-			f.close()
-		}
-		
-		for rank = 0, pc.nhost-1 {				// For each processor, allow processor to append to file the spike times of its cells
-			if (rank == pc.id) {				// Ensure that each processor runs once
-				f.aopen() 						// Open for appending to file
-				for i=0, pnm.idvec.size-1 {
-					f.printf("%.3f %d\n", pnm.spikevec.x[i], pnm.idvec.x[i])	// Print the spike time and spiking cell gid
-				}
-				f.close()
-			}
-			pc.barrier()
-		}
-	}
-
-/**/proc timeout() {local i, rank, gid, srcid localobj tgt, f, cell// Write out runtimes for each processor
-		pc.barrier()					// Wait for all ranks to get to this point
-	sprint(cmd,"./results/%s/runtimes.dat", runname)
-	f = new File(cmd)
-		if (pc.id == 0) { 				// Write header to file 1 time only
-			f.wopen()
-			f.printf("host\tset up\tcreated cells\tconnected cells\tran simulation\t\n")
-			f.close()
-		}
-		
-		for rank = 0, pc.nhost-1 {				// For each processor, allow processor to append its runtimes to file
-			if (rank == pc.id) {				// Ensure that each processor runs once
-				f.aopen() 						// Open for appending to file
-				f.printf("%g\t%g\t%g\t%g\t%g\n", pc.id, loadtime, createtime, connecttime, runtime)
-				f.close()
-			}
-			pc.barrier()
-		}
-	}
-
-rrun()	// Run the network simulation
+rrun()	// Run the network simulation (in proc rrun)
 
 {pc.runworker()} 	// Everything after this line is executed only by the host node
-					// "The master host returns immediately. Worker hosts start an infinite loop of requesting tasks for execution." 
-{pc.done()}			// Sends the quit message to the worker processors, which then quit neuron
-quit()	// Sends the quit message to the host processor, which then quits neuron
+					//  The NEURON website describes this as "The master host returns immediately. Worker hosts
+					//  start an infinite loop of requesting tasks for execution." 
+					
+{pc.done()}			// Sends the quit message to the worker processors, which then quit NEURON
+
+quit()	// Sends the quit message to the host processor, which then quits NEURON

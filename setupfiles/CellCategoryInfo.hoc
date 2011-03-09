@@ -1,41 +1,126 @@
-begintemplate CellCategoryInfo
-	public setCellTypeParams, setCellTypeDist
-	public dist, cellType_string, cellStartGid, cellEndGid, numCells, updateGidRange, addPosVec, layerflag, CellList, addCell, numCons
-	public setBins, dentateYBins, dentateXBins, dentateZBins, dentateYBinSize, dentateXBinSize, dentateZBinSize
-	objref dist, cellpos, f1, CellList, numCons, this
-	strdef cellType_string, tempString, cmd, strtomax 
+begintemplate CellCategoryInfo			// Define a template that describes
+										//  a class of celltype objects,
+										//  where each celltype object
+										//  holds type-specific parameters
+										//  used in creating the network model
+										
+	public setCellTypeParams, setCellTypeDist			// Define variables and funcs that are
+	public cellType_string, cellStartGid, cellEndGid	//  accessible from outside the class
+	public updateGidRange, addPosVec, layerflag			//  object
+	public dist, numCells, CellList, addCell, numCons
+	public setBins, dentateYBins, dentateXBins, dentateZBins
+	public dentateYBinSize, dentateXBinSize, dentateZBinSize, is_art
+	
+	objref dist, cellpos, f1, CellList, numCons, ctype, this	// Define objects, including
+																//  'this', which is this
+																//  instance of the class
+																
+	strdef cellType_string, tempString, cmd, strtomax 			// Define strings
 		
-	proc setCellTypeParams(){
-		cellType_string = $s1
-		cellStartGid = $2 //determine GID assignment start numbers for each cell type so that each cell can have a unique id #
-		numCells = $3
-		cellEndGid =  $2 + $3 -1
-		layerflag = $4
+	proc setCellTypeParams(){			// Define a proc to set the parameters
+										//  corresponding to the celltype this
+										//  member of the class describes
+										
+		cellType_string = $s1		// Name of the cell type
 		
-		objref CellList[numCells]
+		cellStartGid = $2 			// First number in gid range (all cells
+									//  of this type have consecutive numbers
+									//  in the gid range)
+									
+		numCells = $3				// Number of cells of this type
+		
+		cellEndGid =  $2 + $3 -1	// Last number in gid range
+		
+		layerflag = $4				// Layer in which the somata of this cell type
+									//  are found (order of the layers is a matter
+									//  of convention, documented by YOU)
+		
+		ctype = new StringFunctions()	// Create a new StringFunctions object
+										//  for parsing the name of the celltype
+														
+		index = ctype.substr(cellType_string, "stim")	// Now search the celltype
+														//  name for 'stim', which
+														//  is used to denote
+														//  artificial cells
+		
+		if (index>-1) {			// If the celltype name contains 'stim',
+			is_art=1			//  then the cell type is artificial
+		} else {				//  otherwise the celltype is biological
+			is_art=0
+		}
+		
+		objref CellList[numCells]	// Create a new CellList for this celltype,
+									//  the length of which equals the number
+									//  of cells
 	}
 
-	proc setCellTypeDist(){
+	proc setCellTypeDist(){			// From a file, read in the constants
+									//  for the Gaussian equation that describes
+									//  the axonal distribution of this celltype
 		f1 = new File()
-		dist = new Vector(3)
-		sprint(tempString,"./cells/dist_%s.hoc",cellType_string)
-		f1.ropen(tempString)
-		dist.scanf(f1)
-		f1.close()
+		dist = new Vector(3)		// Define a new vector, dist, which holds
+									//  the constants
+		
+		sprint(tempString,"../cells/dist_%s.hoc",cellType_string)	//Specify file
+		
+		f1.ropen(tempString)		// Open the file
+			
+		dist.scanf(f1)				// Read in the values from the file
+		
+		f1.close()					// Close the file
 	}
 	
-	proc updateGidRange() {
-		cellStartGid = $1
-		cellEndGid = $1 + numCells -1
+	proc updateGidRange() {			// Define a proc that updates the range
+									//  of gids used by this celltype. The range
+									//  needs updating if this cell type was
+									//  subject to cell loss (reducing the 
+									//  number of cells) or if any celltype
+									//  earlier in the gid sequence was subject
+									//  to cell loss (causing the StartGid to
+									//  be moved earlier)
+									
+		cellStartGid = $1			// Read in the start gid
+		
+		cellEndGid = $1 + numCells -1	// Solve for the end gid given the
+										//  number of cells
 	}
 	
-	proc setBins() {local runresult, toohigh, numtomin // dentateXlength, dentateYlength, dentateZlength
-		dentateZBins=int((numCells*($3)^2/($2*$1))^(1/3))			// Equivalent subdivisions of the dentate along the Z axis
-		if (dentateZBins==0) {dentateZBins=1}
-		dentateYBins=int(($2/$3)*(numCells*($3)^2/($2*$1))^(1/3))	// Equivalent subdivisions of the dentate along the Y axis
-		if (dentateYBins==0) {dentateYBins=1}
-		dentateXBins=int(($1/$3)*(numCells*($3)^2/($2*$1))^(1/3))	// Equivalent subdivisions of the dentate along the X axis
-		if (dentateXBins==0) {dentateXBins=1}
+	proc setBins() {local runresult, toohigh, numtomin	// Defines the proc setBins,
+														//  which takes the arguments
+														//  for the length of the 
+														//  brain region in X, Y, and Z,
+														//  and determines how far apart
+														//  the cells should be in each
+														//  dimension to be evenly spaced
+		
+		dentateZBins=int((numCells*($3)^2/($2*$1))^(1/3))	// Given the relative length of
+															//  the Z dimension compared to
+															//  the X and Y dimensions, solve
+															//  for how many cells should be 
+															//  spaced along the z dimension 
+															
+		if (dentateZBins==0) {dentateZBins=1}	// Make sure the Z dimension is at least one
+												//  cell wide
+		
+		dentateYBins=int(($2/$3)*(numCells*($3)^2/($2*$1))^(1/3))	// Given the relative
+																	//  length for Y...
+																	
+		if (dentateYBins==0) {dentateYBins=1}	// Make sure the Y dimension is at least one
+												//  cell wide
+												
+		dentateXBins=int(($1/$3)*(numCells*($3)^2/($2*$1))^(1/3))	// Given the relative
+																	//  length for X...
+																	
+		if (dentateXBins==0) {dentateXBins=1}	// Make sure the Z dimension is at least one
+												//  cell wide
+												
+		// The above code may result in there being slightly too few or too many positions
+		//  set aside for cells. To make the final spacing along each dimension most closely,
+		//  match the total number of cells of this type, we may either increase or decrease
+		//  the number of cells assigned along each edge as follows
+		
+		// Find the largest dimension (which is the ideal dimension to change if the number
+		//  of cell assignments is too large or too small) 								
 		if ($3 >= $2 && $3 >= $1) {
 			strtomax="dentateZBins"
 			numtomin=dentateXBins*dentateYBins
@@ -49,23 +134,27 @@ begintemplate CellCategoryInfo
 			}
 		}
 
-		while (dentateXBins*dentateYBins*dentateZBins < numCells){
-			sprint(cmd, "%s=%s+1",strtomax,strtomax)
-			runresult=execute1(cmd, this) 		// This command was written as a string so
-												//	the Bin dimension to increase doesn't have to be hard coded
+		while (dentateXBins*dentateYBins*dentateZBins < numCells){	// If not enough cell
+																	//  positions are allotted
+			sprint(cmd, "%s=%s+1",strtomax,strtomax)	// Add another slot to
+														//  the largest dimension
+			runresult=execute1(cmd, this) 	// This command was written as a string so
+											//	the dimension to increase doesn't have to be hard coded
 		}
 
 		toohigh=dentateXBins*dentateYBins*dentateZBins-numtomin
-		while (toohigh >= numCells){
-			sprint(cmd, "%s=%s-1",strtomax,strtomax)
+		while (toohigh >= numCells){				// If too many cell positions were allotted
+			sprint(cmd, "%s=%s-1",strtomax,strtomax)// Remove one from the largest dimension
 			runresult=execute1(cmd, this) 		// This command was written as a string so
-												//	the Bin dimension to increase doesn't have to be hard coded
+												//	the dimension to increase doesn't have to be hard coded
 			toohigh=dentateXBins*dentateYBins*dentateZBins-numtomin
 		}
 
-		dentateZBinSize = int($3/dentateZBins)	// Length of each bin (along Z dimension) in microns
-		dentateYBinSize = int($2/dentateYBins)	// Length of each bin (along Y dimension) in microns
-		dentateXBinSize = int($1/dentateXBins)	// Length of each bin (along X dimension) in microns
+		dentateZBinSize = int($3/dentateZBins)	// Length of each cell's 'personal space' (along Z dimension) in microns
+		
+		dentateYBinSize = int($2/dentateYBins)	// Length of each cell's 'personal space' (along Y dimension) in microns
+		
+		dentateXBinSize = int($1/dentateXBins)	// Length of each cell's 'personal space' (along X dimension) in microns
 	}
 
 endtemplate CellCategoryInfo

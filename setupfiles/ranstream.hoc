@@ -1,16 +1,39 @@
-
 begintemplate RandomStream
-public r, repick, start, rseed
-objref r
-proc init() {
-	rseed = $1					// The gid of the cell is arg 1 here
-	r = new Random()
-	start()
-}
-func start() {
-	return r.MCellRan4(rseed)
-}
-func repick() {
-	return r.repick()
-}
+	public r, repick, start, rseed	// Define variables and funcs that are
+									//  accessible from outside the class
+									//  object
+									
+	objref r						// Define a new object
+	
+	proc init() {					// Define an init proc that runs whenever
+									//  a new member of the RandomStream
+									//  class is instantiated
+									
+		startseed = $1				// Arg 1 specifies where in this
+									//  cell's randomstream to start
+		
+		rseed = $2					// Arg 2 specifies which randomstream
+									//  to use (based on the gid of the cell)
+									
+		r = new Random()			// Set the object r to a Random object
+		
+		start()						// Run the 'start' func (defined below)
+									//  on this newly created RandomStream
+	}
+	func start() {					// Define a 'start' func for this class
+
+		return r.MCellRan4(startseed, rseed)
+									// The function returns with a random
+									//  number obtained using the MCellRan4
+									//  algorithm, with the seed based on
+									//  the gid of this cell as the
+									//  starting point for the low index.
+									//  The high index will start after
+									//  a section reserved for cell noise 
+	}
+	func repick() {					// Define a 'repick' func for this class
+	
+		return r.repick()			// Subsequent random numbers are picked
+									//  from this random number stream
+	}
 endtemplate RandomStream
