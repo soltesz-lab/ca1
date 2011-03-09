@@ -1,0 +1,45 @@
+proc printNumConFile() {local i, j localobj f
+	pc.barrier()									// Wait for all ranks to get to this point
+	sprint(cmd,"./results/%s/numcons.dat", runname)
+	f = new File(cmd)
+	if (pc.id == 0) { 								// Write header to file 1 time only
+		f.wopen()
+		f.printf("host\tpretype\tposttype\tnumCons\n")
+		f.close()
+	}
+	for rank = 0, pc.nhost-1 {				// For each processor, allow processor to append to file the positions of its cells
+		if (rank == pc.id) {				// Ensure that each processor runs once
+			f.aopen() 						// Open for appending to file
+			for i = 0, numCellTypes-1 {
+				for j = 0, numCellTypes-1 {
+					f.printf("%g\t%d\t%d\t%d\n", pc.id, i, j, cellType[i].numCons.x[j])	// Print host id, precell type, postcell type, num connections
+				}
+			}
+			f.close()
+		}		
+		pc.barrier()
+	}
+}
+
+proc tracenet() {local i, rank, srcid localobj tgt, f	// Write out the connections list, including synapse type
+	pc.barrier()									// Wait for all ranks to get to this point
+	sprint(cmd,"./results/%s/connections.dat", runname)
+	f = new File(cmd)
+	if (pc.id == 0) { 								// Write header to file 1 time only
+		f.wopen()
+		f.printf("source\ttarget\tsynapse\n")
+		f.close()
+	}
+	for rank = 0, pc.nhost-1 {				// For each processor, allow processor to append to file its connection info
+		if (rank == pc.id) {				// Ensure that each processor runs once
+			f.aopen() 						// Open for appending to file
+			for i=0, nclist.count -1 {		// For each connection in the list
+				srcid = nclist.o(i).srcgid()	// Get the gid of the source cell
+				tgt = nclist.o(i).syn			// Get a reference to the target cell
+				f.printf("%d\t%d\t%d\n", srcid, tgt.cid, tgt.sid)	// Print source gid, target gid, synapse id
+			}
+			f.close()
+		}		
+		pc.barrier()
+	}
+}

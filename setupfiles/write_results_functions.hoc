@@ -1,0 +1,47 @@
+proc spikeout() {local i, rank  localobj f				// Write out a spike raster (cell, spike time)
+	pc.barrier()									// Wait for all ranks to get to this point
+	sprint(cmd,"./results/%s/spikeraster.dat", runname)
+	f = new File(cmd)
+	if (pc.id == 0) { 								// Write header to file 1 time only
+		f.wopen()
+		f.close()
+	}
+	
+	for rank = 0, pc.nhost-1 {				// For each processor, allow processor to append to file the spike times of its cells
+		if (rank == pc.id) {				// Ensure that each processor runs once
+			f.aopen() 						// Open for appending to file
+			for i=0, pnm.idvec.size-1 {
+				f.printf("%.3f %d\n", pnm.spikevec.x[i], pnm.idvec.x[i])	// Print the spike time and spiking cell gid
+			}
+			f.close()
+		}
+		pc.barrier()
+	}
+}
+
+/*
+# spikes (pnm.idvec.size)
+# cells (totalCells (ncell includes art))
+# connections (nclist.count includes art-->real)
+*/
+
+
+proc timeout() {local i, rank, gid, srcid localobj tgt, f, cell// Write out runtimes for each processor
+	pc.barrier()					// Wait for all ranks to get to this point
+	sprint(cmd,"./results/%s/runtimes.dat", runname)
+	f = new File(cmd)
+	if (pc.id == 0) { 				// Write header to file 1 time only
+		f.wopen()
+		f.printf("host\tset up\tcreated cells\tconnected cells\tran simulation\t\n")
+		f.close()
+	}
+	
+	for rank = 0, pc.nhost-1 {				// For each processor, allow processor to append its runtimes to file
+		if (rank == pc.id) {				// Ensure that each processor runs once
+			f.aopen() 						// Open for appending to file
+			f.printf("%g\t%g\t%g\t%g\t%g\n", pc.id, loadtime, createtime, connecttime, runtime)
+			f.close()
+		}
+		pc.barrier()
+	}
+}

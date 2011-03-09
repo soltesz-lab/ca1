@@ -1,0 +1,19 @@
+objref nclist
+nclist = new List()
+func nc_append() { localobj cell, nc	// Connect cell to synapse and set synapse properties
+	if (pc.gid_exists($2)) {			// Check if cell exists on this machine
+		cell = pc.gid2cell($2)			
+		nc = pc.gid_connect($1, cell.pre_list.o($3).o($4))	// Connect the soma of the pre cell to the synapse on the post cell
+		nc.weight = $5					// Set a synaptic connection weight
+		nc.delay = $6					// Set a delay time (axonal delay)
+		nclist.append(nc)
+	}
+	return nclist.count-1
+}
+func nc_appendo() { localobj  nc	// Connect cell to synapse and set synapse properties
+		nc = pc.gid_connect($1, $o2.pre_list.o($3).o($4))	// Connect the soma of the pre cell to the synapse on the post cell
+		nc.weight = $5					// Set a synaptic connection weight
+		nc.delay = $6					// Set a delay time (axonal delay)
+		nclist.append(nc)
+	return nclist.count-1
+}

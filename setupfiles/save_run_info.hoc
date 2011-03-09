@@ -1,0 +1,97 @@
+objref frec
+strdef cmd, dircmd, direx, comper, version, vercomment, mypath, userstr, machname, outfile
+proc typeout() {local i, rank, gid, srcid localobj tgt, f, cell// Write out the cell types & gid ranges
+	if (pc.id == 0) { 				// Write header to file 1 time only
+		sprint(dircmd, "ls ../results/%s", runname)
+		{system(dircmd, direx)}
+		{sprint(comper, "ls: cannot access ../results/%s: No such file or directory", runname)}
+		while (strcmp(direx,comper)!=0 && strcmp(direx,"")!=0 ) {
+			sprint(runname, "%sa", runname)
+			sprint(dircmd, "ls ../results/%s", runname)
+			{system(dircmd, direx)}
+			{sprint(comper, "ls: cannot access ../results/%s: No such file or directory", runname)}
+		}
+		printf(" so I will create it now\n")
+		sprint(dircmd, "mkdir ../results/%s", runname)
+		{system(dircmd, direx)}
+		sprint(dircmd, "cp ../setupfiles/lowindex.hoc ../results/%s", runname)
+		{system(dircmd, direx)}
+		
+		sprint(dircmd, "hg status", runname)
+		{system(dircmd, direx)}
+		if (strcmp(direx,"")>0 && testrun==0) {
+			printf("The current code version has not been committed")
+			{pc.runworker()} 	// Everything after this line is executed only by the host node
+								// "The master host returns immediately. Worker hosts start an infinite loop of requesting tasks for execution." 
+			{pc.done()}			// Sends the quit message to the worker processors, which then quit neuron
+			quit()	// Sends the quit message to the host processor, which then quits neuron
+		} else {
+			sprint(dircmd, "hg parent --template '{rev}: {desc}\n'")
+			{system(dircmd, direx)}
+			vercomment=direx
+			sprint(dircmd, "hg parent --template '{node}\n'")
+			{system(dircmd, direx)}
+			version=direx
+
+			system("pwd",mypath)
+			system("whoami", userstr)
+			{system("hostname", machname)}
+			sprint(outfile, "../results/%s/runreceipt.txt", runname)
+			frec = new File(outfile)
+			frec.wopen()
+			frec.printf("time=%f\n", startsw())
+			frec.printf("runname='%s' \n", runname)
+			frec.printf("runcomments='%s' \n", RunComments)
+			frec.printf("username='s' \n", userstr)
+			frec.printf("host0='%s' \n", machname)
+			frec.printf("model_vercomment='%s' \n", vercomment)
+			frec.printf("model_version='%s' \n", version)
+			frec.printf("model_path='%s' \n", mypath)
+			frec.printf("neuron_version='%s' \n", nrnversion(2)) // version number and mercurial changeset
+			printmyvars()
+			frec.close()
+		}	
+	}
+
+	pc.barrier()					// Wait for all ranks to get to this point
+	sprint(cmd,"../results/%s/celltype.dat", runname)
+	f = new File(cmd)
+	if (pc.id == 0) { 				// Write header to file 1 time only
+		f.wopen()
+		f.printf("celltype\ttypeIndex\trangeStart\trangeEnd\n")
+		for i=0, numCellTypes-1 {
+			f.printf("%s\t%d\t%d\t%d\n", cellType[i].cellType_string, i, cellType[i].cellStartGid, cellType[i].cellEndGid)
+		}
+		f.close()
+	}
+}
+/**/strdef thisline, getval, result, paramstr, testline
+/**/proc printmyvars() {local strlen localobj strobj, pfobj
+    strobj = new StringFunctions()
+
+	pfobj = new File()
+	pfobj.ropen("../setupfiles/parameters.hoc")
+	while (pfobj.gets(thisline)>-1) {
+		testline=thisline
+		strobj.left(testline, 1)
+		if (strcmp(testline,"d")==0) {
+			result=thisline
+			strobj.right(result, 13)
+			strlen = strobj.head(result, "\",", paramstr)
+			{sprint(getval, "printnow(%s, paramstr, %g)", paramstr, strobj.len(paramstr))}
+			{execute1(getval)}
+		}
+	}
+	pfobj.close
+}
+/**/proc printnow() {
+		if (argtype(1)==0) {
+			if ($3>0) {
+				sprint(getval, "paramval = %s", $s2) // Note that paramval cannot be a local variable
+				{execute1(getval)}
+				{frec.printf("%s = %g\n", paramstr, $1)}
+			}
+		}
+	}
+typeout()
+{pc.broadcast(runname, 0)}

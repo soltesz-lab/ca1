@@ -1,0 +1,322 @@
+begintemplate cckcell
+
+// public variables
+public  pre_list, connect_pre, append_sections, is_art, is_connected
+public soma, bcdendAP1, bcdendAP2, bcdendBAS1, bcdendBAS2
+public all, adend, bdend, cdend, ddend
+public x, y, z, position
+
+// objects
+objref syn, pre_list, templist
+
+// external variables
+external numCellTypes, cellType
+
+// create the sections[nsegments]
+// if nsegments (the number of segments in each section) is updated,
+// you'll have to manually change the bounds on the for loops as well
+create soma, bcdendAP1[4], bcdendAP2[4], bcdendBAS1[4], bcdendBAS2[4]
+
+// set the initialization code, which is run whenever a new object
+// of this class is instantiated
+proc init() {
+	// cell sections: soma, dendrites, axon
+	append_sections() // append all sections to the section list
+	connect_sections()// connect soma, dendrites, axon
+	size_sections()	// set the size dimensions of each section
+	set_nseg()		// set the number of segments in each section
+	
+	// subcellular mechanisms: channels, pumps, transporters
+	insert_mechs()
+	set_biophys()
+	define_shape()
+
+	pre_list = new List() // define a list for the presynaptic connections
+	define_synapses()
+}
+
+objref all, adend, bdend, cdend, ddend // this is also defined later, in a fcn. which place should it be defined?
+proc connect_sections() { local i
+	connect bcdendAP1[0](0), soma(1)
+	connect bcdendAP2[0](0), soma(1)
+	connect bcdendBAS1[0](0), soma(0)
+	connect bcdendBAS2[0](0), soma(0)
+	for i=1, 3 { // upper bound is # of segments - 1
+	connect bcdendAP1[i](0), bcdendAP1[i-1](1)
+	}
+	for i=1, 3 { // upper bound is # of segments - 1
+	connect bcdendAP2[i](0), bcdendAP2[i-1](1)
+	}
+	for i=1, 3 { // upper bound is # of segments - 1
+	connect bcdendBAS1[i](0), bcdendBAS1[i-1](1)
+	}
+	for i=1, 3 { // upper bound is # of segments - 1
+	connect bcdendBAS2[i](0), bcdendBAS2[i-1](1)
+	}
+}
+
+proc append_sections() { local i
+	//objref all, adend, bdend, cdend, ddend // we shouldn't have to redefine... right?
+	// Make a list for every section in the cell
+	all = new SectionList()	
+		soma all.append()
+		for i=0, 3 {bcdendAP1 [i] all.append()}
+		for i=0, 3 {bcdendAP2 [i] all.append()}
+		for i=0, 3 {bcdendBAS1 [i] all.append()}
+		for i=0, 3 {bcdendBAS2 [i] all.append()}
+
+	// Make lists of dendrite sections that
+	//  are all the same relative distance
+	//  from the soma (useful when adding ion channels)
+	// The code in this section will have to be customized
+	//  depending on how detailed (and different) the sections
+	//  are for each main dendrite
+	adend  = new SectionList()	
+		bcdendAP1 [0] adend.append()
+		bcdendAP2 [0] adend.append()
+		bcdendBAS1 [0] adend.append()
+		bcdendBAS2 [0] adend.append()
+
+	bdend  = new SectionList()
+		bcdendAP1 [1] bdend.append()
+		bcdendAP2 [1] bdend.append()
+		bcdendBAS1 [1] bdend.append()
+		bcdendBAS2 [1] bdend.append()
+
+	cdend  = new SectionList()
+		bcdendAP1 [2] cdend.append()
+		bcdendAP2 [2] cdend.append()
+		bcdendBAS1 [2] cdend.append()
+		bcdendBAS2 [2] cdend.append()
+
+	ddend  = new SectionList()
+		bcdendAP1 [3] ddend.append()
+		bcdendAP2 [3] ddend.append()
+		bcdendBAS1 [3] ddend.append()
+		bcdendBAS2 [3] ddend.append()
+}
+
+proc size_sections() { local i
+	soma {L=20 diam=15}
+	for i=0, 3 { // upper bound is # of segments - 1
+		bcdendAP1 [i] {L=75 diam=4-i}
+	}	
+	for i=0, 3 { // upper bound is # of segments - 1
+		bcdendAP2 [i] {L=75 diam=4-i}
+	}	
+	for i=0, 3 { // upper bound is # of segments - 1
+		bcdendBAS1 [i] {L=50 diam=4-i}
+	}	
+	for i=0, 3 { // upper bound is # of segments - 1
+		bcdendBAS2 [i] {L=50 diam=4-i}
+	}
+}
+
+proc set_nseg() {
+  forsec all { nseg = 1 }
+}
+
+proc insert_mechs() {
+	forsec all {
+		insert ccanl
+	catau_ccanl = 10
+	caiinf_ccanl = 5.e-6
+		insert borgka
+	gkabar_borgka=0.00005
+		insert nca  // HAV-N- Ca channel
+	gncabar_nca=0.0008   
+		insert lca 
+	glcabar_lca=0.005
+		insert gskch
+	gskbar_gskch=0.000145
+		insert cagk
+	gkbar_cagk=0.00001
+		insert hyperde3
+	ghyfbar_hyperde3=0.0000
+	ghysbar_hyperde3=0.0015
+	}
+
+	soma {insert ichan2  //ildikos ichan
+	gnatbar_ichan2=0.10  
+	gkfbar_ichan2=0.005 //0.0013  
+	gl_ichan2 = 0.00018
+	cm=1.8
+	} 
+
+	forsec adend {insert ichan2
+	gnatbar_ichan2=0.08  
+	gkfbar_ichan2=0.007 //0.013
+	gl_ichan2 = 0.00018
+	cm=1.8
+	}		
+	forsec	bdend {insert ichan2
+	gnatbar_ichan2=0.0
+	gkfbar_ichan2=0.00
+	gl_ichan2 = 0.00018
+	cm=1.8}
+		
+	forsec 	cdend {insert ichan2
+	gnatbar_ichan2=0.0
+	gkfbar_ichan2=0.00
+	gl_ichan2 = 0.00018
+	cm=1.8}
+
+	forsec	ddend {insert ichan2
+	gnatbar_ichan2=0.0
+	gkfbar_ichan2=0.00
+	gl_ichan2 = 0.00018
+	cm=1.8}
+}
+
+proc set_biophys() {
+
+	forsec all {Ra=100}
+	forsec all {enat = 55 ekf = -90  ek=-90  elca=130	esk=-90
+		 el_ichan2 =-60.06 	ehyf=-40 ehys=-40
+
+		cao_ccanl=2 }  // make catau slower70e-3 	cao=2 cai=50.e-6 
+}
+
+	objref syn  
+	proc define_synapses() {
+		for celltype=0, numCellTypes-1 {
+			findme=0
+			if (strcmp(cellType[celltype].cellType_string,"ppspont")==0 || strcmp(cellType[celltype].cellType_string,"ppstim")==0 || strcmp(cellType[celltype].cellType_string,"ppvec")==0) {	// Connect to some pp stim cells
+				templist = new List ()
+
+				bcdendAP1 [3] syn = new Exp2Sid(0.5)	//PP(AMPA) syn to apical dist dend Dingledine '95
+				syn.tau1 = 2	syn.tau2 = 6.3	syn.e = 0 	syn.sid=0	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				bcdendAP2 [3] syn = new Exp2Sid(0.5)	//PP(AMPA) syn to apical dist dend Dingledine '95
+				syn.tau1 = 2	syn.tau2 = 6.3	syn.e = 0  	syn.sid=1	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				pre_list.append(templist)
+				findme=1
+			}
+		
+			if (strcmp(cellType[celltype].cellType_string,"pyramidalcell")==0) {	// Connect to some granule cells
+				templist = new List ()
+
+				bcdendAP1 [0] syn = new Exp2Sid(0.5)	//GC(AMPA) syn to prox dend Geiger '97
+				syn.tau1 = .3	syn.tau2 = .6	syn.e = 0 	syn.sid=2	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				bcdendAP2 [0] syn = new Exp2Sid(0.5)	//GC(AMPA) syn to prox dend Geiger '97
+				syn.tau1 = .3	syn.tau2 = .6	syn.e = 0 	syn.sid=3	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				bcdendBAS1 [0] syn = new Exp2Sid(0.5)	//GC(AMPA) syn to prox dend Geiger '97
+				syn.tau1 = .3	syn.tau2 = .6	syn.e = 0 	syn.sid=4	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				bcdendBAS2 [0] syn = new Exp2Sid(0.5)	//GC(AMPA) syn to prox dend Geiger '97
+				syn.tau1 = .3	syn.tau2 = .6	syn.e = 0 	syn.sid=5	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				pre_list.append(templist)
+				findme=1
+			}
+		
+			if (strcmp(cellType[celltype].cellType_string,"mossycell")==0) {	// Connect to some mossy cells
+				templist = new List ()
+
+				bcdendAP1 [1] syn = new Exp2Sid(0.5)	//MC(AMPA) syn to apical IML dend
+				syn.tau1 = 0.9	syn.tau2 = 3.6	syn.e = 0 // *** Estimated based on CA3>BC min stim Dingledine '95
+															syn.sid=6	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				bcdendAP2 [1] syn = new Exp2Sid(0.5)	//MC(AMPA) syn to apical IML dend
+				syn.tau1 = 0.9	syn.tau2 = 3.6	syn.e = 0 // *** Estimated based on CA3>BC min stim Dingledine '95
+															syn.sid=7	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				pre_list.append(templist)
+				findme=1
+			}
+
+  	
+    	// from basket cell to here
+			if (strcmp(cellType[celltype].cellType_string,"cckcell")==0) {	// Connect to some pp stim cells
+				templist = new List ()
+
+  	/* I5 */   	soma syn = new MyExp2Sid(0.5)  //pre_list.append(syn)		// GABA-A	B cell
+    	syn.tau1 = 1
+    	syn.tau2 = 8
+    	syn.e = -75
+    	syn.sid=6
+				templist.append(syn)
+ 
+				pre_list.append(templist)
+				findme=1
+			}
+
+		
+			if (strcmp(cellType[celltype].cellType_string,"pvbasketcell")==0) {	// Connect to some basket cells
+				templist = new List ()
+
+				soma syn = new Exp2Sid(0.5)	//BC(GABA) syn to apical IML dend Bartos
+				syn.tau1 = 0.16		syn.tau2 = 1.8	syn.e = -70 	syn.sid=8	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				pre_list.append(templist)
+				findme=1
+			}
+			if (strcmp(cellType[celltype].cellType_string,"bistratifiedcell")==0) {	// Connect to some cells
+				templist = new List ()
+
+				bcdendAP1 [1] syn = new Exp2Sid(0.5)	//BC(GABA) syn to apical IML dend Bartos
+				syn.tau1 = 0.16		syn.tau2 = 1.8	syn.e = -70 	syn.sid=8	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				bcdendAP2 [1] syn = new Exp2Sid(0.5)	//BC(GABA) syn to apical IML dend Bartos
+				syn.tau1 = 0.16		syn.tau2 = 1.8	syn.e = -70 	syn.sid=9	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				pre_list.append(templist)
+				findme=1
+			}
+		
+			if (strcmp(cellType[celltype].cellType_string,"olmcell")==0) {	// Connect to some hipp cells
+				templist = new List ()
+
+				bcdendAP1 [3] syn = new Exp2Sid(0.5)	//HIPP(GABA) syn to apical distal dend 
+				syn.tau1 = 0.4	syn.tau2 = 5.8	syn.e = -70 // *** Estimated as HIPP>GC
+															syn.sid=10	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				bcdendAP2 [3] syn = new Exp2Sid(0.5)	//HIPP(GABA) syn to apical distal dend 
+				syn.tau1 = 0.4	syn.tau2 = 5.8	syn.e = -70 // *** Estimated as HIPP>GC
+															syn.sid=11	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				pre_list.append(templist)
+				findme=1
+			}
+			if (findme==0) {
+				templist = new List ()
+				pre_list.append(templist)		
+				findme=1
+			}
+		}
+	}
+
+	proc connect_pre() {  // $o1 target point process, $o2 returned NetCon
+	soma $o2 = new NetCon (&v(1), $o1)
+			$o2.threshold = 10 //except for bcell to bcell, which is -10???
+
+	}
+
+	func is_art()  { return 0 }
+
+proc position(){ local i
+		forall {
+		for i = 0, n3d()-1 {
+			pt3dchange(i, $1-x+x3d(i), $2-y+y3d(i), $3-z+z3d(i), diam3d(i))
+		}
+}
+	x = $1  y = $2  z = $3	
+}		
+		
+endtemplate cckcell

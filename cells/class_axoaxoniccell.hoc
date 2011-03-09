@@ -1,0 +1,475 @@
+// Artificial cells no longer need a default section.
+//Network cell templates
+//   AACell
+// Simplified version (BPG 27-9-08)
+//  - geometry and channels from Santhakumar et al 2005
+//  - geometry modified to preserve VCUs different dendrites
+
+begintemplate axoaxoniccell
+public is_art
+public init, topol, basic_shape, subsets, geom, biophys
+public pre_list, connect_pre
+
+public soma, radT2, radM2, radt2, lmM2, lmt2, radT1
+public radM1, radt1, lmM1, lmt1, oriT1, oriM1, orit1
+public oriT2, oriM2, orit2
+public all
+public x, y, z, position
+
+objref pre_list, templist
+
+external numCellTypes, cellType
+
+proc init() {
+  	topol()
+  	subsets()
+  	geom()
+  	biophys()
+  	geom_nseg()
+  	pre_list = new List()
+  	synapses()
+}
+
+create soma, radT2, radM2, radt2, lmM2, lmt2, radT1
+create radM1, radt1, lmM1, lmt1, oriT1, oriM1, orit1
+create oriT2, oriM2, orit2
+
+proc topol() { local i
+  	connect radT2(0), soma(1)
+  	connect radM2(0), radT2(1)
+  	connect radt2(0), radM2(1)
+  	connect lmM2(0), radt2(1)
+  	connect lmt2(0), lmM2(1)
+  	connect radT1(0), soma(0)
+  	connect radM1(0), radT1(1)
+  	connect radt1(0), radM1(1)
+  	connect lmM1(0), radt1(1)
+  	connect lmt1(0), lmM1(1)
+  	connect oriT1(0), soma(0)
+  	connect oriM1(0), oriT1(1)
+  	connect orit1(0), oriM1(1)
+  	connect oriT2(0), soma(1)
+  	connect oriM2(0), oriT2(1)
+  	connect orit2(0), oriM2(1)
+}
+
+objref all
+proc subsets() { local i
+  	objref all
+  	all = new SectionList()
+    	soma all.append()
+    	radT2 all.append()
+    	radM2 all.append()
+    	radt2 all.append()
+    	lmM2 all.append()
+    	lmt2 all.append()
+    	radT1 all.append()
+    	radM1 all.append()
+    	radt1 all.append()
+    	lmM1 all.append()
+    	lmt1 all.append()
+    	oriT1 all.append()
+    	oriM1 all.append()
+    	orit1 all.append()
+    	oriT2 all.append()
+    	oriM2 all.append()
+    	orit2 all.append()
+
+}
+
+proc geom() {
+  	forsec all {  }
+  	soma {  L = 20  diam = 10  }
+  	radT2 {  L = 100  diam = 4  }
+  	radM2 {  L = 100  diam = 3  }
+  	radt2 {  L = 200  diam = 2  }
+  	lmM2 {  L = 100  diam = 1.5  }
+  	lmt2 {  L = 100  diam = 1  }
+  	radT1 {  L = 100  diam = 4  }
+  	radM1 {  L = 100  diam = 3  }
+  	radt1 {  L = 200  diam = 2  }
+  	lmM1 {  L = 100  diam = 1.5  }
+  	lmt1 {  L = 100  diam = 1  }
+  	oriT1 {  L = 100  diam = 2  }
+  	oriM1 {  L = 100  diam = 1.5  }
+  	orit1 {  L = 100  diam = 1  }
+  	oriT2 {  L = 100  diam = 2  }
+  	oriM2 {  L = 100  diam = 1.5  }
+  	orit2 {  L = 100  diam = 1  }
+}
+
+external lambda_f
+proc geom_nseg() {
+  	forsec all { nseg = int((L/(0.1*lambda_f(100))+.9)/2)*2 + 1  }
+}
+
+proc biophys() {
+
+	gna = 0.15
+
+	soma {
+		insert ichan2  		
+		gnatbar_ichan2 = gna  		// 0.12 //original 0.030 to .055 
+		gkfbar_ichan2 = 0.013  		//original 0.015
+		gl_ichan2 = 0.00018
+		cm=1.4
+	} 
+
+	lmt1 {
+		insert ichan2
+		gnatbar_ichan2 = gna		//0.5  	//original 0.015
+		gkfbar_ichan2 = 0.013
+		gl_ichan2 = 0.00018
+		cm=1.4
+	}		
+
+	lmt2 {
+		insert ichan2
+		gnatbar_ichan2 = gna		//0.5  	//original 0.015
+		gkfbar_ichan2 = 0.013
+		gl_ichan2 = 0.00018
+		cm=1.4
+	}		
+
+	lmM1 {
+		insert ichan2
+		gnatbar_ichan2 = gna		//0.45  	//original 0.015
+		gkfbar_ichan2 = 0.013
+		gl_ichan2 = 0.00018
+		cm=1.4
+	}		
+
+	lmM2 {
+		insert ichan2
+		gnatbar_ichan2 = gna		//0.45  	//original 0.015
+		gkfbar_ichan2 = 0.013
+		gl_ichan2 = 0.00018
+		cm=1.4
+	}		
+	
+	radt1 {
+		insert ichan2
+		gnatbar_ichan2 = gna		//0.4  	//original 0.015
+		gkfbar_ichan2 = 0.013
+		gl_ichan2 = 0.00018
+		cm=1.4
+	}		
+
+	radt2 {
+		insert ichan2
+		gnatbar_ichan2 = gna		//0.4  	//original 0.015
+		gkfbar_ichan2 = 0.013
+		gl_ichan2 = 0.00018
+		cm=1.4
+	}		
+
+	radM1 {
+		insert ichan2
+		gnatbar_ichan2 = gna		//0.3  	//original 0.015
+		gkfbar_ichan2 = 0.013
+		gl_ichan2 = 0.00018
+		cm=1.4
+	}		
+
+	radM2 {
+		insert ichan2
+		gnatbar_ichan2 = gna		//0.3  	//original 0.015
+		gkfbar_ichan2 = 0.013
+		gl_ichan2 = 0.00018
+		cm=1.4
+	}		
+
+	radT1 {
+		insert ichan2
+		gnatbar_ichan2 = gna		//0.2  	//original 0.015
+		gkfbar_ichan2 = 0.013
+		gl_ichan2 = 0.00018
+		cm=1.4
+	}		
+
+	radT2 {
+		insert ichan2
+		gnatbar_ichan2 = gna		//0.2  	//original 0.015
+		gkfbar_ichan2 = 0.013
+		gl_ichan2 = 0.00018
+		cm=1.4
+	}			
+
+	oriT1 {
+		insert ichan2
+		gnatbar_ichan2 = gna  		//original 0.015
+		gkfbar_ichan2 = 0.013
+		gl_ichan2 = 0.00018
+		cm=1.4
+	}		
+
+	oriT2 {
+		insert ichan2
+		gnatbar_ichan2 = gna  		//original 0.015
+		gkfbar_ichan2 = 0.013
+		gl_ichan2 = 0.00018
+		cm=1.4
+	}		
+
+	oriM1 {
+		insert ichan2
+		gnatbar_ichan2 = gna  		//original 0.015
+		gkfbar_ichan2 = 0.013
+		gl_ichan2 = 0.00018
+		cm=1.4
+	}		
+
+	oriM2 {
+		insert ichan2
+		gnatbar_ichan2 = gna  		//original 0.015
+		gkfbar_ichan2 = 0.013
+		gl_ichan2 = 0.00018
+		cm=1.4
+	}		
+	
+	orit1 {
+		insert ichan2
+		gnatbar_ichan2 = gna  		// Sodium conductance (original 0.015)
+		gkfbar_ichan2 = 0.013		// Delayed K+ rectifier (fast)
+		gl_ichan2 = 0.00018		// Leak conductance
+		cm=1.4
+	}		
+
+	orit2 {
+		insert ichan2
+		gnatbar_ichan2 = gna  		// Sodium conductance (original 0.015)
+		gkfbar_ichan2 = 0.013		// Delayed K+ rectifier (fast)
+		gl_ichan2 = 0.00018		// Leak conductance
+		cm=1.4
+	}		
+
+	forsec all {
+		insert ccanl
+		catau_ccanl = 10		// Time constant for decay of intracellular Ca2+
+		caiinf_ccanl = 5.e-6		// Steady-state intracellular Ca2+ concentration
+		
+		insert borgka
+		gkabar_borgka = 0.00015		// A-type K+ conductance
+		
+		insert nca  			// N-type Ca2+ conductance
+		gncabar_nca = 0.0008   		// check to modify- original 0.004
+		
+		insert lca 
+		glcabar_lca = 0.005		// L-type Ca2+ conductance
+		
+		insert gskch
+		gskbar_gskch = 0.000002		// Ca2+-dependent K (SK) conductance
+		
+		insert mykca
+		gkbar = 0.0002			// Ca2+ and Voltage-dependent K+ (BK) conductance
+
+//		Ra = 10.3			// 31.3 +/- 10.9
+		Ra = 100			// 31.3 +/- 10.9
+		enat = 55
+		ekf = -90
+		ek = -90
+		elca = 130
+		esk = -90
+		el_ichan2 = -60			//-60.06
+		cao_ccanl = 2
+	
+	} 					// make catau slower70e-3 	cao=2 cai=50.e-6
+
+}
+
+proc connect_pre() {  // $o1 target point process, $o2 returned NetCon
+	soma $o2 = new NetCon (&v(1), $o1)
+			$o2.threshold = 10
+}
+
+objref syn
+proc synapses() {
+		for celltype=0, numCellTypes-1 {
+			findme=0
+			if (strcmp(cellType[celltype].cellType_string,"ppspont")==0 || strcmp(cellType[celltype].cellType_string,"ppstim")==0 || strcmp(cellType[celltype].cellType_string,"ppvec")==0) {	// Connect to some pp stim cells
+				templist = new List ()
+  	/* E0 */   lmM1 syn = new MyExp2Sid(0.5)  //pre_list.append(syn)	// AMPA		EC
+    	syn.tau1 = 0.5
+    	syn.tau2 = 3
+    	syn.e = 0
+    	syn.sid=0
+				templist.append(syn)
+
+  	/* E1 */   lmM2 syn = new MyExp2Sid(0.5)  //pre_list.append(syn)	// AMPA		EC
+    	syn.tau1 = 0.5
+    	syn.tau2 = 3
+    	syn.e = 0
+    	syn.sid=1
+				templist.append(syn)
+				
+				pre_list.append(templist)
+				findme=1
+			}
+
+			if (strcmp(cellType[celltype].cellType_string,"ca3cell")==0) {	// Connect to some pp stim cells
+				templist = new List ()
+  	/* E2 */   radM1 syn = new MyExp2Sid(0.5)  //pre_list.append(syn)	// AMPA		CA3 Shaffer collateral
+    	syn.tau1 = 0.5
+    	syn.tau2 = 3
+    	syn.e = 0
+    	syn.sid=2
+				templist.append(syn)
+    	
+  	/* E3 */   radM2 syn = new MyExp2Sid(0.5)  //pre_list.append(syn)	// AMPA		CA3 Shaffer collateral
+    	syn.tau1 = 0.5
+    	syn.tau2 = 3
+    	syn.e = 0
+    	syn.sid=3
+				templist.append(syn)
+
+  	/* E4 */   radT1 syn = new MyExp2Sid(0.5)  //pre_list.append(syn)	// AMPA		CA3 Shaffer collateral
+    	syn.tau1 = 0.5
+    	syn.tau2 = 3
+    	syn.e = 0
+    	syn.sid=4
+				templist.append(syn)
+    	
+  	/* E5 */   radT2 syn = new MyExp2Sid(0.5)  //pre_list.append(syn)	// AMPA		CA3 Shaffer collateral
+    	syn.tau1 = 0.5
+    	syn.tau2 = 3
+    	syn.e = 0
+    	syn.sid=5
+				templist.append(syn)
+				
+				pre_list.append(templist)
+				findme=1
+			}
+    	
+			if (strcmp(cellType[celltype].cellType_string,"septalcell")==0) {	// Connect to some pp stim cells
+				templist = new List ()
+  	/* I10 */   oriT1 syn = new MyExp2Sid(0.6)  //pre_list.append(syn)	// GABA-A	Septum
+    	syn.tau1 = 1
+    	syn.tau2 = 8
+    	syn.e = -75
+    	syn.sid=10
+				templist.append(syn)
+    	
+  	/* I11 */   oriT2 syn = new MyExp2Sid(0.6)  //pre_list.append(syn)	// GABA-A	Septum
+    	syn.tau1 = 1
+    	syn.tau2 = 8
+    	syn.e = -75
+    	syn.sid=11
+				templist.append(syn)
+    	
+  	/* I12 */   oriT1 syn = new MyExp2Sid(0.6)  //pre_list.append(syn)	// GABA-B	Septum
+    	syn.tau1 = 35
+    	syn.tau2 = 100
+    	syn.e = -75
+    	syn.sid=12
+				templist.append(syn)
+    	
+  	/* I13 */   oriT2 syn = new MyExp2Sid(0.6)  //pre_list.append(syn)	// GABA-B	Septum
+    	syn.tau1 = 35
+    	syn.tau2 = 100
+    	syn.e = -75
+    	syn.sid=13
+				templist.append(syn)
+				
+				pre_list.append(templist)
+				findme=1
+			}
+    	
+			if (strcmp(cellType[celltype].cellType_string,"pyramidalcell")==0) {	// Connect to some pp stim cells
+				templist = new List ()
+  	/* E6 */   oriT1 syn = new MyExp2Sid(0.5)  //pre_list.append(syn)	// AMPA		PC
+    	syn.tau1 = 0.5
+    	syn.tau2 = 3
+    	syn.e = 0
+    	syn.sid=6
+				templist.append(syn)
+    	
+  	/* E7 */   oriT2 syn = new MyExp2Sid(0.5)  //pre_list.append(syn)	// AMPA		PC
+    	syn.tau1 = 0.5
+    	syn.tau2 = 3
+    	syn.e = 0
+    	syn.sid=7
+				templist.append(syn)
+				
+				pre_list.append(templist)
+				findme=1
+			}
+    	
+			if (strcmp(cellType[celltype].cellType_string,"pvbasketcell")==0) {	// Connect to some pp stim cells
+				templist = new List () // make sure they meant this to connect to basket cells and not axo-axonic cells
+  	/* I8 */   soma syn = new MyExp2Sid(0.5)  //pre_list.append(syn)	// GABA-A	Neighboring basket cell
+    	syn.tau1 = 1
+    	syn.tau2 = 8
+    	syn.e = -75
+    	syn.sid=8
+				templist.append(syn)
+				
+				pre_list.append(templist)
+				findme=1
+			}
+			if (strcmp(cellType[celltype].cellType_string,"olmcell")==0) {	// just copied this from basket cell
+				templist = new List () // 
+  	/* I8 */   lmM1 syn = new MyExp2Sid(0.5)  //pre_list.append(syn)	// GABA-A	
+    	syn.tau1 = 1
+    	syn.tau2 = 8
+    	syn.e = -75
+    	syn.sid=8
+				templist.append(syn)
+				
+				pre_list.append(templist)
+				findme=1
+			}
+
+  	
+    	// from basket cell to here
+			if (strcmp(cellType[celltype].cellType_string,"cckcell")==0) {	// Connect to some pp stim cells
+				templist = new List ()
+
+  	/* I5 */   	soma syn = new MyExp2Sid(0.5)  //pre_list.append(syn)		// GABA-A	B cell
+    	syn.tau1 = 1
+    	syn.tau2 = 8
+    	syn.e = -75
+    	syn.sid=6
+				templist.append(syn)
+ 
+				pre_list.append(templist)
+				findme=1
+			}
+
+    	
+			if (strcmp(cellType[celltype].cellType_string,"bistratifiedcell")==0) {	// Connect to some pp stim cells
+				templist = new List ()
+  	/* I9 */   radT1 syn = new MyExp2Sid(0.6)  //pre_list.append(syn)	// GABA-A	Bistratified cell
+    	syn.tau1 = 1
+    	syn.tau2 = 8
+    	syn.e = -75
+    	syn.sid=9
+				templist.append(syn)
+ 	/* I9 */   oriT1 syn = new MyExp2Sid(0.6)  //pre_list.append(syn)	// GABA-A	Bistratified cell
+    	syn.tau1 = 1
+    	syn.tau2 = 8
+    	syn.e = -75
+    	syn.sid=10
+				templist.append(syn)
+				
+				pre_list.append(templist)
+				findme=1
+			}
+
+		if (findme==0) {
+			templist = new List ()
+			pre_list.append(templist)		
+			findme=1
+		}
+	}
+}
+
+func is_art() { return 0 }
+proc position(){ local i
+		forall {
+		for i = 0, n3d()-1 {
+			pt3dchange(i, $1-x+x3d(i), $2-y+y3d(i), $3-z+z3d(i), diam3d(i))
+		}
+}
+	x = $1  y = $2  z = $3	
+}
+endtemplate axoaxoniccell

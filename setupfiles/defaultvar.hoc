@@ -1,0 +1,40 @@
+// default_var fcn courtesy of Michael Hines.
+// Comments added by marianne.case@uci.edu 2011
+// This code allows you to use default variables, where
+// you have the option of either defining the variable
+// at the command line when executing the code, or using
+// the value defined in the code:
+// COMMAND LINE
+// $ ... nrniv -mpi -c myvariable=20 mymodelcode.hoc
+// $ ... nrniv -mpi -c "strdef mystr" -c mystr="\"hello\"" mymodelcode.hoc
+//
+// CODE
+// code: default_var("myvariable",10)
+// where the variable myvariable is only set in the code
+// by using the default_var command 
+
+proc default_var() {localobj s
+	s = new String()
+	if (name_declared($s1) == 0) {	// If the name of the variable used
+									//  at the command line has not yet
+									//  been defined in the code
+									
+		if (argtype(2) == 2) {		// If the variable is type string
+		
+			sprint(s.s, "~strdef %s", $s1)	// Create a string of the command
+			
+			execute(s.s)					// Run the command to define a new string object
+			
+			sprint(s.s, "%s = \"%s\"", $s1, $s2)	// Set the string object
+													//  equal to the string value
+													
+		}else{
+			hoc_ac_ = $2					// Set a temporary variable equal to the
+											//  desired value of the variable
+											
+			sprint(s.s, "%s = hoc_ac_", $s1)	// Create a string of the command
+		}
+		execute(s.s)							// Run the command to set the variable
+												//  to the desired value
+	}
+}

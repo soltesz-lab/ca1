@@ -1,0 +1,31 @@
+begintemplate ppspont
+
+	public pp, connect_pre, is_art, acell, noiseFromRandom, setnoiseFromRandom
+	create acell
+	objref pp
+
+	proc init() {
+		actemp() 		
+	}
+		proc actemp() {
+				acell pp = new NetStim(.5)
+				// Rob & Jonas protocol:
+				pp.interval = 100
+				pp.number = 40
+				pp.noise = 1				
+				pp.start = 0
+				/* My protocol:
+				pp.interval = 100 	// ms
+				pp.number = 500000000		// # of spikes - set it really high so that we don't run out of activity during sim. even if really long
+				pp.noise = 0.5		// percent of spike interval time that is decided by noise
+				pp.start = 5		// start time (ms) of stim protocol
+				*/
+				}
+	proc setnoiseFromRandom() {
+		pp.noiseFromRandom($o1)
+	}
+
+	func is_art() {return 1}
+	proc connect_pre() {acell $o2 = new NetCon(pp, $o1)}
+
+endtemplate ppspont

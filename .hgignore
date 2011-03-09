@@ -2,6 +2,7 @@ syntax: glob
 x86_64/**
 jobscripts/**
 none/**
+results/**
 *.*~
 spikeraster.dat
 position.dat

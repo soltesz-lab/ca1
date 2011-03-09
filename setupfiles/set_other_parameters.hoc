@@ -1,0 +1,36 @@
+objref dentateZLength
+proc SetOtherParameters() {
+	dentateZLength=new Vector(3)	// List of Zo (starting height) values, 1 for each layer (3 layers)
+	dentateZLength.x[0] = HilarHeight		// Height of the hilar layer in microns
+	dentateZLength.x[1] = GCLHeight 		// Height of the granule cell layer in microns
+	dentateZLength.x[2] = MolecularHeight 	// Height of the molecular layer in microns
+
+	axconvel = 250	// axonal conduction velocity in microns/ms (Bartos et al. 2002)
+	
+	tstart = 0		// Start time of simulation
+	
+	tstop = mytstop	// End time of simulation
+	
+	dt = mydt		// Integration interval for fadvance (see NEURON reference)
+	
+	secondorder = 2	// A global variable which specifies the time integration method
+					// 	(see NEURON reference)
+					
+	v_init = -60	// All voltages of all sections are initialized to this voltage (mV)
+	
+	N = 1			// Specifies step resolution (see NEURON reference for steps_per_ms),
+					// 	sometimes 1, sometimes 4
+
+	steps_per_ms = 1*N/(dt)		// Controls the intervals at which points are plotted
+	
+	noise_random_stream_offset_ = (tstop - tstart)/dt + 1	// Each noise generator picks a number every
+															// 	dt for the full time range, so stream
+															// 	sections must be at least this long to
+															// 	prevent overlap
+															
+	connectionFactor = 1 // Set factor to control # connections formed in the network;
+						// 	changes depending on total # cells and model size (Scale)
+	if (Scale>=20) {connectionFactor = 1} //5}
+	if (Scale>=2000) {connectionFactor = 1} //500}
+}	
+SetOtherParameters()
