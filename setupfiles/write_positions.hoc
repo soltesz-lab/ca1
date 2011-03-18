@@ -1,6 +1,6 @@
 proc posout() {local pci, rank, gid, srcid localobj tgt, f, cell	// Write out the 3d position coordinates of each cell
 	pc.barrier()					// Wait for all ranks to get to this point
-	sprint(cmd,"./results/%s/position.dat", runname)
+	sprint(cmd,"./results/%s/position.dat", RunName)
 	f = new File(cmd)
 	if (pc.id == 0) { 				// Write header to file 1 time only
 		f.wopen()

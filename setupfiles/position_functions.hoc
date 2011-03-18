@@ -9,6 +9,6 @@ func ypos_algorithm() {local CellNum // Arguments: gid, numCells, startGid, binN
 func zpos_algorithm() {local CellNum, addheight // Arguments: 1-gid, 2-numCells, 3-startGid, 4-binNum, 5-binSize, cell layer Zo; Return: z position of cell
 	CellNum=$1 - $3+1
 	addheight=0
-	if ($6>0) {addheight=dentateZLength.sum(0,$6-1)}
+	if ($6>0) {addheight=LayerVector.sum(0,$6-1)}
 	return ((CellNum-1)%$4)*$5+$5/2+addheight
 }

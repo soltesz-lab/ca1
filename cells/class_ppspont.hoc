@@ -1,6 +1,7 @@
 begintemplate ppspont
 
 	public pp, connect_pre, is_art, acell, noiseFromRandom, setnoiseFromRandom
+	external DegreeStim
 	create acell
 	objref pp
 
@@ -10,7 +11,7 @@ begintemplate ppspont
 		proc actemp() {
 				acell pp = new NetStim(.5)
 				// Rob & Jonas protocol:
-				pp.interval = 100
+				pp.interval = 1000/DegreeStim // 100 for Rob and Jonas
 				pp.number = 40
 				pp.noise = 1				
 				pp.start = 0

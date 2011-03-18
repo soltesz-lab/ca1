@@ -1,17 +1,32 @@
-objref dentateZLength
-proc SetOtherParameters() {
-	dentateZLength=new Vector(3)	// List of Zo (starting height) values, 1 for each layer (3 layers)
-	dentateZLength.x[0] = HilarHeight		// Height of the hilar layer in microns
-	dentateZLength.x[1] = GCLHeight 		// Height of the granule cell layer in microns
-	dentateZLength.x[2] = MolecularHeight 	// Height of the molecular layer in microns
+objref LayerVector, strobj
+strdef cmdstr, layers, tmpstr
+
+proc SetOtherParameters() {local ind, i, layernum, tempheight
+	strobj = new StringFunctions()
+	tmpstr = LayerHeights
+	ind = strobj.substr(tmpstr,";")
+	layers = tmpstr
+	strobj.left(layers, ind)
+	sscanf(layers,"%g", &layernum)
+	{sprint(cmdstr, "LayerVector=new Vector(%g)",  layernum)} // List of Zo (starting height) values, 1 for each layer
+	{execute1(cmdstr)}
+	
+	for i=0, layernum-1 {
+		strobj.right(tmpstr, ind+1)
+		ind = strobj.substr(tmpstr,";")
+		layers = tmpstr
+		strobj.left(layers, ind)
+		sscanf(layers,"%g", &tempheight)
+		LayerVector.x[i] = tempheight
+	}
 
 	axconvel = 250	// axonal conduction velocity in microns/ms (Bartos et al. 2002)
-	
+
 	tstart = 0		// Start time of simulation
 	
-	tstop = mytstop	// End time of simulation
+	tstop = SimDuration	// End time of simulation
 	
-	dt = mydt		// Integration interval for fadvance (see NEURON reference)
+	dt = SimStep		// Integration interval for fadvance (see NEURON reference)
 	
 	secondorder = 2	// A global variable which specifies the time integration method
 					// 	(see NEURON reference)

@@ -1,23 +1,26 @@
 objref frec
-strdef cmd, dircmd, direx, comper, version, vercomment, mypath, userstr, machname, outfile
+strdef cmd, dircmd, direx, comper, version, vercomment, mypath, userstr, machname, outfile, edate
+	objref  strobj
+    strobj = new StringFunctions()
+
 proc typeout() {local i, rank, gid, srcid localobj tgt, f, cell// Write out the cell types & gid ranges
 	if (pc.id == 0) { 				// Write header to file 1 time only
-		sprint(dircmd, "ls ../results/%s", runname)
+		sprint(dircmd, "ls ../results/%s", RunName)
 		{system(dircmd, direx)}
-		{sprint(comper, "ls: cannot access ../results/%s: No such file or directory", runname)}
+		{sprint(comper, "ls: cannot access ../results/%s: No such file or directory", RunName)}
 		while (strcmp(direx,comper)!=0 && strcmp(direx,"")!=0 ) {
-			sprint(runname, "%sa", runname)
-			sprint(dircmd, "ls ../results/%s", runname)
+			sprint(RunName, "%sa", RunName)
+			sprint(dircmd, "ls ../results/%s", RunName)
 			{system(dircmd, direx)}
-			{sprint(comper, "ls: cannot access ../results/%s: No such file or directory", runname)}
+			{sprint(comper, "ls: cannot access ../results/%s: No such file or directory", RunName)}
 		}
 		printf(" so I will create it now\n")
-		sprint(dircmd, "mkdir ../results/%s", runname)
+		sprint(dircmd, "mkdir ../results/%s", RunName)
 		{system(dircmd, direx)}
-		sprint(dircmd, "cp ../setupfiles/lowindex.hoc ../results/%s", runname)
+		sprint(dircmd, "cp ../setupfiles/lowindex.hoc ../results/%s", RunName)
 		{system(dircmd, direx)}
 		
-		sprint(dircmd, "hg status", runname)
+		sprint(dircmd, "hg status", RunName)
 		{system(dircmd, direx)}
 		if (strcmp(direx,"")>0 && testrun==0) {
 			printf("The current code version has not been committed")
@@ -28,33 +31,40 @@ proc typeout() {local i, rank, gid, srcid localobj tgt, f, cell// Write out the 
 		} else {
 			sprint(dircmd, "hg parent --template '{rev}: {desc}\n'")
 			{system(dircmd, direx)}
+			strobj.left(direx, strobj.len(direx)-1)
 			vercomment=direx
 			sprint(dircmd, "hg parent --template '{node}\n'")
 			{system(dircmd, direx)}
+			strobj.left(direx, strobj.len(direx)-1)
 			version=direx
 
-			system("pwd",mypath)
+			system("cd ..;pwd",mypath)
+			strobj.left(mypath, strobj.len(mypath)-1)
 			system("whoami", userstr)
+			strobj.left(userstr, strobj.len(userstr)-1)
 			{system("hostname", machname)}
-			sprint(outfile, "../results/%s/runreceipt.txt", runname)
+			strobj.left(machname, strobj.len(machname)-1)
+			{system("date \"+%d-%b-%Y %H:%M:%S\"", edate)}
+			strobj.left(edate, strobj.len(edate)-1)
+
+			sprint(outfile, "../results/%s/runreceipt.txt", RunName)
 			frec = new File(outfile)
 			frec.wopen()
-			frec.printf("time=%f\n", startsw())
-			frec.printf("runname='%s' \n", runname)
-			frec.printf("runcomments='%s' \n", RunComments)
-			frec.printf("username='s' \n", userstr)
-			frec.printf("host0='%s' \n", machname)
-			frec.printf("model_vercomment='%s' \n", vercomment)
-			frec.printf("model_version='%s' \n", version)
-			frec.printf("model_path='%s' \n", mypath)
-			frec.printf("neuron_version='%s' \n", nrnversion(2)) // version number and mercurial changeset
+			frec.printf("NumProcessors = %g;\n", pc.nhost)
+			frec.printf("ExecutionDate = '%s';\n", edate)
+			frec.printf("ExecutedBy = '%s';\n", userstr)
+			frec.printf("Machine = '%s';\n", machname)
+			frec.printf("ModelVerComment='%s';\n", vercomment)
+			frec.printf("ModelVersion='%s';\n", version)
+			frec.printf("ModelDirectory ='%s';\n", mypath)
+			frec.printf("NEURONVersion ='%s';\n", nrnversion(2)) // version number and mercurial changeset
 			printmyvars()
 			frec.close()
 		}	
 	}
 
 	pc.barrier()					// Wait for all ranks to get to this point
-	sprint(cmd,"../results/%s/celltype.dat", runname)
+	sprint(cmd,"../results/%s/celltype.dat", RunName)
 	f = new File(cmd)
 	if (pc.id == 0) { 				// Write header to file 1 time only
 		f.wopen()
@@ -65,9 +75,8 @@ proc typeout() {local i, rank, gid, srcid localobj tgt, f, cell// Write out the 
 		f.close()
 	}
 }
-/**/strdef thisline, getval, result, paramstr, testline
-/**/proc printmyvars() {local strlen localobj strobj, pfobj
-    strobj = new StringFunctions()
+/**/strdef thisline, getval, result, paramstr, testline, valstr
+/**/proc printmyvars() {local strlen localobj pfobj
 
 	pfobj = new File()
 	pfobj.ropen("../setupfiles/parameters.hoc")
@@ -87,11 +96,19 @@ proc typeout() {local i, rank, gid, srcid localobj tgt, f, cell// Write out the 
 /**/proc printnow() {
 		if (argtype(1)==0) {
 			if ($3>0) {
-				sprint(getval, "paramval = %s", $s2) // Note that paramval cannot be a local variable
-				{execute1(getval)}
-				{frec.printf("%s = %g\n", paramstr, $1)}
+				//sprint(getval, "paramval = %s", $s2) // Note that paramval cannot be a local variable
+				//{execute1(getval)}
+				{frec.printf("%s = %g;\n", paramstr, $1)}
 			}
+		} else {
+			if (argtype(1)==2) {
+				if ($3>0) {
+					//sprint(getval, "paramval = %s", $s2) // Note that paramval cannot be a local variable
+					//{execute1(getval)}
+					{frec.printf("%s = '%s';\n", paramstr, $s1)}
+				}
+			} 
 		}
 	}
 typeout()
-{pc.broadcast(runname, 0)}
+{pc.broadcast(RunName, 0)}

@@ -23,8 +23,7 @@ I.  LOAD LIBRARIES
 {load_file("./setupfiles/defaultvar.hoc")}	// Contains the proc definition for default_var proc
 
 {load_file("./setupfiles/parameters.hoc")}	// Loads in operational and model parameters that can
-											//  be changed at command line
-											
+											//  be changed at command line											
 {load_file("./setupfiles/set_other_parameters.hoc")}// Loads in operational and model parameters
 													//  that can't be changed at command line
 
@@ -65,7 +64,7 @@ proc calcNetSize(){local i				// Calculate the final network size (after any cel
 	
 		if (cellType[i].layerflag==0) {	// For cell types in layer 0, which are susceptible to death
 		
-			cellType[i].numCells = int(cellType[i].numCells * ((100-percentSclerosis)/100))
+			cellType[i].numCells = int(cellType[i].numCells * ((100-PercentDeath)/100))
 										// Calculate the number of cells surviving after cell loss
 			
 			if (cellType[i].numCells == 0) {cellType[i].numCells = 1}	// If all cells of one type
@@ -98,7 +97,7 @@ proc calcBinSize(){local NumGCells
 									//  of bins in X, Y, Z dimensions such that the cells will be
 									//  evenly distributed throughout the allotted volume
 	
-		cellType[i].setBins(dentateXLength,dentateYLength,dentateZLength.x[cellType[i].layerflag])  
+		cellType[i].setBins(LongitudinalLength,TransverseLength,LayerVector.x[cellType[i].layerflag])  
 									// For the z length, use the height of the layer in which the
 									// cell somata are found for this cell type
 	}
@@ -170,7 +169,7 @@ strdef cmd
 {load_file("./setupfiles/write_positions.hoc")}		// Defines the proc to write the position
 													//  of each cell to file
 													
-if (printPosition>0) {posout()}	// Calls the proc that writes the position of each cell to the
+if (PrintPosition>0) {posout()}	// Calls the proc that writes the position of each cell to the
 								//  file "position.dat" in the format: gid, x, y, z
 
 createtime = startsw() - createstart	// Calculate time taken to create the cells
@@ -184,16 +183,12 @@ V.	CONNECT THE MODEL CELLS AND CONNECT THE STIMULATION CELLS TO SOME MODEL CELLS
 													//  are procs (?) needed to create the netcon
 													//  object associated with each connection
 													//  (synapse)
-													
-strdef conntype
-{conntype="try_all_random"} // conntype = [try_all_random]
-{sprint(cmd,"./setupfiles/%s_connections.hoc", conntype)}
-{load_file(cmd)}			// Loads in a particular definition of the connectCells function,
-							//  depending on the value of the conntype string
 
-strdef stimtype
-{stimtype="spontaneous"} // stimtype = [pulse | spontaneous | grid]
-{sprint(cmd,"./stimulation/%s_stimulation.hoc", stimtype)}
+{sprint(cmd,"./setupfiles/%s_connections.hoc", Connectivity)}
+{load_file(cmd)}			// Loads in a particular definition of the connectCells function,
+							//  depending on the value of the Connectivity string
+
+{sprint(cmd,"./stimulation/%s_stimulation.hoc", Stimulation)}
 {load_file(cmd)}			// Loads in a particular stimulation protocol, including the spike
 							//  vectors for the artificial cells and their connections to the
 							//  'real' cells (where do we define the # of art cells and create them?)
@@ -205,10 +200,10 @@ strdef stimtype
 														//  postsynaptic cell type, and synapse type for
 														//  every connection
 														
-if (printNumCon==1) {printNumConFile()}	// Write "numcons.dat": a QUICK, SMALL summary file of the # of
+if (PrintNumCon==1) {printNumConFile()}	// Write "numcons.dat": a QUICK, SMALL summary file of the # of
 										//  connections by pre and post cell types
 										
-if (printConMat==2) {tracenet()}		// Write "connections.dat": a VERY SLOW, LARGE file of all cell
+if (PrintConMat==2) {tracenet()}		// Write "connections.dat": a VERY SLOW, LARGE file of all cell
 										//	connections (pre and post gids, synapse type, host on which
 										//  (target?) cell exists)
 
@@ -247,7 +242,7 @@ proc init() { local dtsav, temp, secsav, secondordersav	// Redefine the proc tha
 	temp= cvode.active()			// Check whether cvode, a type of solver (?) is on
 	if (temp!=0) {cvode.active(0)}	// If cvode is on, turn it off while running the presimulation
 															
-	while(t<-100) { fadvance() if (flagprint>1) {print t}}	// Run the presimulation from t = -500
+	while(t<-100) { fadvance() if (PrintLevel>1) {print t}}	// Run the presimulation from t = -500
 															//  to t = -100 (why not 0?) to let the
 															//  network and all its components reach
 															//  steady state. Integrate all section
@@ -288,22 +283,24 @@ proc rrun(){									// Run the network simulation and write out the results
 												
 	stdinit()									// Call the init fcn (which is redefined in this code) and
 												//  then make other standard calls (to stop watch, etc)
-												
+
 	pc.psolve(tstop)							// Equivalent to calling cvode.solve(tstop) but for parallel NEURON;
 												//  solve will be broken into steps determined by the result of
 												//  set_maxstep
-												
+
 	runtime = startsw() - runstart				// Calculate runtime of simulation
 	
-	if (pc.id == 0) {printf("****\nTIME SUMMARY for host 0\nset up in %g seconds\ncreated cells in %g seconds\nconnected cells in %g seconds\nran simulation in %g seconds\n************\nThis run is called: %s\n************\n", loadtime, createtime, connecttime, runtime, runname)}
+	if (pc.id == 0) {printf("****\nTIME SUMMARY for host 0\nset up in %g seconds\ncreated cells in %g seconds\nconnected cells in %g seconds\nran simulation in %g seconds\n************\nThis run is called: %s\n************\n", loadtime, createtime, connecttime, runtime, RunName)}
 												// Print a time summary message to screen
 
 	spikeout()	// Write the spike times (in ms) and spiking cells (by gid) into a file called "spikeraster.dat"
 	
 	timeout()	// Write out a file of run times for each code section
-	
-	if (printConMat==1) {tracenet()}	// Write the file of all cell connections (pre and post gids, synapse type,
+
+	if (PrintConMat==1) {tracenet()}	// Write the file of all cell connections (pre and post gids, synapse type,
 										//  host on which cell exists), "connections.dat"
+										
+	sumnumout()	// Write out a file with the total number of cells, spikes, and connections (including contributions from artificial cells)
 }
 rrun()	// Run the network simulation (in proc rrun)
 

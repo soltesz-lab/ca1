@@ -20,7 +20,7 @@ proc createCells(){ local i, si, pci, cellind, runresult, gid	// Create cells an
 				ranconlist.object(int(gid/pc.nhost)).r.uniform(0,1)// Set up the generator to pick a uniform dist of numbers between 0 and 1
 																	// int(gid/pc.nhost) gives the stream number on that host
 
-				ransynlist.append(new RandomStream(usedseeds+2*random_stream_offset_+1, gid)) //+(gid*2+1)*random_stream_offset_))	// Create a new random number generator for each cell,
+				ransynlist.append(new RandomStream(usedseeds+(1+RandomSeeds)*random_stream_offset_+1, gid)) //+(gid*2+1)*random_stream_offset_))	// Create a new random number generator for each cell,
 																								//	with a unique stream. This will be used to determine
 																								//	what type of synapse is used in connections
 				cellType[cellind].CellList[i].connect_pre(nil, nc)	// Create an empty connection for use by the spike detector
@@ -38,13 +38,13 @@ proc createCells(){ local i, si, pci, cellind, runresult, gid	// Create cells an
 					zpos=zpos_algorithm(gid,cellType[cellind].numCells,cellType[cellind].cellStartGid,cellType[cellind].dentateZBins,cellType[cellind].dentateZBinSize,cellType[cellind].layerflag)	// Algorithmically generate cell position
 					cellType[cellind].CellList[i].position(xpos,ypos,zpos)									// Record cell position in cell object
 					
-					if ((i%int(cellType[cellind].numCells/10+1) == 0) && (flagprint>1)) {print cellType[cellind].cellType_string, ": ", i}
+					if ((i%int(cellType[cellind].numCells/10+1) == 0) && (PrintLevel>1)) {print cellType[cellind].cellType_string, ": ", i}
 				}
 			}
 		} 
 	}
 
 	nc = nil // Then clear the reference to the netcon object, which should destroy the netcon (because all refs would have been removed)
-	if  (flagprint>0) {print "Host ", pc.id, " created cells."}
+	if  (PrintLevel>0) {print "Host ", pc.id, " created cells."}
 }
 createCells()

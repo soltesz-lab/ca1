@@ -1,6 +1,6 @@
 proc printNumConFile() {local i, j localobj f
 	pc.barrier()									// Wait for all ranks to get to this point
-	sprint(cmd,"./results/%s/numcons.dat", runname)
+	sprint(cmd,"./results/%s/numcons.dat", RunName)
 	f = new File(cmd)
 	if (pc.id == 0) { 								// Write header to file 1 time only
 		f.wopen()
@@ -23,7 +23,7 @@ proc printNumConFile() {local i, j localobj f
 
 proc tracenet() {local i, rank, srcid localobj tgt, f	// Write out the connections list, including synapse type
 	pc.barrier()									// Wait for all ranks to get to this point
-	sprint(cmd,"./results/%s/connections.dat", runname)
+	sprint(cmd,"./results/%s/connections.dat", RunName)
 	f = new File(cmd)
 	if (pc.id == 0) { 								// Write header to file 1 time only
 		f.wopen()

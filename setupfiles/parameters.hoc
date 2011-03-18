@@ -4,43 +4,46 @@
 default_var("testrun",0)		// stop run if not using a committed Mercurial version (unless doing a testrun before commit)
 
 // Files to print
-default_var("flagprint",1)		// controls how many notes print to screen. 0=few, 1=some, 2=many
-default_var("printNumCon",1)	// Controls whether to print the Number of Connections (1=yes, 0=no)
-default_var("printPosition",1)	// Controls whether to print the position list (1=yes, 0=no)
-default_var("printConMat",0)	// Controls whether to print the detailed Connection list
+default_var("PrintLevel",1)		// controls how many notes print to screen. 0=few, 1=some, 2=many
+default_var("PrintNumCon",1)	// Controls whether to print the Number of Connections (1=yes, 0=no)
+default_var("PrintPosition",1)	// Controls whether to print the position list (1=yes, 0=no)
+default_var("PrintConMat",0)	// Controls whether to print the detailed Connection list
 								//	(2=yes immediately, 1=yes at end of program, 0=no)
-default_var("printRanSeeds",1)	// Controls whether to print the random seed list (1=yes, 0=no)
-default_var("voltagetrace",1)	// Controls whether to record the voltage traces for the
-								//  cells listed in setupfiles/voltagetrace.hoc (1=yes, 0=no)
+default_var("RandomSeeds",0)	// Controls whether to print the random seed list (1=yes, 0=no)
 
 // Load balancing					
-default_var("loadbal_lpt",0)	// Use a loadbalancer to distribute cells among the hosts (1=yes, 0=no, use round robin)
+default_var("LoadBalance",0)	// Use a loadbalancer to distribute cells among the hosts (1=yes, 0=no, use round robin)
 								//  If a loadbalance file doesn't yet exist, the call of the model will create the loadbalance file
 								//  and another call will be needed to actually run the program
 
 // Model size
-default_var("dentateXLength",6000)	// X Length of dentate in microns
-default_var("dentateYLength",1000)	// Y Length of dentate in microns
-default_var("HilarHeight",500)		// Height of the hilar layer in microns
-default_var("GCLHeight",100) 		// Height of the granule cell layer in microns
-default_var("MolecularHeight",400) 	// Height of the molecular layer in microns
+default_var("LongitudinalLength",6000)	// X Length of dentate in microns
+default_var("TransverseLength",1000)	// Y Length of dentate in microns
+// default_var("HilarHeight",500)		// Height of the hilar layer in microns
+// default_var("GCLHeight",100) 		// Height of the granule cell layer in microns
+// default_var("MolecularHeight",400) 	// Height of the molecular layer in microns
+default_var("LayerHeights","3;500;100;400;") 	// Height of the molecular layer in microns
 
 // Model stimulation
-default_var("spontaneousAct",0)		// A flag to determine whether there is spontaneous activity from the pp (0=no, 1 pulse; 1=yes, spont, indep., multiple)
-default_var("percentStim",10)		// Where stimulation is only applied to a percent of cells, what percent should receive it
-									//  ex: If pulse stimulation is used (spontaneousAct==0), what percent of granule, basket, mossy cells
-									//  alternately, if spontaneous stimulation is used, what percent of mossy cells receive spontaneous stim?
+													
+default_var("Connectivity","try_all_random")		// Connectivity = [try_all_random]
+default_var("Stimulation","spontaneous")		// Stimulation = [pulse | spontaneous | grid]
+
+default_var("DegreeStim",10)		// Intensity of stimulation; slightly different meaning depending on the 
+									//  stimulation protocol used. Ex:
+									//  If pulse stimulation is used (spontaneousAct==0), what percent of granule, basket, mossy cells
+									//  alternately, if spontaneous stimulation is used, what should the maximal rate be?
 
 // Sprouting and cell death
-default_var("percentSprouting",0)	// Set % of mossy fiber (granule cell) sprouting
-default_var("percentSclerosis",percentSprouting)	// Set % of cell death, for cells flagged as susceptible to death
+default_var("PercentSprouting",0)	// Set % of mossy fiber (granule cell) sprouting
+default_var("PercentDeath",PercentSprouting)	// Set % of cell death, for cells flagged as susceptible to death
 
 // Model scale (1:X)
 default_var("Scale",1000) // Scale of model (1:X), so 1 is 1M cells, 20 is 50K cells, etc
 
 // Simulation time and other settings
-default_var("mytstop",300)	// Stop time of simulation
-default_var("mydt",0.1)	// Stop time of simulation
+default_var("SimDuration",300)	// Stop time of simulation
+default_var("SimStep",0.1)	// Step time / resolution of simulation
 
 default_var("RunComments","none") // Run Comments
-default_var("runname","none") // Run Comments
+default_var("RunName","none") // Run Comments

@@ -1,6 +1,6 @@
 proc spikeout() {local i, rank  localobj f				// Write out a spike raster (cell, spike time)
 	pc.barrier()									// Wait for all ranks to get to this point
-	sprint(cmd,"./results/%s/spikeraster.dat", runname)
+	sprint(cmd,"./results/%s/spikeraster.dat", RunName)
 	f = new File(cmd)
 	if (pc.id == 0) { 								// Write header to file 1 time only
 		f.wopen()
@@ -19,16 +19,21 @@ proc spikeout() {local i, rank  localobj f				// Write out a spike raster (cell,
 	}
 }
 
-/*
-# spikes (pnm.idvec.size)
-# cells (totalCells (ncell includes art))
-# connections (nclist.count includes art-->real)
-*/
 
+proc sumnumout() {local alltime localobj f
+	if (pc.id == 0) { 								// Write header to file 1 time only
+		alltime = startsw() - loadstart
+		sprint(cmd,"./results/%s/sumnumout.txt", RunName)
+		f = new File(cmd)
+		f.wopen()
+			f.printf("NumCells = %g;\nNumSpikes = %g;\nNumConnections = %g;\nHostTime = %g;\nNumCellTypes = %g;\n", ncell, pnm.idvec.size, nclist.count, alltime, numCellTypes)	// Print the spike time and spiking cell gid
+		f.close()
+	}
+}
 
 proc timeout() {local i, rank, gid, srcid localobj tgt, f, cell// Write out runtimes for each processor
 	pc.barrier()					// Wait for all ranks to get to this point
-	sprint(cmd,"./results/%s/runtimes.dat", runname)
+	sprint(cmd,"./results/%s/runtimes.dat", RunName)
 	f = new File(cmd)
 	if (pc.id == 0) { 				// Write header to file 1 time only
 		f.wopen()

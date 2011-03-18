@@ -82,16 +82,24 @@ To get started:
 	$ hg log
 7. To switch to a different code version (ex: version 2):
 	$ hg update -C -r 2
-8. To check the changes made since you last commit:
+8. To switch to back to the most recent version:
+	$ hg update -C -r tip
+9. To check the changes made since you last commit:
 	$ hg status
-9. To have Mercurial start tracking a file:
+10. To have Mercurial start tracking a file:
 	$ hg add myfile.txt
+11. To have Mercurial remove and stop tracking a file:
+	$ hg remove myfile.txt
+12. To have Mercurial move and keep tracking a file:
+	$ hg mv original.txt target.txt
+13. For more extensive instructions, see:
+	http://mercurial.selenic.com/guide/
 
 SPECIFYING PARAMETER VALUES AT EXECUTION TIME
 Add the '-c' option, followed by the equation to set the parameter in quotes:
 	$ mpiexec -n 2 $NEURONHOME/nrn/x86_64/bin/nrniv -nobanner -nogui -mpi -c "mytstop=100" ca1.hoc	
 For strings, include another '-c' option to define the string and enclose the string value in '\"':
-	$ mpiexec -n 2 $NEURONHOME/nrn/x86_64/bin/nrniv -nobanner -nogui -mpi -c "strdef runname" "runname=\"myrun\"" ca1.hoc	
+	$ mpiexec -n 2 $NEURONHOME/nrn/x86_64/bin/nrniv -nobanner -nogui -mpi -c "strdef RunName" "RunName=\"myrun\"" ca1.hoc	
 
 CODE OUTLINE:
 I.  LOAD LIBRARIES & PARAMETERS
