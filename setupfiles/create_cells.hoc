@@ -34,13 +34,13 @@ proc createCells(){ local i, si, pci, cellind, runresult, gid	// Create cells an
 						}
 					}
 					
-					if ((i%int(cellType[cellind].numCells/10+1) == 0) && (PrintLevel>1)) {print cellType[cellind].cellType_string, ": ", i}
+					if ((i%int(cellType[cellind].numCells/10+1) == 0) && (PrintTerminal>1)) {print cellType[cellind].cellType_string, ": ", i}
 				}
 			}
 		} 
 	}
 
 	nc = nil // Then clear the reference to the netcon object, which should destroy the netcon (because all refs would have been removed)
-	if  (PrintLevel>0) {print "Host ", pc.id, " created cells."}
+	if  (PrintTerminal>0) {print "Host ", pc.id, " created cells."}
 }
 createCells()

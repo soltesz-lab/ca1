@@ -26,7 +26,7 @@ proc sumnumout() {local alltime localobj f
 		sprint(cmd,"./results/%s/sumnumout.txt", RunName)
 		f = new File(cmd)
 		f.wopen()
-			f.printf("NumCells = %g;\nNumSpikes = %g;\nNumConnections = %g;\nHostTime = %g;\nNumCellTypes = %g;\n", ncell, pnm.idvec.size, nclist.count, alltime, numCellTypes)	// Print the spike time and spiking cell gid
+			f.printf("NumCells = %g;\nNumSpikes = %g;\nNumConnections = %g;\nRunTime = %g;\nNumCellTypes = %g;\n", ncell, pnm.idvec.size, nclist.count, alltime, numCellTypes)	// Print the spike time and spiking cell gid
 		f.close()
 	}
 }

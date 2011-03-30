@@ -26,7 +26,7 @@ proc SetOtherParameters() {local ind, i, layernum, tempheight
 	
 	tstop = SimDuration	// End time of simulation
 	
-	dt = SimStep		// Integration interval for fadvance (see NEURON reference)
+	dt = TemporalResolution		// Integration interval for fadvance (see NEURON reference)
 	
 	secondorder = 2	// A global variable which specifies the time integration method
 					// 	(see NEURON reference)

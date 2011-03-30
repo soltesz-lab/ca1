@@ -64,7 +64,7 @@ proc calcNetSize(){local i				// Calculate the final network size (after any cel
 	
 		if (cellType[i].layerflag==0) {	// For cell types in layer 0, which are susceptible to death
 		
-			cellType[i].numCells = int(cellType[i].numCells * ((100-PercentDeath)/100))
+			cellType[i].numCells = int(cellType[i].numCells * ((100-PercentCellDeath)/100))
 										// Calculate the number of cells surviving after cell loss
 			
 			if (cellType[i].numCells == 0) {cellType[i].numCells = 1}	// If all cells of one type
@@ -169,7 +169,7 @@ strdef cmd
 {load_file("./setupfiles/write_positions.hoc")}		// Defines the proc to write the position
 													//  of each cell to file
 													
-if (PrintPosition>0) {posout()}	// Calls the proc that writes the position of each cell to the
+if (PrintCellPositions>0) {posout()}	// Calls the proc that writes the position of each cell to the
 								//  file "position.dat" in the format: gid, x, y, z
 
 createtime = startsw() - createstart	// Calculate time taken to create the cells
@@ -200,10 +200,10 @@ V.	CONNECT THE MODEL CELLS AND CONNECT THE STIMULATION CELLS TO SOME MODEL CELLS
 														//  postsynaptic cell type, and synapse type for
 														//  every connection
 														
-if (PrintNumCon==1) {printNumConFile()}	// Write "numcons.dat": a QUICK, SMALL summary file of the # of
+if (PrintConnSummary==1) {printNumConFile()}	// Write "numcons.dat": a QUICK, SMALL summary file of the # of
 										//  connections by pre and post cell types
 										
-if (PrintConMat==2) {tracenet()}		// Write "connections.dat": a VERY SLOW, LARGE file of all cell
+if (PrintConnDetails==2) {tracenet()}		// Write "connections.dat": a VERY SLOW, LARGE file of all cell
 										//	connections (pre and post gids, synapse type, host on which
 										//  (target?) cell exists)
 
@@ -242,7 +242,7 @@ proc init() { local dtsav, temp, secsav, secondordersav	// Redefine the proc tha
 	temp= cvode.active()			// Check whether cvode, a type of solver (?) is on
 	if (temp!=0) {cvode.active(0)}	// If cvode is on, turn it off while running the presimulation
 															
-	while(t<-100) { fadvance() if (PrintLevel>1) {print t}}	// Run the presimulation from t = -500
+	while(t<-100) { fadvance() if (PrintTerminal>1) {print t}}	// Run the presimulation from t = -500
 															//  to t = -100 (why not 0?) to let the
 															//  network and all its components reach
 															//  steady state. Integrate all section
@@ -297,7 +297,7 @@ proc rrun(){									// Run the network simulation and write out the results
 	
 	timeout()	// Write out a file of run times for each code section
 
-	if (PrintConMat==1) {tracenet()}	// Write the file of all cell connections (pre and post gids, synapse type,
+	if (PrintConnDetails==1) {tracenet()}	// Write the file of all cell connections (pre and post gids, synapse type,
 										//  host on which cell exists), "connections.dat"
 										
 	sumnumout()	// Write out a file with the total number of cells, spikes, and connections (including contributions from artificial cells)

@@ -18,7 +18,7 @@ proc makeConnections () {local precellType, postcellType, precellStart, precellE
 			cellType[i].numCons.x[j]=connectCells (i, j, precellStart, precellEnd, postcellStart, postcellEnd, precellType_string, postcellType_string)
 		}			
 	}
-	if ((PrintLevel>0)) {print "Host ", pc.id, " connected cells."}
+	if ((PrintTerminal>0)) {print "Host ", pc.id, " connected cells."}
 }
 
 	objref randnum, synRand
@@ -38,7 +38,7 @@ proc makeConnections () {local precellType, postcellType, precellStart, precellE
 		getSynapseData($s7, $s8)	// Given the pre and post cell types, look up the weight, delay,
 									//	and probability of connection between these two types
 
-		if (PrintLevel>1) {print "Host ", pc.id, " is connecting: ", $s7, "s to ", $s8, "s."}
+		if (PrintTerminal>1) {print "Host ", pc.id, " is connecting: ", $s7, "s to ", $s8, "s."}
 
 		if (synProb != 0) {
 			for pcitr(&j, &jgid, postcellStart, postcellEnd) {	// For each post-syn cell on this host (limit only the
@@ -101,7 +101,7 @@ proc makeConnections () {local precellType, postcellType, precellStart, precellE
 			 synDelay = 0
 			 synProb = 0
 		 }
-			 if ((strcmp($s1,"granulecell")==0) && (strcmp($s2,"granulecell")==0)) {synProb = synProb * PercentSprouting/100}
+			 if ((strcmp($s1,"granulecell")==0) && (strcmp($s2,"granulecell")==0)) {synProb = synProb * PercentAxonSprouting/100}
 		}	 	// Reduce the probability of granule cell connection by the same degree as the sclerosis
 				//	because mossy fibers connecting back to granule cells are subject to sclerosis (?)
 makeConnections()								// Try making connections between every type of cell
