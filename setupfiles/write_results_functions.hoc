@@ -20,13 +20,14 @@ proc spikeout() {local i, rank  localobj f				// Write out a spike raster (cell,
 }
 
 
-proc sumnumout() {local alltime localobj f
+proc sumnumout() {local alltime, allct localobj f
+	allct = pc.allreduce(nclist.count,1)
 	if (pc.id == 0) { 								// Write header to file 1 time only
 		alltime = startsw() - loadstart
 		sprint(cmd,"./results/%s/sumnumout.txt", RunName)
 		f = new File(cmd)
 		f.wopen()
-			f.printf("NumCells = %g;\nNumSpikes = %g;\nNumConnections = %g;\nRunTime = %g;\nNumCellTypes = %g;\n", ncell, pnm.idvec.size, nclist.count, alltime, numCellTypes)	// Print the spike time and spiking cell gid
+			f.printf("NumCells = %g;\nNumSpikes = %g;\nNumConnections = %g;\nRunTime = %g;\nNumCellTypes = %g;\n", ncell, pnm.idvec.size, allct, alltime, numCellTypes)	// Print the spike time and spiking cell gid
 		f.close()
 	}
 }
