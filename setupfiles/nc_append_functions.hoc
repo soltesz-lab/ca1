@@ -7,6 +7,7 @@ func nc_append() { localobj cell, nc	// Connect cell to synapse and set synapse 
 		nc.weight = $5					// Set a synaptic connection weight
 		nc.delay = $6					// Set a delay time (axonal delay)
 		nclist.append(nc)
+		//## printf("pc %g append pre = %g post = %g syntype = %g\n", pc.id, $1, $2, $4) 
 	}
 	return nclist.count-1
 }
@@ -15,5 +16,6 @@ func nc_appendo() { localobj  nc	// Connect cell to synapse and set synapse prop
 		nc.weight = $5					// Set a synaptic connection weight
 		nc.delay = $6					// Set a delay time (axonal delay)
 		nclist.append(nc)
+		//## printf("pc %g appendo pre = %g syntype = %g\n", pc.id, $1, $4) 
 	return nclist.count-1
 }

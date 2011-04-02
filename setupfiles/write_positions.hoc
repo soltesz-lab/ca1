@@ -1,4 +1,4 @@
-proc posout() {local pci, rank, gid, srcid localobj tgt, f, cell	// Write out the 3d position coordinates of each cell
+proc posout() {local pci, pcti, rank, gid, srcid localobj tgt, f, cell	// Write out the 3d position coordinates of each cell
 	pc.barrier()					// Wait for all ranks to get to this point
 	sprint(cmd,"./results/%s/position.dat", RunName)
 	f = new File(cmd)
@@ -10,7 +10,7 @@ proc posout() {local pci, rank, gid, srcid localobj tgt, f, cell	// Write out th
 	for rank = 0, pc.nhost-1 {				// For each processor, allow processor to append to file the positions of its cells
 		if (rank == pc.id) {				// Ensure that each processor runs once
 			f.aopen() 						// Open for appending to file
-			for pcitr(&pci, &gid, cellType[1].cellStartGid, cellType[numCellTypes-1].cellEndGid) {		// Use the pciter over all non ppStim cells
+			for pcitr(&pci, &pcti, &gid, cellType[1].cellStartGid, cellType[numCellTypes-1].cellEndGid) {		// Use the pciter over all non ppStim cells
 				if (pc.gid_exists(gid)) {	// If cell exists on this machine
 					cell = pc.gid2cell(gid)	// Refer to cell
 					f.printf("%d\t%d\t%d\t%d\t%d\n", gid, cell.x, cell.y, cell.z, pc.id)

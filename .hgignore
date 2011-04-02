@@ -1,14 +1,6 @@
 syntax: glob
 x86_64/**
 jobscripts/**
-none/**
+tools/**
 results/**
 *.*~
-spikeraster.dat
-position.dat
-numcons.dat
-celltype.dat
-ranseeds.dat
-runtimes.dat
-lowindex.hoc
-

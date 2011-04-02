@@ -1,4 +1,4 @@
-proc stimulateCells() { local i, pci, jgid, celltype, stimcelltype, counter localobj cell		// Connect the perforant path cells to the model cells
+proc stimulateCells() { local i, pci, typei, jgid, celltype, stimcelltype, counter localobj cell		// Connect the perforant path cells to the model cells
 	for stimcelltype=0, numCellTypes-1 {
 		if (cellType[stimcelltype].is_art==1) {
 			for i= cellType[stimcelltype].cellStartGid, cellType[stimcelltype].cellEndGid {
@@ -6,7 +6,7 @@ proc stimulateCells() { local i, pci, jgid, celltype, stimcelltype, counter loca
 					if (cellType[celltype].is_art==0) {
 						if (strcmp(cellType[celltype].cellType_string,"pyramidalcell")==0) {	// Connect to some granule cells
 							// Make 1 connection to each cell in the middle 10% (45th - 54th percentiles) of the cell group -- only works if >2 granule cells
-							for pcitr(&pci, &jgid, cellType[celltype].cellStartGid + int(45/100*cellType[celltype].numCells) - 1, cellType[celltype].cellStartGid + int(54/100*cellType[celltype].numCells) - 1) {
+							for pcitr(&pci, &typei, &jgid, cellType[celltype].cellStartGid + int(45/100*cellType[celltype].numCells) - 1, cellType[celltype].cellStartGid + int(54/100*cellType[celltype].numCells) - 1) {
 								if (pc.gid_exists(jgid)) {
 									cell = pc.gid2cell(jgid)
 									nc_appendo(i, cell, stimcelltype, 0, 2e-2, 3)  
@@ -17,7 +17,7 @@ proc stimulateCells() { local i, pci, jgid, celltype, stimcelltype, counter loca
 						}
 						if (strcmp(cellType[celltype].cellType_string,"pvbasketcell")==0) {	// Connect to some basket cells
 							// Make 1 connection to each cell in the middle 10% (45th - 54th percentiles) of the cell group -- only works if >2 basket cells
-							for pcitr(&pci, &jgid, cellType[celltype].cellStartGid + int(45/100*cellType[celltype].numCells) - 1, cellType[celltype].cellStartGid + int(54/100*cellType[celltype].numCells) - 1) {
+							for pcitr(&pci, &typei, &jgid, cellType[celltype].cellStartGid + int(45/100*cellType[celltype].numCells) - 1, cellType[celltype].cellStartGid + int(54/100*cellType[celltype].numCells) - 1) {
 								if (pc.gid_exists(jgid)) {
 									cell = pc.gid2cell(jgid)
 									nc_appendo(i, cell, stimcelltype, 0, 1e-2, 3) 

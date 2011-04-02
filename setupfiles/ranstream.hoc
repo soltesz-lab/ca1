@@ -1,5 +1,5 @@
 begintemplate RandomStream
-	public r, repick, start, rseed	// Define variables and funcs that are
+	public r, repick, start, rseed, seq	// Define variables and funcs that are
 									//  accessible from outside the class
 									//  object
 									
@@ -35,5 +35,9 @@ begintemplate RandomStream
 	
 		return r.repick()			// Subsequent random numbers are picked
 									//  from this random number stream
+	}
+	
+	func seq() {
+		return r.seq()
 	}
 endtemplate RandomStream

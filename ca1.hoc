@@ -119,17 +119,20 @@ parallelizer()
 
 iterator pcitr() {local i2, startgid	// Create iterator for use as a standard 'for' loop
 										//  throughout given # cells usage:
-										//  for pcitr(&i, &gid, it_start, it_end) {do stuff}
+										//  for pcitr(&i1, &i2, &gid, it_start, it_end) {do stuff}
 										//  it_start and it_end let you define range over
 										//  which to iterate
-	i1 = 0
-	numcycles = int($3/pc.nhost)
-	extra = $3%pc.nhost
+										//  i1 is the index of the cell on the cell list for that host
+										//  i2 is the index of that cell for that cell type on that host
+	numcycles = int($4/pc.nhost)
+	extra = $4%pc.nhost
 	addcycle=0
 	if (extra>pc.id) {addcycle=1}
 	startgid=(numcycles+addcycle)*pc.nhost+pc.id
-	if (startgid<=$4) {
-		for (i2=startgid; i2 <= $4; i2 += pc.nhost) {	// Just iterate through the cells on
+	i1 = numcycles+addcycle // the index into the cell # on this host.
+	i2 = 0 // the index of the cell in that cell type's list on that host
+	if (startgid<=$5) {
+		for (i3=startgid; i3 <= $5; i3 += pc.nhost) {	// Just iterate through the cells on
 														//  this host(this simple statement
 														//  iterates through all the cells on
 														//  this host and only these cells because 
@@ -138,8 +141,10 @@ iterator pcitr() {local i2, startgid	// Create iterator for use as a standard 'f
 														//  orderly manner (like a deck of cards)
 				$&1 = i1
 				$&2 = i2
+				$&3 = i3
 				iterator_statement
 				i1 += 1
+				i2 += 1
 		}
 	}
 }

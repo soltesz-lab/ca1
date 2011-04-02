@@ -22,7 +22,7 @@ proc makeConnections () {local precellType, postcellType, precellStart, precellE
 }
 
 	objref randnum, synRand
-	func connectCells () {local rnum, syn, distance, counter, preNum, postNum, pcj, igid, jgid, xrand, precellType, postcellType, precellStart, precellEnd, postcellStart, postcellEnd, i, j, randSynNumber, pre_zpos, post_zpos , pre_xpos, post_xpos, pre_ypos, post_ypos, numSynTypes localobj cell
+	func connectCells () {local rnum, syn, distance, theval, counter, preNum, postNum, pcj, igid, jgid, xrand, precellType, postcellType, precellStart, precellEnd, postcellStart, postcellEnd, i, j, ji, randSynNumber, pre_zpos, post_zpos , pre_xpos, post_xpos, pre_ypos, post_ypos, numSynTypes localobj cell
 		// Args: precellType, postcellType, precellStart, precellEnd, postcellStart
 		// 		 postcellEnd, precellType_string, postcellType_string.
 		 precellType = $1
@@ -41,17 +41,16 @@ proc makeConnections () {local precellType, postcellType, precellStart, precellE
 		if (PrintTerminal>1) {print "Host ", pc.id, " is connecting: ", $s7, "s to ", $s8, "s."}
 
 		if (synProb != 0) {
-			for pcitr(&j, &jgid, postcellStart, postcellEnd) {	// For each post-syn cell on this host (limit only the
+			for pcitr(&j, &ji, &jgid, postcellStart, postcellEnd) {	// For each post-syn cell on this host (limit only the
 																//	post-syn cell to ensure we try all connection possibilities
 																//	(this limit ensures the hosts don't duplicate work)
-				pcj=int(jgid/pc.nhost)
 				if (pc.gid_exists(jgid)) {			// Check if cell exists on this machine
 					cell = pc.gid2cell(jgid)
 					numSynTypes = cell.pre_list.o(precellType).count
 					post_xpos = xpos_algorithm(jgid,postNum,postcellStart,cellType[postcellType].dentateXBins,cellType[postcellType].dentateYBins*cellType[postcellType].dentateZBins,cellType[postcellType].dentateXBinSize)	// Calculate the position algorithmically rather than trying to look it up
 					post_ypos = ypos_algorithm(jgid,postNum,postcellStart,cellType[postcellType].dentateYBins,cellType[postcellType].dentateZBins,cellType[postcellType].dentateYBinSize)	// Calculate the position algorithmically rather than trying to look it up
 					post_zpos = zpos_algorithm(jgid,postNum,postcellStart,cellType[postcellType].dentateZBins,cellType[postcellType].dentateZBinSize,cellType[postcellType].layerflag)	// Calculate the position algorithmically rather than trying to look it up
-					ransynlist.object(pcj).r.discunif(0,numSynTypes-1)		// Create a uniform random INTEGER variable over the range specified (0 to # synapse types-1),
+					ransynlist.object(j).r.discunif(0,numSynTypes-1)		// Create a uniform random INTEGER variable over the range specified (0 to # synapse types-1),
 					for igid = precellStart, precellEnd {					// For each pre-syn cell
 						pre_xpos=xpos_algorithm(igid,preNum,precellStart,cellType[precellType].dentateXBins,cellType[precellType].dentateYBins*cellType[precellType].dentateZBins,cellType[precellType].dentateXBinSize)	// Calculate the position algorithmically
 						pre_ypos=ypos_algorithm(igid,preNum,precellStart,cellType[precellType].dentateYBins,cellType[precellType].dentateZBins,cellType[precellType].dentateYBinSize)	// Calculate the position algorithmically
@@ -63,18 +62,18 @@ proc makeConnections () {local precellType, postcellType, precellStart, precellE
 						gapDelay=dt // Use this for gap junction synapses
 						// Two possible approaches
 						// DETERMINE WHETHER TO MAKE CONNECTION, THEN WHICH TYPE TO MAKE  - how Rob did it
-						if (ranconlist.object(pcj).repick < (connectionFactor * synProb * distprob)) { // Determine whether a
+						if (ranconlist.object(j).repick < (connectionFactor * synProb * distprob)) { // Determine whether a
 																								//	connection will be made between these two cells
-							randSynNumber = ransynlist.object(pcj).repick	// Randomly pick a synapse type from the available synapse types
+							randSynNumber = ransynlist.object(j).repick	// Randomly pick a synapse type from the available synapse types
 							nc_append(igid, jgid, precellType, randSynNumber, synWeight, conDelay)	// Make the connection
 							counter +=1
 						}
 						// DETERMINE WHETHER TO MAKE EACH TYPE OF CONNECTION - How we may do it if we need to make multiple conns between 2 cells
 						//for syn = 0, numSynTypes-1 {
-						//	rnum=ranconlist.object(pcj).repick
+						//	rnum=ranconlist.object(j).repick
 						//	if (rnum < ((synProb*distprob/numSynTypes + connectionFactor)/(1 + connectionFactor))) {	// Determine whether a
 						//																					//	connection will be made between these two cells
-						//		randSynNumber = ransynlist.object(pcj).repick	// Randomly pick a synapse type from the available synapse types
+						//		randSynNumber = ransynlist.object(j).repick	// Randomly pick a synapse type from the available synapse types
 						//		nc_appendo(igid, cell, precellType, syn, synWeight, synDelay)	// Make the connection
 						//		counter +=1
 						//	}

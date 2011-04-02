@@ -1,5 +1,5 @@
 objref frec
-strdef cmd, dircmd, direx, comper, version, vercomment, mypath, userstr, machname, outfile, edate
+strdef cmd, dircmd, direx, comper, version, vercomment, mypath, userstr, machname, machnick, outfile, edate
 	objref  strobj
     strobj = new StringFunctions()
 
@@ -20,7 +20,7 @@ proc typeout() {local i, rank, gid, srcid localobj tgt, f, cell// Write out the 
 		sprint(dircmd, "cp ../setupfiles/lowindex.hoc ../results/%s", RunName)
 		{system(dircmd, direx)}
 		
-		sprint(dircmd, "hg status", RunName)
+		sprint(dircmd, "hg status")
 		{system(dircmd, direx)}
 		if (strcmp(direx,"")>0 && testrun==0) {
 			printf("The current code version has not been committed")
@@ -31,21 +31,30 @@ proc typeout() {local i, rank, gid, srcid localobj tgt, f, cell// Write out the 
 		} else {
 			sprint(dircmd, "hg parent --template '{rev}: {desc}\n'")
 			{system(dircmd, direx)}
-			strobj.left(direx, strobj.len(direx)-1)
+			strobj.left(direx, strobj.len(direx)-1) // hg parent rev/desc
 			vercomment=direx
 			sprint(dircmd, "hg parent --template '{node}\n'")
 			{system(dircmd, direx)}
-			strobj.left(direx, strobj.len(direx)-1)
+			strobj.left(direx, strobj.len(direx)-1) // hg parent node
 			version=direx
 
 			system("cd ..;pwd",mypath)
-			strobj.left(mypath, strobj.len(mypath)-1)
+			strobj.left(mypath, strobj.len(mypath)-1) // path
 			system("whoami", userstr)
-			strobj.left(userstr, strobj.len(userstr)-1)
+			strobj.left(userstr, strobj.len(userstr)-1) // whoami
 			{system("hostname", machname)}
-			strobj.left(machname, strobj.len(machname)-1)
+			strobj.left(machname, strobj.len(machname)-1) // hostname
+
+			machnick =  machname// nickname for host machine, usually second term			
+			i = strobj.substr(machnick, ".")
+			if (i>0) {
+				strobj.right(machnick, i+1)
+				i = strobj.substr(machnick, ".")
+				strobj.left(machnick, i)
+			}
+			
 			{system("date \"+%d-%b-%Y %H:%M:%S\"", edate)}
-			strobj.left(edate, strobj.len(edate)-1)
+			strobj.left(edate, strobj.len(edate)-1) // date
 
 			sprint(outfile, "../results/%s/runreceipt.txt", RunName)
 			frec = new File(outfile)
@@ -53,7 +62,8 @@ proc typeout() {local i, rank, gid, srcid localobj tgt, f, cell// Write out the 
 			frec.printf("NumProcessors = %g;\n", pc.nhost)
 			frec.printf("ExecutionDate = '%s';\n", edate)
 			frec.printf("ExecutedBy = '%s';\n", userstr)
-			frec.printf("Machine = '%s';\n", machname)
+			frec.printf("Machine = '%s';\n", machnick)
+			frec.printf("MachineFull = '%s';\n", machname)
 			frec.printf("ModelVerComment='%s';\n", vercomment)
 			frec.printf("ModelVersion='%s';\n", version)
 			frec.printf("ModelDirectory ='%s';\n", mypath)
@@ -82,7 +92,7 @@ proc typeout() {local i, rank, gid, srcid localobj tgt, f, cell// Write out the 
 	pfobj.ropen("../setupfiles/parameters.hoc")
 	while (pfobj.gets(thisline)>-1) {
 		testline=thisline
-		strobj.left(testline, 1)
+		strobj.left(testline, 1) // testline
 		if (strcmp(testline,"d")==0) {
 			result=thisline
 			strobj.right(result, 13)
