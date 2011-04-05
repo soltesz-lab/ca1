@@ -11,6 +11,7 @@ func nc_append() { localobj cell, nc	// Connect cell to synapse and set synapse 
 	}
 	return nclist.count-1
 }
+
 func nc_appendo() { localobj  nc	// Connect cell to synapse and set synapse properties
 		nc = pc.gid_connect($1, $o2.pre_list.o($3).o($4))	// Connect the soma of the pre cell to the synapse on the post cell
 		nc.weight = $5					// Set a synaptic connection weight

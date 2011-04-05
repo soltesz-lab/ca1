@@ -331,11 +331,11 @@ proc set_biophys() {
 	func is_art()  { return 0 }
 
 proc position(){ local i
-		forall {
+	forall {
 		for i = 0, n3d()-1 {
 			pt3dchange(i, $1-x+x3d(i), $2-y+y3d(i), $3-z+z3d(i), diam3d(i))
 		}
-}
+	}
 	x = $1  y = $2  z = $3	
 }
 	endtemplate pvbasketcell

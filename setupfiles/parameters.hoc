@@ -33,6 +33,9 @@ default_var("DegreeStim",10)		// Intensity of stimulation; slightly different me
 									//  stimulation protocol used. Ex:
 									//  If pulse stimulation is used (spontaneousAct==0), what percent of granule, basket, mossy cells
 									//  alternately, if spontaneous stimulation is used, what should the maximal rate be?
+default_var("onint",150)		// Interval of stimulation
+default_var("offint",50)		// Interval of no stimulation
+
 
 // Sprouting and cell death
 default_var("PercentAxonSprouting",0)	// Set % of mossy fiber (granule cell) sprouting

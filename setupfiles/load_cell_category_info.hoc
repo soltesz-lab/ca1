@@ -7,7 +7,7 @@ double cellnumvar[1], cellLayerflag[1], numCellTypes[1]	// Define placeholder do
 														//   of one, then redefine them with the
 														//   correct size in the proc
 
-proc loadCellCategoryInfo() {local i, startpos	// Load celltype info into a CellCategoryInfo
+proc loadCellCategoryInfo() {local i, startpos, tmpct	// Load celltype info into a CellCategoryInfo
 												//  object (one object per cell type)
 	f2 = new File()
 	f2.ropen("../cells/cells2include.hoc")		// Open the celltype
@@ -21,7 +21,7 @@ proc loadCellCategoryInfo() {local i, startpos	// Load celltype info into a Cell
 
 // LEFT OFF HERE WITH FIXING THE DOCUMENTATION!!!
 
-
+tmpct=0 //## added for now
 	for i=0, numCellTypes-1 {
 		celltypestring[i]= new String()
 		f2.scanstr(celltypestring[i].s)				// Scan in the cell name
@@ -29,8 +29,11 @@ proc loadCellCategoryInfo() {local i, startpos	// Load celltype info into a Cell
 		cellnumvar[i]=int(cellnumvar[i]/Scale)+1	// Account for the scaled model size
 		cellLayerflag[i]=f2.scanvar					// Scan the layer flag (hilar=2, granular=1, molecular=0), where hilar cells
 													//	are subject to sclerosis
+		tmpct = tmpct + cellnumvar[i] //## added for now
 	}
 	f2.close()
+
+	cellnumvar[0] = tmpct - cellnumvar[0] + 4*2 //## added for now
 
 	startpos=0
 	for i=0, numCellTypes-1 {

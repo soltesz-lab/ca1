@@ -53,6 +53,8 @@ proc loadCellTemplates(){local i		// Proc to load the template that defines (eac
 loadCellTemplates()						// Run the newly defined proc
 
 proc calcNetSize(){local i				// Calculate the final network size (after any cell death)
+	//cellType[0].numCells = cellType[numCellTypes-1].cellEndGid - cellType[0].cellEndGid + 4*2 // just added now for spontburst
+	//cellType[0].updateGidRange(0)
 
 	totalCells = 0						// Initialize totalCells (which counts the number of 'real'
 										//  cells) so we can add to it iteratively in the 'for' loop
@@ -87,6 +89,7 @@ proc calcNetSize(){local i				// Calculate the final network size (after any cel
 											//  than the length of each stream section, where each
 											//  section's length is equal to the # of times this 
 											//  generator will be called per cell x random type (what is x random type?)
+
 }
 calcNetSize()
 
@@ -148,7 +151,6 @@ iterator pcitr() {local i2, startgid	// Create iterator for use as a standard 'f
 		}
 	}
 }
-
 {load_file("./setupfiles/save_run_info.hoc")}
 
 loadtime = startsw() - loadstart		// Calculate the set up time (now - recorded start time) in seconds

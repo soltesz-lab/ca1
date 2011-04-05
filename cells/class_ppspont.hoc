@@ -9,7 +9,7 @@ begintemplate ppspont
 		actemp() 		
 	}
 		proc actemp() {
-				acell pp = new NetStim(.5)
+				acell pp = new MyNetStim(.5)
 				// Rob & Jonas protocol:
 				pp.interval = 1000/DegreeStim // 100 for Rob and Jonas
 				pp.number = 40

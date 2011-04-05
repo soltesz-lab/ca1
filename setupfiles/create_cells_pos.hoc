@@ -8,6 +8,7 @@ proc createCells(){ local i, ij, si, pci, cellind, runresult, gid	// Create cell
 		for pcitr(&i, &ij, &gid, cellType[cellind].cellStartGid, cellType[cellind].cellEndGid) {// use the pciter over all cells of this type
 			if (pc.gid_exists(gid)) {
 				sprint(cmd, "cellType[%g].CellList[%g]=new %s(%g)", cellind, ij, cellType[cellind].cellType_string, gid) //+cellType[cellind].cellStartGid) // why add the startgid to the gid? 
+				//## printf("pc: %g, cmd: %s\n", pc.id, cmd)
 				{runresult=execute1(cmd)} 		// This command was written as a string so
 												//	the cell object doesn't have to be hard coded
 				cells.append(cellType[cellind].CellList[ij])	// Append each cell to cells list

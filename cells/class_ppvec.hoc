@@ -8,7 +8,7 @@ begintemplate ppvec
 		actemp() 		
 	}
 		proc actemp() {
-				acell pp = new NetStim(.5)
+				acell pp = new MyNetStim(.5)
 				pp.interval = 1
 				pp.number = 5
 				pp.start = -5
