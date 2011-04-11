@@ -1,7 +1,7 @@
 begintemplate olmcell
 
 // public variables
-public  pre_list, connect_pre, append_sections, is_art, is_connected
+public  pre_list, connect_pre, append_sections, is_art, is_connected, gid
 public soma, hcdend1, hcdend2, hcdend3, hcdend4
 public all, pdend, ddend
 public x, y, z, position
@@ -18,6 +18,7 @@ create soma, hcdend1[3], hcdend2[3], hcdend3[3], hcdend4[3]
 // set the initialization code, which is run whenever a new object
 // of this class is instantiated
 proc init() {
+	gid = $1
 	// cell sections: soma, dendrites, axon
 	append_sections() // append all sections to the section list
 	connect_sections()// connect soma, dendrites, axon

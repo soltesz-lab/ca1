@@ -1,0 +1,121 @@
+//{sprint(dircmd, "cd ..")} 
+//{system(dircmd, direx)}
+//printf("%s\n",getcwd())
+
+distres = 50
+objref postcellgids
+speed = 1
+
+strdef precellType_string, postcellType_string
+proc makeConnections () {local precellType, distres, postcellType, precellStart, precellEnd, postcellStart, postcellEnd, i, j, r
+	// Attempt to connect all cells of each pre and post type
+	install_fastconn()
+
+	for j = 1, numCellTypes-1 {	// ppstim cells are never the post synaptic cell in a connection, so exclude here
+		postcellType_string = cellType[j].cellType_string	// Load cell type string used to grab connection-specific properties later
+		numpost = cellType[j].numThisHost
+		postcellgids = new Vector(numpost)
+		
+		for r=0, numpost-1 {
+			postcellgids.x[r] = cellType[j].CellList[r].gid
+			//printf("cellType[%g].CellList[%g].gid = %g\n", j, r, postcellgids.x[r])
+		}
+			
+		for i = 1, numCellTypes-1 {		// Don't connect pp stim cells here - they have own function later
+			precellType_string =  cellType[i].cellType_string	// Load cell type string used to grab connection-specific properties later
+			cellType[i].numCons.x[j]=connectCells (i, j, precellType_string, postcellType_string)
+		}			
+	}
+	if ((PrintTerminal>0)) {print "Host ", pc.id, " connected cells."}
+}
+
+			objref params, conns2make
+	objref randnum, synRand
+	func connectCells () {local r, syn, distance, counter, precellType, postcellType, j, randSynNumber, pre_zpos, post_zpos , pre_xpos, post_xpos, pre_ypos, post_ypos, numSynTypes localobj cell
+		// Args: precellType, postcellType, precellType_string, postcellType_string
+		 precellType = $1
+		 postcellType = $2
+		 counter=0
+		getSynapseData($s3, $s4)	// Given the pre and post cell types, look up the weight, delay,
+									//	and probability of connection between these two types
+
+		if (PrintTerminal>1) {print "Host ", pc.id, " is connecting: ", $s3, "s to ", $s4, "s."}
+
+		if (numConns != 0) {
+			
+			params = new Vector(25)
+
+			conns2make = new Vector(1+numConns*3)
+
+			params.x[0]=cellType[precellType].cellStartGid //gmin -- start gid of pre cell type
+			params.x[1]=cellType[precellType].cellEndGid //gmax -- end gid of pre cell type
+			params.x[2]= numConns //nconn
+			params.x[3]= cellType[postcellType].numCells // number of cells of the postsynaptic type (total)
+			params.x[4]= numpost  // number of cells of the postsynaptic type with gids on this computer
+			params.x[5]= LongitudinalLength //100 //maxd - the distance of the dimension for which the fit equation was designed (should add all three...), in um
+						// this also confusing because, right now, the equation calculates the overall distance (through all dimensions).
+						// If per dimension, should compare to distance in that dimension only
+			params.x[6]= distres //5 //steps - resolution of the fit , in number of steps to take
+			params.x[7]= cellType[precellType].dist.x[0] //a in the Gaussian fit // 5, .001, 30
+			params.x[8]= cellType[precellType].dist.x[1] //b in the Gaussian fit
+			params.x[9]= cellType[precellType].dist.x[2] //c in the Gaussian fit
+			params.x[10]= cellType[precellType].dentateXBins
+			params.x[11]= cellType[precellType].dentateYBins
+			params.x[12]= cellType[precellType].dentateZBins
+			params.x[13]= cellType[precellType].dentateXBinSize
+			params.x[14]= cellType[precellType].dentateYBinSize
+			params.x[15]= cellType[precellType].dentateZBinSize
+			addheight = 0
+			if (cellType[precellType].layerflag>0) {addheight=LayerVector.sum(0,cellType[precellType].layerflag-1)}
+			params.x[16]= addheight
+
+			params.x[17]= cellType[postcellType].dentateXBins
+			params.x[18]= cellType[postcellType].dentateYBins
+			params.x[19]= cellType[postcellType].dentateZBins
+			params.x[20]= cellType[postcellType].dentateXBinSize
+			params.x[21]= cellType[postcellType].dentateYBinSize
+			params.x[22]= cellType[postcellType].dentateZBinSize
+			addheight = 0
+			if (cellType[postcellType].layerflag>0) {addheight=LayerVector.sum(0,cellType[postcellType].layerflag-1)}
+			params.x[23]= addheight
+			params.x[24]= cellType[postcellType].cellStartGid
+			
+			conns2make.fastconn(params, postcellgids)
+			
+			for r=1, conns2make.x[0] { // now how do we define j... it is the index into the cell list on that host i think. maybe pull in from fastconn
+				cell = pc.gid2cell(conns2make.x[r+numConns])
+				numSynTypes = cell.pre_list.o(precellType).count
+				ransynlist.object(0).r.discunif(0,numSynTypes-1)		// Create a uniform random INTEGER variable over the range specified (0 to # synapse types-1),
+				randSynNumber = 0 //ransynlist.object(0).repick	// Randomly pick a synapse type from the available synapse types
+				conDelay =  sqrt(conns2make.x[r+2*numConns]/distres)*LongitudinalLength*speed+.1
+				//printf("conDelay = %f\n", conDelay)
+				//printf("nc_append(conns2make.x[r], conns2make.x[r+numConns], precellType, randSynNumber, synWeight, conDelay)\n")
+				//printf("nc_append(%g, %g, %g, %g, %g, %g)\n", conns2make.x[r], conns2make.x[r+numConns], precellType, randSynNumber, synWeight, conDelay)
+				nc_append(conns2make.x[r], conns2make.x[r+numConns], precellType, randSynNumber, synWeight, conDelay)	// Make the connection
+				counter +=1
+			}
+		}
+		return counter
+	}
+		objref  f2
+		proc getSynapseData () {	// Args: precelltype name, postcelltype name
+			 strdef tempString
+			 f2 = new File()
+			 // Somehow, the program has switched the current directory to setupfiles (not sure where) so must get out of it
+			 sprint(tempString,"../connections/%s.%s",$s1,$s2)	// Get the file that specifies connection properties between these two cell types
+			 f2.ropen(tempString)
+			 if (f2.isopen) {
+			 synWeight = f2.scanvar
+			 synDelay = f2.scanvar
+			 numConns = f2.scanvar
+			 numConns = 10
+		 } else {
+			 synWeight = 0
+			 synDelay = 0
+			 numConns = 0
+		 }
+			 printf("set numConns = %d for %s to %s conn\n", numConns, $s1, $s2)
+			 if ((strcmp($s1,"granulecell")==0) && (strcmp($s2,"granulecell")==0)) {synProb = synProb * PercentAxonSprouting/100}
+		}	 	// Reduce the probability of granule cell connection by the same degree as the sclerosis
+				//	because mossy fibers connecting back to granule cells are subject to sclerosis (?)
+makeConnections()								// Try making connections between every type of cell

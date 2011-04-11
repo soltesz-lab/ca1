@@ -12,7 +12,7 @@ proc createCells(){ local i, ij, si, pci, cellind, runresult, gid	// Create cell
 				{runresult=execute1(cmd)} 		// This command was written as a string so
 												//	the cell object doesn't have to be hard coded
 				cells.append(cellType[cellind].CellList[ij])	// Append each cell to cells list
-				
+				cellType[cellind].numThisHost = ij // set number of cells of this type on this host
 				ranconlist.append(new RandomStream(usedseeds, gid)) //+(gid*2*4)*random_stream_offset_))	// Create a new random number generator for each cell,
 																	//	with a unique stream section defined by the starting location.  This
 																	//	will be used to determine which connections are made

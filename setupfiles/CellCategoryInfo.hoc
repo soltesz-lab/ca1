@@ -7,7 +7,7 @@ begintemplate CellCategoryInfo			// Define a template that describes
 	public setCellTypeParams, setCellTypeDist			// Define variables and funcs that are
 	public cellType_string, cellStartGid, cellEndGid	//  accessible from outside the class
 	public updateGidRange, addPosVec, layerflag			//  object
-	public dist, numCells, CellList, addCell, numCons
+	public dist, numCells, CellList, addCell, numCons, numThisHost
 	public setBins, dentateYBins, dentateXBins, dentateZBins
 	public dentateYBinSize, dentateXBinSize, dentateZBinSize, is_art
 	
@@ -52,6 +52,7 @@ begintemplate CellCategoryInfo			// Define a template that describes
 		objref CellList[numCells]	// Create a new CellList for this celltype,
 									//  the length of which equals the number
 									//  of cells
+		numThisHost = 0
 	}
 
 	proc setCellTypeDist(){			// From a file, read in the constants

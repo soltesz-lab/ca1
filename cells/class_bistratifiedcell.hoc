@@ -6,7 +6,7 @@
 //  - geometry modified to preserve VCUs different dendrites
 
 begintemplate bistratifiedcell
-public is_art
+public is_art, gid
 public init, topol, basic_shape, subsets, geom, biophys
 public pre_list, connect_pre
 
@@ -20,6 +20,7 @@ objref pre_list, templist
 external numCellTypes, cellType
 
 proc init() {
+	gid = $1
   	topol()
   	subsets()
   	geom()
