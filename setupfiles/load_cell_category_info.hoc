@@ -26,7 +26,10 @@ tmpct=0 //## added for now
 		celltypestring[i]= new String()
 		f2.scanstr(celltypestring[i].s)				// Scan in the cell name
 		cellnumvar[i]=f2.scanvar					// Scan in the initial (before sclerosis) number of each cell type
-		cellnumvar[i]=int(cellnumvar[i]/Scale)+1	// Account for the scaled model size
+		cellnumvar[i]=int(cellnumvar[i]/Scale)	// Account for the scaled model size
+		if (cellnumvar[i]<1) {
+			cellnumvar[i]=1
+		}
 		cellLayerflag[i]=f2.scanvar					// Scan the layer flag (hilar=2, granular=1, molecular=0), where hilar cells
 													//	are subject to sclerosis
 		tmpct = tmpct + cellnumvar[i] //## added for now

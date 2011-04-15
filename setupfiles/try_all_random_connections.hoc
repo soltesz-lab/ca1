@@ -95,6 +95,7 @@ proc makeConnections () {local precellType, postcellType, precellStart, precellE
 			 synWeight = f2.scanvar
 			 synDelay = f2.scanvar
 			 synProb = f2.scanvar
+			 numConns = f2.scanvar // placeholder, we can ignore
 		 } else {
 			 synWeight = 0
 			 synDelay = 0

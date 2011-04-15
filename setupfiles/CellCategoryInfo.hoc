@@ -93,7 +93,7 @@ begintemplate CellCategoryInfo			// Define a template that describes
 														//  and determines how far apart
 														//  the cells should be in each
 														//  dimension to be evenly spaced
-		
+
 		dentateZBins=int((numCells*($3)^2/($2*$1))^(1/3))	// Given the relative length of
 															//  the Z dimension compared to
 															//  the X and Y dimensions, solve

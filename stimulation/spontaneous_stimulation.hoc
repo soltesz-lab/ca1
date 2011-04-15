@@ -43,3 +43,18 @@ proc perfpathStims() { local i, reli, typei, jgid, celltype, counter, jstart, je
 	}
 }
 perfpathStims()
+
+proc setnoise() {local reli, typei, jgid, celltype localobj cell 
+	celltype = 0
+	for pcitr(&reli, &typei, &jgid, cellType[celltype].cellStartGid, cellType[celltype].cellEndGid) {
+		cell = pc.gid2cell(jgid)
+		cell.noiseFromRandom(ransynlist.object(reli).r)
+	}
+}
+//setnoise() gives me this error:
+/*
+net_send td-t = -85.2031 SelfEvent target=MyNetStim[1] -85.203124470222 flag=1
+net_send td-t = -16.0814 SelfEvent target=MyNetStim[2] -16.0814358341274 flag=1
+rank 0 in job 40  localhost_52627   caused collective abort of all ranks
+  exit status of rank 0: killed by signal 6 
+*/

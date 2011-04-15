@@ -2,7 +2,7 @@
 //{system(dircmd, direx)}
 //printf("%s\n",getcwd())
 
-distres = 50
+distres = 5
 objref postcellgids
 speed = 1
 
@@ -10,6 +10,7 @@ strdef precellType_string, postcellType_string
 proc makeConnections () {local precellType, distres, postcellType, precellStart, precellEnd, postcellStart, postcellEnd, i, j, r
 	// Attempt to connect all cells of each pre and post type
 	install_fastconn()
+	install_fastconnB()
 
 	for j = 1, numCellTypes-1 {	// ppstim cells are never the post synaptic cell in a connection, so exclude here
 		postcellType_string = cellType[j].cellType_string	// Load cell type string used to grab connection-specific properties later
@@ -18,7 +19,6 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 		
 		for r=0, numpost-1 {
 			postcellgids.x[r] = cellType[j].CellList[r].gid
-			//printf("cellType[%g].CellList[%g].gid = %g\n", j, r, postcellgids.x[r])
 		}
 			
 		for i = 1, numCellTypes-1 {		// Don't connect pp stim cells here - they have own function later
@@ -45,14 +45,16 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			
 			params = new Vector(25)
 
-			conns2make = new Vector(1+numConns*3)
+			conns2make = new Vector(1+numConns*3+cellType[postcellType].numCells)
 
 			params.x[0]=cellType[precellType].cellStartGid //gmin -- start gid of pre cell type
 			params.x[1]=cellType[precellType].cellEndGid //gmax -- end gid of pre cell type
 			params.x[2]= numConns //nconn
 			params.x[3]= cellType[postcellType].numCells // number of cells of the postsynaptic type (total)
 			params.x[4]= numpost  // number of cells of the postsynaptic type with gids on this computer
-			params.x[5]= LongitudinalLength //100 //maxd - the distance of the dimension for which the fit equation was designed (should add all three...), in um
+			params.x[5]= sqrt(LongitudinalLength^2 + LayerVector.sum()^2 + TransverseLength^2)
+			
+			 //100 //maxd - the distance of the dimension for which the fit equation was designed (should add all three...), in um
 						// this also confusing because, right now, the equation calculates the overall distance (through all dimensions).
 						// If per dimension, should compare to distance in that dimension only
 			params.x[6]= distres //5 //steps - resolution of the fit , in number of steps to take
@@ -79,9 +81,18 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			if (cellType[postcellType].layerflag>0) {addheight=LayerVector.sum(0,cellType[postcellType].layerflag-1)}
 			params.x[23]= addheight
 			params.x[24]= cellType[postcellType].cellStartGid
-			
+			//printf("pc %d has %d / %d post cells; wants to make %d conns\n", pc.id, params.x[4], params.x[3], params.x[2])
 			conns2make.fastconn(params, postcellgids)
-			
+			/*for r=0,pc.nhost-1 {
+				pc.barrier()
+				if (r==pc.id) {
+					printf("\npc: %d, %s pre cells = %d, %s post cells = %d (z size = %d)\n", pc.id, $s3, cellType[precellType].cellEndGid - cellType[precellType].cellStartGid + 1, $s4, cellType[postcellType].numCells, postcellgids.size() )
+					printf("--- %s to %s ------ START -------\n", $s3, $s4)
+					printf("--- %s to %s SUMMARY: wanted %g conns, got %g conns\n", $s3, $s4, numConns,  conns2make.x[0])
+				}
+				pc.barrier()
+			}*/
+
 			for r=1, conns2make.x[0] { // now how do we define j... it is the index into the cell list on that host i think. maybe pull in from fastconn
 				cell = pc.gid2cell(conns2make.x[r+numConns])
 				numSynTypes = cell.pre_list.o(precellType).count
@@ -90,7 +101,8 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 				conDelay =  sqrt(conns2make.x[r+2*numConns]/distres)*LongitudinalLength*speed+.1
 				//printf("conDelay = %f\n", conDelay)
 				//printf("nc_append(conns2make.x[r], conns2make.x[r+numConns], precellType, randSynNumber, synWeight, conDelay)\n")
-				//printf("nc_append(%g, %g, %g, %g, %g, %g)\n", conns2make.x[r], conns2make.x[r+numConns], precellType, randSynNumber, synWeight, conDelay)
+				//printf("nc_append, %g, %g\n", conns2make.x[r], conns2make.x[r+numConns])
+				//nc_append(conns2make.x[r], conns2make.x[r+numConns], precellType, randSynNumber, synWeight, conDelay)	// Make the connection
 				nc_append(conns2make.x[r], conns2make.x[r+numConns], precellType, randSynNumber, synWeight, conDelay)	// Make the connection
 				counter +=1
 			}
@@ -107,14 +119,16 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			 if (f2.isopen) {
 			 synWeight = f2.scanvar
 			 synDelay = f2.scanvar
+			 synProb = f2.scanvar
 			 numConns = f2.scanvar
-			 numConns = 10
+			 // numConns = int(numConns/(Scale*Scale)) // strictly proportional
+			 numConns = int(numConns/(Scale)) // higher connectivity in smaller scale models
 		 } else {
 			 synWeight = 0
 			 synDelay = 0
 			 numConns = 0
 		 }
-			 printf("set numConns = %d for %s to %s conn\n", numConns, $s1, $s2)
+			 //printf("set numConns = %d for %s to %s conn\n", numConns, $s1, $s2)
 			 if ((strcmp($s1,"granulecell")==0) && (strcmp($s2,"granulecell")==0)) {synProb = synProb * PercentAxonSprouting/100}
 		}	 	// Reduce the probability of granule cell connection by the same degree as the sclerosis
 				//	because mossy fibers connecting back to granule cells are subject to sclerosis (?)

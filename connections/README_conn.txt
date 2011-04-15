@@ -16,3 +16,7 @@ Line 3: probability of connection (from 0 - 1, the chance of any
 		particular postsynaptic cell of this type, a function of the
 		divergence from the presynaptic cell and convergence onto the
 		postsynaptic cell)
+		
+Line 4:	number of connections desired. Either line 3 or line 4 is used
+		to determine the connections; never both. Line 3 is used for the
+		random one and line 4 is used for the randfast one.
