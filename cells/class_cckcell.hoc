@@ -1,7 +1,7 @@
 begintemplate cckcell
 
 // public variables
-public  pre_list, connect_pre, append_sections, is_art, is_connected, gid
+public  pre_list, connect_pre, append_sections, is_art, is_connected, gid, randi
 public soma, bcdendAP1, bcdendAP2, bcdendBAS1, bcdendBAS2
 public all, adend, bdend, cdend, ddend
 public x, y, z, position
@@ -21,6 +21,7 @@ create soma, bcdendAP1[4], bcdendAP2[4], bcdendBAS1[4], bcdendBAS2[4]
 // of this class is instantiated
 proc init() {
 	gid = $1
+	randi = $2
 	// cell sections: soma, dendrites, axon
 	append_sections() // append all sections to the section list
 	connect_sections()// connect soma, dendrites, axon

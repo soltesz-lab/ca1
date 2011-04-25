@@ -7,7 +7,7 @@ begintemplate pyramidalcell
 // BPG & VCU, 2-1-09
 
 // public variables
-public is_art, gid
+public is_art, gid, randi
 public init, topol, basic_shape, subsets, geom, biophys
 public pre_list, connect_pre
 
@@ -32,6 +32,7 @@ external numCellTypes, cellType
 // of this class is instantiated
 proc init() {
 	gid = $1
+	randi = $2
 	// cell sections: soma, dendrites, axon
 	append_sections() // append all sections to the section list
 	connect_sections()// connect soma, dendrites, axon

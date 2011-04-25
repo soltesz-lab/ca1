@@ -12,7 +12,7 @@ begintemplate ppspont
 				acell pp = new MyNetStim(.5)
 				// Rob & Jonas protocol:
 				pp.interval = 1000/DegreeStim // 100 for Rob and Jonas
-				pp.number = 40
+				pp.number = 1e9
 				pp.noise = 1				
 				pp.start = 0
 				/* My protocol:

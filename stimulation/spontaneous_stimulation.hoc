@@ -48,13 +48,14 @@ proc setnoise() {local reli, typei, jgid, celltype localobj cell
 	celltype = 0
 	for pcitr(&reli, &typei, &jgid, cellType[celltype].cellStartGid, cellType[celltype].cellEndGid) {
 		cell = pc.gid2cell(jgid)
+		ransynlist.object(reli).r.negexp(1) // always use 1 for this - the interval for the netstim will set the 'rate'
+											// for another example (which has the randomstream class defined differently,
+											// and therefore calls different commands at different times) see the following file:
+											// <http://senselab.med.yale.edu/modeldb/showmodel.asp?model=83319&file=\destexhe_benchmarks\NEURON\common\netstim.hoc>
+											// use the ransynlist because we can continue along this stream for a very long time
+											// ranconlist is a small segment reserved upstream of ransynlist, so if there is
+											// a long simulation duration, then there could be a problem
 		cell.noiseFromRandom(ransynlist.object(reli).r)
 	}
 }
-//setnoise() gives me this error:
-/*
-net_send td-t = -85.2031 SelfEvent target=MyNetStim[1] -85.203124470222 flag=1
-net_send td-t = -16.0814 SelfEvent target=MyNetStim[2] -16.0814358341274 flag=1
-rank 0 in job 40  localhost_52627   caused collective abort of all ranks
-  exit status of rank 0: killed by signal 6 
-*/
+setnoise()
