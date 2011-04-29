@@ -276,12 +276,9 @@ static int fastconn (void* vv) {
 
 				/* this random routine allows a pre-cell to make multiple connections on the post cell*/
 				int tmp;
-				int randi;
+				u_int32_t randi;
 				for (i=0; i<szr-1; i++) {
-					randi =  abs(nrnRan4int(&idx1, idx2)) % szr; 	// MH says this returns a u_int32_t. But even when I define
-																	// randi as a u_int32_t, I still get negative numbers returned
-																	// so now I just use abs()
-																// that I limit to the range of indices in the r array
+					randi =  nrnRan4int(&idx1, idx2) % (u_int32_t)szr; // limit to the range of indices in the r array
 					tmp = r [i];	// randomly reorganize the pre cells in the r array
 					r[i] = r[randi];
 					r[randi] = tmp;

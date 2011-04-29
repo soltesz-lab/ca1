@@ -1,7 +1,3 @@
-//{sprint(dircmd, "cd ..")} 
-//{system(dircmd, direx)}
-//printf("%s\n",getcwd())
-
 distres = 5
 objref postcellgids
 speed = 1
