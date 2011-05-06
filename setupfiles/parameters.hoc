@@ -4,6 +4,7 @@
 default_var("testrun",0)		// stop run if not using a committed Mercurial version (unless doing a testrun before commit)
 
 // Files to print
+default_var("PrintVoltage",1)		// records and prints the voltage traces for the cells listed in voltagetrace.hoc
 default_var("PrintTerminal",1)		// controls how many notes print to screen. 0=few, 1=some, 2=many
 default_var("PrintConnSummary",1)	// Controls whether to print the Number of Connections (1=yes, 0=no)
 default_var("PrintCellPositions",1)	// Controls whether to print the position list (1=yes, 0=no)
@@ -35,7 +36,6 @@ default_var("DegreeStim",10)		// Intensity of stimulation; slightly different me
 									//  alternately, if spontaneous stimulation is used, what should the maximal rate be?
 default_var("onint",150)		// Interval of stimulation
 default_var("offint",50)		// Interval of no stimulation
-
 
 // Sprouting and cell death
 default_var("PercentAxonSprouting",0)	// Set % of mossy fiber (granule cell) sprouting

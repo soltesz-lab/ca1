@@ -221,9 +221,11 @@ runstart = startsw()							// grab start time of the simulation
 /***********************************************************************************************
 VI.	INITIALIZE AND RUN NETWORK, OUTPUT RESULT FILES
 ***********************************************************************************************/
+if (PrintVoltage==1) {load_file("./setupfiles/recordvoltage.hoc")}	// If we are going to record some voltages, then set up the recordings
+
 proc init() { local dtsav, temp, secsav, secondordersav	// Redefine the proc that initializes the
 														//  simulation (why?)
-														
+
 	dtsav = dt						// Save the desired dt value to reset it after temporarily
 									//  changing dt to run a quick presimulation to allow the
 									//  network to reach steady state before we start 'recording'
@@ -274,6 +276,7 @@ proc init() { local dtsav, temp, secsav, secondordersav	// Redefine the proc tha
 	}
 }
 
+
 {load_file("./setupfiles/write_results_functions.hoc")}		// Defines the procs spikeout() and timeout()
 															//  which write out the spikeraster (spikeout)
 															//  and the time taken to run each section of
@@ -304,11 +307,13 @@ proc rrun(){									// Run the network simulation and write out the results
 	
 	timeout()	// Write out a file of run times for each code section
 
+	if (PrintVoltage==1) {voltageout()}	// Write out any voltages that were recorded during simulation
 	if (PrintConnDetails==1) {tracenet()}	// Write the file of all cell connections (pre and post gids, synapse type,
 										//  host on which cell exists), "connections.dat"
 										
 	sumnumout()	// Write out a file with the total number of cells, spikes, and connections (including contributions from artificial cells)
 }
+
 rrun()	// Run the network simulation (in proc rrun)
 
 {pc.runworker()} 	// Everything after this line is executed only by the host node

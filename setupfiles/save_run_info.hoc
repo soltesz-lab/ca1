@@ -1,5 +1,5 @@
 objref frec
-strdef cmd, dircmd, direx, comper, version, vercomment, mypath, userstr, machname, machnick, outfile, edate
+strdef cmd, dircmd, direx, comper, version, vercomment, mypath, userstr, machname, machnick, outfile, edate, comver
 	objref  strobj
     strobj = new StringFunctions()
 
@@ -19,58 +19,66 @@ proc typeout() {local i, rank, gid, srcid localobj tgt, f, cell// Write out the 
 		{system(dircmd, direx)}
 		sprint(dircmd, "cp ../setupfiles/lowindex.hoc ../results/%s", RunName)
 		{system(dircmd, direx)}
-		
+
 		sprint(dircmd, "hg status")
 		{system(dircmd, direx)}
-		if (strcmp(direx,"")>0 && testrun==0) {
-			printf("The current code version has not been committed")
-			{pc.runworker()} 	// Everything after this line is executed only by the host node
-								// "The master host returns immediately. Worker hosts start an infinite loop of requesting tasks for execution." 
-			{pc.done()}			// Sends the quit message to the worker processors, which then quit neuron
-			quit()	// Sends the quit message to the host processor, which then quits neuron
-		} else {
-			sprint(dircmd, "hg parent --template '{rev}: {desc}\n'")
+		if (strcmp(direx,"")>0) {
+			comver = "Yes"
+			sprint(dircmd, "hg status > ../results/%s/hg_status.out", RunName)
 			{system(dircmd, direx)}
-			strobj.left(direx, strobj.len(direx)-1) // hg parent rev/desc
-			vercomment=direx
-			sprint(dircmd, "hg parent --template '{node}\n'")
-			{system(dircmd, direx)}
-			strobj.left(direx, strobj.len(direx)-1) // hg parent node
-			version=direx
-
-			system("cd ..;pwd",mypath)
-			strobj.left(mypath, strobj.len(mypath)-1) // path
-			system("whoami", userstr)
-			strobj.left(userstr, strobj.len(userstr)-1) // whoami
-			{system("hostname", machname)}
-			strobj.left(machname, strobj.len(machname)-1) // hostname
-
-			machnick =  machname// nickname for host machine, usually second term			
-			i = strobj.substr(machnick, ".")
-			if (i>0) {
-				strobj.right(machnick, i+1)
-				i = strobj.substr(machnick, ".")
-				strobj.left(machnick, i)
-			}
 			
-			{system("date \"+%d-%b-%Y %H:%M:%S\"", edate)}
-			strobj.left(edate, strobj.len(edate)-1) // date
+			sprint(dircmd, "hg diff > ../results/%s/hg_diff.out", RunName)
+			{system(dircmd, direx)}
+		} else {
+			comver = "No"
+		}
+		sprint(dircmd, "hg parent --template '{rev}: {desc}\n'")
+		{system(dircmd, direx)}
+		strobj.left(direx, strobj.len(direx)-1) // hg parent rev/desc
+		vercomment=direx
+		sprint(dircmd, "hg parent --template '{node}\n'")
+		{system(dircmd, direx)}
+		strobj.left(direx, strobj.len(direx)-1) // hg parent node
+		version=direx
 
-			sprint(outfile, "../results/%s/runreceipt.txt", RunName)
-			frec = new File(outfile)
-			frec.wopen()
-			frec.printf("NumProcessors = %g;\n", pc.nhost)
-			frec.printf("ExecutionDate = '%s';\n", edate)
-			frec.printf("ExecutedBy = '%s';\n", userstr)
-			frec.printf("Machine = '%s';\n", machnick)
-			frec.printf("MachineFull = '%s';\n", machname)
-			frec.printf("ModelVerComment='%s';\n", vercomment)
-			frec.printf("ModelVersion='%s';\n", version)
-			frec.printf("ModelDirectory ='%s';\n", mypath)
-			frec.printf("NEURONVersion ='%s';\n", nrnversion(2)) // version number and mercurial changeset
-			printmyvars()
-			frec.close()
-		}	
+		system("cd ..;pwd",mypath)
+		strobj.left(mypath, strobj.len(mypath)-1) // path
+		system("whoami", userstr)
+		strobj.left(userstr, strobj.len(userstr)-1) // whoami
+		{system("hostname", machname)}
+		strobj.left(machname, strobj.len(machname)-1) // hostname
+
+		machnick =  machname// nickname for host machine, usually second term in address		
+		i = strobj.substr(machnick, ".")
+		if (i>0) {
+			strobj.right(machnick, i+1)
+			i = strobj.substr(machnick, ".")
+			strobj.left(machnick, i)
+		}
+
+		{system("date \"+%d-%b-%Y %H:%M:%S\"", edate)}
+		strobj.left(edate, strobj.len(edate)-1) // date
+
+		sprint(outfile, "../results/%s/runreceipt.txt", RunName)
+		frec = new File(outfile)
+		frec.wopen()
+		frec.printf("NumProcessors = %g;\n", pc.nhost)
+		frec.printf("ExecutionDate = '%s';\n", edate)
+		frec.printf("ExecutedBy = '%s';\n", userstr)
+		frec.printf("Machine = '%s';\n", machnick)
+		frec.printf("MachineFull = '%s';\n", machname)
+		frec.printf("ModelVerComment='%s';\n", vercomment)
+		frec.printf("ModelVersion='%s';\n", version)
+		frec.printf("ModelDirectory ='%s';\n", mypath)
+		frec.printf("NEURONVersion ='%s';\n", nrnversion(2)) // version number and mercurial changeset
+		frec.printf("WorkDirChg ='%s';\n", comver) // whether this job was run using a model working directory that
+														// had been changed since the last version update													
+														// If no, the run can therefore be easily reproduced(No)
+														// If yes, we won't have any record of the changes and that
+														// will limit our ability to reproduce the run unless
+														// we record the changes, which we do in that case (Yes)
+		printmyvars()
+		frec.close()
 	}
 
 	pc.barrier()					// Wait for all ranks to get to this point
