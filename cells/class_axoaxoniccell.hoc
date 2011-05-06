@@ -246,9 +246,9 @@ proc biophys() {
 	}		
 
 	forsec all {
-		insert ccanl
-		catau_ccanl = 10		// Time constant for decay of intracellular Ca2+
-		caiinf_ccanl = 5.e-6		// Steady-state intracellular Ca2+ concentration
+		//insert ccanl
+		//catau_ccanl = 10		// Time constant for decay of intracellular Ca2+
+		//caiinf_ccanl = 5.e-6		// Steady-state intracellular Ca2+ concentration
 		
 		insert borgka
 		gkabar_borgka = 0.00015		// A-type K+ conductance

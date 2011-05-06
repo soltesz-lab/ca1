@@ -120,9 +120,9 @@ proc set_nseg() {
 
 proc insert_mechs() {
 	forsec all {
-		insert ccanl
-	catau_ccanl = 10
-	caiinf_ccanl = 5.e-6
+		//insert ccanl
+	//catau_ccanl = 10
+	//caiinf_ccanl = 5.e-6
 		insert borgka
 	gkabar_borgka=0.00005
 		insert nca  // HAV-N- Ca channel

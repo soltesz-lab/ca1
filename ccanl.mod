@@ -14,7 +14,7 @@ RANGE caiinf, catau, cai, ncai, lcai,tcai, eca, elca, enca, etca
 }
 
 UNITS {
-        (mV) = (millivolt)
+    (mV) = (millivolt)
 	(molar) = (1/liter)
 	(mM) = (milli/liter)
 	(mA) = (milliamp)
