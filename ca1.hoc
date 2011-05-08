@@ -281,7 +281,6 @@ proc init() { local dtsav, temp, secsav, secondordersav	// Redefine the proc tha
 															//  which write out the spikeraster (spikeout)
 															//  and the time taken to run each section of
 															//  the code (timeout)
-
 proc rrun(){									// Run the network simulation and write out the results
 
 	pnm.want_all_spikes() 						// Record all spikes of all cells on this machine into the

@@ -101,16 +101,14 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			 f2.ropen(tempString)
 			 if (f2.isopen) {
 			 synWeight = f2.scanvar
-			 synDelay = f2.scanvar
-			 synProb = f2.scanvar
 			 numConns = f2.scanvar
-			 // numConns = int(numConns/(Scale*Scale)) // strictly proportional
-			 // numConns = int(numConns/(Scale)) // higher connectivity in smaller scale models
-		 } else {
-			 synWeight = 0
-			 synDelay = 0
-			 numConns = 0
-		 }
+			 // numConns = int(numConns/(Scale*Scale)) // strictly proportional to potential num conns
+			  numConns = int(numConns/(Scale)) // higher connectivity in smaller scale models
+			 //synProb = numConns
+			 } else {
+				 synWeight = 0
+				 numConns = 0
+			 }
 			 //printf("set numConns = %d for %s to %s conn\n", numConns, $s1, $s2)
 			 if ((strcmp($s1,"granulecell")==0) && (strcmp($s2,"granulecell")==0)) {synProb = synProb * PercentAxonSprouting/100}
 		}	 	// Reduce the probability of granule cell connection by the same degree as the sclerosis

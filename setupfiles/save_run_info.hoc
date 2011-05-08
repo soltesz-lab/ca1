@@ -1,5 +1,6 @@
 objref frec
 strdef cmd, dircmd, direx, comper, version, vercomment, mypath, userstr, machname, machnick, outfile, edate, comver
+strdef verleft, verright
 	objref  strobj
     strobj = new StringFunctions()
 
@@ -36,6 +37,22 @@ proc typeout() {local i, rank, gid, srcid localobj tgt, f, cell// Write out the 
 		{system(dircmd, direx)}
 		strobj.left(direx, strobj.len(direx)-1) // hg parent rev/desc
 		vercomment=direx
+		i = strobj.substr(vercomment, "'")
+		while (i>0) {
+			verleft = vercomment
+			strobj.left(verleft, i)
+
+			verright = vercomment
+			strobj.right(verright, i+1)
+			
+			sprint(vercomment,"%s''%s", verleft, verright)
+			
+			i = strobj.substr(verright, "'")
+			if (i>0) {
+				i = i + strobj.len(verleft)+2
+			}
+		}
+
 		sprint(dircmd, "hg parent --template '{node}\n'")
 		{system(dircmd, direx)}
 		strobj.left(direx, strobj.len(direx)-1) // hg parent node

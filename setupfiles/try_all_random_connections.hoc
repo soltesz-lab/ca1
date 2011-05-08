@@ -38,6 +38,8 @@ proc makeConnections () {local precellType, postcellType, precellStart, precellE
 		getSynapseData($s7, $s8)	// Given the pre and post cell types, look up the weight, delay,
 									//	and probability of connection between these two types
 
+		synProb = numConns/(preNum*postNum)	// Haven't actually tried this yet - not sure if this will need to be scaled somehow
+
 		if (PrintTerminal>1) {print "Host ", pc.id, " is connecting: ", $s7, "s to ", $s8, "s."}
 
 		if (synProb != 0) {
@@ -92,15 +94,12 @@ proc makeConnections () {local precellType, postcellType, precellStart, precellE
 			 sprint(tempString,"../connections/%s.%s",$s1,$s2)	// Get the file that specifies connection properties between these two cell types
 			 f2.ropen(tempString)
 			 if (f2.isopen) {
-			 synWeight = f2.scanvar
-			 synDelay = f2.scanvar
-			 synProb = f2.scanvar
-			 numConns = f2.scanvar // placeholder, we can ignore
-		 } else {
-			 synWeight = 0
-			 synDelay = 0
-			 synProb = 0
-		 }
+				 synWeight = f2.scanvar
+				 numConns = f2.scanvar // placeholder, we can ignore			 
+			 } else {
+				 synWeight = 0
+				 numConns = 0
+			 }
 			 if ((strcmp($s1,"granulecell")==0) && (strcmp($s2,"granulecell")==0)) {synProb = synProb * PercentAxonSprouting/100}
 		}	 	// Reduce the probability of granule cell connection by the same degree as the sclerosis
 				//	because mossy fibers connecting back to granule cells are subject to sclerosis (?)

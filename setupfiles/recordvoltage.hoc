@@ -1,14 +1,14 @@
 objref tracenamelist[1], tracevector, tracepclist, traceidxlist, tracetypelist, f2
 strdef cmdstr
 tracevector = new Vector()
-f2 = new File()
-f2.ropen("../setupfiles/voltagetrace.hoc")
+{f2 = new File()}
+{f2.ropen("../setupfiles/voltagetrace.hoc")}
 numtraces = f2.scanvar			// # cell types, including 1 for pp cells
 objref tracenamelist[numtraces]
 tracepclist = new Vector(numtraces)
 traceidxlist = new Vector(numtraces)
 tracetypelist = new Vector(numtraces)
-	
+
 for tr = 0, numtraces-1 {
 	tracenamelist[tr] = new String()
 	f2.scanstr(tracenamelist[tr].s)
@@ -17,7 +17,7 @@ for tr = 0, numtraces-1 {
 
 for tr = 0, numtraces-1 {
 		sprint(cmdstr, "objref %s%g", tracenamelist[tr].s, tracepclist.x[tr])
-		execute(cmdstr)
+		{execute(cmdstr)}
 }
 
 objref cell
@@ -28,10 +28,10 @@ for tr = 0, numtraces-1 {
 			traceidxlist.x[tr]=cellType[celltype].cellStartGid+int(tracepclist.x[tr]/100*(cellType[celltype].cellEndGid-cellType[celltype].cellStartGid))
 			if (pc.gid_exists(traceidxlist.x[tr])) {	// If cell exists on this machine
 				sprint(cmdstr, "%s%g = new Vector(%g)", tracenamelist[tr].s, tracepclist.x[tr], (tstop-tstart)/dt)
-				execute(cmdstr)
+				{execute(cmdstr)}
 				cell = pc.gid2cell(traceidxlist.x[tr])
 				sprint(cmdstr, "%s%g.record(&cell.soma.v(0.5))", tracenamelist[tr].s, tracepclist.x[tr])
-				execute(cmdstr)
+				{execute(cmdstr)}
 			}
 		}
 	}
