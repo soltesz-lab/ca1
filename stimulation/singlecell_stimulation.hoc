@@ -11,7 +11,7 @@ proc stimulateCells() { local i, pci, jgid, celltype, stimcelltype, counter loca
 								cellType[stimcelltype].numCons.x[celltype] +=1
 							}
 						}
-						if (strcmp(cellType[celltype].cellType_string,"pvbasketcell")==0) {	// Connect to some basket cells
+						if (strcmp(cellType[celltype].cellType_string,"pvbasketcell")==0 || strcmp(cellType[celltype].cellType_string,"dgbasketcell")==0) {	// Connect to some basket cells
 							if (pc.gid_exists(cellType[celltype].cellStartGid)) {
 								cell = pc.gid2cell(cellType[celltype].cellStartGid)
 								nc_appendo(i, cell, stimcelltype, 0, 1e-2, 3) 

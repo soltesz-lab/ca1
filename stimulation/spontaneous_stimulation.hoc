@@ -10,7 +10,7 @@ proc perfpathStims() { local i, reli, typei, jgid, celltype, counter, jstart, je
 				}
 			}
 		}
-		if (strcmp(cellType[celltype].cellType_string,"pvbasketcell")==0) {	// Connect to some basket cells
+		if (strcmp(cellType[celltype].cellType_string,"pvbasketcell")==0 || strcmp(cellType[celltype].cellType_string,"dgbasketcell")==0) {	// Connect to some basket cells
 			for pcitr(&reli, &typei, &jgid, cellType[celltype].cellStartGid, cellType[celltype].cellEndGid) {
 				if (pc.gid_exists(jgid)) {
 					cell = pc.gid2cell(jgid)

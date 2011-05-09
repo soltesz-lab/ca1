@@ -18,7 +18,8 @@ external numCellTypes, cellType
 
 proc init() {
 	gid = $1
-	randi = $2	pre_list = new List()
+	randi = $2
+	pre_list = new List()
 	subsets()
 	temp()
 	synapse()
@@ -178,11 +179,11 @@ proc temp() {
 			if ((strcmp(cellType[celltype].cellType_string,"ppstim")==0) || (strcmp(cellType[celltype].cellType_string,"ppspont")==0)) {	// Connect to some pp stim cells
 				templist = new List ()
 
-				bcdend1 [3] syn = new Exp2Sid(0.5)	//PP(AMPA) syn to apical dist dend Dingledine '95
+				bcdend1 [3] syn = new MyExp2Sid(0.5)	//PP(AMPA) syn to apical dist dend Dingledine '95
 				syn.tau1 = 2	syn.tau2 = 6.3	syn.e = 0 	syn.sid=0	// sid: Set the synapse id for each synapse defined for cell
 				templist.append(syn)
 
-				bcdend2 [3] syn = new Exp2Sid(0.5)	//PP(AMPA) syn to apical dist dend Dingledine '95
+				bcdend2 [3] syn = new MyExp2Sid(0.5)	//PP(AMPA) syn to apical dist dend Dingledine '95
 				syn.tau1 = 2	syn.tau2 = 6.3	syn.e = 0  	syn.sid=1	// sid: Set the synapse id for each synapse defined for cell
 				templist.append(syn)
 
