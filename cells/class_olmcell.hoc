@@ -236,7 +236,7 @@ proc set_biophys() {
 			}
 
 
-			if (strcmp(cellType[celltype].cellType_string,"pvbasketcell")==0) {	// Connect to some mossy cells
+			if ((strcmp(cellType[celltype].cellType_string,"basketcell")==0) || (strcmp(cellType[celltype].cellType_string,"dgbasketcell")==0)) {	// Connect to some basket cells
 				templist = new List ()
 
   	/* I5 */   	soma syn = new MyExp2Sid(0.5)  //pre_list.append(syn)		// GABA-A	B cell

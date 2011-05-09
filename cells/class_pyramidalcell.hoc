@@ -635,7 +635,7 @@ proc define_synapses() {
 			}
     	
     	// from basket cell to here
-			if (strcmp(cellType[celltype].cellType_string,"pvbasketcell")==0) {	// Connect to some pp stim cells
+			if ((strcmp(cellType[celltype].cellType_string,"basketcell")==0) || (strcmp(cellType[celltype].cellType_string,"dgbasketcell")==0)) {	// Connect to some basket cells
 				templist = new List ()
 
   	/* I5 */   	soma syn = new MyExp2Sid(0.5)  //pre_list.append(syn)		// GABA-A	B cell
@@ -716,7 +716,7 @@ proc define_synapses() {
 			}
 
     	// from bistratified cell to here
-			if (strcmp(cellType[celltype].cellType_string,"bistratifiedcell")==0) {	// Connect to some pp stim cells
+			if ((strcmp(cellType[celltype].cellType_string,"bistratifiedcell")==0) || (strcmp(cellType[celltype].cellType_string,"dgbistratifiedcell")==0)) {	// Connect to some basket cells
 				templist = new List ()
 
   	/* I11 */   	radTmed syn = new MyExp2Sid(0.8)  //pre_list.append(syn)	// GABA-A	BS cells

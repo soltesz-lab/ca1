@@ -1,9 +1,9 @@
 7
 ppspont	310390 2
 pyramidalcell 300000 2
-pvbasketcell 3000 2
+dgbasketcell 3000 2
 axoaxoniccell 800 2
-bistratifiedcell 1200 2
+dgbistratifiedcell 1200 2
 olmcell 2830 1
 cckcell 2560 2
 

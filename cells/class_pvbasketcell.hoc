@@ -1,4 +1,4 @@
-begintemplate pvbasketcell
+begintemplate dgbasketcell
 
 // public variables
 public  pre_list, connect_pre, append_sections, is_art, is_connected, gid, randi
@@ -340,4 +340,4 @@ proc position(){ local i
 	}
 	x = $1  y = $2  z = $3	
 }
-	endtemplate pvbasketcell
+	endtemplate dgbasketcell
