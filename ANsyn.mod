@@ -11,7 +11,7 @@ The synaptic current is:
 NMDA model taken from Mel, J. Neurophys. 70:1086-1101, 1993
 BPG 1-12-00
 ENDCOMMENT
-                           
+ 
 INDEPENDENT {t FROM 0 TO 1 WITH 1 (ms)}
 
 NEURON {

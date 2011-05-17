@@ -79,7 +79,6 @@ FUNCTION h2(cai(mM)) {
 	h2 = ki/(ki+cai)
 }
 
-
 FUNCTION ghk(v(mV), ci(mM), co(mM)) (mV) {
         LOCAL nu,f
 

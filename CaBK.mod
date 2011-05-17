@@ -12,7 +12,6 @@ UNITS {
 	(mM) =	(millimolar)
 }
 
-
 NEURON {
 	SUFFIX cagk
 	USEION nca READ ncai VALENCE 2
