@@ -14,8 +14,8 @@ proc perfpathStims() { local i, reli, typei, jgid, celltype, counter, jstart, je
 			for pcitr(&reli, &typei, &jgid, cellType[celltype].cellStartGid, cellType[celltype].cellEndGid) {
 				if (pc.gid_exists(jgid)) {
 					cell = pc.gid2cell(jgid)
-					nc_appendo(jgid-cellType[0].cellEndGid-1, cell, 0, 0, 1e-2, 3) 
-					nc_appendo(jgid-cellType[0].cellEndGid-1, cell, 0, 1, 1e-2, 3)  
+					nc_appendo(jgid-cellType[0].cellEndGid-1, cell, 0, 0, 1e-3, 3) 
+					nc_appendo(jgid-cellType[0].cellEndGid-1, cell, 0, 1, 1e-3, 3)  
 					cellType[0].numCons.x[celltype] +=2
 				}
 			}	
