@@ -1,11 +1,11 @@
 49
 ppspont ppspont 0.000000 0.000000
-ppspont pyramidalcell 0.000000 0.000000
-ppspont pvbasketcell 0.000000 0.000000
-ppspont axoaxoniccell 0.000000 0.000000
+ppspont pyramidalcell 0.010000 1.000000
+ppspont pvbasketcell 0.010000 1.000000
+ppspont axoaxoniccell 0.010000 1.000000
 ppspont bistratifiedcell 0.000000 0.000000
 ppspont olmcell 0.000000 0.000000
-ppspont cckcell 0.000000 0.000000
+ppspont cckcell 0.010000 1.000000
 pyramidalcell ppspont 0.000000 0.000000
 pyramidalcell pyramidalcell 0.010000 900000.000000
 pyramidalcell pvbasketcell 0.050000 4500000.000000
