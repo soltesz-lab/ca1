@@ -1,0 +1,31 @@
+strdef cmdstr, pre_type, post_type
+objref f2
+
+proc conn_cells() {
+	for i=0, numCellTypes-1 {
+		sprint(cmdstr, "%s_idx = %g", cellType[i].cellType_string, i)
+		{execute1(cmdstr)}
+		cellType[i].numConns = new Vector(numCellTypes)
+		cellType[i].wgtConns = new Vector(numCellTypes)
+	}
+
+	// load file
+	f2 = new File()
+	sprint(cmdstr, "../connections/conndata_%g.dat", ConnData)
+	f2.ropen(cmdstr)		// Open the celltype
+	connData = f2.scanvar
+	for r=0,connData-1 {
+		f2.scanstr(pre_type)
+		f2.scanstr(post_type)
+		wgt = f2.scanvar
+		num = f2.scanvar
+
+		sprint(cmdstr, "cellType[%s_idx].numConns.x[%s_idx] = %g", pre_type, post_type, num)
+		{execute1(cmdstr)}
+		
+		sprint(cmdstr, "cellType[%s_idx].wgtConns.x[%s_idx] = %g", pre_type, post_type, wgt)
+		{execute1(cmdstr)}
+	}
+	f2.close()
+}
+conn_cells()

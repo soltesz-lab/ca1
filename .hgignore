@@ -3,4 +3,5 @@ x86_64/**
 jobscripts/**
 tools/**
 results/**
+connections/**
 *.*~

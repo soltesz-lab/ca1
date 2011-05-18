@@ -28,6 +28,7 @@ default_var("LayerHeights","3;500;100;400;") 	// Height of the molecular layer i
 // Model stimulation
 													
 default_var("Connectivity","try_all_randfast")		// Connectivity = [try_all_random]
+default_var("ConnData",1)						// Connection set to use
 default_var("Stimulation","spontaneous")		// Stimulation = [pulse | spontaneous | grid]
 
 default_var("DegreeStim",10)		// Intensity of stimulation; slightly different meaning depending on the 

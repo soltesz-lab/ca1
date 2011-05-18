@@ -31,12 +31,16 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 		 precellType = $1
 		 postcellType = $2
 		 counter=0
-		getSynapseData($s3, $s4)	// Given the pre and post cell types, look up the weight, delay,
+		synWeight = cellType[$1].wgtConns.x[$2]
+		numConns = cellType[$1].numConns.x[$2]
+		numConns = int(numConns/(Scale)) // higher connectivity in smaller scale models
+
+		//getSynapseData($s3, $s4)	// Given the pre and post cell types, look up the weight, delay,
 									//	and probability of connection between these two types
 
 		if (PrintTerminal>1) {print "Host ", pc.id, " is connecting: ", $s3, "s to ", $s4, "s."}
 
-		if (numConns != 0) {
+		if (numConns != 0 && synWeight != 0) {
 			params = new Vector(26)
 			connlength = (numConns+cellType[postcellType].numCells)
 			conns2make = new Vector(1+connlength*3)
@@ -102,8 +106,8 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			 if (f2.isopen) {
 			 synWeight = f2.scanvar
 			 numConns = f2.scanvar
-			 // numConns = int(numConns/(Scale*Scale)) // strictly proportional to potential num conns
 			  numConns = int(numConns/(Scale)) // higher connectivity in smaller scale models
+			 // numConns = int(numConns/(Scale*Scale)) // strictly proportional to potential num conns
 			 //synProb = numConns
 			 } else {
 				 synWeight = 0

@@ -36,6 +36,9 @@ II. SET MODEL SIZE, CELL DEFINITIONS
 														//  type (bio or art cells?). Info includes
 														//  number of cells, gid ranges, type name 
 
+{load_file("./setupfiles/load_cell_conns.hoc")}	// Load in the cell connectivity info
+
+
 strdef tempFileStr						// Define a string reference to store the name of the
 										//  current cell template file
 
