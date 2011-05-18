@@ -51,7 +51,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			params.x[3]= cellType[postcellType].numCells // number of cells of the postsynaptic type (total)
 			params.x[4]= numpost  // number of cells of the postsynaptic type with gids on this computer
 			params.x[5]= sqrt(LongitudinalLength^2 + LayerVector.sum()^2 + TransverseLength^2)
-			
+
 			 //100 //maxd - the distance of the dimension for which the fit equation was designed (should add all three...), in um
 						// this also confusing because, right now, the equation calculates the overall distance (through all dimensions).
 						// If per dimension, should compare to distance in that dimension only

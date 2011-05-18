@@ -388,7 +388,7 @@ proc synapses() {
 				findme=1
 			}
 
-			if (strcmp(cellType[celltype].cellType_string,"pvbasketcell")==0) {	// Connect to some pp stim cells
+			if ((strcmp(cellType[celltype].cellType_string,"pvbasketcell")==0) || (strcmp(cellType[celltype].cellType_string,"dgbasketcell")==0)) {	// Connect to some basket cells
 				templist = new List ()
   	/* I9 */   soma syn = new MyExp2Sid(0.6)  //pre_list.append(syn)	// GABA-A	Basket cell
     	syn.tau1 = 1
