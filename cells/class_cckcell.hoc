@@ -120,9 +120,9 @@ proc set_nseg() {
 
 proc insert_mechs() {
 	forsec all {
-		insert ccanl
-	catau_ccanl = 10
-	caiinf_ccanl = 5.e-6
+		//insert ccanl
+	//catau_ccanl = 10
+	//caiinf_ccanl = 5.e-6
 		insert borgka
 	gkabar_borgka=0.00005
 		insert nca  // HAV-N- Ca channel
@@ -176,7 +176,8 @@ proc set_biophys() {
 	forsec all {enat = 55 ekf = -90  ek=-90  elca=130	esk=-90
 		 el_ichan2 =-60.06 	ehyf=-40 ehys=-40
 
-		cao_ccanl=2 }  // make catau slower70e-3 	cao=2 cai=50.e-6 
+		//cao_ccanl=2 
+		}  // make catau slower70e-3 	cao=2 cai=50.e-6 
 }
 
 	objref syn  

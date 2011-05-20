@@ -1,5 +1,4 @@
 // Stole everything from the pbbasketcell, put it here
-
 begintemplate axoaxoniccell
 // public variables
 public  pre_list, connect_pre, append_sections, is_art, is_connected, gid, randi
