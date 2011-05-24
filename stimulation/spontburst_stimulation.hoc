@@ -1,61 +1,57 @@
-proc perfpathStims() { local i, reli, typei, jgid, celltype, counter, jstart, jend, jtot localobj cell, onstimobj, offstimobj		// Connect the perforant path cells to the model cells
+proc perfpathStims() { local i, wgt, reli, typei, jgid, celltype, counter, jstart, jend, jtot localobj cell		// Connect the perforant path cells to the model cells
 	for celltype=1, numCellTypes-1 {
-		if (strcmp(cellType[celltype].cellType_string,"pyramidalcell")==0) {	// Connect to some granule cells
+		wgt = cellType[0].wgtConns.x[celltype]
+		if (wgt > 0) {
 			for pcitr(&reli, &typei, &jgid, cellType[celltype].cellStartGid, cellType[celltype].cellEndGid) {
 				if (pc.gid_exists(jgid)) {
 					cell = pc.gid2cell(jgid)
-					nc_appendo(jgid-cellType[0].cellEndGid-1+pc.nhost*2, cell, 0, 0, 2e-2, 3)  
-					nc_appendo(jgid-cellType[0].cellEndGid-1+pc.nhost*2, cell, 0, 0, 2e-2, 3) 
-					cellType[0].numCons.x[celltype] +=2
+					wgt = cellType[0].wgtConns.x[celltype]
+					nc_appendo(jgid-cellType[0].cellEndGid-1, cell, 0, 0, wgt, 3)  // 1e-3
+					cellType[0].numCons.x[celltype] +=1
 				}
 			}
-		}
-		if (strcmp(cellType[celltype].cellType_string,"pvbasketcell")==0 or strcmp(cellType[celltype].cellType_string,"dgbasketcell")==0) {	// Connect to some basket cells
-			for pcitr(&reli, &typei, &jgid, cellType[celltype].cellStartGid, cellType[celltype].cellEndGid) {
-				if (pc.gid_exists(jgid)) {
-					cell = pc.gid2cell(jgid)
-					nc_appendo(jgid-cellType[0].cellEndGid-1+pc.nhost*2, cell, 0, 0, 1e-2, 3) 
-					nc_appendo(jgid-cellType[0].cellEndGid-1+pc.nhost*2, cell, 0, 1, 1e-2, 3)  
-					cellType[0].numCons.x[celltype] +=2
-				}
-			}	
-		}
-		if (strcmp(cellType[celltype].cellType_string,"axoaxoniccell")==0) {	// Connect to some basket cells
-			for pcitr(&reli, &typei, &jgid, cellType[celltype].cellStartGid, cellType[celltype].cellEndGid) {
-				if (pc.gid_exists(jgid)) {
-					cell = pc.gid2cell(jgid)
-					nc_appendo(jgid-cellType[0].cellEndGid-1+pc.nhost*2, cell, 0, 0, 1e-2, 3) 
-					nc_appendo(jgid-cellType[0].cellEndGid-1+pc.nhost*2, cell, 0, 0, 1e-2, 3)  
-					cellType[0].numCons.x[celltype] +=2
-				}
-			}	
-		}
-		if (strcmp(cellType[celltype].cellType_string,"cckcell")==0) {	// Connect to some basket cells
-			for pcitr(&reli, &typei, &jgid, cellType[celltype].cellStartGid, cellType[celltype].cellEndGid) {
-				if (pc.gid_exists(jgid)) {
-					cell = pc.gid2cell(jgid)
-					nc_appendo(jgid-cellType[0].cellEndGid-1+pc.nhost*2, cell, 0, 0, 1e-2, 3) 
-					nc_appendo(jgid-cellType[0].cellEndGid-1+pc.nhost*2, cell, 0, 0, 1e-2, 3)  
-					cellType[0].numCons.x[celltype] +=2
-				}
-			}	
 		}
 	}
 }
-	proc addstims() {local reli, typei, jgid localobj cell, onstimobj, offstimobj
-		for pcitr(&reli, &typei, &jgid, cellType[0].cellStartGid+pc.nhost*2, cellType[0].cellEndGid) {
-			if (pc.gid_exists(jgid)) {
-				cell = pc.gid2cell(jgid)
-				onstimobj = pc.gid2cell(pc.id) // what are the gids for these things?
-				offstimobj = pc.gid2cell(pc.id+pc.nhost) // what are the gids for these things?
-				set_ctrl_stims(onstimobj,offstimobj)
-				add_on_off(jgid, onstimobj, offstimobj)
-				cellType[0].numCons.x[0] +=2
-			}
-		}	
+perfpathStims()
+
+proc setupburst() {localobj onstimobj, offstimobj
+	onstimobj = pc.gid2cell(pc.id) // what are the gids for these things?
+	offstimobj = pc.gid2cell(pc.id+pc.nhost) // what are the gids for these things?
+	set_ctrl_stims(onstimobj,offstimobj)
+}
+	proc set_ctrl_stims() { // first argument is the on NetStim object, second is off
+		$o1.interval = Onint+Offint
+		$o1.number = 1e9
+		$o1.start = 0
+		$o1.noise = 0
+
+		$o2.interval = Onint+Offint
+		$o2.number = $o1.number
+		$o2.start = Onint
+		$o2.noise = $o1.noise
 	}
+setupburst()
 
-
+proc addstims() {local reli, typei, jgid localobj cell, onstimobj, offstimobj
+	for pcitr(&reli, &typei, &jgid, cellType[0].cellStartGid+pc.nhost*2, cellType[0].cellEndGid) {
+		if (pc.gid_exists(jgid)) {
+			cell = pc.gid2cell(jgid)
+			onstimobj = pc.gid2cell(pc.id) // what are the gids for these things?
+			offstimobj = pc.gid2cell(pc.id+pc.nhost) // what are the gids for these things?
+			add_on_off(jgid, onstimobj, offstimobj)
+			//cellType[0].numCons.x[0] +=2
+			ransynlist.object(reli).r.negexp(1) // always use 1 for this - the interval for the netstim will set the 'rate'
+												// for another example (which has the randomstream class defined differently,
+												// and therefore calls different commands at different times) see the following file:
+												// <http://senselab.med.yale.edu/modeldb/showmodel.asp?model=83319&file=\destexhe_benchmarks\NEURON\common\netstim.hoc>
+												// use the ransynlist because we can continue along this stream for a very long time
+												// ranconlist is a small segment reserved upstream of ransynlist, so if there is
+												// a long simulation duration, then there could be a problem
+			cell.noiseFromRandom(ransynlist.object(reli).r)
+		}
+	}	
+}
 	proc add_on_off() {localobj ns, ctrlsyn, offsyn	// arg 1: gid of the netstim to which the control on and off netstims must be attached
 													// arg 2: object of the on NetStim
 													// arg 3: object of the off NetStim
@@ -73,19 +69,6 @@ proc perfpathStims() { local i, reli, typei, jgid, celltype, counter, jstart, je
 		offsyn.delay = 0
 		nclist.append(offsyn)
 	}
-
-	proc set_ctrl_stims() { // first argument is the on NetStim object, second is off
-		$o1.interval = onint+offint
-		$o1.number = 100
-		$o1.start = 0
-		$o1.noise = 0
-
-		$o2.interval = onint+offint
-		$o2.number = $o1.number
-		$o2.start = onint
-		$o2.noise = $o1.noise
-	}
-perfpathStims()
 addstims()
 
 
