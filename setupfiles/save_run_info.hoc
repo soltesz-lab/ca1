@@ -6,17 +6,19 @@ strdef verleft, verright
 
 proc typeout() {local i, rn, rank, gid, srcid localobj tgt, f, cell// Write out the cell types & gid ranges
 	if (pc.id == 0) { 				// Write header to file 1 time only
-		rn = 0
-		sprint(dircmd, "ls ../results/%s%02.0f", RunName, rn)
+		rn = -1
+		sprint(dircmd, "ls ../results/%s", RunName)
 		{system(dircmd, direx)}
-		{sprint(comper, "ls: cannot access ../results/%s%02.0f: No such file or directory", RunName, rn)}
+		{sprint(comper, "ls: cannot access ../results/%s: No such file or directory", RunName)}
 		while (strcmp(direx,comper)!=0 && strcmp(direx,"")!=0 ) {
 			rn = rn + 1
-			sprint(dircmd, "ls ../results/%s%02.0f", RunName, rn)
+			sprint(dircmd, "ls ../results/%s_%02.0f", RunName, rn)
 			{system(dircmd, direx)}
-			{sprint(comper, "ls: cannot access ../results/%s%02.0f: No such file or directory", RunName, rn)}
+			{sprint(comper, "ls: cannot access ../results/%s_%02.0f: No such file or directory", RunName, rn)}
 		}
-		sprint(RunName, "%s%02.0f", RunName, rn)
+		if (rn>-1) {
+			sprint(RunName, "%s_%02.0f", RunName, rn)
+		}
 		printf(" so I will create it now\n")
 		sprint(dircmd, "mkdir ../results/%s", RunName)
 		{system(dircmd, direx)}
