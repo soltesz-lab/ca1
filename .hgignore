@@ -4,4 +4,5 @@ jobscripts/**
 tools/**
 results/**
 connections/**
+setupfiles/voltagetrace.hoc
 *.*~
