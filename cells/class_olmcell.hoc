@@ -172,6 +172,20 @@ proc set_biophys() {
 	proc define_synapses() {	// Currently, there are no synapses defined for pp --> hipp (though previous code versions had this)
 		for celltype=0, numCellTypes-1 {
 			findme=0
+			if (strcmp(cellType[celltype].cellType_string,"ppspont")==0 || strcmp(cellType[celltype].cellType_string,"ppstim")==0 || strcmp(cellType[celltype].cellType_string,"ppvec")==0) {	// Connect to some pp stim cells
+				templist = new List ()
+
+				hcdend1 [3] syn = new Exp2Sid(0.5)	//PP(AMPA) syn to apical dist dend Dingledine '95
+				syn.tau1 = 2	syn.tau2 = 6.3	syn.e = 0 	syn.sid=0	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				hcdend2 [3] syn = new Exp2Sid(0.5)	//PP(AMPA) syn to apical dist dend Dingledine '95
+				syn.tau1 = 2	syn.tau2 = 6.3	syn.e = 0  	syn.sid=1	// sid: Set the synapse id for each synapse defined for cell
+				templist.append(syn)
+
+				pre_list.append(templist)
+				findme=1
+			}
 
 			if (strcmp(cellType[celltype].cellType_string,"pyramidalcell")==0) {	// Connect to some granule cells
 				templist = new List ()
