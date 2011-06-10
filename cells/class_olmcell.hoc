@@ -175,11 +175,11 @@ proc set_biophys() {
 			if (strcmp(cellType[celltype].cellType_string,"ppspont")==0 || strcmp(cellType[celltype].cellType_string,"ppstim")==0 || strcmp(cellType[celltype].cellType_string,"ppvec")==0) {	// Connect to some pp stim cells
 				templist = new List ()
 
-				hcdend1 [3] syn = new Exp2Sid(0.5)	//PP(AMPA) syn to apical dist dend Dingledine '95
+				hcdend1 [0] syn = new Exp2Sid(0.5)	//PP(AMPA) syn to apical dist dend Dingledine '95
 				syn.tau1 = 2	syn.tau2 = 6.3	syn.e = 0 	syn.sid=0	// sid: Set the synapse id for each synapse defined for cell
 				templist.append(syn)
 
-				hcdend2 [3] syn = new Exp2Sid(0.5)	//PP(AMPA) syn to apical dist dend Dingledine '95
+				hcdend2 [0] syn = new Exp2Sid(0.5)	//PP(AMPA) syn to apical dist dend Dingledine '95
 				syn.tau1 = 2	syn.tau2 = 6.3	syn.e = 0  	syn.sid=1	// sid: Set the synapse id for each synapse defined for cell
 				templist.append(syn)
 
