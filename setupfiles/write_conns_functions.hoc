@@ -43,3 +43,35 @@ proc tracenet() {local i, rank, srcid localobj tgt, f	// Write out the connectio
 		pc.barrier()
 	}
 }
+
+
+objref traceidxlist
+traceidxlist = new Vector()
+proc tracecells() {local i, tr, rank, srcid localobj tgt, f	// Write out the connections list, including synapse type
+	pc.barrier()									// Wait for all ranks to get to this point
+	sprint(cmd,"./results/%s/cell_syns.dat", RunName)
+	f = new File(cmd)
+	if (pc.id == 0) { 								// Write header to file 1 time only
+		f.wopen()
+		f.printf("source\ttarget\tsynapse\n")
+		f.close()
+	}
+	for rank = 0, pc.nhost-1 {				// For each processor, allow processor to append to file its connection info
+		if (rank == pc.id) {				// Ensure that each processor runs once
+			f.aopen() 						// Open for appending to file
+			for i=0, nclist.count -1 {		// For each connection in the list
+				tgt = nclist.o(i).syn			// Get a reference to the target cell
+				for tr = 0, numtraces-1 {
+				//printf("tr=%g tracelist.x=%g\n", tr, traceidxlist.x[tr])
+				//printf("tr=%g tracelist.x=%g tgt gid=%g\n", tr, traceidxlist.x[tr], tgt.cid)
+					if (traceidxlist.x[tr]==tgt.cid) {	// If cell exists on this machine
+						srcid = nclist.o(i).srcgid()	// Get the gid of the source cell
+						f.printf("%d\t%d\t%d\n", srcid, tgt.cid, tgt.sid)	// Print source gid, target gid, synapse id
+					}
+				}
+			}
+			f.close()
+		}		
+		pc.barrier()
+	}
+}
