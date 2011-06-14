@@ -92,7 +92,14 @@ DERIVATIVE state {
 }
 
 NET_RECEIVE(weight (uS)) {
-	A = A + weight*factor
-	B = B + weight*factor
-	total = total+weight
+	LOCAL srcid, w
+	if (weight > 999) {
+		srcid = floor(weight/1000) - 1
+		w = weight - (srcid+1)*1000
+	}else{
+		w = weight
+	}
+	A = A + w*factor
+	B = B + w*factor
+	total = total+w
 }
