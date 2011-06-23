@@ -52,7 +52,7 @@ proc timeout() {local i, rank, gid, srcid localobj tgt, f, cell// Write out runt
 		pc.barrier()
 	}
 }
-
+/*
 objref f
 proc voltageout() {local tr, rank, gid, srcid localobj tgt// Write out voltage traces for some cells
 	for tr = 0, numtraces-1 {
@@ -69,3 +69,4 @@ proc voltageout() {local tr, rank, gid, srcid localobj tgt// Write out voltage t
 		}
 	}
 }
+*/

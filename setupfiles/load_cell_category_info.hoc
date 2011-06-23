@@ -36,7 +36,9 @@ tmpct=0 //## added for now
 	}
 	f2.close()
 
-	cellnumvar[0] = tmpct - cellnumvar[0] + 4*2 //## added for now
+	if (cellnumvar[0] < (tmpct - cellnumvar[0] + 4*2)) {
+		cellnumvar[0] = tmpct - cellnumvar[0] + 4*2 //## added for now
+	}
 
 	startpos=0
 	for i=0, numCellTypes-1 {

@@ -36,7 +36,7 @@ II. SET MODEL SIZE, CELL DEFINITIONS
 														//  type (bio or art cells?). Info includes
 														//  number of cells, gid ranges, type name 
 
-{load_file("./setupfiles/load_cell_conns.hoc")}	// Load in the cell connectivity info
+//{load_file("./setupfiles/load_cell_conns.hoc")}	// Load in the cell connectivity info
 
 
 strdef tempFileStr						// Define a string reference to store the name of the
@@ -54,7 +54,7 @@ proc loadCellTemplates(){local i		// Proc to load the template that defines (eac
 	}
 }	
 loadCellTemplates()						// Run the newly defined proc
-
+printf("num cells = %g\n", cellType[0].numCells)
 proc calcNetSize(){local i				// Calculate the final network size (after any cell death)
 	//cellType[0].numCells = cellType[numCellTypes-1].cellEndGid - cellType[0].cellEndGid + 4*2 // just added now for spontburst
 	//cellType[0].updateGidRange(0)
@@ -109,6 +109,7 @@ proc calcBinSize(){local NumGCells
 	}
 }
 calcBinSize()
+printf("2 num cells = %g\n", cellType[0].numCells)
 
 /***********************************************************************************************
 III.SET UP PARALLEL CAPABILITY AND WRITE OUT RUN RECEIPT
@@ -179,7 +180,7 @@ strdef cmd
 {load_file("./setupfiles/write_positions.hoc")}		// Defines the proc to write the position
 													//  of each cell to file
 													
-if (PrintCellPositions>0) {posout()}	// Calls the proc that writes the position of each cell to the
+//if (PrintCellPositions>0) {posout()}	// Calls the proc that writes the position of each cell to the
 								//  file "position.dat" in the format: gid, x, y, z
 
 createtime = startsw() - createstart	// Calculate time taken to create the cells
@@ -195,7 +196,7 @@ V.	CONNECT THE MODEL CELLS AND CONNECT THE STIMULATION CELLS TO SOME MODEL CELLS
 													//  (synapse)
 
 {sprint(cmd,"./setupfiles/%s_connections.hoc", Connectivity)}
-{load_file(cmd)}			// Loads in a particular definition of the connectCells function,
+//{load_file(cmd)}			// Loads in a particular definition of the connectCells function,
 							//  depending on the value of the Connectivity string
 
 {sprint(cmd,"./stimulation/%s_stimulation.hoc", Stimulation)}
