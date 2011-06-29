@@ -86,7 +86,8 @@ proc calcNetSize(){local i				// Calculate the final network size (after any cel
 																//   after sclerosis, including
 																//   artificial cells
 	}
-	random_stream_offset_= (totalCells*2+2)	// How far down the random 'stream' to start the next
+	random_stream_offset_= 62086*2+2
+						//(totalCells*2+2)	// How far down the random 'stream' to start the next
 											//  stream section -the difference between the next
 											//  starting point and the previous one must be higher
 											//  than the length of each stream section, where each
