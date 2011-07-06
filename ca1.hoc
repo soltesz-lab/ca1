@@ -110,7 +110,6 @@ proc calcBinSize(){local NumGCells
 	}
 }
 calcBinSize()
-printf("2 num cells = %g\n", cellType[0].numCells)
 
 /***********************************************************************************************
 III.SET UP PARALLEL CAPABILITY AND WRITE OUT RUN RECEIPT
@@ -197,7 +196,7 @@ V.	CONNECT THE MODEL CELLS AND CONNECT THE STIMULATION CELLS TO SOME MODEL CELLS
 													//  (synapse)
 
 {sprint(cmd,"./setupfiles/%s_connections.hoc", Connectivity)}
-//{load_file(cmd)}			// Loads in a particular definition of the connectCells function,
+{load_file(cmd)}			// Loads in a particular definition of the connectCells function,
 							//  depending on the value of the Connectivity string
 
 {sprint(cmd,"./stimulation/%s_stimulation.hoc", Stimulation)}

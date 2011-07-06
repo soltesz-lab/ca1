@@ -24,7 +24,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 	if ((PrintTerminal>0)) {print "Host ", pc.id, " connected cells."}
 }
 
-			objref params, conns2make
+	objref params, conns2make
 	objref randnum, synRand
 	func connectCells () {local r, syn, distance, counter, precellType, postcellType, j, randSynNumber, pre_zpos, post_zpos , pre_xpos, post_xpos, pre_ypos, post_ypos, numSynTypes localobj cell
 		// Args: precellType, postcellType, precellType_string, postcellType_string
@@ -34,6 +34,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 		synWeight = cellType[$1].wgtConns.x[$2]
 		numConns = cellType[$1].numConns.x[$2]
 		numConns = int(numConns/(Scale)) // higher connectivity in smaller scale models
+		printf("%s -> %s : %g (proc %g)\n", $s3, $s4, numConns, pc.id)
 
 		//getSynapseData($s3, $s4)	// Given the pre and post cell types, look up the weight, delay,
 									//	and probability of connection between these two types
