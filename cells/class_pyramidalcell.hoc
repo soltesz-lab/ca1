@@ -623,6 +623,7 @@ proc define_synapses() {
 				templist = new List ()
 				
     	// from other CA1 cells to here
+  	/* E4   	radTprox syn = new MyExp2Sid(0.5)  //pre_list.append(syn)	// AMPA		PC recurrent input */ 
   	/* E4 */   	radTprox syn = new MyExp2Sid(0.5)  //pre_list.append(syn)	// AMPA		PC recurrent input
     	syn.tau1 = 0.5
     	syn.tau2 = 3

@@ -36,3 +36,20 @@ for tr = 0, numtraces-1 {
 		}
 	}
 }
+
+objref f
+proc voltageout() {local tr, rank, gid, srcid localobj tgt// Write out voltage traces for some cells
+	for tr = 0, numtraces-1 {
+		if (pc.gid_exists(traceidxlist.x[tr])) {	// If cell exists on this machine
+			sprint(outfile, "results/%s/trace_%s%g.dat", RunName, tracenamelist[tr].s, traceidxlist.x[tr])
+			f = new File(outfile)
+			f.wopen()
+			f.printf("t\tv\n")
+			for i=0, (tstop-tstart)/dt-1 {
+				sprint(cmdstr, "f.printf(\"%%g\\t%%g\\n\", i*dt, %s%g.x[i])", tracenamelist[tr].s, tracepclist.x[tr], i)
+				execute(cmdstr)
+			}
+			f.close()
+		}
+	}
+}

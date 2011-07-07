@@ -164,10 +164,11 @@ static int fastconn (void* vv) {
 	}
 
 	/* calculate the distribution of desired connections*/   
-	double mt [steps], tu [steps], tsum, conndist;
+	double mt [steps], tu [steps], tsum, conndist, mytmp;
 	int step, dln [steps], fdln [steps];
 
-	tsum = 0.;
+	tsum = 0.0;
+	mytmp = 0.0;
 	int maxi; maxi=0;
 	for (step=0; step<steps; step++) {
 		mt[step] = maxd*1.0*(step+1)/(steps); /* mt[step] = distance step (in terms of max distance)*/
@@ -178,11 +179,20 @@ static int fastconn (void* vv) {
 		tsum = tsum + tu[step];
 	}
 
-	for (step=0; step<steps; step++) {
-		fdln[step] = round((tu[step]/tsum)*(nconn*1.0/ncell));// the number of desired
-														// connections for each
-														// distance bin step, per cell
-	}  
+	if (0.5*tu[maxi] < tsum) {
+		for (step=0; step<steps; step++) {
+			fdln[step] = round((2.0*tu[step]/tsum)*(nconn*1.0/ncell));// the number of desired
+															// connections for each
+															// distance bin step, per cell
+		}
+	} else {
+		for (step=0; step<steps; step++) {
+			fdln[step] = round((tu[step]/tsum)*(nconn*1.0/ncell));// the number of desired
+															// connections for each
+															// distance bin step, per cell
+		}
+	}
+
 
 	/* for each postsynaptic cell, find the possible connections and
 	 * make the desired number of connections where possible */   
@@ -216,12 +226,22 @@ static int fastconn (void* vv) {
 			// calculate the distance between the pre and post cells
 			pl = sqrt((1.0*prepos[m][0] - postpos[n][0])*(prepos[m][0] - postpos[n][0])+(prepos[m][1] - postpos[n][1])*(prepos[m][1] - postpos[n][1])+(prepos[m][2] - postpos[n][2])*(prepos[m][2] - postpos[n][2]));
 			for (step=0; step< steps; step++) {
+				if (ncell==2 && num_pre==3) {
+					printf("distance=%f step=%d stepmax=%f gmin=%d postg=%d\n", pl, step, mt[step], gmin, postgmin);
+				}
+
 				if (pl<= mt[step]) // if the distance is less than the max distance for that step
 				{
 					sortedpos [szp [step]] [step] = m;	// add this pre cell to this particular bin's column (the next row, which szp keeps track of)
 					szp [step]++;
 					break;
 				}
+			}
+		}
+
+		if (ncell==2 && num_pre==3) {
+			for (step=0; step< steps; step++) {
+				printf("step: %d  szp: %d\n", step, szp [step]);
 			}
 		}
 
@@ -263,11 +283,22 @@ static int fastconn (void* vv) {
 				}
 			}
 		}
-		
+
+		if (ncell==2 && num_pre==3) {
+			for (step=0; step< steps; step++) {
+				printf("step: %d  szp: %d  dln: %d\n", step, szp [step], dln[step]);
+			}
+		}
+	
 		rem=0;
 		for (step=0; step<steps; step++) {	// for each step
 			if (dln[step]>0) { // if this particular step wants any connections
 				/* Find all the possible connections for each distance level  */
+				
+				if (ncell==2 && num_pre==3) {
+					printf("precells=%d postcells=%d step=%d szr=%d\n", num_pre, ncell, step, szr);
+				}
+				
 				szr = szp [step]; // Get the number of available connections for this step
 				int r[szr]; // Define an array the length of the number of available connections
 				for (i=0; i< szr; i++) { 
