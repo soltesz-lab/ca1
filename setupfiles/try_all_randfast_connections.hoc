@@ -43,7 +43,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 		if (numConns != 0 && synWeight != 0) {
 			params = new Vector(26)
 			connlength = (numConns+cellType[postcellType].numCells)
-			conns2make = new Vector(1+connlength*3)
+			conns2make = new Vector(1+connlength*6)
 
 			params.x[0]=cellType[precellType].cellStartGid //gmin -- start gid of pre cell type
 			params.x[1]=cellType[precellType].cellEndGid //gmax -- end gid of pre cell type
@@ -83,7 +83,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			sum_numconns = sum_numconns + cellType[precellType].numCells
 
 			conns2make.fastconn(params, postcellgids)
-			printf("%s -> %s : %g / %g - cells %g (proc %g)\n", $s3, $s4, conns2make.x[0], numConns, params.x[3], pc.id)
+			//printf("%s -> %s : %g / %g - cells %g (proc %g)\n", $s3, $s4, conns2make.x[0], numConns, params.x[3], pc.id)
 			
 			for r=1, conns2make.x[0] {
 				cell = pc.gid2cell(conns2make.x[r+connlength])
@@ -92,8 +92,8 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 				randSynNumber = ransynlist.object(cell.randi).repick	// Randomly pick a synapse type from the available synapse types
 				conDelay =  3 //sqrt(conns2make.x[r+2*connlength]/distres)*LongitudinalLength*speed+.1
 				//printf("make a conn from %g to %g, syn=%g wgt=%.2f delay=%g\n", conns2make.x[r], conns2make.x[r+connlength], randSynNumber, synWeight + (conns2make.x[r]+1)*1000, conDelay)
-				if (conns2make.x[r]==363 && conns2make.x[r+connlength]==575) {printf("363 -> 575 numcons = %g\n", conns2make.x[0])}
-				if (conns2make.x[r]>=317 && conns2make.x[r]<=616 && conns2make.x[r+connlength]>=317 && conns2make.x[r+connlength]<=616) {printf("pyramidal conn %g to %g\n", conns2make.x[r], conns2make.x[r+connlength])}
+				//if (conns2make.x[r]==363 && conns2make.x[r+connlength]==575) {printf("363 -> 575 numcons = %g\n", conns2make.x[0])}
+				//if (conns2make.x[r]>=317 && conns2make.x[r]<=616 && conns2make.x[r+connlength]>=317 && conns2make.x[r+connlength]<=616) {printf("pyramidal conn %g to %g\n", conns2make.x[r], conns2make.x[r+connlength])}
 				nc_append(conns2make.x[r], conns2make.x[r+connlength], precellType, randSynNumber, synWeight + (conns2make.x[r]+1)*1000, conDelay)	// Make the connection  // the latter part is for tracing the big bug, used by exp2sid mech (it will take away this extra part)
 				counter +=1
 			}

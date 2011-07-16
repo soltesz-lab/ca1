@@ -3,12 +3,12 @@ nclist = new List()
 func nc_append() { localobj cell, nc	// Connect cell to synapse and set synapse properties
 	if (pc.gid_exists($2)) {			// Check if cell exists on this machine
 		cell = pc.gid2cell($2)	
-		print cell
+		/*print cell
 		print cell.pre_list.o($3)
 		print cell.pre_list.o($3).o($4)
 		print cell.pre_list.o($3).o($4).e
 		printf("cell.gid=%g %g\n", cell.gid, $2)
-		printf("make a conn from %g to %g, pretype %g and synapse %g\n", $1, $2, $3, $4)
+		printf("make a conn from %g to %g, pretype %g and synapse %g\n", $1, $2, $3, $4)*/
 		nc = pc.gid_connect($1, cell.pre_list.o($3).o($4))	// Connect the soma of the pre cell to the synapse on the post cell
 		nc.weight = $5					// Set a synaptic connection weight
 		nc.delay = $6					// Set a delay time (axonal delay)

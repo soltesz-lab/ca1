@@ -226,9 +226,9 @@ static int fastconn (void* vv) {
 			// calculate the distance between the pre and post cells
 			pl = sqrt((1.0*prepos[m][0] - postpos[n][0])*(prepos[m][0] - postpos[n][0])+(prepos[m][1] - postpos[n][1])*(prepos[m][1] - postpos[n][1])+(prepos[m][2] - postpos[n][2])*(prepos[m][2] - postpos[n][2]));
 			for (step=0; step< steps; step++) {
-				if (ncell==2 && num_pre==3) {
+				/*if (ncell==2 && num_pre==3) {
 					printf("distance=%f step=%d stepmax=%f gmin=%d postg=%d\n", pl, step, mt[step], gmin, postgmin);
-				}
+				}*/
 
 				if (pl<= mt[step]) // if the distance is less than the max distance for that step
 				{
@@ -239,11 +239,11 @@ static int fastconn (void* vv) {
 			}
 		}
 
-		if (ncell==2 && num_pre==3) {
+		/*if (ncell==2 && num_pre==3) {
 			for (step=0; step< steps; step++) {
 				printf("step: %d  szp: %d\n", step, szp [step]);
 			}
-		}
+		}*/
 
 		// now, this particular post cell has an array (sortedpos) where each
 		// column contains a bunch of pre-cell gids whose distances fit within
@@ -284,20 +284,20 @@ static int fastconn (void* vv) {
 			}
 		}
 
-		if (ncell==2 && num_pre==3) {
+		/*if (ncell==2 && num_pre==3) {
 			for (step=0; step< steps; step++) {
 				printf("step: %d  szp: %d  dln: %d\n", step, szp [step], dln[step]);
 			}
-		}
+		}*/
 	
 		rem=0;
 		for (step=0; step<steps; step++) {	// for each step
 			if (dln[step]>0) { // if this particular step wants any connections
 				/* Find all the possible connections for each distance level  */
 				
-				if (ncell==2 && num_pre==3) {
+				/*if (ncell==2 && num_pre==3) {
 					printf("precells=%d postcells=%d step=%d szr=%d\n", num_pre, ncell, step, szr);
-				}
+				}*/
 				
 				szr = szp [step]; // Get the number of available connections for this step
 				int r[szr]; // Define an array the length of the number of available connections
