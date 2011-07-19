@@ -10,9 +10,9 @@ ENDCOMMENT
 INDEPENDENT {t FROM 0 TO 1 WITH 1 (ms)}
 
 NEURON {
-	SUFFIX km
+	SUFFIX ch_KvM
 	USEION k READ ek WRITE ik
-	RANGE n, gk, gbar
+	RANGE n, g, gmax
 	RANGE ninf, ntau
 	GLOBAL Ra, Rb
 	GLOBAL q10, temp, tadj, vmin, vmax
@@ -29,7 +29,7 @@ UNITS {
 PARAMETER {
 	v 		(mV)
 	dt		(ms)
-	gbar = 10   	(pS/um2)	: 0.03 mho/cm2
+	gmax = 10   	(pS/um2)	: 0.03 mho/cm2
 	tha  = -30	(mV)		: v 1/2 for inf
 	qa   = 9	(mV)		: inf slope		
 	Ra   = 0.001	(/ms)		: max act rate  (slow)
@@ -46,7 +46,7 @@ ASSIGNED {
 	a		(/ms)
 	b		(/ms)
 	ik 		(mA/cm2)
-	gk		(pS/um2)
+	g		(pS/um2)
 	ek		(mV)
 	ninf
 	ntau (ms)	
@@ -64,8 +64,8 @@ INITIAL {
 
 BREAKPOINT {
         SOLVE states
-	gk = tadj*gbar*n
-	ik = (1e-4) * gk * (v - ek)
+	g = tadj*gmax*n
+	ik = (1e-4) * g * (v - ek)
 	myi = ik
 } 
 

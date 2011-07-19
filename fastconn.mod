@@ -179,7 +179,7 @@ static int fastconn (void* vv) {
 		tsum = tsum + tu[step];
 	}
 
-	if (0.5*tu[maxi] < tsum) {
+	if (tu[maxi]/tsum*nconn*1.0/ncell < 0.5) { //tsum) {
 		for (step=0; step<steps; step++) {
 			fdln[step] = round((2.0*tu[step]/tsum)*(nconn*1.0/ncell));// the number of desired
 															// connections for each

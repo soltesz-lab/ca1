@@ -16,7 +16,7 @@ PARAMETER {		:parameters that can be entered when function is called in cell-set
         dt              (ms)
 	v               (mV)
 	celsius = 34	(degC)
-	gcalbar = 0     (mho/cm2) : initialized conductance
+	gmax = 0     (mho/cm2) : initialized conductance
 	ki  = 0.001     (mM)  
 	cai = 5.e-5     (mM)      : initial internal Ca++ concentration
 	cao = 2         (mM)      : initial external Ca++ concentration
@@ -25,9 +25,9 @@ PARAMETER {		:parameters that can be entered when function is called in cell-set
 }
 
 NEURON {
-	SUFFIX cal
+	SUFFIX ch_CavLlow
 	USEION ca READ cai,cao WRITE ica
-        RANGE gcalbar, minf,taum
+        RANGE gmax, minf,taum
         RANGE myi
 }
 
@@ -35,7 +35,7 @@ STATE {	m }                      : unknown parameter to be solved in the DEs
 
 ASSIGNED {                       : parameters needed to solve DE
 	ica (mA/cm2)
-        gcal  (mho/cm2) 
+        g  (mho/cm2) 
         minf
         taum
 	myi (mA/cm2)
@@ -44,13 +44,15 @@ ASSIGNED {                       : parameters needed to solve DE
 INITIAL {                        : initialize the following parameter using rates()
         rates(v)
         m = minf
-	gcal = gcalbar*m*h2(cai)
+	g = gmax*m*h2(cai)
+	ica = g*ghk(v,cai,cao): calcium current induced by this channel
+	myi = ica
 }
 
 BREAKPOINT {
 	SOLVE states
-	gcal = gcalbar*m*h2(cai) : maximum channel permeability
-	ica = gcal*ghk(v,cai,cao): calcium current induced by this channel
+	g = gmax*m*h2(cai) : maximum channel permeability
+	ica = g*ghk(v,cai,cao): calcium current induced by this channel
 	myi = ica
 }
 

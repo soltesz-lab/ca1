@@ -32,8 +32,8 @@ NEURON {
 	SUFFIX ch_CavN				: The name of the mechanism
 	USEION nca READ enca WRITE inca VALENCE 2 
 	: note that CavT additionally uses ion 'ca' and reads cai, cao
-	RANGE  gnca
-	RANGE gncabar
+	RANGE  g
+	RANGE gmax
 	RANGE cinf, ctau, dinf, dtau, inca
 	RANGE myi
 	THREADSAFE
@@ -45,7 +45,7 @@ INDEPENDENT {t FROM 0 TO 100 WITH 100 (ms)}
 PARAMETER {
 	v (mV) 					: membrane potential
       celsius (degC) : temperature - set in hoc; default is 6.3
-	gncabar (mho/cm2)		: conductance flux - defined in CavT but not here
+	gmax (mho/cm2)		: conductance flux - defined in CavT but not here
 }
  
 STATE {
@@ -56,7 +56,7 @@ ASSIGNED {			: assigned (where?)
 	dt (ms) 				: simulation time step
 
 	inca (mA/cm2)	: current flux
-	gnca (mho/cm2)	: conductance flux
+	g (mho/cm2)	: conductance flux
 	enca (mV)		: reversal potential
 
 	cinf dinf
@@ -67,8 +67,8 @@ ASSIGNED {			: assigned (where?)
 
 BREAKPOINT {
 	SOLVE states : what is the method? let's specify one
-    gnca = gncabar*c*c*d
-	inca = gnca*(v-enca)
+    g = gmax*c*c*d
+	inca = g*(v-enca)
 	myi = inca
 }
  

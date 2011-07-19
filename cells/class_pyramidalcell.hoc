@@ -123,432 +123,445 @@ proc insert_mechs() {
 	gh_soma = 0.00005	// Ditto for this one
 
   	soma {  
- 		insert hha2    	// HH mechanism with low threshold for Na spikes (-57 mV)
-			gnabar_hha2 = 0.007
-			gkbar_hha2  = 0.007/5
-			gl_hha2     = 0
-			el_hha2     = -70
+       	insert ch_Navhh
+			gmax_ch_Navhh = 0.007
+		insert ch_Kvhh
+			gmax_ch_Kvhh  = 0.007/5
+		insert ch_leakhh
+			gl_ch_leakhh     = 0
+			el_ch_leakhh     = -70
         	
 		insert pas    		// leak conductance
 			g_pas =  1/Rm
 
-		insert h     		// h current according to Migliore et al. 2004 
-			ghdbar_h = gh_soma
-			vhalfl_h = -73
+		insert ch_H     		// h current according to Migliore et al. 2004 
+			gmax_ch_H = gh_soma
+			vhalfl_ch_H = -73
   
-		insert kap  		// proximal A current
-        	gkabar_kap = gka_soma		//0.0075
+		insert ch_KvAprox  		// proximal A current
+        	gmax_ch_KvAprox = gka_soma		//0.0075
   
-		insert km  			// m-type potassium current
-        	gbar_km    = 0.06
+		insert ch_KvM  			// m-type potassium current
+        	gmax_ch_KvM    = 0.06
              
-		insert cal 			// HVA Ca++-L type current
-        	gcalbar_cal = 0.0014/2
+		insert ch_CavLlow 			// HVA Ca++-L type current
+        	gmax_ch_CavLlow = 0.0014/2
         	     	
 		insert ch_CavT 			// LVA Ca++-T type current
-        	gcatbar_ch_CavT = 0.0001/2
+        	gmax_ch_CavT = 0.0001/2
   
 		insert ch_CavR 		// HVAm Ca++-R type current
-			gcarbar_ch_CavR = 0.0003
+			gmax_ch_CavR = 0.0003
               	
-        insert kca   		// K(Ca) sAHP potassium type current
-            gbar_kca = 5*0.0001
-		insert mykca  		// medium AHP K++ current (BPG)
-       		gkbar_mykca = 0.09075
+        insert ch_KCaSlow   		// K(Ca) sAHP potassium type current
+            gmax_ch_KCaSlow = 5*0.0001
+		insert ch_KvCaB  		// medium AHP K++ current (BPG)
+       		gmax_ch_KvCaB = 0.09075
            	       	
         insert cad  		// calcium pump/buffering mechanism
   	}
   	
   	radTprox {
-		insert h     			// h current according to Migliore et al. 2004 
-			ghdbar_h = 2*gh_soma			//0.000005						
-			vhalfl_h = -81
+		insert ch_H     			// h current according to Migliore et al. 2004 
+			ghdbar_ch_H = 2*gh_soma			//0.000005						
+			vhalfl_ch_H = -81
 
 		insert ch_CavR
-			gcarbar_ch_CavR = 0.1*0.0003
+			gmax_ch_CavR = 0.1*0.0003
 		
-		insert calH
-			gcalbar_calH = 0.1*0.00031635	// varies from .1*0.00031635 to 4.6*0.00031635 as distance increases
+		insert ch_CavLdist
+			gmax_ch_CavLdist = 0.1*0.00031635	// varies from .1*0.00031635 to 4.6*0.00031635 as distance increases
 		
 		insert ch_CavT
-			gcatbar_ch_CavT = 0.0001
+			gmax_ch_CavT = 0.0001
  
 		insert cad			// calcium pump/buffering mechanism
 
-		insert kca			// slow AHP K+ current
-			gbar_kca = 5*0.0001		// varies depending on distance from 0.5*0.0001 to 5*0.0001
+		insert ch_KCaSlow			// slow AHP K+ current
+			gmax_ch_KCaSlow = 5*0.0001		// varies depending on distance from 0.5*0.0001 to 5*0.0001
 
-		insert mykca  			// medium AHP K++ current (BPG)
-       		gkbar_mykca = 2*0.0165
+		insert ch_KvCaB  			// medium AHP K++ current (BPG)
+       		gmax_ch_KvCaB = 2*0.0165
 		
-		insert km			// m-type K current
-			gbar_km = 0.06			// varies with distance (see Poirazzi et al. 2003 cell-setup.hoc file)
+		insert ch_KvM			// m-type K current
+			gmax_ch_KvM = 0.06			// varies with distance (see Poirazzi et al. 2003 cell-setup.hoc file)
 
-		insert kap               	// Inserting A-current
-			gkabar_kap = 2*gka_soma		//0.0075
+		insert ch_KvAprox               	// Inserting A-current
+			gmax_ch_KvAprox = 2*gka_soma		//0.0075
    		
-   		insert kad
-			gkabar_kad = 0
-   		   
-        insert hha_old 			// HH mechanism with high threshold for Na spikes (-50 mV)
-			gnabar_hha_old = 0.007
-			gkbar_hha_old  = 0.007/8.065
-			el_hha_old     = -70
+   		insert ch_KvAdist
+			gmax_ch_KvAdist = 0
+   		           
+        insert ch_NavOld // HH mechanism with high threshold for Na spikes (-50 mV)
+			gmax_ch_NavOld = 0.007
+		insert ch_KvOld
+			gmax_ch_KvOld  = 0.007/8.065
+		insert leakold
+			el_leakold     = -70
                     
 		insert pas 			// leak conductance
   	}
   
   	radTmed {
-		insert h     			// h current according to Migliore et al. 2004 
-			ghdbar_h = 4*gh_soma			// 0.000005					
-			vhalfl_h = -81
+		insert ch_H     			// h current according to Migliore et al. 2004 
+			ghdbar_ch_H = 4*gh_soma			// 0.000005					
+			vhalfl_ch_H = -81
 
 		insert ch_CavR			// HVAm Ca++-R type current
-			gcarbar_ch_CavR = 0.1*0.0003
+			gmax_ch_CavR = 0.1*0.0003
 		
-		insert calH			// HVA L-type Ca2+ channel used in distal dendrites to account for 
+		insert ch_CavLdist			// HVA L-type Ca2+ channel used in distal dendrites to account for 
 						// distally restricted initiation of Ca2+ spikes
-	//		gcalbar_calH = 4.6*0.00031635	// varies from .1*0.00031635 to 4.6*0.00031635 as distance increases
-			gcalbar_calH = 10*0.00031635	// varies from .1*0.00031635 to 4.6*0.00031635 as distance increases
+	//		gmax_ch_CavLdist = 4.6*0.00031635	// varies from .1*0.00031635 to 4.6*0.00031635 as distance increases
+			gmax_ch_CavLdist = 10*0.00031635	// varies from .1*0.00031635 to 4.6*0.00031635 as distance increases
 		
 		insert ch_CavT			// HVA T-type Ca2+ channel 
-			gcatbar_ch_CavT = 0.0001		// 0.0001
+			gmax_ch_CavT = 0.0001		// 0.0001
  
 		insert cad			// calcium pump/buffering mechanism
 		
-		insert kca			// slow AHP K+ current
-			gbar_kca = 5*0.0001		// varies depending on distance from 0.5*0.0001 to 5*0.0001
-       	insert mykca  			// medium AHP K++ current (BPG)
-       		gkbar_mykca = 2*0.0165
+		insert ch_KCaSlow			// slow AHP K+ current
+			gmax_ch_KCaSlow = 5*0.0001		// varies depending on distance from 0.5*0.0001 to 5*0.0001
+       	insert ch_KvCaB  			// medium AHP K++ current (BPG)
+       		gmax_ch_KvCaB = 2*0.0165
 
-		insert km			// m-type K current
-			gbar_km = 0.06			// varies with distance (see Poirazzi et al. 2003 cell-setup.hoc file)
+		insert ch_KvM			// m-type K current
+			gmax_ch_KvM = 0.06			// varies with distance (see Poirazzi et al. 2003 cell-setup.hoc file)
 
-        insert kap               	// Inserting A-current
-			gkabar_kap = 0
+        insert ch_KvAprox               	// Inserting A-current
+			gmax_ch_KvAprox = 0
    		
-   		insert kad
-			gkabar_kad = 4*gka_soma
+   		insert ch_KvAdist
+			gmax_ch_KvAdist = 4*gka_soma
    		   
-        insert hha_old 			// HH mechanism with high threshold for Na spikes (-50 mV)
-			gnabar_hha_old = 0.007
-			gkbar_hha_old  = 0.007/8.065
-			el_hha_old     = -70
+        insert ch_NavOld		// HH mechanism with high threshold for Na spikes (-50 mV)
+			gmax_ch_NavOld = 0.007
+			
+		insert ch_KvOld
+			gmax_ch_KvOld  = 0.007/8.065
+		insert leakold
+			el_leakold     = -70
                     
         insert pas 			// leak conductance
   	}
   	
   	radTdist {
-		insert h     			// h current according to Migliore et al. 2004 
-			ghdbar_h = 7*gh_soma			// 0.000005					
-			vhalfl_h = -81
+		insert ch_H     			// h current according to Migliore et al. 2004 
+			ghdbar_ch_H = 7*gh_soma			// 0.000005					
+			vhalfl_ch_H = -81
 
 		insert ch_CavR
-			gcarbar_ch_CavR = 0.1*0.0003
+			gmax_ch_CavR = 0.1*0.0003
 		
-		insert calH
-	//		gcalbar_calH = 4.6*0.00031635	// varies from .1*0.00031635 to 4.6*0.00031635 as distance increases
-			gcalbar_calH = 10*0.00031635	// varies from .1*0.00031635 to 4.6*0.00031635 as distance increases
+		insert ch_CavLdist
+	//		gmax_ch_CavLdist = 4.6*0.00031635	// varies from .1*0.00031635 to 4.6*0.00031635 as distance increases
+			gmax_ch_CavLdist = 10*0.00031635	// varies from .1*0.00031635 to 4.6*0.00031635 as distance increases
 		
 		insert ch_CavT
-			gcatbar_ch_CavT = 0.0001
+			gmax_ch_CavT = 0.0001
  
 		insert cad			// calcium pump/buffering mechanism
 
-		insert kca			// slow AHP K+ current
-			gbar_kca = 0.5*0.0001		// varies depending on distance from 0.5*0.0001 to 5*0.0001
+		insert ch_KCaSlow			// slow AHP K+ current
+			gmax_ch_KCaSlow = 0.5*0.0001		// varies depending on distance from 0.5*0.0001 to 5*0.0001
 
-       	insert mykca  			// medium AHP K++ current (BPG)
-       		gkbar_mykca = 0.25*0.0165
+       	insert ch_KvCaB  			// medium AHP K++ current (BPG)
+       		gmax_ch_KvCaB = 0.25*0.0165
 
-		insert km			// m-type K current
-			gbar_km = 0.06			// varies with distance (see Poirazzi et al. 2003 cell-setup.hoc file)
+		insert ch_KvM			// m-type K current
+			gmax_ch_KvM = 0.06			// varies with distance (see Poirazzi et al. 2003 cell-setup.hoc file)
 
-        insert kap               	// Inserting A-current
-			gkabar_kap = 0	
+        insert ch_KvAprox               	// Inserting A-current
+			gmax_ch_KvAprox = 0	
  		
- 		insert kad
-			gkabar_kad = 6*gka_soma
+ 		insert ch_KvAdist
+			gmax_ch_KvAdist = 6*gka_soma
    		  
-        insert hha_old 			// HH mechanism with high threshold for Na spikes (-50 mV)
-			gnabar_hha_old = 0.007
-			gkbar_hha_old  = 0.007/8.065
-			el_hha_old     = -70
+        insert ch_NavOld		// HH mechanism with high threshold for Na spikes (-50 mV)
+			gmax_ch_NavOld = 0.007
+		insert ch_KvOld
+			gmax_ch_KvOld  = 0.007/8.065
+		insert leakold
+			el_leakold     = -70
                     
         insert pas 			// leak conductance
   	}
   
   	lm_thick2 {
-		insert hha_old 			// HH mechanism with high threshold for Na spikes (-50 mV)
-			gnabar_hha_old = 0.007
-			gkbar_hha_old  = 0.007/8.065
-			el_hha_old     = -70
-			gl_hha_old     = 0
+        insert ch_NavOld		// HH mechanism with high threshold for Na spikes (-50 mV)
+			gmax_ch_NavOld = 0.007
+		insert ch_KvOld
+			gmax_ch_KvOld  = 0.007/8.065
+		insert leakold
+			el_leakold     = -70
+			gl_leakold     = 0
   
 		insert pas 			// passive properties
 			g_pas          = 1/200000
 
-		insert kad 			// Insert basal A current
-			gkabar_kad = 6.5*gka_soma
+		insert ch_KvAdist 			// Insert basal A current
+			gmax_ch_KvAdist = 6.5*gka_soma
   	}
   	
   	lm_medium2 {
-		insert hha_old 			// HH mechanism with high threshold for Na spikes (-50 mV)
-			gnabar_hha_old = 0.007
-			gkbar_hha_old  = 0.007/8.065
-			el_hha_old     = -70
-			gl_hha_old     = 0
+        insert ch_NavOld		// HH mechanism with high threshold for Na spikes (-50 mV)
+			gmax_ch_NavOld = 0.007
+		insert ch_KvOld
+			gmax_ch_KvOld  = 0.007/8.065
+		insert leakold
+			el_leakold     = -70
+			gl_leakold     = 0
   
 		insert pas 			// passive properties
 			g_pas          = 1/200000
 
-		insert kad 			// Insert basal A current
-			gkabar_kad = 6.5*gka_soma
+		insert ch_KvAdist 			// Insert basal A current
+			gmax_ch_KvAdist = 6.5*gka_soma
   	}
   
   	lm_thin2 {
-		insert hha_old 			// HH mechanism with high threshold for Na spikes (-50 mV)
-			gnabar_hha_old = 0.007
-			gkbar_hha_old  = 0.007/8.065
-			el_hha_old     = -70
-			gl_hha_old     = 0
+        insert ch_NavOld		// HH mechanism with high threshold for Na spikes (-50 mV)
+			gmax_ch_NavOld = 0.007
+		insert ch_KvOld
+			gmax_ch_KvOld  = 0.007/8.065
+		insert leakold
+			el_leakold     = -70
+			gl_leakold     = 0
   
 		insert pas 			// passive properties
 			g_pas          = 1/200000
 
-		insert kad 			// Insert basal A current
-			gkabar_kad = 6.5*gka_soma
+		insert ch_KvAdist 			// Insert basal A current
+			gmax_ch_KvAdist = 6.5*gka_soma
   	}
   
   	lm_thick1 {
-		insert hha_old 			// HH mechanism with high threshold for Na spikes (-50 mV)
-			gnabar_hha_old = 0.007
-			gkbar_hha_old  = 0.007/8.065
-			el_hha_old     = -70
-			gl_hha_old     = 0
+        insert ch_NavOld		// HH mechanism with high threshold for Na spikes (-50 mV)
+			gmax_ch_NavOld = 0.007
+		insert ch_KvOld
+			gmax_ch_KvOld  = 0.007/8.065
+		insert leakold
+			el_leakold     = -70
+			gl_leakold     = 0
   
 		insert pas 			// passive properties
 			g_pas          = 1/200000
 
-		insert kad 			// Insert basal A current
-			gkabar_kad = 6.5*gka_soma
+		insert ch_KvAdist 			// Insert basal A current
+			gmax_ch_KvAdist = 6.5*gka_soma
   	}
   
   	lm_medium1 {
-		insert hha_old 			// HH mechanism with high threshold for Na spikes (-50 mV)
-			gnabar_hha_old = 0.007
-			gkbar_hha_old  = 0.007/8.065
-			el_hha_old     = -70
-			gl_hha_old     = 0
+        insert ch_NavOld		// HH mechanism with high threshold for Na spikes (-50 mV)
+			gmax_ch_NavOld = 0.007
+		insert ch_KvOld
+			gmax_ch_KvOld  = 0.007/8.065
+		insert leakold
+			el_leakold     = -70
+			gl_leakold     = 0
   
 		insert pas 			// passive properties
 			g_pas          = 1/200000
 
-		insert kad 			// Insert basal A current
-			gkabar_kad = 6.5*gka_soma
+		insert ch_KvAdist 			// Insert basal A current
+			gmax_ch_KvAdist = 6.5*gka_soma
   	}
   
   	lm_thin1 {
-		insert hha_old 			// HH mechanism with high threshold for Na spikes (-50 mV)
-			gnabar_hha_old = 0.007
-			gkbar_hha_old  = 0.007/8.065
-			el_hha_old     = -70
-			gl_hha_old     = 0
+        insert ch_NavOld		// HH mechanism with high threshold for Na spikes (-50 mV)
+			gmax_ch_NavOld = 0.007
+		insert ch_KvOld
+			gmax_ch_KvOld  = 0.007/8.065
+		insert leakold
+			el_leakold     = -70
+			gl_leakold     = 0
   
 		insert pas 			// passive properties
 			g_pas          = 1/200000
 
-		insert kad 			// Insert basal A current
-			gkabar_kad = 6.5*gka_soma
+		insert ch_KvAdist 			// Insert basal A current
+			gmax_ch_KvAdist = 6.5*gka_soma
   	}
   
   	oriprox1 {
-		insert h     			// h current according to Migliore et al. 2004 
-			ghdbar_h = gh_soma
-			vhalfl_h = -81
-
-//		insert hNa			// h current according to Poirazi 2003
-//          	gbar_h  = 0.000043		// anything above 0.000043 gives hyperpolarizing oscillations
-//         	gbar_h  = 1.872e-5		
-//            	K_h     = 8.8
-//            	vhalf_h = -82
+		insert ch_H     			// h current according to Migliore et al. 2004 
+			ghdbar_ch_H = gh_soma
+			vhalfl_ch_H = -81
 
 		insert ch_CavR
-		gcarbar_ch_CavR = 0.1*0.0003
+		gmax_ch_CavR = 0.1*0.0003
 		
-		insert calH
-		gcalbar_calH = 0.1*0.00031635	// varies from .1*0.00031635 to 4.6*0.00031635 as distance increases
+		insert ch_CavLdist
+		gmax_ch_CavLdist = 0.1*0.00031635	// varies from .1*0.00031635 to 4.6*0.00031635 as distance increases
 		
 		insert ch_CavT
-		gcatbar_ch_CavT = 0.0001
+		gmax_ch_CavT = 0.0001
  
 		insert cad			// calcium pump/buffering mechanism
-		insert kca			// slow AHP K+ current
-		gbar_kca = 5*0.0001		// varies depending on distance from 0.5*0.0001 to 5*0.0001
-       		insert mykca  			// medium AHP K++ current (BPG)
-       		gkbar_mykca = 2*0.0165
+		insert ch_KCaSlow			// slow AHP K+ current
+		gmax_ch_KCaSlow = 5*0.0001		// varies depending on distance from 0.5*0.0001 to 5*0.0001
+       		insert ch_KvCaB  			// medium AHP K++ current (BPG)
+       		gmax_ch_KvCaB = 2*0.0165
 
-		insert km			// m-type K current
-		gbar_km = 0.06			// varies with distance (see Poirazzi et al. 2003 cell-setup.hoc file)
+		insert ch_KvM			// m-type K current
+		gmax_ch_KvM = 0.06			// varies with distance (see Poirazzi et al. 2003 cell-setup.hoc file)
 
-          	insert kap               	// Inserting A-current
-   		gkabar_kap = gka_soma			//0.0075
+          	insert ch_KvAprox               	// Inserting A-current
+   		gmax_ch_KvAprox = gka_soma			//0.0075
    		
-   		insert kad
-   		gkabar_kad = 0
+   		insert ch_KvAdist
+   		gmax_ch_KvAdist = 0
     
-          	insert hha_old 			// HH mechanism with high threshold for Na spikes (-50 mV)
-                gnabar_hha_old = 0.007
-                gkbar_hha_old  = 0.007/8.065
-                el_hha_old     = -70
+         insert ch_NavOld 			// HH mechanism with high threshold for Na spikes (-50 mV)
+               gmax_ch_NavOld = 0.007
+		insert ch_KvOld
+                gmax_ch_KvOld  = 0.007/8.065
+		insert leakold
+                el_leakold     = -70
                     
           	insert pas 			// leak conductance
 
   	}
   
   	oridist1 {
-            	insert h     			// h current according to Migliore et al. 2004 
-		ghdbar_h = 2*gh_soma
-		vhalfl_h = -81
-
-//		insert hNa			// h current according to Poirazi 2003
-//          	gbar_h  = 0.000043		// anything above 0.000043 gives hyperpolarizing oscillations
-//         	gbar_h  = 1.872e-5		
-//            	K_h     = 8.8
-//            	vhalf_h = -82
+            	insert ch_H     			// h current according to Migliore et al. 2004 
+		ghdbar_ch_H = 2*gh_soma
+		vhalfl_ch_H = -81
 
 		insert ch_CavR
-		gcarbar_ch_CavR = 0.1*0.0003
+		gmax_ch_CavR = 0.1*0.0003
 		
 		insert ch_CavL
-		glcabar_ch_CavL = 0.1*0.00031635	// varies from 4.6*0.00031635 to 0.1*0.00031635
+		gmax_ch_CavL = 0.1*0.00031635	// varies from 4.6*0.00031635 to 0.1*0.00031635
 		
 		insert ch_CavT
-		gcatbar_ch_CavT = 0.0001
+		gmax_ch_CavT = 0.0001
  
 		insert cad			// calcium pump/buffering mechanism
-		insert kca			// slow AHP K+ current
-		gbar_kca = 5*0.0001		// varies depending on distance from 0.5*0.0001 to 5*0.0001
-       		insert mykca  			// medium AHP K++ current (BPG)
-       		gkbar_mykca = 2*0.0165
+		insert ch_KCaSlow			// slow AHP K+ current
+		gmax_ch_KCaSlow = 5*0.0001		// varies depending on distance from 0.5*0.0001 to 5*0.0001
+       		insert ch_KvCaB  			// medium AHP K++ current (BPG)
+       		gmax_ch_KvCaB = 2*0.0165
 		
-		insert km			// m-type K current
-		gbar_km = 0.06			// varies with distance (see Poirazzi et al. 2003 cell-setup.hoc file)
+		insert ch_KvM			// m-type K current
+		gmax_ch_KvM = 0.06			// varies with distance (see Poirazzi et al. 2003 cell-setup.hoc file)
 
-          	insert kap               	// Inserting A-current
-   		gkabar_kap = gka_soma			//0.0075
+          	insert ch_KvAprox               	// Inserting A-current
+   		gmax_ch_KvAprox = gka_soma			//0.0075
    		
-   		insert kad
-   		gkabar_kad = 0
+   		insert ch_KvAdist
+   		gmax_ch_KvAdist = 0
    		   
-          	insert hha_old 			// HH mechanism with high threshold for Na spikes (-50 mV)
-                gnabar_hha_old = 0.007
-                gkbar_hha_old  = 0.007/8.065
-                el_hha_old     = -70
+         insert ch_NavOld		// HH mechanism with high threshold for Na spikes (-50 mV)
+               gmax_ch_NavOld = 0.007
+		insert ch_KvOld
+                gmax_ch_KvOld  = 0.007/8.065
+		insert leakold
+                el_leakold     = -70
                     
           	insert pas 			// leak conductance
 
   	}
   
   	oriprox2 {
-            	insert h     			// h current according to Migliore et al. 2004 
-		ghdbar_h = gh_soma
-		vhalfl_h = -81
-
-//		insert hNa			// h current according to Poirazi 2003
-//          	gbar_h  = 0.000043		// anything above 0.000043 gives hyperpolarizing oscillations
-//         	gbar_h  = 1.872e-5		
-//            	K_h     = 8.8
-//            	vhalf_h = -82
+            	insert ch_H     			// h current according to Migliore et al. 2004 
+		ghdbar_ch_H = gh_soma
+		vhalfl_ch_H = -81
 
 		insert ch_CavR
-		gcarbar_ch_CavR = 0.1*0.0003
+		gmax_ch_CavR = 0.1*0.0003
 		
-		insert calH
-		gcalbar_calH = 0.1*0.00031635	// varies from .1*0.00031635 to 4.6*0.00031635 as distance increases
+		insert ch_CavLdist
+		gmax_ch_CavLdist = 0.1*0.00031635	// varies from .1*0.00031635 to 4.6*0.00031635 as distance increases
 		
 		insert ch_CavT
-		gcatbar_ch_CavT = 0.0001
+		gmax_ch_CavT = 0.0001
  
 		insert cad			// calcium pump/buffering mechanism
-		insert kca			// slow AHP K+ current
-		gbar_kca = 5*0.0001		// varies depending on distance from 0.5*0.0001 to 5*0.0001
-       		insert mykca  			// medium AHP K++ current (BPG)
-       		gkbar_mykca = 2*0.0165
+		
+		insert ch_KCaSlow			// slow AHP K+ current
+		gmax_ch_KCaSlow = 5*0.0001		// varies depending on distance from 0.5*0.0001 to 5*0.0001
+		
+		insert ch_KvCaB  			// medium AHP K++ current (BPG)
+		gmax_ch_KvCaB = 2*0.0165
 
-		insert km			// m-type K current
-		gbar_km = 0.06			// varies with distance (see Poirazzi et al. 2003 cell-setup.hoc file)
+		insert ch_KvM			// m-type K current
+		gmax_ch_KvM = 0.06			// varies with distance (see Poirazzi et al. 2003 cell-setup.hoc file)
 
-          	insert kap               	// Inserting A-current
-   		gkabar_kap = 0.0075			//0.0075
+          	insert ch_KvAprox               	// Inserting A-current
+   		gmax_ch_KvAprox = 0.0075			//0.0075
    		
-   		insert kad
-   		gkabar_kad = 0
+   		insert ch_KvAdist
+   		gmax_ch_KvAdist = 0
    
-          	insert hha_old 			// HH mechanism with high threshold for Na spikes (-50 mV)
-                gnabar_hha_old = 0.007
-                gkbar_hha_old  = 0.007/8.065
-                el_hha_old     = -70
+        insert ch_NavOld 			// HH mechanism with high threshold for Na spikes (-50 mV)
+                gmax_ch_NavOld = 0.007
+		insert ch_KvOld
+                gmax_ch_KvOld  = 0.007/8.065
+		insert leakold
+                el_leakold     = -70
                     
           	insert pas 			// leak conductance
        	
   	}
   	
   	oridist2 {
-            	insert h     			// h current according to Migliore et al. 2004 
-		ghdbar_h = 2*gh_soma
-		vhalfl_h = -81
+            	insert ch_H     			// h current according to Migliore et al. 2004 
+		ghdbar_ch_H = 2*gh_soma
+		vhalfl_ch_H = -81
 
-//		insert hNa			// h current according to Poirazi 2003
-//          	gbar_h  = 0.000043		// anything above 0.000043 gives hyperpolarizing oscillations
-//         	gbar_h  = 1.872e-5		
-//            	K_h     = 8.8
-//            	vhalf_h = -82
 
 		insert ch_CavR
-		gcarbar_ch_CavR = 0.1*0.0003
+		gmax_ch_CavR = 0.1*0.0003
 		
-		insert calH
-		gcalbar_calH = 0.1*0.00031635	// varies from 4.6*0.00031635 to 0.1*0.00031635
+		insert ch_CavLdist
+		gmax_ch_CavLdist = 0.1*0.00031635	// varies from 4.6*0.00031635 to 0.1*0.00031635
 		
 		insert ch_CavT
-		gcatbar_ch_CavT = 0.0001
+		gmax_ch_CavT = 0.0001
  
 		insert cad			// calcium pump/buffering mechanism
-		insert kca			// slow AHP K+ current
-		gbar_kca = 5*0.0001		// varies depending on distance from 0.5*0.0001 to 5*0.0001
-       		insert mykca  			// medium AHP K++ current (BPG)
-       		gkbar_mykca = 2*0.0165
 		
-		insert km			// m-type K current
-		gbar_km = 0.06			// varies with distance (see Poirazzi et al. 2003 cell-setup.hoc file)
+		
+		
+		insert ch_KCaSlow			// slow AHP K+ current
+		gmax_ch_KCaSlow = 5*0.0001		// varies depending on distance from 0.5*0.0001 to 5*0.0001
+       		insert ch_KvCaB  			// medium AHP K++ current (BPG)
+       		gmax_ch_KvCaB = 2*0.0165
+		
+		insert ch_KvM			// m-type K current
+		gmax_ch_KvM = 0.06			// varies with distance (see Poirazzi et al. 2003 cell-setup.hoc file)
 
-          	insert kap               	// Inserting A-current
-   		gkabar_kap = 0.0075			//0.0075
+          	insert ch_KvAprox               	// Inserting A-current
+   		gmax_ch_KvAprox = 0.0075			//0.0075
    		
-   		insert kad
-   		gkabar_kad = 0
+   		insert ch_KvAdist
+   		gmax_ch_KvAdist = 0
    		   
-          	insert hha_old 			// HH mechanism with high threshold for Na spikes (-50 mV)
-                gnabar_hha_old = 0.007
-                gkbar_hha_old  = 0.007/8.065
-                el_hha_old     = -70
+        insert ch_NavOld 			// HH mechanism with high threshold for Na spikes (-50 mV)
+                gmax_ch_NavOld = 0.007
+		insert ch_KvOld
+                gmax_ch_KvOld  = 0.007/8.065
+		insert leakold
+                el_leakold     = -70
                     
           	insert pas 			// leak conductance
   	}
   
   	axon {
-              	insert hha2  			// HH mechanism with low threshold for Na spikes (-57 mV)
-              	gnabar_hha2 = .1
-              	gkbar_hha2  = .1/5
-              	gl_hha2     = 0
-              	el_hha2     = -70
+              	insert ch_Navhh
+              	gmax_ch_Navhh = .1
+		insert ch_Kvhh
+              	gmax_ch_Kvhh  = .1/5
+		insert ch_leakhh
+              	gl_ch_leakhh     = 0
+              	el_ch_leakhh     = -70
      
               	insert pas  			// leak conductance
               	g_pas       = 1/Rm
 
-              	insert km  			// m-type potassium current
-              	gbar_km     = 0.5*0.06
+              	insert ch_KvM  			// m-type potassium current
+              	gmax_ch_KvM     = 0.5*0.06
   	}
 }
 

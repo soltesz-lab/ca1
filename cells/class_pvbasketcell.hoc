@@ -126,9 +126,9 @@ proc insert_mechs() {
 		insert ch_KvA
 			gkabar_ch_KvA=0.00015
 		insert ch_CavN
-			gncabar_ch_CavN=0.0008   
+			gmax_ch_CavN=0.0008   
 		insert ch_CavL 
-			glcabar_ch_CavL=0.005
+			gmax_ch_CavL=0.005
 		insert ch_KCaS
 			gskbar_ch_KCaS=0.00002
 		insert ch_KvCaB

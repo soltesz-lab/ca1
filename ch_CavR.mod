@@ -27,7 +27,7 @@ UNITS {
 PARAMETER {
 	v (mV) 					: membrane potential
       celsius (degC) : temperature - set in hoc; default is 6.3
-	gcatbar=.003 (mho/cm2)	: conductance flux (bar(?))
+	gmax=.003 (mho/cm2)	: conductance flux (bar(?))
 	cai (mM)				: intracellular Ca2+ concentration
 	cao (mM)				: extracellular Ca2+ concentration
 }
@@ -36,7 +36,7 @@ NEURON {
 	SUFFIX ch_CavR				: The name of the mechanism
 	USEION tca READ etca WRITE itca VALENCE 2
 	USEION ca READ cai, cao VALENCE 2
-	RANGE gcatbar,cai, itca, etca
+	RANGE gmax,cai, itca, etca
 	RANGE myi
 	THREADSAFE
 }
@@ -47,7 +47,7 @@ STATE {
 
 ASSIGNED {			: assigned (where?)
 	itca (mA/cm2)	: current flux
-    gcat (mho/cm2)	: conductance flux
+    g (mho/cm2)	: conductance flux
 	etca (mV)		: reversal potential
 	myi (mA/cm2)
 }
@@ -63,8 +63,8 @@ INITIAL {
 
 BREAKPOINT {
 	SOLVE states METHOD cnexp
-	gcat = gcatbar*m*m*h
-	itca = gcat*ghk(v,cai,cao)
+	g = gmax*m*m*h
+	itca = g*ghk(v,cai,cao)
 	myi = itca
 
 }

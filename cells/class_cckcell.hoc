@@ -120,62 +120,83 @@ proc set_nseg() {
 
 proc insert_mechs() {
 	forsec all {
-		//insert ccanl
-	//catau_ccanl = 10
-	//caiinf_ccanl = 5.e-6
-		insert borgka
-	gkabar_borgka=0.00005
-		insert nca  // HAV-N- Ca channel
-	gncabar_nca=0.0008   
-		insert lca 
-	glcabar_lca=0.005
-		insert gskch
-	gskbar_gskch=0.000145
-		insert cagk
-	gkbar_cagk=0.00001
-		insert hyperde3
-	ghyfbar_hyperde3=0.0000
-	ghysbar_hyperde3=0.0015
+		insert iconc_Ca
+			catau_iconc_Ca = 10
+			caiinf_iconc_Ca = 5.e-6
+		insert ch_KvA
+	gmax_ch_KvA=0.00005
+		insert ch_CavN  // HAV-N- Ca channel
+	gmax_ch_CavN=0.0008   
+		insert ch_CavL 
+	gmax_ch_CavL=0.005
+		insert ch_KCaS
+	gmax_ch_KCaS=0.000145
+		insert ch_KvCaB
+	gmax_ch_KvCaB =0.00001
+		insert ch_HCN
+	gmax_ch_HCN=0.0015
 	}
 
-	soma {insert ichan2  //ildikos ichan
-	gnatbar_ichan2=0.10  
-	gkfbar_ichan2=0.005 //0.0013  
-	gl_ichan2 = 0.00018
+	soma {
+	insert ch_Nav
+	gmax_ch_Nav=0.10*0.5 
+	insert ch_Kdrfast
+	gmax_ch_Kdrfast=0.005
+		insert ch_Kdrfast
+	gmax_ch_Kdrfast=0 //0.0013  
+	
+	insert ch_leak
+	g_ch_leak = 0.00018
 	cm=1.8
 	} 
 
-	forsec adend {insert ichan2
-	gnatbar_ichan2=0.08  
-	gkfbar_ichan2=0.007 //0.013
-	gl_ichan2 = 0.00018
+	forsec adend {
+	insert ch_Nav
+	gmax_ch_Nav=0.08*0.5
+		insert ch_Kdrfast
+	gmax_ch_Kdrfast=0.007 //0.013
+	
+	insert ch_leak
+	g_ch_leak = 0.00018
 	cm=1.8
 	}		
-	forsec	bdend {insert ichan2
-	gnatbar_ichan2=0.0
-	gkfbar_ichan2=0.00
-	gl_ichan2 = 0.00018
+	forsec	bdend {
+	insert ch_Nav
+	gmax_ch_Nav=0.0
+		insert ch_Kdrfast
+	gmax_ch_Kdrfast=0.00
+	
+	insert ch_leak
+	g_ch_leak = 0.00018
 	cm=1.8}
 		
-	forsec 	cdend {insert ichan2
-	gnatbar_ichan2=0.0
-	gkfbar_ichan2=0.00
-	gl_ichan2 = 0.00018
+	forsec 	cdend {
+	insert ch_Nav
+	gmax_ch_Nav=0.0
+		insert ch_Kdrfast
+	gmax_ch_Kdrfast=0.00
+	
+	insert ch_leak
+	g_ch_leak = 0.00018
 	cm=1.8}
 
-	forsec	ddend {insert ichan2
-	gnatbar_ichan2=0.0
-	gkfbar_ichan2=0.00
-	gl_ichan2 = 0.00018
+	forsec	ddend {
+		insert ch_Nav
+	gmax_ch_Nav=0.0
+		insert ch_Kdrfast
+	gmax_ch_Kdrfast=0.00
+	
+	insert ch_leak
+	g_ch_leak = 0.00018
 	cm=1.8}
 }
 
 proc set_biophys() {
 
 	forsec all {Ra=100}
-	forsec all {enat = 55 ekf = -90  ek=-90  elca=130	esk=-90
-		 el_ichan2 =-60.06 	ehyf=-40 ehys=-40
-
+	forsec all {ena = 55 ek=-90  elca=130
+		 e_ch_leak =-60.06 	eh=-40
+	cao_iconc_Ca=2 
 		//cao_ccanl=2 
 		}  // make catau slower70e-3 	cao=2 cai=50.e-6 
 }

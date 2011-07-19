@@ -92,7 +92,7 @@ proc size_sections() {
 }
 
 proc set_nseg() {
-  forsec all { nseg = 1 }
+  forsec all { nseg = 3 }
 }
 
 proc insert_mechs() {
@@ -101,50 +101,48 @@ proc insert_mechs() {
 			catau_iconc_Ca = 10
 			caiinf_iconc_Ca = 5.e-6
 		insert ch_KvA
-			gkabar_ch_KvA=0.0008
-		insert ch_CavN  // HAV-N- Ca channel
-			gncabar_ch_CavN=0.0  
-		insert ch_CavL
-			glcabar_ch_CavL=0.0015
+			gmax_ch_KvA=0.00015
+		insert ch_CavN
+			gmax_ch_CavN=0.0008   
+		insert ch_CavL 
+			gmax_ch_CavL=0.005
 		insert ch_KCaS
-			gskbar_ch_KCaS=0.003
+			gmax_ch_KCaS=0.00002
 		insert ch_KvCaB
-			gkbar_ch_KvCaB=0.003
-		insert ch_HCN
-			ghbar_ch_HCN=0.000015
+			gmax_ch_KvCaB=0.002
+		insert ch_KvM
+			gmax_ch_KvM=0.0011  
 	}
 
-	soma {
-		cm=1.1
-		
+	soma {		
 		insert ch_Nav
-			gnatbar_ch_Nav=0.2  
+			gmax_ch_Nav=0.012*20  
 		insert ch_leak
-			g_ch_leak = 0.000036
-		insert ch_Kdrfast  //ildikos ichan
-			gkfbar_ch_Kdrfast=0.006  
-	} 
-
-	forsec pdend {
-		cm=1.1
-		
-		insert ch_Nav
-			gnatbar_ch_Nav=0.2  
-		insert ch_leak
-			g_ch_leak = 0.000036
+			g_ch_leak = 0.00018
 		insert ch_Kdrfast
-			gkfbar_ch_Kdrfast=0.006
-	}
+			gmax_ch_Kdrfast=0.006  
+		insert ch_Kdrslow
+			gmax_ch_Kdrslow=0.006  
+		insert ch_HCN
+			gmax_ch_HCN=0.0015
+	} 
 		
-	forsec ddend {
-		cm=1.1
-		
+	forsec 	pdend {
 		insert ch_Nav
 			gnatbar_ch_Nav=0.0
 		insert ch_leak
-			g_ch_leak = 0.000036
+			g_ch_leak = 0.00018
 		insert ch_Kdrfast
-			gkfbar_ch_Kdrfast=0.00
+			gmax_ch_Kdrfast=0.0002
+	}
+
+	forsec	ddend {
+		insert ch_Nav
+			gnatbar_ch_Nav=0.0
+		insert ch_leak
+			g_ch_leak = 0.00018
+		insert ch_Kdrfast
+			gmax_ch_Kdrfast=0.0002
 	}
 }
 
@@ -154,19 +152,17 @@ proc set_biophys() {
 					//  section variable that must be set for each
 					//  section. Default is 35.4.
 	
-		ena = 55
+		cm=1.4		// capacitance in uF/cm^2. default = 1.0
+	
+		//ena = 55 
 		ek=-90  
-		ekca=-90		// ek = reversal potential in mV. Associated with 
-		ekfa=-90		// ek = reversal potential in mV. Associated with 
-		ekls=-90		// ek = reversal potential in mV. Associated with 
-		elca=130
-		e_ch_leak =-70.45	
-		eh=-40 
-		//ehys = eh
-		//ehyf = eh
-		cao_iconc_Ca=2
-		
-		}  // make catau slower70e-3 	cao=2 cai=50.e-6 
+		//ekca=-90		// ek = reversal potential in mV. Associated with 
+		//ekfa=-90		// ek = reversal potential in mV. Associated with 
+		//ekls=-90		// ek = reversal potential in mV. Associated with 
+		elca=130	
+		e_ch_leak =-60.06
+
+		cao_iconc_Ca=2 }  // make catau slower70e-3 	cao=2 cai=50.e-6 
 }
 
 	proc define_synapses() {	// Currently, there are no synapses defined for pp --> hipp (though previous code versions had this)

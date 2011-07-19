@@ -31,7 +31,7 @@ NEURON {
 	USEION lca READ lcai VALENCE 2
 	USEION tca READ tcai VALENCE 2
 	USEION k READ ek WRITE ik
-	RANGE gmax,g, ik
+	RANGE gmax, g, ik
 	RANGE myi
 	GLOBAL oinf, otau	: these two are not thread safe
     THREADSAFE

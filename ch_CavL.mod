@@ -28,7 +28,7 @@ UNITS {
 PARAMETER {
 	v (mV)
       celsius (degC) : temperature - set in hoc; default is 6.3
-	glcabar		 (mho/cm2)
+	gmax		 (mho/cm2)
 	ki=.001 (mM)
 	cai (mM)
 	cao (mM)
@@ -40,7 +40,7 @@ NEURON {
 	SUFFIX ch_CavL
 	USEION lca READ elca WRITE ilca VALENCE 2
 	USEION ca READ cai, cao VALENCE 2 
-        RANGE glcabar, cai, ilca, elca
+        RANGE gmax, cai, ilca, elca
  	RANGE myi
        GLOBAL minf,mtau	: neither of these are thread safe
     THREADSAFE
@@ -52,7 +52,7 @@ STATE {
 
 ASSIGNED {
 	ilca (mA/cm2)
-        glca (mho/cm2)
+        g (mho/cm2)
         minf
         mtau   (ms)
 	elca (mV)   
@@ -70,8 +70,8 @@ INITIAL {
 
 BREAKPOINT {
 	SOLVE state METHOD cnexp
-	glca = glcabar*m*m*h2(cai)
-	ilca = glca*ghk(v,cai,cao)
+	g = gmax*m*m*h2(cai)
+	ilca = g*ghk(v,cai,cao)
 	myi = ilca
 }
 

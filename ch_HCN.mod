@@ -33,7 +33,7 @@ UNITS {
 NEURON { 
 	SUFFIX ch_HCN 
 	USEION h READ eh WRITE ih VALENCE 1
-	RANGE ghbar, gh, ih
+	RANGE gmax, gh, ih
 	RANGE hinf
 	RANGE fast_tau, slow_tau
 	RANGE myi
@@ -41,7 +41,7 @@ NEURON {
  
  
 PARAMETER {
-	ghbar  (mho/cm2)
+	gmax  (mho/cm2)
 	eh (mV)
 }
  
@@ -66,7 +66,7 @@ ASSIGNED {
 BREAKPOINT {
 	SOLVE states METHOD cnexp
 		
-	gh = ghbar*h*h
+	gh = gmax*h*h
 	ih = gh*(v - eh)
 	myi = ih
 }

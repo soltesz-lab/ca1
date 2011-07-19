@@ -7,8 +7,8 @@ func nc_append() { localobj cell, nc	// Connect cell to synapse and set synapse 
 		print cell.pre_list.o($3)
 		print cell.pre_list.o($3).o($4)
 		print cell.pre_list.o($3).o($4).e
-		printf("cell.gid=%g %g\n", cell.gid, $2)
-		printf("make a conn from %g to %g, pretype %g and synapse %g\n", $1, $2, $3, $4)*/
+		printf("cell.gid=%g %g\n", cell.gid, $2)*/
+		//if (pc.id==0) {printf("make a conn from %g to %g, pretype %g and synapse %g\n\t pre owned %d  post owned %d\n\n", $1, $2, $3, $4, pc.gid_exists($1), pc.gid_exists($2))}
 		nc = pc.gid_connect($1, cell.pre_list.o($3).o($4))	// Connect the soma of the pre cell to the synapse on the post cell
 		nc.weight = $5					// Set a synaptic connection weight
 		nc.delay = $6					// Set a delay time (axonal delay)

@@ -65,7 +65,7 @@ BREAKPOINT {
 	SOLVE states
 	g = gmax*m*m*m*h  
 	ina = g*(v - ena)
-	myi = gmax
+	myi = ina
 }
  
 UNITSOFF

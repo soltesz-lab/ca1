@@ -1,9 +1,9 @@
 TITLE I-h channel from Magee 1998 for distal dendrites
 
 NEURON {
-	SUFFIX hgrr
+	SUFFIX ch_H
 	NONSPECIFIC_CURRENT i
-        RANGE ghdbar, vhalfl
+        RANGE gmax, vhalfl
         GLOBAL linf,taul
         RANGE myi
 }
@@ -18,7 +18,7 @@ PARAMETER {
 	v 		(mV)
         ehd  		(mV)        
 	celsius 	(degC)
-	ghdbar=.0001 	(mho/cm2)
+	gmax=.0001 	(mho/cm2)
         vhalfl=-81   	(mV)
 	kl=-8
         vhalft=-75   	(mV)
@@ -37,7 +37,7 @@ ASSIGNED {
 	i (mA/cm2)
         linf      
         taul
-        ghd
+        g
 	myi (mA/cm2)
 }
 
@@ -49,8 +49,8 @@ INITIAL {
 
 BREAKPOINT {
 	SOLVE states METHOD cnexp
-	ghd = ghdbar*l
-	i = ghd*(v-ehd)
+	g = gmax*l
+	i = g*(v-ehd)
 	myi = i
 }
 

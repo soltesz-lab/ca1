@@ -127,9 +127,9 @@ proc insert_mechs() {
 		insert ch_KvA
 			gkabar_ch_KvA=0.00015
 		insert ch_CavN
-			gncabar_ch_CavN=0.0008   
+			gmax_ch_CavN=0.0008   
 		insert ch_CavL 
-			glcabar_ch_CavL=0.005
+			gmax_ch_CavL=0.005
 		insert ch_KCaS
 			gskbar_ch_KCaS=0.00002
 		insert ch_KvCaB
@@ -151,7 +151,7 @@ proc insert_mechs() {
 		insert ch_leak
 			g_ch_leak = 0.00018
 		insert ch_Kdrfast
-			gkfbar_ch_Kdrfast=0.013
+			gmax_ch_Kdrfast=0.013
 	}		
 	forsec	bdend {
 		insert ch_Nav
@@ -159,7 +159,7 @@ proc insert_mechs() {
 		insert ch_leak
 			g_ch_leak = 0.00018
 		insert ch_Kdrfast
-			gkfbar_ch_Kdrfast=0.0002
+			gmax_ch_Kdrfast=0.0002
 	}
 		
 	forsec 	cdend {
@@ -168,7 +168,7 @@ proc insert_mechs() {
 		insert ch_leak
 			g_ch_leak = 0.00018
 		insert ch_Kdrfast
-			gkfbar_ch_Kdrfast=0.0002
+			gmax_ch_Kdrfast=0.0002
 	}
 
 	forsec	ddend {
@@ -177,7 +177,7 @@ proc insert_mechs() {
 		insert ch_leak
 			g_ch_leak = 0.00018
 		insert ch_Kdrfast
-			gkfbar_ch_Kdrfast=0.0002
+			gmax_ch_Kdrfast=0.0002
 	}
 }
 

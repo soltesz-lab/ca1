@@ -5,9 +5,9 @@ TITLE Ca L-type channel with high treshold of activation
 : written by Yiota Poirazi, 1/8/00 poirazi@LNC.usc.edu
 
 NEURON {
-	SUFFIX calH
+	SUFFIX ch_CavLdist
 	USEION ca READ eca WRITE ica
-        RANGE gcalbar, m, h
+        RANGE gmax, m, h
 	RANGE inf, fac, tau
         RANGE myi
 }
@@ -23,7 +23,7 @@ PARAMETER {          : parameters that can be entered when function is called in
         v               (mV)
         celsius = 34	(degC)
 	dt              (ms)
-        gcalbar = 0     (mho/cm2) : initialized conductance
+        gmax = 0     (mho/cm2) : initialized conductance
 	eca = 140       (mV)      : Ca++ reversal potential
         }
 
@@ -39,7 +39,7 @@ ASSIGNED {                        : parameters needed to solve DE
 
 BREAKPOINT {
 	SOLVE states
-	ica = gcalbar*m*m*m*h*(v - eca)       
+	ica = gmax*m*m*m*h*(v - eca)       
 	myi = ica
 	}
 
@@ -47,7 +47,8 @@ INITIAL {
         m = 0    : initial activation parameter value
 	h = 1    : initial inactivation parameter value
         states()
-	ica = gcalbar*m*m*m*h*(v - eca) : initial Ca++ current value
+	ica = gmax*m*m*m*h*(v - eca) : initial Ca++ current value
+	myi = ica
      	}
 
 PROCEDURE calcg() {

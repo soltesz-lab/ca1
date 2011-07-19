@@ -2,7 +2,7 @@ TITLE K-A channel from Klee Ficker and Heinemann
 : modified to account for Dax A Current ----------
 : M.Migliore Jun 1997
 : modified by Poirazi on 10/2/00 according to Hoffman_etal97 
-: to account for I_A distal (>100microns)
+: to account for I_A proximal (<100microns)
 : (n) activation, (l) inactivation
 
 
@@ -17,22 +17,23 @@ PARAMETER {
         dt (ms)
 	v (mV)
         ek (mV)              : must be explicitely def. in hoc
-	gkabar=0.018 (mho/cm2)
-        vhalfn= -1   (mV)
+	gmax=.007 (mho/cm2)
+        vhalfn= 11   (mV)
         vhalfl=-56   (mV)
+        a0l=0.05      (/ms)
+        a0n=0.05    (/ms)
 }
 
 NEURON {
-	SUFFIX kad
+	SUFFIX ch_KvAprox
 	USEION k READ ek WRITE ik
-        RANGE gkabar,gka
+        RANGE gmax,g
         GLOBAL ninf,linf,taul,taun
         RANGE myi
 }
 
 STATE {
-	n
-        l
+	n l
 }
 
 ASSIGNED {
@@ -41,7 +42,7 @@ ASSIGNED {
         linf
         taul
         taun
-        gka
+        g
 	myi (mA/cm2)
 }
 
@@ -49,24 +50,25 @@ INITIAL {
 	rates(v)
 	n=ninf
 	l=linf
-	gka = gkabar*n^4*l
-	ik = gka*(v-ek)
+	g = gmax*n^4*l
+	ik = g*(v-ek)
+	myi = ik
 }
 
 BREAKPOINT {
 	SOLVE states
-	gka = gkabar*n^4*l
-	ik = gka*(v-ek)
+	g = gmax*n^4*l
+	ik = g*(v-ek)
 	myi = ik
 }
 
 FUNCTION alpn(v(mV)) {
-  alpn = -0.01*(v+34.4)/(exp((v+34.4)/-21)-1)
+  alpn = -0.01*(v+21.3)/(exp((v+21.3)/-35)-1)
 }
 
 
 FUNCTION betn(v(mV)) {
-  betn = 0.01*(v+34.4)/(exp((v+34.4)/21)-1)
+  betn = 0.01*(v+21.3)/(exp((v+21.3)/35)-1)
 }
 
 FUNCTION alpl(v(mV)) {
