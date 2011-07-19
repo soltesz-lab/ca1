@@ -5,4 +5,8 @@ tools/**
 results/**
 connections/**
 setupfiles/voltagetrace.hoc
+figures/**
+testy/**
+setupfiles/icell.dat
+setupfiles/iclamp.dat
 *.*~
