@@ -9,4 +9,5 @@ figures/**
 testy/**
 setupfiles/icell.dat
 setupfiles/iclamp.dat
+setupfiles/imod*
 *.*~

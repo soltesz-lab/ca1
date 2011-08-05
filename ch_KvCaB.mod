@@ -27,10 +27,10 @@ UNITS {
 
 NEURON {
 	SUFFIX ch_KvCaB
+	USEION k READ ek WRITE ik
 	USEION nca READ ncai VALENCE 2
 	USEION lca READ lcai VALENCE 2
 	USEION tca READ tcai VALENCE 2
-	USEION k READ ek WRITE ik
 	RANGE gmax, g, ik
 	RANGE myi
 	GLOBAL oinf, otau	: these two are not thread safe
