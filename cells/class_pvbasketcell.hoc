@@ -11,6 +11,7 @@ public x, y, z, position
 objref syn, pre_list, templist
 
 // external variables
+external numCellTypes, cellType
 
 // create the sections[nsegments]
 // if nsegments (the number of segments in each section) is updated,
@@ -20,6 +21,8 @@ create soma, bcdendAP1[4], bcdendAP2[4], bcdendBAS1[4], bcdendBAS2[4]
 // set the initialization code, which is run whenever a new object
 // of this class is instantiated
 proc init() {
+	gid = $1
+	randi = $2
 	// cell sections: soma, dendrites, axon
 	append_sections() // append all sections to the section list
 	connect_sections()// connect soma, dendrites, axon
@@ -136,6 +139,7 @@ proc insert_mechs() {
 	soma {		
 		insert ch_Nav
 			gmax_ch_Nav= 0.12  
+			ena = 55 
 		insert ch_leak
 			g_ch_leak = 0.00018
 		insert ch_Kdrfast
@@ -145,6 +149,7 @@ proc insert_mechs() {
 	forsec adend {
 		insert ch_Nav
 			gmax_ch_Nav= 0.12
+			ena = 55 
 		insert ch_leak
 			g_ch_leak = 0.00018
 		insert ch_Kdrfast
@@ -174,7 +179,6 @@ proc set_biophys() {
 	
 		cm=1.4		// capacitance in uF/cm^2. default = 1.0
 	
-		ena = 55 
 		ek=-90  
 		elca=130	
 		e_ch_leak =-60.06
@@ -309,10 +313,18 @@ proc set_biophys() {
 	}
 
 	proc connect_pre() {  // $o1 target point process, $o2 returned NetCon
-	soma $o2 = new NetCon (&v(1), $o1)
-			$o2.threshold = -10 //except for bcell to bcell, which is -10???
+		soma $o2 = new NetCon (&v(1), $o1)
+			 $o2.threshold = -10 //except for bcell to bcell, which is -10???
 	}
 
 	func is_art()  { return 0 }
 
+proc position(){ local i
+		forall {
+		for i = 0, n3d()-1 {
+			pt3dchange(i, $1-x+x3d(i), $2-y+y3d(i), $3-z+z3d(i), diam3d(i))
+		}
+}
+	x = $1  y = $2  z = $3	
+}	
 	endtemplate pvbasketcell
