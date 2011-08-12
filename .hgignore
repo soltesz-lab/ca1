@@ -10,4 +10,5 @@ testy/**
 setupfiles/icell.dat
 setupfiles/iclamp.dat
 setupfiles/imod*
+stimulation/stimvecs/*
 *.*~

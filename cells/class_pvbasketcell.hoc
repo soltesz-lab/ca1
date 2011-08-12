@@ -27,7 +27,7 @@ proc init() {
 	append_sections() // append all sections to the section list
 	connect_sections()// connect soma, dendrites, axon
 	size_sections()	// set the size dimensions of each section
-	//set_nseg()		// set the number of segments in each section
+	set_nseg()		// set the number of segments in each section
 	
 	// subcellular mechanisms: channels, pumps, transporters
 	insert_mechs()
@@ -115,8 +115,9 @@ proc size_sections() { local i
 	}
 }
 
+external lambda_f
 proc set_nseg() {
-  forsec all { nseg = 1 }
+  	forsec all { nseg = int((L/(0.1*lambda_f(100))+.9)/2)*2 + 1  }
 }
 
 proc insert_mechs() {
@@ -133,7 +134,7 @@ proc insert_mechs() {
 		insert ch_KCaS
 			gmax_ch_KCaS= 0.000002
 		insert ch_KvCaB
-			gmax_ch_KvCaB=  0.0002
+			gmax_ch_KvCaB= 0.0002
 	}
 
 	soma {		
