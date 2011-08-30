@@ -9,6 +9,7 @@ ENDCOMMENT
 NEURON {
 SUFFIX buff_Ca : calcium buffer and diffusion mechanism
 USEION ca READ cai, ica WRITE cai
+RANGE myi
 GLOBAL vrat, TotalBuffer : TotalBuffer may be RANGE
 						 : but vrat, an array of volume/r per shell,
 						 : must be GLOBAL-see INITIAL block
@@ -36,6 +37,7 @@ TotalBuffer = 0.003 (mM) : concentration of buffer (assumed uniform throughout c
 ASSIGNED {
 diam	(um)
 ica		(mA/cm2)
+myi		(mA/cm2)
 cai		(mM)
 vrat[Nannuli] (1) : dimensionless
 	: vrat[i] is vol of annulus i of a 1um diam cylinder 
@@ -106,4 +108,5 @@ KINETIC state {
 	~ ca[i] + Buffer[i] <-> CaBuffer[i] (k1buf*dsqvol, k2buf*dsqvol)
 	}
 	cai = ca[0]
+	myi = ica
 }

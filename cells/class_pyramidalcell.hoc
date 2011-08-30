@@ -134,7 +134,7 @@ proc insert_mechs() {
 	gmax_ch_HCN=0.0015
 	}
 
-navsc= 2 // 1.5
+navsc= 2 // 2 // 1.5
 	soma {
 	insert ch_Nav
 	gmax_ch_Nav=0.10*0.5*navsc 
@@ -259,7 +259,7 @@ navsc= 2 // 1.5
 	insert ch_leak
 	g_ch_leak = 0.00018
   	}
-  
+
   	oriprox2 {
 	insert ch_Nav
 	gmax_ch_Nav=0.08*0.5*navsc
@@ -291,14 +291,14 @@ navsc= 2 // 1.5
 	g_ch_leak = 0.00018
 	cm=1.8
   	}
- 
 }
 
 proc set_biophys() {  	
-	forsec all {Ra=100}
+	forsec all {Ra = 50}
 	forsec all {ena = 55 ek=-90  elca=130
 		 e_ch_leak =-60.06 	eh=-40
-	cao_iconc_Ca=2 
+	cao_iconc_Ca = 2 
+	cm = 1 // overwrite the 1.8 value found in some of the cell section types
 		//cao_ccanl=2 
 		}  // make catau slower70e-3 	cao=2 cai=50.e-6 
 }

@@ -190,7 +190,7 @@ proc set_biophys() {
 
 	objref syn  
 	proc define_synapses() {
-		for celltype=0, 7-1 {
+		for celltype=0, numCellTypes-1 {
 			findme=0
 			if (strcmp(cellType[celltype].cellType_string,"ppspont")==0 || strcmp(cellType[celltype].cellType_string,"ppstim")==0 || strcmp(cellType[celltype].cellType_string,"ppvec")==0) {	// Connect to some pp stim cells
 				templist = new List ()
