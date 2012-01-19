@@ -16,7 +16,7 @@ begintemplate CellCategoryInfo			// Define a template that describes
 																//  instance of the class
 																
 	strdef cellType_string, tempString, cmd, strtomax 			// Define strings
-	
+
 	proc setCellTypeParams(){			// Define a proc to set the parameters
 										//  corresponding to the celltype this
 										//  member of the class describes

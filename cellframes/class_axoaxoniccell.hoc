@@ -327,159 +327,6 @@ proc biophys() {
 
 }
 
-	objref syn  
-	proc define_synapses() {
-		for celltype=0, numCellTypes-1 {
-			findme=0
-			if (strcmp(cellType[celltype].cellType_string,"ppspont")==0 || strcmp(cellType[celltype].cellType_string,"ppstim")==0 || strcmp(cellType[celltype].cellType_string,"ppvec")==0) {	// Connect to some pp stim cells
-				templist = new List ()
-
-			/* E0 */   lmM1 syn = new MyExp2Sid(0.5)   	// AMPA		EC
-				syn.tau1 = 0.5
-				syn.tau2 = 3
-				syn.e = 0
-				syn.sid=0	// sid: Set the synapse id for each synapse defined for cell
-				templist.append(syn)
-
-			/* E1 */   lmM2 syn = new MyExp2Sid(0.5)   	// AMPA		EC
-				syn.tau1 = 0.5
-				syn.tau2 = 3
-				syn.e = 0
-				syn.sid=1	// sid: Set the synapse id for each synapse defined for cell
-				templist.append(syn)
-
-				/* // Schaffer Collateral inputs
-				radM1 syn = new MyExp2Sid(0.5)   	// AMPA		CA3 Shaffer collateral
-				syn.tau1 = 0.5
-				syn.tau2 = 3
-				syn.e = 0
-				radM2 syn = new MyExp2Sid(0.5)   	// AMPA		CA3 Shaffer collateral
-				syn.tau1 = 0.5
-				syn.tau2 = 3
-				syn.e = 0
-				radT1 syn = new MyExp2Sid(0.5)   	// AMPA		CA3 Shaffer collateral
-				syn.tau1 = 0.5
-				syn.tau2 = 3
-				syn.e = 0
-				radT2 syn = new MyExp2Sid(0.5)   	// AMPA		CA3 Shaffer collateral
-				syn.tau1 = 0.5
-				syn.tau2 = 3
-				syn.e = 0
-
-				// Septum inputs
-				 
-				oriT1 syn = new MyExp2Sid(0.6)   	// GABA-A	Septum
-				syn.tau1 = 1
-				syn.tau2 = 8
-				syn.e = -75
-				oriT2 syn = new MyExp2Sid(0.6)   	// GABA-A	Septum
-				syn.tau1 = 1
-				syn.tau2 = 8
-				syn.e = -75
-				oriT1 syn = new MyExp2Sid(0.6)   	// GABA-B	Septum
-				syn.tau1 = 35
-				syn.tau2 = 100
-				syn.e = -75
-				oriT2 syn = new MyExp2Sid(0.6)   	// GABA-B	Septum
-				syn.tau1 = 35
-				syn.tau2 = 100
-				syn.e = -75
-				*/
-
-				pre_list.append(templist)
-				findme=1
-			}
-		
-			if (strcmp(cellType[celltype].cellType_string,"pyramidalcell")==0) {	// Connect to some granule cells
-				templist = new List ()
-				// pyr --> axo: Physiological properties of anatomically identified axo-axonic cells in the rat hippocampus
-					// Schaffer Collaterals
-					oriT1 syn = new MyExp2Sid(0.5)   	// AMPA		PC
-					syn.tau1 = 0.5
-					syn.tau2 = 3
-					syn.e = 0
-					syn.sid=2
-					templist.append(syn)
-
-					oriT2 syn = new MyExp2Sid(0.5)   	// AMPA		PC
-					syn.tau1 = 0.5
-					syn.tau2 = 3
-					syn.e = 0
-					syn.sid=3
-					templist.append(syn)
-
-				pre_list.append(templist)
-				findme=1
-			}
-		
-		
-			if ((strcmp(cellType[celltype].cellType_string,"pvbasketcell")==0) || (strcmp(cellType[celltype].cellType_string,"dgbasketcell")==0)) {	// Connect to some basket cells
-				templist = new List ()
-
-				soma syn = new MyExp2Sid(0.5)   	// GABA-A	Neighboring basket cell
-				syn.tau1 = 1
-				syn.tau2 = 8
-				syn.e = -75
-				syn.sid=4	// sid: Set the synapse id for each synapse defined for cell
-				templist.append(syn)
-
-				pre_list.append(templist)
-				findme=1
-			}
-			if ((strcmp(cellType[celltype].cellType_string,"bistratifiedcell")==0) || (strcmp(cellType[celltype].cellType_string,"dgbistratifiedcell")==0)) {	// Connect to some basket cells
-				templist = new List ()
-
-				soma syn = new MyExp2Sid(0.6)   	// GABA-A	Bistratified cell
-				syn.tau1 = 1
-				syn.tau2 = 8
-				syn.e = -75
-				syn.sid=5	// sid: Set the synapse id for each synapse defined for cell
-				templist.append(syn)
-
-				pre_list.append(templist)
-				findme=1
-			}
-
-  	
-    	// from cck basket cell to axo - not sure if these exist
-			if (strcmp(cellType[celltype].cellType_string,"cckcell")==0) {	// Connect to some pp stim cells
-				templist = new List ()
-
-				soma syn = new MyExp2Sid(0.5)  // 		// GABA-A	B cell
-				syn.tau1 = 1
-				syn.tau2 = 8
-				syn.e = -75
-				syn.sid=6
-				templist.append(syn)
- 
-				pre_list.append(templist)
-				findme=1
-			}
-
-		/*
-			if (strcmp(cellType[celltype].cellType_string,"olmcell")==0) {	// Connect to some hipp cells
-				templist = new List ()
-
-				bcdendAP1 [3] syn = new Exp2Sid(0.5)	//HIPP(GABA) syn to apical distal dend 
-				syn.tau1 = 0.4	syn.tau2 = 5.8	syn.e = -70 // *** Estimated as HIPP>GC
-															syn.sid=13	// sid: Set the synapse id for each synapse defined for cell
-				templist.append(syn)
-
-				bcdendAP2 [3] syn = new Exp2Sid(0.5)	//HIPP(GABA) syn to apical distal dend 
-				syn.tau1 = 0.4	syn.tau2 = 5.8	syn.e = -70 // *** Estimated as HIPP>GC
-															syn.sid=14	// sid: Set the synapse id for each synapse defined for cell
-				templist.append(syn)
-
-				pre_list.append(templist)
-				findme=1
-			}*/
-			if (findme==0) {
-				templist = new List ()
-				pre_list.append(templist)		
-				findme=1
-			}
-		}
-	}
 
 	proc connect_pre() {  // $o1 target point process, $o2 returned NetCon
 	soma $o2 = new NetCon (&v(1), $o1)
@@ -496,5 +343,11 @@ proc position(){ local i
 		}
 	}
 	x = $1  y = $2  z = $3	
+}
+
+objref syn  
+proc define_synapses() {
+	
+	
 }
 endtemplate axoaxoniccell

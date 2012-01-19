@@ -4,11 +4,14 @@ jobscripts/**
 tools/**
 results/**
 connections/**
+synapses/**
 setupfiles/voltagetrace.hoc
 figures/**
 testy/**
+cells/class_*cell.hoc
 setupfiles/icell.dat
 setupfiles/iclamp.dat
 setupfiles/imod*
+setupfiles/mechclamp.dat
 stimulation/stimvecs/*
 *.*~

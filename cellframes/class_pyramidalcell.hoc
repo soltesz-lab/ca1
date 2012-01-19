@@ -1,0 +1,327 @@
+begintemplate pyramidalcell
+// Network cell template
+// PyramidalCell
+// Geometry: 14 sections + axon
+// Active properties: from Poirazi et al, Neuron 2003
+// Adjusted to get more decrementing BPAP
+// BPG & VCU, 2-1-09
+
+// public variables
+public is_art, gid, randi
+public init, topol, basic_shape, subsets, geom, biophys
+public pre_list, connect_pre
+
+public soma, radTprox, radTmed, radTdist, lm_thick2, lm_medium2, lm_thin2
+public lm_thick1, lm_medium1, lm_thin1, oriprox1, oridist1, oriprox2, oridist2
+public axon
+public all
+public x, y, z, position
+
+// objects
+objref pre_list, templist
+
+// create the sections[segments]
+create soma, radTprox, radTmed, radTdist, lm_thick2, lm_medium2, lm_thin2, axon
+create lm_thick1, lm_medium1, lm_thin1, oriprox1, oridist1, oriprox2, oridist2
+
+// external variables
+external numCellTypes, cellType
+
+// set the initialization code, which is run whenever a new object
+// of this class is instantiated
+proc init() {
+	gid = $1
+	randi = $2
+	// cell sections: soma, dendrites, axon
+	append_sections() // append all sections to the section list
+	connect_sections()// connect soma, dendrites, axon
+	size_sections()	// set the size dimensions of each section
+	
+	// subcellular mechanisms: channels, pumps, transporters
+	insert_mechs()
+	set_biophys()
+	
+	set_nseg()		// set the number of segments in each section
+					// if this is driven by an error-minimization rule,
+					// make sure to do it after setting the morphology
+					// and inserting the mechanisms, as it depends on those
+	
+	pre_list = new List() // define a list for the presynaptic connections
+	define_synapses()
+}
+
+proc connect_sections() { local i
+  connect radTprox(0), soma(1)
+  connect radTmed(0), radTprox(1)
+  connect radTdist(0), radTmed(1)
+  connect lm_thick2(0), radTdist(1)
+  connect lm_medium2(0), lm_thick2(1)
+  connect lm_thin2(0), lm_medium2(1)
+  connect lm_thick1(0), radTdist(1)
+  connect lm_medium1(0), lm_thick1(1)
+  connect lm_thin1(0), lm_medium1(1)
+  connect oriprox1(0), soma(0)
+  connect oridist1(0), oriprox1(1)
+  connect oriprox2(0), soma(1)
+  connect oridist2(0), oriprox2(1)
+  connect axon(0), soma(0)
+}
+
+objref all
+proc append_sections() { local i
+  objref all
+  all = new SectionList()
+    soma all.append()
+    radTprox all.append()
+    radTmed all.append()
+    radTdist all.append()
+    lm_thick2 all.append()
+    lm_medium2 all.append()
+    lm_thin2 all.append()
+    lm_thick1 all.append()
+    lm_medium1 all.append()
+    lm_thin1 all.append()
+    oriprox1 all.append()
+    oridist1 all.append()
+    oriprox2 all.append()
+    oridist2 all.append()
+    axon all.append()
+}
+
+proc size_sections() {
+  soma {  L = 10  diam = 10  }
+  // SR is first 500um of apical dendrite
+  radTprox {  L = 100  diam = 4  }
+  radTmed {  L = 100  diam = 3  }
+  radTdist {  L = 200  diam = 2  }
+  // OLM is final 300um of apical dendrite
+  lm_thick2 {  L = 100  diam = 2  }
+  lm_medium2 {  L = 100  diam = 1.5  }
+  lm_thin2 {  L = 50  diam = 1  }
+  lm_thick1 {  L = 100  diam = 2  }
+  lm_medium1 {  L = 100  diam = 1.5  }
+  lm_thin1 {  L = 50  diam = 1  }
+  // Basal dendrites extend 300 um
+  oriprox1 {  L = 100  diam = 2  }
+  oridist1 {  L = 200  diam = 1.5  }
+  oriprox2 {  L = 100  diam = 2  }
+  oridist2 {  L = 200  diam = 1.5  }
+  axon {  L = 75  diam = 1.5  }
+}
+
+external lambda_f
+proc set_nseg() {
+  forsec all { nseg = int((L/(0.1*lambda_f(100))+.9)/2)*2 + 1  }
+}
+
+proc insert_mechs() {
+	
+	forsec all {
+		insert iconc_Ca
+			catau_iconc_Ca = 10
+			caiinf_iconc_Ca = 5.e-6
+		insert ch_KvA
+	gmax_ch_KvA=0.00005
+		insert ch_CavN  // HAV-N- Ca channel
+	gmax_ch_CavN=0.0008   
+		insert ch_CavL 
+	gmax_ch_CavL=0.005
+		insert ch_KCaS
+	gmax_ch_KCaS=0.000145
+		insert ch_KvCaB
+	gmax_ch_KvCaB =0.00001
+		insert ch_HCN
+	gmax_ch_HCN=0.0015
+	}
+
+navsc= 2 // 2 // 1.5
+	soma {
+	insert ch_Nav
+	gmax_ch_Nav=0.10*0.5*navsc 
+	insert ch_Kdrfast
+	gmax_ch_Kdrfast=0.005
+		insert ch_Kdrfast
+	gmax_ch_Kdrfast=0 //0.0013  
+	
+	insert ch_leak
+	g_ch_leak = 0.00018
+	cm=1.8
+	} 
+  	
+  	radTprox {
+	insert ch_Nav
+	gmax_ch_Nav=0.08*0.5*navsc
+		insert ch_Kdrfast
+	gmax_ch_Kdrfast=0.007 //0.013
+	
+	insert ch_leak
+	g_ch_leak = 0.00018
+	cm=1.8
+}
+	
+  	radTmed {
+		insert ch_Nav
+	gmax_ch_Nav=0.0*navsc
+		insert ch_Kdrfast
+	gmax_ch_Kdrfast=0.00
+	
+	insert ch_leak
+	g_ch_leak = 0.00018
+	cm=1.8	}
+  	
+  	radTdist {
+		insert ch_Nav
+	gmax_ch_Nav=0.0*navsc
+		insert ch_Kdrfast
+	gmax_ch_Kdrfast=0.00
+	
+	insert ch_leak
+	g_ch_leak = 0.00018
+	cm=1.8}
+  
+  	lm_thick2 {
+		insert ch_Nav
+	gmax_ch_Nav=0.0*navsc
+		insert ch_Kdrfast
+	gmax_ch_Kdrfast=0.00
+	
+	insert ch_leak
+	g_ch_leak = 0.00018
+	cm=1.8}
+	  	
+  	lm_medium2 {
+		insert ch_Nav
+	gmax_ch_Nav=0.0*navsc
+		insert ch_Kdrfast
+	gmax_ch_Kdrfast=0.00
+	
+	insert ch_leak
+	g_ch_leak = 0.00018
+	cm=1.8	}
+  
+  	lm_thin2 {
+		insert ch_Nav
+	gmax_ch_Nav=0.0*navsc
+		insert ch_Kdrfast
+	gmax_ch_Kdrfast=0.00
+	
+	insert ch_leak
+	g_ch_leak = 0.00018
+	cm=1.8 	}
+  
+  	lm_thick1 {
+		insert ch_Nav
+	gmax_ch_Nav=0.0*navsc
+		insert ch_Kdrfast
+	gmax_ch_Kdrfast=0.00
+	
+	insert ch_leak
+	g_ch_leak = 0.00018
+	cm=1.8  	}
+  
+  	lm_medium1 {
+		insert ch_Nav
+	gmax_ch_Nav=0.0
+		insert ch_Kdrfast
+	gmax_ch_Kdrfast=0.00
+	
+	insert ch_leak
+	g_ch_leak = 0.00018
+	cm=1.8 	}
+  
+  	lm_thin1 {
+		insert ch_Nav
+	gmax_ch_Nav=0.0
+		insert ch_Kdrfast
+	gmax_ch_Kdrfast=0.00
+	
+	insert ch_leak
+	g_ch_leak = 0.00018
+	cm=1.8  	}
+  
+  	oriprox1 {
+	insert ch_Nav
+	gmax_ch_Nav=0.08*0.5*navsc
+		insert ch_Kdrfast
+	gmax_ch_Kdrfast=0.007 //0.013
+	
+	insert ch_leak
+	g_ch_leak = 0.00018
+	cm=1.8
+  	}
+  
+  	oridist1 {
+	insert ch_Nav
+	gmax_ch_Nav=0.0
+		insert ch_Kdrfast
+	gmax_ch_Kdrfast=0.00
+	
+	insert ch_leak
+	g_ch_leak = 0.00018
+  	}
+
+  	oriprox2 {
+	insert ch_Nav
+	gmax_ch_Nav=0.08*0.5*navsc
+		insert ch_Kdrfast
+	gmax_ch_Kdrfast=0.007 //0.013
+	
+	insert ch_leak
+	g_ch_leak = 0.00018
+	cm=1.8
+  	}
+  	
+  	oridist2 {
+	insert ch_Nav
+	gmax_ch_Nav=0.0
+		insert ch_Kdrfast
+	gmax_ch_Kdrfast=0.00
+	
+	insert ch_leak
+	g_ch_leak = 0.00018
+  	}
+ 
+  	axon {
+	insert ch_Nav
+	gmax_ch_Nav=0.08*0.5*navsc
+		insert ch_Kdrfast
+	gmax_ch_Kdrfast=0.007 //0.013
+	
+	insert ch_leak
+	g_ch_leak = 0.00018
+	cm=1.8
+  	}
+}
+
+proc set_biophys() {  	
+	forsec all {Ra = 50}
+	forsec all {ena = 55 ek=-90  elca=130
+		 e_ch_leak =-60.06 	eh=-40
+	cao_iconc_Ca = 2 
+	cm = 1 // overwrite the 1.8 value found in some of the cell section types
+		//cao_ccanl=2 
+		}  // make catau slower70e-3 	cao=2 cai=50.e-6 
+}
+
+func is_art() { return 0 }
+
+proc connect_pre() {  // $o1 target point process, $o2 returned NetCon
+	soma $o2 = new NetCon (&v(1), $o1)
+			$o2.threshold = -10
+}
+
+proc position(){ local i
+		forall {
+		for i = 0, n3d()-1 {
+			pt3dchange(i, $1-x+x3d(i), $2-y+y3d(i), $3-z+z3d(i), diam3d(i))
+		}
+}
+	x = $1  y = $2  z = $3	
+}
+
+objref syn
+proc define_synapses() {
+
+
+}
+endtemplate pyramidalcell

@@ -188,130 +188,6 @@ proc set_biophys() {
 		}  // make catau slower70e-3 	cao=2 cai=50.e-6 
 }
 
-	objref syn  
-	proc define_synapses() {
-		for celltype=0, numCellTypes-1 {
-			findme=0
-			if (strcmp(cellType[celltype].cellType_string,"ppspont")==0 || strcmp(cellType[celltype].cellType_string,"ppstim")==0 || strcmp(cellType[celltype].cellType_string,"ppvec")==0) {	// Connect to some pp stim cells
-				templist = new List ()
-
-				bcdendAP1 [3] syn = new Exp2Sid(0.5)	//PP(AMPA) syn to apical dist dend Dingledine '95
-				syn.tau1 = 2	syn.tau2 = 6.3	syn.e = 0 	syn.sid=0	// sid: Set the synapse id for each synapse defined for cell
-				templist.append(syn)
-
-				bcdendAP2 [3] syn = new Exp2Sid(0.5)	//PP(AMPA) syn to apical dist dend Dingledine '95
-				syn.tau1 = 2	syn.tau2 = 6.3	syn.e = 0  	syn.sid=1	// sid: Set the synapse id for each synapse defined for cell
-				templist.append(syn)
-
-				pre_list.append(templist)
-				findme=1
-			}
-		
-			if (strcmp(cellType[celltype].cellType_string,"pyramidalcell")==0) {	// Connect to some granule cells
-				templist = new List ()
-
-				bcdendAP1 [0] syn = new Exp2Sid(0.5)	//GC(AMPA) syn to prox dend Geiger '97
-				syn.tau1 = .3	syn.tau2 = .6	syn.e = 0 	syn.sid=2	// sid: Set the synapse id for each synapse defined for cell
-				templist.append(syn)
-
-				bcdendAP2 [0] syn = new Exp2Sid(0.5)	//GC(AMPA) syn to prox dend Geiger '97
-				syn.tau1 = .3	syn.tau2 = .6	syn.e = 0 	syn.sid=3	// sid: Set the synapse id for each synapse defined for cell
-				templist.append(syn)
-
-				bcdendBAS1 [0] syn = new Exp2Sid(0.5)	//GC(AMPA) syn to prox dend Geiger '97
-				syn.tau1 = .3	syn.tau2 = .6	syn.e = 0 	syn.sid=4	// sid: Set the synapse id for each synapse defined for cell
-				templist.append(syn)
-
-				bcdendBAS2 [0] syn = new Exp2Sid(0.5)	//GC(AMPA) syn to prox dend Geiger '97
-				syn.tau1 = .3	syn.tau2 = .6	syn.e = 0 	syn.sid=5	// sid: Set the synapse id for each synapse defined for cell
-				templist.append(syn)
-
-				pre_list.append(templist)
-				findme=1
-			}
-		
-			if (strcmp(cellType[celltype].cellType_string,"mossycell")==0) {	// Connect to some mossy cells
-				templist = new List ()
-
-				bcdendAP1 [1] syn = new Exp2Sid(0.5)	//MC(AMPA) syn to apical IML dend
-				syn.tau1 = 0.9	syn.tau2 = 3.6	syn.e = 0 // *** Estimated based on CA3>BC min stim Dingledine '95
-															syn.sid=6	// sid: Set the synapse id for each synapse defined for cell
-				templist.append(syn)
-
-				bcdendAP2 [1] syn = new Exp2Sid(0.5)	//MC(AMPA) syn to apical IML dend
-				syn.tau1 = 0.9	syn.tau2 = 3.6	syn.e = 0 // *** Estimated based on CA3>BC min stim Dingledine '95
-															syn.sid=7	// sid: Set the synapse id for each synapse defined for cell
-				templist.append(syn)
-
-				pre_list.append(templist)
-				findme=1
-			}
-		
-			if ((strcmp(cellType[celltype].cellType_string,"pvbasketcell")==0) || (strcmp(cellType[celltype].cellType_string,"dgbasketcell")==0)) {	// Connect to some basket cells
-				templist = new List ()
-
-				soma syn = new Exp2Sid(0.5)	//BC(GABA) syn to apical IML dend Bartos
-				syn.tau1 = 0.16		syn.tau2 = 1.8	syn.e = -70 	syn.sid=8	// sid: Set the synapse id for each synapse defined for cell
-				templist.append(syn)
-
-				pre_list.append(templist)
-				findme=1
-			}
-			if ((strcmp(cellType[celltype].cellType_string,"bistratifiedcell")==0) || (strcmp(cellType[celltype].cellType_string,"dgbistratifiedcell")==0)) {	// Connect to some basket cells
-				templist = new List ()
-
-				bcdendAP1 [1] syn = new Exp2Sid(0.5)	//BC(GABA) syn to apical IML dend Bartos
-				syn.tau1 = 0.16		syn.tau2 = 1.8	syn.e = -70 	syn.sid=8	// sid: Set the synapse id for each synapse defined for cell
-				templist.append(syn)
-
-				bcdendAP2 [1] syn = new Exp2Sid(0.5)	//BC(GABA) syn to apical IML dend Bartos
-				syn.tau1 = 0.16		syn.tau2 = 1.8	syn.e = -70 	syn.sid=9	// sid: Set the synapse id for each synapse defined for cell
-				templist.append(syn)
-
-				pre_list.append(templist)
-				findme=1
-			}
-
-  	
-    	// from basket cell to here
-			if (strcmp(cellType[celltype].cellType_string,"cckcell")==0) {	// Connect to some pp stim cells
-				templist = new List ()
-
-  	/* I5 */   	soma syn = new MyExp2Sid(0.5)  //pre_list.append(syn)		// GABA-A	B cell
-    	syn.tau1 = 1
-    	syn.tau2 = 8
-    	syn.e = -75
-    	syn.sid=6
-				templist.append(syn)
- 
-				pre_list.append(templist)
-				findme=1
-			}
-
-		
-			if (strcmp(cellType[celltype].cellType_string,"olmcell")==0) {	// Connect to some hipp cells
-				templist = new List ()
-
-				bcdendAP1 [3] syn = new Exp2Sid(0.5)	//HIPP(GABA) syn to apical distal dend 
-				syn.tau1 = 0.4	syn.tau2 = 5.8	syn.e = -70 // *** Estimated as HIPP>GC
-															syn.sid=10	// sid: Set the synapse id for each synapse defined for cell
-				templist.append(syn)
-
-				bcdendAP2 [3] syn = new Exp2Sid(0.5)	//HIPP(GABA) syn to apical distal dend 
-				syn.tau1 = 0.4	syn.tau2 = 5.8	syn.e = -70 // *** Estimated as HIPP>GC
-															syn.sid=11	// sid: Set the synapse id for each synapse defined for cell
-				templist.append(syn)
-
-				pre_list.append(templist)
-				findme=1
-			}
-			if (findme==0) {
-				templist = new List ()
-				pre_list.append(templist)		
-				findme=1
-			}
-		}
-	}
 
 	proc connect_pre() {  // $o1 target point process, $o2 returned NetCon
 		soma $o2 = new NetCon (&v(1), $o1)
@@ -328,4 +204,9 @@ proc position(){ local i
 }
 	x = $1  y = $2  z = $3	
 }	
-	endtemplate pvbasketcell
+objref syn  
+proc define_synapses() {
+
+
+}
+endtemplate pvbasketcell

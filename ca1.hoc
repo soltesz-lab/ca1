@@ -54,7 +54,7 @@ proc loadCellTemplates(){local i		// Proc to load the template that defines (eac
 	}
 }	
 loadCellTemplates()						// Run the newly defined proc
-printf("num cells = %g\n", cellType[0].numCells)
+
 proc calcNetSize(){local i				// Calculate the final network size (after any cell death)
 	//cellType[0].numCells = cellType[numCellTypes-1].cellEndGid - cellType[0].cellEndGid + 4*2 // just added now for spontburst
 	//cellType[0].updateGidRange(0)
