@@ -13,5 +13,7 @@ setupfiles/icell.dat
 setupfiles/iclamp.dat
 setupfiles/imod*
 setupfiles/mechclamp.dat
+setupfiles/pairclamp.dat
+setupfiles/pairtypes.txt
 stimulation/stimvecs/*
 *.*~
