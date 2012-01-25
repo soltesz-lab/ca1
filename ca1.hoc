@@ -244,7 +244,7 @@ proc init() { local dtsav, temp, secsav, secondordersav	// Redefine the proc tha
 						//  all mechanisms and point processes inserted in the sections and set the
 						//	initial voltage to v_init for all sections
 
-	t = -500			// Set the start time for (pre) simulation; -500 ms to allow the network to
+	t = -200			// Set the start time for (pre) simulation; -500 ms to allow the network to
 						// reach steady state before t = 0, when the real simulation begins
 						
 	dt= 10				// Set dt to a large value so that the presimulation runs quickly
