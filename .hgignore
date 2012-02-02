@@ -8,7 +8,7 @@ synapses/**
 setupfiles/voltagetrace.hoc
 figures/**
 testy/**
-cells/class_*cell.hoc
+cells/*.hoc
 setupfiles/icell.dat
 setupfiles/iclamp.dat
 setupfiles/imod*
