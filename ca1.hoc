@@ -225,7 +225,7 @@ runstart = startsw()							// grab start time of the simulation
 /***********************************************************************************************
 VI.	INITIALIZE AND RUN NETWORK, OUTPUT RESULT FILES
 ***********************************************************************************************/
-if (PrintVoltage==1) {load_file("./setupfiles/recordvoltage.hoc")}	// If we are going to record some voltages, then set up the recordings
+if (PrintVoltage==1) {load_file("./setupfiles/recordvoltageauto.hoc")}	// If we are going to record some voltages, then set up the recordings
 
 proc init() { local dtsav, temp, secsav, secondordersav	// Redefine the proc that initializes the
 														//  simulation (why?)

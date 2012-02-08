@@ -1,0 +1,60 @@
+objref tracenamelist[1], tracevector, tracepclist, traceidxlist, tracetypelist, f2
+strdef cmdstr
+
+numtraces = 0
+tracevector = new Vector(numCellTypes)
+for i=1,numCellTypes-1 {			// Run the following code for 'real' cell types only - need a different way of singling out real cells?
+	tenpercent = int(cellType[i].numCells/10)+1
+	if (tenpercent>NumTraces) {
+		tenpercent = NumTraces
+	}	
+	tracevector.x[i] = tenpercent		
+	numtraces = numtraces + tenpercent
+}
+
+objref tracenamelist[numtraces]
+tracepclist = new Vector(numtraces)
+traceidxlist = new Vector(numtraces)
+tracetypelist = new Vector(numtraces)
+
+tr = 0
+objref cell
+for i=1,numCellTypes-1 {
+	for k = 0, tracevector.x[i]-1 {
+		tracenamelist[tr] = new String()
+		tracenamelist[tr].s = cellType[i].cellType_string
+		tracepclist.x[tr] = k
+		
+		sprint(cmdstr, "objref %s%g", tracenamelist[tr].s, tracepclist.x[tr])
+		{execute(cmdstr)}
+		
+		tracetypelist.x[tr] = i		
+		traceidxlist.x[tr]=cellType[i].cellStartGid + k
+	
+		if (pc.gid_exists(traceidxlist.x[tr])) {	// If cell exists on this machine
+			sprint(cmdstr, "%s%g = new Vector(%g)", tracenamelist[tr].s, tracepclist.x[tr], (tstop-tstart)/dt)
+			{execute(cmdstr)}
+			cell = pc.gid2cell(traceidxlist.x[tr])
+			sprint(cmdstr, "%s%g.record(&cell.soma.v(0.5))", tracenamelist[tr].s, tracepclist.x[tr])
+			{execute(cmdstr)}
+		}		
+		tr=tr+1
+	}
+}
+
+objref f
+proc voltageout() {local tr, rank, gid, srcid localobj tgt// Write out voltage traces for some cells
+	for tr = 0, numtraces-1 {
+		if (pc.gid_exists(traceidxlist.x[tr])) {	// If cell exists on this machine
+			sprint(outfile, "results/%s/trace_%s%g.dat", RunName, tracenamelist[tr].s, traceidxlist.x[tr])
+			f = new File(outfile)
+			f.wopen()
+			f.printf("t\tv\n")
+			for i=0, (tstop-tstart)/dt-1 {
+				sprint(cmdstr, "f.printf(\"%%g\\t%%g\\n\", i*dt, %s%g.x[i])", tracenamelist[tr].s, tracepclist.x[tr], i)
+				execute(cmdstr)
+			}
+			f.close()
+		}
+	}
+}
