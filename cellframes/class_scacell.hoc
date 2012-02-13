@@ -119,9 +119,9 @@ proc set_nseg() {
 }
 
 proc insert_mechs() {
-	gna_scale = 0.5
+	gna_scale = 1.5 // 0.5
 	kdrf = .00065
-	kscale=10
+	kscale=1
 	forsec all {
 		insert iconc_Ca
 			catau_iconc_Ca = 10
@@ -144,8 +144,6 @@ proc insert_mechs() {
 	insert ch_Nav
 	gmax_ch_Nav=0.10*gna_scale
 	insert ch_Kdrfast
-	gmax_ch_Kdrfast=0.005
-		insert ch_Kdrfast
 	gmax_ch_Kdrfast=kdrf 
 	
 	insert ch_leak

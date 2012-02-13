@@ -315,7 +315,7 @@ proc biophys() {
 		gmax_ch_KCaS = 0.000002		// Ca2+-dependent K (SK) conductance
 		
 		insert ch_KvCaB
-		gmax_ch_KvCaB = 0.0002			// Ca2+ and Voltage-dependent K+ (BK) conductance
+		gmax_ch_KvCaB = 0.0002*.001			// Ca2+ and Voltage-dependent K+ (BK) conductance
 
 		Ra = 100			// 31.3 +/- 10.9
 		ena = 55

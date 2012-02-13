@@ -119,9 +119,9 @@ proc set_nseg() {
 }
 
 proc insert_mechs() {
-	gna_scale = 0.5
+	gna_scale = 1 // 0.5
 	kdrf = .00065
-	kscale=10
+	kscale=1
 	forsec all {
 		insert iconc_Ca
 			catau_iconc_Ca = 10

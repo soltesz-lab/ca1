@@ -119,7 +119,7 @@ proc set_nseg() {
 }
 
 proc insert_mechs() {
-	gna_scale = 0.5
+	gna_scale = .3 // 0.5
 	kdrf = .00065
 	kscale=10
 	forsec all {
@@ -135,7 +135,7 @@ proc insert_mechs() {
 		insert ch_KCaS
 	gmax_ch_KCaS=0.000145*kscale
 		insert ch_KvCaB
-	gmax_ch_KvCaB =0.00001*kscale
+	gmax_ch_KvCaB =0.00001*kscale*.001
 		insert ch_HCN
 	gmax_ch_HCN=0.0015
 	}

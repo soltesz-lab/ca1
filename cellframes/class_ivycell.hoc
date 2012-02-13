@@ -121,7 +121,7 @@ proc set_nseg() {
 
 proc insert_mechs() {
 	gna = 0.15
-	kdrf = 0.0065
+	kdrf = 0.0065*.001
 	forsec all {
 		insert iconc_Ca
 			catau_iconc_Ca = 10
@@ -133,9 +133,9 @@ proc insert_mechs() {
 		insert ch_CavL 
 			gmax_ch_CavL=0.005
 		insert ch_KCaS
-			gskbar_ch_KCaS = 0.000002 // 0.00002
+			gskbar_ch_KCaS = 0.000002/.001 // 0.00002
 		insert ch_KvCaB
-			gkbar_ch_KvCaB = 0.0002 // 0.002
+			gkbar_ch_KvCaB = 0.0002/.001 // 0.002
 	}
 
 	soma {		
