@@ -109,7 +109,7 @@ proc setupburst() {local reli, typei, jgid localobj onstimobj, offstimobj
 	}
 setupburst()
 
-proc addstims() {local reli, typei, jgid localobj cell, onstimobj, offstimobj
+proc addstims() {local onstimref, offstimref, reli, typei, jgid localobj cell, onstimobj, offstimobj
 	// find ppsept index
 	for celltype=0, numCellTypes-1 {
 		if (strcmp(cellType[celltype].cellType_string, "ppsept")==0) {
@@ -117,11 +117,17 @@ proc addstims() {local reli, typei, jgid localobj cell, onstimobj, offstimobj
 		}
 	}
 
+	for pcitr(&reli, &typei, &jgid, cellType[idx].cellStartGid, cellType[idx].cellStartGid+pc.nhost-1) {
+		onstimref = jgid // what are the gids for these things?
+		offstimref = jgid+pc.nhost // what are the gids for these things?
+	}
+
+
 	for pcitr(&reli, &typei, &jgid, cellType[idx].cellStartGid+pc.nhost*2, cellType[idx].cellEndGid) {
 		if (pc.gid_exists(jgid)) {
 			cell = pc.gid2cell(jgid)
-			onstimobj = pc.gid2cell(jgid-pc.nhost*2) // what are the gids for these things?
-			offstimobj = pc.gid2cell(jgid-pc.nhost) // what are the gids for these things?
+			onstimobj = pc.gid2cell(onstimref) // what are the gids for these things?
+			offstimobj = pc.gid2cell(offstimref) // what are the gids for these things?
 			//onstimobj = pc.gid2cell(cellType[idx].cellStartGid+pc.id) // what are the gids for these things?
 			//offstimobj = pc.gid2cell(cellType[idx].cellStartGid+pc.id+pc.nhost) // what are the gids for these things?
 			add_on_off(jgid, onstimobj, offstimobj)
