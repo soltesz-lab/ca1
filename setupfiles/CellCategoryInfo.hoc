@@ -38,12 +38,12 @@ begintemplate CellCategoryInfo			// Define a template that describes
 		ctype = new StringFunctions()	// Create a new StringFunctions object
 										//  for parsing the name of the celltype
 														
-		index = ctype.substr(cellType_string, "stim")	// Now search the celltype
-														//  name for 'stim', which
+		index = ctype.substr(cellType_string, "pp")	// Now search the celltype
+														//  name for 'pp', which
 														//  is used to denote
 														//  artificial cells
 		
-		if (index>-1) {			// If the celltype name contains 'stim',
+		if (index>-1) {			// If the celltype name contains 'pp',
 			is_art=1			//  then the cell type is artificial
 		} else {				//  otherwise the celltype is biological
 			is_art=0

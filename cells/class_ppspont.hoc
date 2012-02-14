@@ -6,7 +6,7 @@ begintemplate ppspont
 	objref pp
 
 	proc init() {
-		actemp() 		
+		actemp() 	
 	}
 		proc actemp() {
 				acell pp = new MyNetStim(.5)
@@ -27,6 +27,7 @@ begintemplate ppspont
 	}
 
 	func is_art() {return 1}
+	
 	proc connect_pre() {acell $o2 = new NetCon(pp, $o1)}
 
 endtemplate ppspont

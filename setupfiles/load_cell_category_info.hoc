@@ -6,7 +6,7 @@ objref celltypestring[1], cellType[1]	// Define placeholder objects with a size 
 double cellnumvar[1], cellLayerflag[1], numCellTypes[1]	// Define placeholder doubles with a size
 														//   of one, then redefine them with the
 														//   correct size in the proc
-
+objref pnmtmp, pctmp, nil
 proc loadCellCategoryInfo() {local i, startpos, tmpct	// Load celltype info into a CellCategoryInfo
 												//  object (one object per cell type)
 	f2 = new File()
@@ -30,6 +30,14 @@ tmpct=0 //## added for now
 		if (cellnumvar[i]<1) {
 			cellnumvar[i]=1
 		}
+		if (strcmp(celltypestring[i].s,"ppsept")==0) {
+			pnmtmp = new ParallelNetManager(1)	// Set up a parallel net manager for all the cells
+			pctmp = pnmtmp.pc
+			cellnumvar[i]=cellnumvar[i] + 2*pctmp.nhost	// Account for 2*processors worth of on/off cells	
+			pnmtmp = nil
+			pctmp = nil
+		}
+		
 		cellLayerflag[i]=f2.scanvar					// Scan the layer flag (hilar=2, granular=1, molecular=0), where hilar cells
 													//	are subject to sclerosis
 		tmpct = tmpct + cellnumvar[i] //## added for now
@@ -45,7 +53,7 @@ tmpct=0 //## added for now
 	cellType[i] = new CellCategoryInfo(i)	// Make one object for each cell type to store cell type info
 	cellType[i].setCellTypeParams(celltypestring[i].s, startpos, cellnumvar[i], cellLayerflag[i])	// Set parameters
 	cellType[i].numCons = new Vector(numCellTypes,0)
-	if (i>0) {cellType[i].setCellTypeDist}	// Load distribution file
+	if (cellType[i].is_art==0) {cellType[i].setCellTypeDist}	// Load distribution file
 	startpos = startpos + cellnumvar[i]		// Increment the startGid for the next cell type's call to setCellTypeParams
 	}
 }

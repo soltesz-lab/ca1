@@ -3,13 +3,15 @@ strdef cmdstr
 
 numtraces = 0
 tracevector = new Vector(numCellTypes)
-for i=1,numCellTypes-1 {			// Run the following code for 'real' cell types only - need a different way of singling out real cells?
-	tenpercent = int(cellType[i].numCells/10)+1
-	if (tenpercent>NumTraces) {
-		tenpercent = NumTraces
-	}	
-	tracevector.x[i] = tenpercent		
-	numtraces = numtraces + tenpercent
+for i=0,numCellTypes-1 {			// Run the following code for 'real' cell types only - need a different way of singling out real cells?
+	if (cellType[i].is_art==0) {
+		tenpercent = int(cellType[i].numCells/10)+1
+		if (tenpercent>NumTraces) {
+			tenpercent = NumTraces
+		}	
+		tracevector.x[i] = tenpercent		
+		numtraces = numtraces + tenpercent
+	}
 }
 
 objref tracenamelist[numtraces]
@@ -19,26 +21,28 @@ tracetypelist = new Vector(numtraces)
 
 tr = 0
 objref cell
-for i=1,numCellTypes-1 {
-	for k = 0, tracevector.x[i]-1 {
-		tracenamelist[tr] = new String()
-		tracenamelist[tr].s = cellType[i].cellType_string
-		tracepclist.x[tr] = k
-		
-		sprint(cmdstr, "objref %s%g", tracenamelist[tr].s, tracepclist.x[tr])
-		{execute(cmdstr)}
-		
-		tracetypelist.x[tr] = i		
-		traceidxlist.x[tr]=cellType[i].cellStartGid + k
-	
-		if (pc.gid_exists(traceidxlist.x[tr])) {	// If cell exists on this machine
-			sprint(cmdstr, "%s%g = new Vector(%g)", tracenamelist[tr].s, tracepclist.x[tr], (tstop-tstart)/dt)
+for i=0,numCellTypes-1 {
+	if (cellType[i].is_art==0) {
+		for k = 0, tracevector.x[i]-1 {
+			tracenamelist[tr] = new String()
+			tracenamelist[tr].s = cellType[i].cellType_string
+			tracepclist.x[tr] = k
+			
+			sprint(cmdstr, "objref %s%g", tracenamelist[tr].s, tracepclist.x[tr])
 			{execute(cmdstr)}
-			cell = pc.gid2cell(traceidxlist.x[tr])
-			sprint(cmdstr, "%s%g.record(&cell.soma.v(0.5))", tracenamelist[tr].s, tracepclist.x[tr])
-			{execute(cmdstr)}
-		}		
-		tr=tr+1
+			
+			tracetypelist.x[tr] = i		
+			traceidxlist.x[tr]=cellType[i].cellStartGid + k
+		
+			if (pc.gid_exists(traceidxlist.x[tr])) {	// If cell exists on this machine
+				sprint(cmdstr, "%s%g = new Vector(%g)", tracenamelist[tr].s, tracepclist.x[tr], (tstop-tstart)/dt)
+				{execute(cmdstr)}
+				cell = pc.gid2cell(traceidxlist.x[tr])
+				sprint(cmdstr, "%s%g.record(&cell.soma.v(0.5))", tracenamelist[tr].s, tracepclist.x[tr])
+				{execute(cmdstr)}
+			}		
+			tr=tr+1
+		}
 	}
 }
 
