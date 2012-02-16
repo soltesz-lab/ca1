@@ -52,3 +52,4 @@ default_var("TemporalResolution",0.1)	// Step time / resolution of simulation
 default_var("RunComments","none") // Run Comments
 default_var("RunName","none") // Run Comments
 default_var("NumTraces",100) // Run Comments
+default_var("FracTraces",50) // Run Comments

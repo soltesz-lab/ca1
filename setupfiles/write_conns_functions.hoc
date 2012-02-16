@@ -62,7 +62,7 @@ proc tracecells() {local i, tr, rank, srcid localobj tgt, f	// Write out the con
 			for i=0, nclist.count -1 {		// For each connection in the list
 				tgt = nclist.o(i).syn			// Get a reference to the target cell
 				srcid = nclist.o(i).srcgid()	// Get the gid of the source cell
-				for tr = 0, numtraces-1 {
+				for tr = 0, numtrace-1 {
 				//printf("tr=%g tracelist.x=%g\n", tr, traceidxlist.x[tr])
 				//printf("tr=%g tracelist.x=%g tgt gid=%g\n", tr, traceidxlist.x[tr], tgt.cid)
 					if (traceidxlist.x[tr]==tgt.cid || traceidxlist.x[tr]==srcid) {	// If this is a cell of interest

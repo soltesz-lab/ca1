@@ -1,23 +1,23 @@
 objref tracenamelist[1], tracevector, tracepclist, traceidxlist, tracetypelist, f2
 strdef cmdstr
 
-numtraces = 0
+numtrace = 0
 tracevector = new Vector(numCellTypes)
 for i=0,numCellTypes-1 {			// Run the following code for 'real' cell types only - need a different way of singling out real cells?
 	if (cellType[i].is_art==0) {
-		tenpercent = int(cellType[i].numCells/10)+1
-		if (tenpercent>NumTraces) {
-			tenpercent = NumTraces
+		numpercent = int(cellType[i].numCells/(100/FracTraces))+1
+		if (numpercent>NumTraces) {
+			numpercent = NumTraces
 		}	
-		tracevector.x[i] = tenpercent		
-		numtraces = numtraces + tenpercent
+		tracevector.x[i] = numpercent		
+		numtrace = numtrace + numpercent
 	}
 }
 
-objref tracenamelist[numtraces]
-tracepclist = new Vector(numtraces)
-traceidxlist = new Vector(numtraces)
-tracetypelist = new Vector(numtraces)
+objref tracenamelist[numtrace]
+tracepclist = new Vector(numtrace)
+traceidxlist = new Vector(numtrace)
+tracetypelist = new Vector(numtrace)
 
 tr = 0
 objref cell
@@ -48,7 +48,7 @@ for i=0,numCellTypes-1 {
 
 objref f
 proc voltageout() {local tr, rank, gid, srcid localobj tgt// Write out voltage traces for some cells
-	for tr = 0, numtraces-1 {
+	for tr = 0, numtrace-1 {
 		if (pc.gid_exists(traceidxlist.x[tr])) {	// If cell exists on this machine
 			sprint(outfile, "results/%s/trace_%s%g.dat", RunName, tracenamelist[tr].s, traceidxlist.x[tr])
 			f = new File(outfile)
