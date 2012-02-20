@@ -143,8 +143,6 @@ proc insert_mechs() {
 	soma {
 	insert ch_Nav
 	gmax_ch_Nav=0.10*gna_scale
-	insert ch_Kdrfast
-	gmax_ch_Kdrfast=0.005
 		insert ch_Kdrfast
 	gmax_ch_Kdrfast=kdrf 
 	
