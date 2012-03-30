@@ -3,7 +3,7 @@ begintemplate scacell
 // public variables
 public  pre_list, connect_pre, append_sections, is_art, is_connected, gid, randi
 public soma, bcdendAP1, bcdendAP2, bcdendBAS1, bcdendBAS2
-public all, adend, bdend, cdend, ddend
+public all, adend, bdend, cdend, ddend, basal_list, apical_list, soma_list, axon_list
 public x, y, z, position
 
 // objects
@@ -57,15 +57,26 @@ proc connect_sections() { local i
 	}
 }
 
+objref basal_list, apical_list, soma_list, axon_list
 proc append_sections() { local i
-	//objref all, adend, bdend, cdend, ddend // we shouldn't have to redefine... right?
+objref all, basal_list, apical_list, soma_list, axon_list
 	// Make a list for every section in the cell
 	all = new SectionList()	
+  basal_list = new SectionList()
+  apical_list = new SectionList()
+  soma_list = new SectionList()
+  axon_list = new SectionList()
+  
 		soma all.append()
-		for i=0, 3 {bcdendAP1 [i] all.append()}
-		for i=0, 3 {bcdendAP2 [i] all.append()}
-		for i=0, 3 {bcdendBAS1 [i] all.append()}
-		for i=0, 3 {bcdendBAS2 [i] all.append()}
+		soma soma_list.append()
+		for i=0, 3 {bcdendAP1 [i] all.append()
+					bcdendAP1 [i] apical_list.append()}
+		for i=0, 3 {bcdendAP2 [i] all.append()
+					bcdendAP2 [i] apical_list.append()}
+		for i=0, 3 {bcdendBAS1 [i] all.append()
+					bcdendBAS1 [i] basal_list.append()}
+		for i=0, 3 {bcdendBAS2 [i] all.append()
+					bcdendBAS2 [i] basal_list.append()}
 
 	// Make lists of dendrite sections that
 	//  are all the same relative distance
@@ -147,7 +158,7 @@ proc insert_mechs() {
 	gmax_ch_Kdrfast=kdrf 
 	
 	insert ch_leak
-	g_ch_leak = 0.00018
+	gmax_ch_leak = 0.00018
 	cm=1.8
 	} 
 
@@ -158,7 +169,7 @@ proc insert_mechs() {
 	gmax_ch_Kdrfast=0.007 //0.013
 	
 	insert ch_leak
-	g_ch_leak = 0.00018
+	gmax_ch_leak = 0.00018
 	cm=1.8
 	}		
 	forsec	bdend {
@@ -168,7 +179,7 @@ proc insert_mechs() {
 	gmax_ch_Kdrfast=kdrf
 	
 	insert ch_leak
-	g_ch_leak = 0.00018
+	gmax_ch_leak = 0.00018
 	cm=1.8}
 		
 	forsec 	cdend {
@@ -178,7 +189,7 @@ proc insert_mechs() {
 	gmax_ch_Kdrfast=0.00
 	
 	insert ch_leak
-	g_ch_leak = 0.00018
+	gmax_ch_leak = 0.00018
 	cm=1.8}
 
 	forsec	ddend {
@@ -188,7 +199,7 @@ proc insert_mechs() {
 	gmax_ch_Kdrfast=0.00
 	
 	insert ch_leak
-	g_ch_leak = 0.00018
+	gmax_ch_leak = 0.00018
 	cm=1.8}
 }
 

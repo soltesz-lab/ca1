@@ -14,7 +14,7 @@ public pre_list, connect_pre
 public soma, radTprox, radTmed, radTdist, lm_thick2, lm_medium2, lm_thin2
 public lm_thick1, lm_medium1, lm_thin1, oriprox1, oridist1, oriprox2, oridist2
 public axon
-public all
+public all, basal_list, apical_list, soma_list, axon_list
 public x, y, z, position
 
 // objects
@@ -67,25 +67,47 @@ proc connect_sections() { local i
   connect axon(0), soma(0)
 }
 
-objref all
+objref all, basal_list, apical_list, soma_list, axon_list
 proc append_sections() { local i
-  objref all
+  objref all, basal_list, apical_list, soma_list, axon_list
   all = new SectionList()
+  basal_list = new SectionList()
+  apical_list = new SectionList()
+  soma_list = new SectionList()
+  axon_list = new SectionList()
     soma all.append()
+    soma soma_list.append()
+    
     radTprox all.append()
+    radTprox apical_list.append()
     radTmed all.append()
+    radTmed apical_list.append()
     radTdist all.append()
+    radTdist apical_list.append()
     lm_thick2 all.append()
+    lm_thick2 apical_list.append()
     lm_medium2 all.append()
+    lm_medium2 apical_list.append()
     lm_thin2 all.append()
+    lm_thin2 apical_list.append()
     lm_thick1 all.append()
+    lm_thick1 apical_list.append()
     lm_medium1 all.append()
+    lm_medium1 apical_list.append()
     lm_thin1 all.append()
+    lm_thin1 apical_list.append()
+    
     oriprox1 all.append()
+    oriprox1 basal_list.append()
     oridist1 all.append()
+    oridist1 basal_list.append()
     oriprox2 all.append()
+    oriprox2 basal_list.append()
     oridist2 all.append()
+    oridist2 basal_list.append()
+    
     axon all.append()
+    axon axon_list.append()
 }
 
 proc size_sections() {
@@ -144,7 +166,7 @@ navsc= 2 // 2 // 1.5
 	gmax_ch_Kdrfast=0 //0.0013  
 	
 	insert ch_leak
-	g_ch_leak = 0.00018
+	gmax_ch_leak = 0.00018
 	cm=1.8
 	} 
   	
@@ -155,7 +177,7 @@ navsc= 2 // 2 // 1.5
 	gmax_ch_Kdrfast=0.007 //0.013
 	
 	insert ch_leak
-	g_ch_leak = 0.00018
+	gmax_ch_leak = 0.00018
 	cm=1.8
 }
 	
@@ -166,7 +188,7 @@ navsc= 2 // 2 // 1.5
 	gmax_ch_Kdrfast=0.00
 	
 	insert ch_leak
-	g_ch_leak = 0.00018
+	gmax_ch_leak = 0.00018
 	cm=1.8	}
   	
   	radTdist {
@@ -176,7 +198,7 @@ navsc= 2 // 2 // 1.5
 	gmax_ch_Kdrfast=0.00
 	
 	insert ch_leak
-	g_ch_leak = 0.00018
+	gmax_ch_leak = 0.00018
 	cm=1.8}
   
   	lm_thick2 {
@@ -186,7 +208,7 @@ navsc= 2 // 2 // 1.5
 	gmax_ch_Kdrfast=0.00
 	
 	insert ch_leak
-	g_ch_leak = 0.00018
+	gmax_ch_leak = 0.00018
 	cm=1.8}
 	  	
   	lm_medium2 {
@@ -196,7 +218,7 @@ navsc= 2 // 2 // 1.5
 	gmax_ch_Kdrfast=0.00
 	
 	insert ch_leak
-	g_ch_leak = 0.00018
+	gmax_ch_leak = 0.00018
 	cm=1.8	}
   
   	lm_thin2 {
@@ -206,7 +228,7 @@ navsc= 2 // 2 // 1.5
 	gmax_ch_Kdrfast=0.00
 	
 	insert ch_leak
-	g_ch_leak = 0.00018
+	gmax_ch_leak = 0.00018
 	cm=1.8 	}
   
   	lm_thick1 {
@@ -216,7 +238,7 @@ navsc= 2 // 2 // 1.5
 	gmax_ch_Kdrfast=0.00
 	
 	insert ch_leak
-	g_ch_leak = 0.00018
+	gmax_ch_leak = 0.00018
 	cm=1.8  	}
   
   	lm_medium1 {
@@ -226,7 +248,7 @@ navsc= 2 // 2 // 1.5
 	gmax_ch_Kdrfast=0.00
 	
 	insert ch_leak
-	g_ch_leak = 0.00018
+	gmax_ch_leak = 0.00018
 	cm=1.8 	}
   
   	lm_thin1 {
@@ -236,7 +258,7 @@ navsc= 2 // 2 // 1.5
 	gmax_ch_Kdrfast=0.00
 	
 	insert ch_leak
-	g_ch_leak = 0.00018
+	gmax_ch_leak = 0.00018
 	cm=1.8  	}
   
   	oriprox1 {
@@ -246,7 +268,7 @@ navsc= 2 // 2 // 1.5
 	gmax_ch_Kdrfast=0.007 //0.013
 	
 	insert ch_leak
-	g_ch_leak = 0.00018
+	gmax_ch_leak = 0.00018
 	cm=1.8
   	}
   
@@ -257,7 +279,7 @@ navsc= 2 // 2 // 1.5
 	gmax_ch_Kdrfast=0.00
 	
 	insert ch_leak
-	g_ch_leak = 0.00018
+	gmax_ch_leak = 0.00018
   	}
 
   	oriprox2 {
@@ -267,7 +289,7 @@ navsc= 2 // 2 // 1.5
 	gmax_ch_Kdrfast=0.007 //0.013
 	
 	insert ch_leak
-	g_ch_leak = 0.00018
+	gmax_ch_leak = 0.00018
 	cm=1.8
   	}
   	
@@ -278,7 +300,7 @@ navsc= 2 // 2 // 1.5
 	gmax_ch_Kdrfast=0.00
 	
 	insert ch_leak
-	g_ch_leak = 0.00018
+	gmax_ch_leak = 0.00018
   	}
  
   	axon {
@@ -288,7 +310,7 @@ navsc= 2 // 2 // 1.5
 	gmax_ch_Kdrfast=0.007 //0.013
 	
 	insert ch_leak
-	g_ch_leak = 0.00018
+	gmax_ch_leak = 0.00018
 	cm=1.8
   	}
 }

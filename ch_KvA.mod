@@ -24,7 +24,7 @@ PARAMETER {
 	v (mV)
         ek (mV)
       celsius (degC) : temperature - set in hoc; default is 6.3
-	gkabar=.01 (mho/cm2)
+	gmax=.01 (mho/cm2)
         vhalfn=-33.6   (mV)
         vhalfl=-83   (mV)
         a0l=0.08      (/ms)
@@ -39,7 +39,7 @@ PARAMETER {
 NEURON {
 	SUFFIX ch_KvA
 	USEION k READ ek WRITE ik
-        RANGE gkabar,gka, ik
+        RANGE gmax,g, ik
         RANGE myi
         GLOBAL ninf,linf,taul,taun : note that these four are not thread safe
     THREADSAFE
@@ -62,14 +62,14 @@ ASSIGNED {
         linf      
         taul
         taun
-        gka
+        g
 	myi (mA/cm2)
 }
 
 BREAKPOINT {
 	SOLVE states METHOD cnexp
-	gka = gkabar*n*l
-	ik = gka*(v-ek)
+	g = gmax*n*l
+	ik = g*(v-ek)
 	myi = ik
 
 }

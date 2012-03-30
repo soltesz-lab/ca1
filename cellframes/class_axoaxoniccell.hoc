@@ -69,27 +69,52 @@ proc basic_shape() {
   	orit2 {pt3dclear() pt3dadd(75, -59, 0, 1) pt3dadd(105, -89, 0, 1)}
 }
 
-objref all
+objref all, basal_list, apical_list, soma_list, axon_list
 proc subsets() { local i
-  	objref all
+  objref all, basal_list, apical_list, soma_list, axon_list
   	all = new SectionList()
+  basal_list = new SectionList()
+  apical_list = new SectionList()
+  soma_list = new SectionList()
+  axon_list = new SectionList()
+
     	soma all.append()
+    soma soma_list.append()
+
     	radT2 all.append()
+    	radT2 apical_list.append()
     	radM2 all.append()
+    	radM2 apical_list.append()
     	radt2 all.append()
+    	radt2 apical_list.append()
     	lmM2 all.append()
+    	lmM2 apical_list.append()
     	lmt2 all.append()
+    	lmt2 apical_list.append()
     	radT1 all.append()
+    	radT1 apical_list.append()
     	radM1 all.append()
+    	radM1 apical_list.append()
     	radt1 all.append()
+    	radt1 apical_list.append()
     	lmM1 all.append()
+    	lmM1 apical_list.append()
     	lmt1 all.append()
+    	lmt1 apical_list.append()
+    	
+    	
     	oriT1 all.append()
+    	oriT1 basal_list.append()
     	oriM1 all.append()
+    	oriM1 basal_list.append()
     	orit1 all.append()
+    	orit1 basal_list.append()
     	oriT2 all.append()
+    	oriT2 basal_list.append()
     	oriM2 all.append()
+    	oriM2 basal_list.append()
     	orit2 all.append()
+    	orit2 basal_list.append()
 
 }
 
@@ -130,7 +155,7 @@ proc biophys() {
 		gmax_ch_Kdrfast = 0.013  		//original 0.015
 		
 		insert ch_leak
-		g_ch_leak = 0.00018
+		gmax_ch_leak = 0.00018
 		cm=1.4
 	} 
 
@@ -140,7 +165,7 @@ proc biophys() {
 		insert ch_Kdrfast
 		gmax_ch_Kdrfast = 0.013
 		insert ch_leak
-		g_ch_leak = 0.00018
+		gmax_ch_leak = 0.00018
 		cm=1.4
 	}		
 
@@ -150,7 +175,7 @@ proc biophys() {
 		insert ch_Kdrfast
 		gmax_ch_Kdrfast = 0.013
 		insert ch_leak
-		g_ch_leak = 0.00018
+		gmax_ch_leak = 0.00018
 		cm=1.4
 	}		
 
@@ -160,7 +185,7 @@ proc biophys() {
 		insert ch_Kdrfast
 		gmax_ch_Kdrfast = 0.013
 		insert ch_leak
-		g_ch_leak = 0.00018
+		gmax_ch_leak = 0.00018
 		cm=1.4
 	}		
 
@@ -170,7 +195,7 @@ proc biophys() {
 		insert ch_Kdrfast
 		gmax_ch_Kdrfast = 0.013
 		insert ch_leak
-		g_ch_leak = 0.00018
+		gmax_ch_leak = 0.00018
 		cm=1.4
 	}		
 	
@@ -180,7 +205,7 @@ proc biophys() {
 		insert ch_Kdrfast
 		gmax_ch_Kdrfast = 0.013
 		insert ch_leak
-		g_ch_leak = 0.00018
+		gmax_ch_leak = 0.00018
 		cm=1.4
 	}		
 
@@ -190,7 +215,7 @@ proc biophys() {
 		insert ch_Kdrfast
 		gmax_ch_Kdrfast = 0.013
 		insert ch_leak
-		g_ch_leak = 0.00018
+		gmax_ch_leak = 0.00018
 		cm=1.4
 	}		
 
@@ -200,7 +225,7 @@ proc biophys() {
 		insert ch_Kdrfast
 		gmax_ch_Kdrfast = 0.013
 		insert ch_leak
-		g_ch_leak = 0.00018
+		gmax_ch_leak = 0.00018
 		cm=1.4
 	}		
 
@@ -210,7 +235,7 @@ proc biophys() {
 		insert ch_Kdrfast
 		gmax_ch_Kdrfast = 0.013
 		insert ch_leak
-		g_ch_leak = 0.00018
+		gmax_ch_leak = 0.00018
 		cm=1.4
 	}		
 
@@ -220,7 +245,7 @@ proc biophys() {
 		insert ch_Kdrfast
 		gmax_ch_Kdrfast = 0.013
 		insert ch_leak
-		g_ch_leak = 0.00018
+		gmax_ch_leak = 0.00018
 		cm=1.4
 	}		
 
@@ -230,7 +255,7 @@ proc biophys() {
 		insert ch_Kdrfast
 		gmax_ch_Kdrfast = 0.013
 		insert ch_leak
-		g_ch_leak = 0.00018
+		gmax_ch_leak = 0.00018
 		cm=1.4
 	}			
 
@@ -240,7 +265,7 @@ proc biophys() {
 		insert ch_Kdrfast
 		gmax_ch_Kdrfast = 0.013
 		insert ch_leak
-		g_ch_leak = 0.00018
+		gmax_ch_leak = 0.00018
 		cm=1.4
 	}		
 
@@ -250,7 +275,7 @@ proc biophys() {
 		insert ch_Kdrfast
 		gmax_ch_Kdrfast = 0.013
 		insert ch_leak
-		g_ch_leak = 0.00018
+		gmax_ch_leak = 0.00018
 		cm=1.4
 	}		
 
@@ -260,7 +285,7 @@ proc biophys() {
 		insert ch_Kdrfast
 		gmax_ch_Kdrfast = 0.013
 		insert ch_leak
-		g_ch_leak = 0.00018
+		gmax_ch_leak = 0.00018
 		cm=1.4
 	}		
 
@@ -270,7 +295,7 @@ proc biophys() {
 		insert ch_Kdrfast
 		gmax_ch_Kdrfast = 0.013
 		insert ch_leak
-		g_ch_leak = 0.00018
+		gmax_ch_leak = 0.00018
 		cm=1.4
 	}		
 	
@@ -280,7 +305,7 @@ proc biophys() {
 		insert ch_Kdrfast
 		gmax_ch_Kdrfast = 0.013		// Delayed K+ rectifier (fast)
 		insert ch_leak
-		g_ch_leak = 0.00018		// Leak conductance
+		gmax_ch_leak = 0.00018		// Leak conductance
 		cm=1.4
 	}		
 
@@ -290,7 +315,7 @@ proc biophys() {
 		insert ch_Kdrfast
 		gmax_ch_Kdrfast = 0.013		// Delayed K+ rectifier (fast)
 		insert ch_leak
-		g_ch_leak = 0.00018		// Leak conductance
+		gmax_ch_leak = 0.00018		// Leak conductance
 		cm=1.4
 	}
 
@@ -303,7 +328,7 @@ proc biophys() {
 						
 		
 		insert ch_KvA
-		gkabar_ch_KvA = 0.00015		// A-type K+ conductance
+		gmax_ch_KvA = 0.00015		// A-type K+ conductance
 		
 		insert ch_CavNZ  			// N-type Ca2+ conductance
 		gmax_ch_CavNZ = 0.0008*1.0  		// check to modify- original 0.004

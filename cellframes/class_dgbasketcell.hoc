@@ -6,7 +6,7 @@ ndend4=4
 
 public  pre_list, connect_pre, subsets, is_art, is_connected
 public soma, bcdend1, bcdend2, bcdend3, bcdend4
-public all, adend, bdend, cdend, ddend
+public all, adend, bdend, cdend, ddend, basal_list, apical_list, soma_list, axon_list
 create soma, bcdend1[ndend1], bcdend2[ndend2], bcdend3[ndend3], bcdend4[ndend4]
 objref syn, pre_list, templist
 public x, y, z, position, gid, randi
@@ -25,14 +25,27 @@ proc init() {
 
 objref all, adend, bdend, cdend, ddend
 
+objref basal_list, apical_list, soma_list, axon_list
 proc subsets() { local i
 	objref all, adend, bdend, cdend, ddend
-	all = new SectionList()
+objref basal_list, apical_list, soma_list, axon_list
+	// Make a list for every section in the cell
+	all = new SectionList()	
+  basal_list = new SectionList()
+  apical_list = new SectionList()
+  soma_list = new SectionList()
+  axon_list = new SectionList()
+  
 		soma all.append()
+		soma soma_list.append()
 		for i=0, 3 bcdend1 [i] all.append()
+		for i=0, 3 bcdend1 [i] apical_list.append()
 		for i=0, 3 bcdend2 [i] all.append()
+		for i=0, 3 bcdend2 [i] apical_list.append()
 		for i=0, 3 bcdend3 [i] all.append()
+		for i=0, 3 bcdend3 [i] basal_list.append()
 		for i=0, 3 bcdend4 [i] all.append()
+		for i=0, 3 bcdend4 [i] basal_list.append()
 
 	adend  = new SectionList()
 		bcdend1 [0] adend.append()
@@ -89,7 +102,7 @@ proc temp() {
 			catau_iconc_Ca = 10
 			caiinf_iconc_Ca = 5.e-6
 		insert ch_KvA
-			gkabar_ch_KvA=0.00015
+			gmax_ch_KvA=0.00015
 		insert ch_CavN
 			gmax_ch_CavN=0.0008   
 		insert ch_CavL 
@@ -106,7 +119,7 @@ proc temp() {
 		insert ch_Kdrfast
 			gmax_ch_Kdrfast=0.013  
 		insert ch_leak
-			g_ch_leak  = 0.00018
+			gmax_ch_leak  = 0.00018
 		cm=1.4
 	} 
 
@@ -116,28 +129,28 @@ proc temp() {
 		insert ch_Kdrfast
 			gmax_ch_Kdrfast=0.013
 		insert ch_leak
-			g_ch_leak  = 0.00018
+			gmax_ch_leak  = 0.00018
 		cm=1.4
 	}	
 		
 	forsec	bdend {
 		insert na_ion
 		insert ch_leak
-			g_ch_leak  = 0.00018
+			gmax_ch_leak  = 0.00018
 		cm=1.4
 	}
 		
 	forsec 	cdend {
 		insert na_ion
 		insert ch_leak
-			g_ch_leak  = 0.00018
+			gmax_ch_leak  = 0.00018
 		cm=1.4
 	}
 
 	forsec	ddend {
 		insert na_ion
 		insert ch_leak
-			g_ch_leak  = 0.00018
+			gmax_ch_leak  = 0.00018
 		cm=1.4
 	}
 

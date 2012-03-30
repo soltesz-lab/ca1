@@ -3,7 +3,7 @@ begintemplate olmcell
 // public variables
 public  pre_list, connect_pre, append_sections, is_art, is_connected, gid, randi
 public soma, dend1, dend2, axon
-public all, pdend, ddend
+public all, pdend, ddend, basal_list, apical_list, soma_list, axon_list
 public x, y, z, position
 
 // objects
@@ -41,14 +41,23 @@ proc connect_sections() { local i
   	connect axon(0), soma(1)
 }
 
-objref all
+objref all, basal_list, apical_list, soma_list, axon_list
 proc append_sections() {
-	objref all
-  	all = new SectionList()
+objref all, basal_list, apical_list, soma_list, axon_list
+	// Make a list for every section in the cell
+	all = new SectionList()	
+  basal_list = new SectionList()
+  apical_list = new SectionList()
+  soma_list = new SectionList()
+  axon_list = new SectionList()
     	soma all.append()
+    	soma soma_list.append()
     	dend1 all.append()
+    	dend1 apical_list.append()
     	dend2 all.append()
+    	dend2 apical_list.append()
     	axon all.append()
+    	axon axon_list.append()
 }
 
 proc size_sections() {
@@ -75,7 +84,7 @@ proc insert_mechs() {
 		insert ch_Navsoma
 			gmax_ch_Navsoma = 0.0107
 		insert ch_leak
-			g_ch_leak = 1/Rm
+			gmax_ch_leak = 1/Rm
 			e_ch_leak = -70  	
 	}
 
@@ -87,7 +96,7 @@ proc insert_mechs() {
 		insert ch_Navdend
 			gmax_ch_Navdend = 2*0.0117
 		insert ch_leak
-			g_ch_leak = 1/Rm
+			gmax_ch_leak = 1/Rm
 			e_ch_leak = -70  	
   	}
 
@@ -99,7 +108,7 @@ proc insert_mechs() {
 		insert ch_Navdend
 			gmax_ch_Navdend = 2*0.0117
 		insert ch_leak
-			g_ch_leak = 1/Rm
+			gmax_ch_leak = 1/Rm
 			e_ch_leak = -70  	
   	}
   
@@ -109,7 +118,7 @@ proc insert_mechs() {
 		insert ch_Navsoma //ch_Navaxon
 			gmax_ch_Navsoma = 0.01712
 		insert ch_leak
-			g_ch_leak = 1/Rm
+			gmax_ch_leak = 1/Rm
 			e_ch_leak = -70  	
   	}
 }

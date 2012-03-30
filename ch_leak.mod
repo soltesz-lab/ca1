@@ -20,13 +20,14 @@ UNITS {
 NEURON { 
 	SUFFIX ch_leak 
 	NONSPECIFIC_CURRENT i
-	RANGE g, e, i
+	RANGE gmax, e, i
 	RANGE myi
     THREADSAFE
 }
  
 PARAMETER {
 	g (mho/cm2)		: conductance of the leak channels    
+	gmax (mho/cm2)		: conductance of the leak channels    
 	e (mV)			: reversal potential of the leak channels
 }
 
@@ -39,6 +40,7 @@ ASSIGNED {	: assigned variables are by default RANGE, but not available to hoc (
 } 
 
 BREAKPOINT {
+	g = gmax
 	i = g*(v-e)	: solve for the current (at each dt)
 	myi = i
 }

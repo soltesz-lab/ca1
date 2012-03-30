@@ -3,7 +3,7 @@ begintemplate ivycell
 // public variables
 public  pre_list, connect_pre, append_sections, is_art, is_connected, gid, randi
 public soma, bcdendAP1, bcdendAP2, bcdendBAS1, bcdendBAS2
-public all, adend, bdend, cdend, ddend
+public all, adend, bdend, cdend, ddend, basal_list, apical_list, soma_list, axon_list
 public x, y, z, position
 
 // objects
@@ -57,15 +57,26 @@ proc connect_sections() { local i
 	}
 }
 
+objref basal_list, apical_list, soma_list, axon_list
 proc append_sections() { local i
-	//objref all, adend, bdend, cdend, ddend // we shouldn't have to redefine... right?
+objref all, basal_list, apical_list, soma_list, axon_list
 	// Make a list for every section in the cell
 	all = new SectionList()	
+  basal_list = new SectionList()
+  apical_list = new SectionList()
+  soma_list = new SectionList()
+  axon_list = new SectionList()
+  
 		soma all.append()
-		for i=0, 3 {bcdendAP1 [i] all.append()}
-		for i=0, 3 {bcdendAP2 [i] all.append()}
-		for i=0, 3 {bcdendBAS1 [i] all.append()}
-		for i=0, 3 {bcdendBAS2 [i] all.append()}
+		soma soma_list.append()
+		for i=0, 3 {bcdendAP1 [i] all.append()
+					bcdendAP1 [i] apical_list.append()}
+		for i=0, 3 {bcdendAP2 [i] all.append()
+					bcdendAP2 [i] apical_list.append()}
+		for i=0, 3 {bcdendBAS1 [i] all.append()
+					bcdendBAS1 [i] basal_list.append()}
+		for i=0, 3 {bcdendBAS2 [i] all.append()
+					bcdendBAS2 [i] basal_list.append()}
 
 	// Make lists of dendrite sections that
 	//  are all the same relative distance
@@ -127,7 +138,7 @@ proc insert_mechs() {
 			catau_iconc_Ca = 10
 			caiinf_iconc_Ca = 5.e-6
 		insert ch_KvA
-			gkabar_ch_KvA=0.00015
+			gmax_ch_KvA=0.00015
 		insert ch_CavN
 			gmax_ch_CavN=0.0008   
 		insert ch_CavL 
@@ -143,7 +154,7 @@ proc insert_mechs() {
 			gmax_ch_Nav = gna // 0.012*20  
 			ena = 55 // newly added
 		insert ch_leak
-			g_ch_leak = 0.00018
+			gmax_ch_leak = 0.00018
 		insert ch_Kdrfast
 			gkfbar_ch_Kdrfast=kdrf  
 	} 
@@ -153,7 +164,7 @@ proc insert_mechs() {
 			gmax_Nav= gna // 0.012  *20
 			ena = 55 
 		insert ch_leak
-			g_ch_leak = 0.00018
+			gmax_ch_leak = 0.00018
 		insert ch_Kdrfast
 			gmax_ch_Kdrfast=kdrf
 	}		
@@ -161,7 +172,7 @@ proc insert_mechs() {
 		insert ch_Nav
 			gmax_Nav=gna  // *20
 		insert ch_leak
-			g_ch_leak = 0.00018
+			gmax_ch_leak = 0.00018
 		insert ch_Kdrfast
 			gmax_ch_Kdrfast=kdrf
 	}
@@ -170,7 +181,7 @@ proc insert_mechs() {
 		insert ch_Nav
 			gmax_Nav=gna //  *20
 		insert ch_leak
-			g_ch_leak = 0.00018
+			gmax_ch_leak = 0.00018
 		insert ch_Kdrfast
 			gmax_ch_Kdrfast=kdrf
 	}
@@ -179,7 +190,7 @@ proc insert_mechs() {
 		insert ch_Nav
 			gmax_Nav=gna //  *20
 		insert ch_leak
-			g_ch_leak = 0.00018
+			gmax_ch_leak = 0.00018
 		insert ch_Kdrfast
 			gmax_ch_Kdrfast=kdrf
 	}
