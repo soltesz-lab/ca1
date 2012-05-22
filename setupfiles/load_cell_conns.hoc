@@ -6,6 +6,7 @@ proc conn_cells() {
 		sprint(cmdstr, "%s_idx = %g", cellType[i].cellType_string, i)
 		{execute1(cmdstr)}
 		cellType[i].numConns = new Vector(numCellTypes)
+		cellType[i].numSyns = new Vector(numCellTypes)
 		cellType[i].wgtConns = new Vector(numCellTypes)
 	}
 
@@ -19,11 +20,15 @@ proc conn_cells() {
 		f2.scanstr(post_type)
 		wgt = f2.scanvar
 		num = f2.scanvar
+		syn = f2.scanvar
 
 		sprint(cmdstr, "%s_idx", pre_type)
 		sprint(cmdstr1, "%s_idx", post_type)
 		if ((name_declared(cmdstr) > 0) && (name_declared(cmdstr1) > 0)) {
 			sprint(cmdstr, "cellType[%s_idx].numConns.x[%s_idx] = %g", pre_type, post_type, num)
+			{execute1(cmdstr)}
+			
+			sprint(cmdstr, "cellType[%s_idx].numSyns.x[%s_idx] = %g", pre_type, post_type, syn)
 			{execute1(cmdstr)}
 			
 			sprint(cmdstr, "cellType[%s_idx].wgtConns.x[%s_idx] = %g", pre_type, post_type, wgt)

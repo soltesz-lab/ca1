@@ -53,7 +53,8 @@ tmpct=0 //## added for now
 	cellType[i] = new CellCategoryInfo(i)	// Make one object for each cell type to store cell type info
 	cellType[i].setCellTypeParams(celltypestring[i].s, startpos, cellnumvar[i], cellLayerflag[i])	// Set parameters
 	cellType[i].numCons = new Vector(numCellTypes,0)
-	if (cellType[i].is_art==0) {cellType[i].setCellTypeDist}	// Load distribution file
+	//if (cellType[i].is_art==0) {cellType[i].setCellTypeDist}	// Load distribution file
+	cellType[i].setCellTypeDist	// Load distribution file
 	startpos = startpos + cellnumvar[i]		// Increment the startGid for the next cell type's call to setCellTypeParams
 	}
 }

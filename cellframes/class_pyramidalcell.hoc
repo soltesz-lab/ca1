@@ -14,8 +14,12 @@ public pre_list, connect_pre
 public soma, radTprox, radTmed, radTdist, lm_thick2, lm_medium2, lm_thin2
 public lm_thick1, lm_medium1, lm_thin1, oriprox1, oridist1, oriprox2, oridist2
 public axon
-public all, basal_list, apical_list, soma_list, axon_list
+public all, basal_list, apical_list, soma_list, axon_list, rad_list, lm_list
 public x, y, z, position
+
+public pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_list
+public ivycell_list, ngfcell_list, olmcell_list, pvbasketcell_list, scacell_list
+public eccell_list, ca3cell_list, mscell_list
 
 // objects
 objref pre_list, templist
@@ -67,35 +71,66 @@ proc connect_sections() { local i
   connect axon(0), soma(0)
 }
 
-objref all, basal_list, apical_list, soma_list, axon_list
+objref all, basal_list, apical_list, soma_list, axon_list, rad_list, lm_list
+objref pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_list
+objref ivycell_list, ngfcell_list, olmcell_list, pvbasketcell_list, scacell_list
+objref eccell_list, ca3cell_list, mscell_list
 proc append_sections() { local i
-  objref all, basal_list, apical_list, soma_list, axon_list
+	objref all, basal_list, apical_list, soma_list, axon_list, rad_list, lm_list
+	objref pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_list
+	objref ivycell_list, ngfcell_list, olmcell_list, pvbasketcell_list, scacell_list
+	objref eccell_list, ca3cell_list, mscell_list
   all = new SectionList()
   basal_list = new SectionList()
   apical_list = new SectionList()
   soma_list = new SectionList()
   axon_list = new SectionList()
+	rad_list = new SectionList()
+	lm_list = new SectionList()
+
+	pyramidalcell_list = new SectionList()
+	axoaxoniccell_list = new SectionList()
+	bistratifiedcell_list = new SectionList()
+	cckcell_list = new SectionList()
+	ivycell_list = new SectionList()
+	ngfcell_list = new SectionList()
+	olmcell_list = new SectionList()
+	pvbasketcell_list = new SectionList()
+	scacell_list = new SectionList()
+	eccell_list = new SectionList()
+	ca3cell_list = new SectionList()
+	mscell_list = new SectionList()
+
     soma all.append()
     soma soma_list.append()
     
     radTprox all.append()
     radTprox apical_list.append()
+    radTprox rad_list.append()
     radTmed all.append()
     radTmed apical_list.append()
+    radTmed rad_list.append()
     radTdist all.append()
     radTdist apical_list.append()
+    radTdist rad_list.append()
     lm_thick2 all.append()
     lm_thick2 apical_list.append()
+    lm_thick2 lm_list.append()
     lm_medium2 all.append()
     lm_medium2 apical_list.append()
+    lm_medium2 lm_list.append()
     lm_thin2 all.append()
     lm_thin2 apical_list.append()
+    lm_thin2 lm_list.append()
     lm_thick1 all.append()
     lm_thick1 apical_list.append()
+    lm_thick1 lm_list.append()
     lm_medium1 all.append()
     lm_medium1 apical_list.append()
+    lm_medium1 lm_list.append()
     lm_thin1 all.append()
     lm_thin1 apical_list.append()
+    lm_thin1 lm_list.append()
     
     oriprox1 all.append()
     oriprox1 basal_list.append()
@@ -108,6 +143,23 @@ proc append_sections() { local i
     
     axon all.append()
     axon axon_list.append()
+
+// precell lists
+	forsec basal_list {pyramidalcell_list.append()}
+	forsec axon_list {axoaxoniccell_list.append()}
+	forsec basal_list {bistratifiedcell_list.append()}
+	forsec rad_list {bistratifiedcell_list.append()}
+	forsec soma_list {cckcell_list.append()}
+	forsec basal_list {ivycell_list.append()}
+	forsec rad_list {ivycell_list.append()}
+	forsec lm_list {ngfcell_list.append()}
+	forsec lm_list {olmcell_list.append()}
+	forsec soma_list {pvbasketcell_list.append()}
+	forsec basal_list {scacell_list.append()}
+	forsec rad_list {scacell_list.append()}
+	forsec lm_list {eccell_list.append()}
+	forsec rad_list {ca3cell_list.append()}
+	forsec rad_list {mscell_list.append()}
 }
 
 proc size_sections() {
@@ -343,7 +395,6 @@ proc position(){ local i
 
 objref syn
 proc define_synapses() {
-
 
 }
 endtemplate pyramidalcell

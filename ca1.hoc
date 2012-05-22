@@ -99,10 +99,12 @@ calcNetSize()
 
 proc calcBinSize(){local NumGCells
 
-	for i=1, numCellTypes-1 {		// Using the specified dimensions of the network (in um) and
+	for i=0, numCellTypes-1 {		// Using the specified dimensions of the network (in um) and
 									//  the total number of cells of each type, set the number
 									//  of bins in X, Y, Z dimensions such that the cells will be
 									//  evenly distributed throughout the allotted volume
+									// just changed this so even the stim cells will be allotted, as now we have some
+									// stimulation protocols that incorporate stim cell position
 	
 		cellType[i].setBins(LongitudinalLength,TransverseLength,LayerVector.x[cellType[i].layerflag])  
 									// For the z length, use the height of the layer in which the
@@ -164,10 +166,11 @@ createstart = startsw()					// Record the start time of the cell creation
 /***********************************************************************************************
 IV. CREATE, UNIQUELY ID, AND POSITION CELLS
 ***********************************************************************************************/
-objref cells, ranconlist, ransynlist
+objref cells, ransynlist, ranNSlist, ranPPlist
 cells = new List()						
-ranconlist = new List()
 ransynlist = new List()
+ranNSlist = new List()
+ranPPlist = new List()
 
 {load_file("./setupfiles/position_functions.hoc")}	// Defines the algorithm used to set the
 													//  positions of the cells

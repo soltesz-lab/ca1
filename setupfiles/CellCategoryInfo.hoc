@@ -7,11 +7,11 @@ begintemplate CellCategoryInfo			// Define a template that describes
 	public setCellTypeParams, setCellTypeDist			// Define variables and funcs that are
 	public cellType_string, cellStartGid, cellEndGid	//  accessible from outside the class
 	public updateGidRange, addPosVec, layerflag			//  object
-	public dist, numCells, CellList, addCell, numCons, numConns, wgtConns, numThisHost
+	public dist, numCells, CellList, addCell, numCons, numConns, numSyns, wgtConns, numThisHost
 	public setBins, dentateYBins, dentateXBins, dentateZBins
 	public dentateYBinSize, dentateXBinSize, dentateZBinSize, is_art
 
-	objref dist, cellpos, f1, CellList, numCons, numConns, wgtConns, ctype, this	// Define objects, including
+	objref dist, cellpos, f1, CellList, numCons, numConns, numSyns, wgtConns, ctype, this	// Define objects, including
 																//  'this', which is this
 																//  instance of the class
 																

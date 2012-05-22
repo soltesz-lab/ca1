@@ -6,6 +6,10 @@ public soma, bcdendAP1, bcdendAP2, bcdendBAS1, bcdendBAS2
 public all, adend, bdend, cdend, ddend, basal_list, apical_list, soma_list, axon_list
 public x, y, z, position
 
+public pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_list
+public ivycell_list, ngfcell_list, olmcell_list, pvbasketcell_list, scacell_list
+public eccell_list, ca3cell_list, mscell_list
+
 // objects
 objref syn, pre_list, templist
 
@@ -58,8 +62,28 @@ proc connect_sections() { local i
 }
 
 objref basal_list, apical_list, soma_list, axon_list
+objref pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_list
+objref ivycell_list, ngfcell_list, olmcell_list, pvbasketcell_list, scacell_list
+objref eccell_list, ca3cell_list, mscell_list
+
 proc append_sections() { local i
 objref all, basal_list, apical_list, soma_list, axon_list
+objref pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_list
+objref ivycell_list, ngfcell_list, olmcell_list, pvbasketcell_list, scacell_list
+objref eccell_list, ca3cell_list, mscell_list
+
+	pyramidalcell_list = new SectionList()
+	axoaxoniccell_list = new SectionList()
+	bistratifiedcell_list = new SectionList()
+	cckcell_list = new SectionList()
+	ivycell_list = new SectionList()
+	ngfcell_list = new SectionList()
+	olmcell_list = new SectionList()
+	pvbasketcell_list = new SectionList()
+	scacell_list = new SectionList()
+	eccell_list = new SectionList()
+	ca3cell_list = new SectionList()
+	mscell_list = new SectionList()
 	// Make a list for every section in the cell
 	all = new SectionList()	
   basal_list = new SectionList()
@@ -107,6 +131,63 @@ objref all, basal_list, apical_list, soma_list, axon_list
 		bcdendAP2 [3] ddend.append()
 		bcdendBAS1 [3] ddend.append()
 		bcdendBAS2 [3] ddend.append()
+
+// cell lists
+		for i=0, 1 {
+			bcdendAP1 [i] scacell_list.append()
+			bcdendAP2 [i] scacell_list.append()
+		}
+		for i=0, 3 {
+			bcdendBAS1 [i] scacell_list.append()
+			bcdendBAS2 [i] scacell_list.append()
+		}
+
+		for i=0, 3 {
+			bcdendBAS1 [i] pyramidalcell_list.append()
+			bcdendBAS2 [i] pyramidalcell_list.append()
+		}
+
+		for i=2, 3 {
+			bcdendAP1 [i] eccell_list.append()
+			bcdendAP2 [i] eccell_list.append()
+		}
+
+		for i=0, 1 {
+			bcdendAP1 [i] ca3cell_list.append()
+			bcdendAP2 [i] ca3cell_list.append()
+		}
+		
+		forsec soma_list {pvbasketcell_list.append()}
+		
+		forsec soma_list {cckcell_list.append()}
+
+		for i=2, 3 {
+			bcdendAP1 [i] ngfcell_list.append()
+			bcdendAP2 [i] ngfcell_list.append()
+		}
+
+		for i=0, 3 {
+			bcdendBAS1 [i] olmcell_list.append()
+			bcdendBAS2 [i] olmcell_list.append()
+		}
+
+		for i=0, 1 {
+			bcdendAP1 [i] ivycell_list.append()
+			bcdendAP2 [i] ivycell_list.append()
+		}
+		for i=0, 3 {
+			bcdendBAS1 [i] ivycell_list.append()
+			bcdendBAS2 [i] ivycell_list.append()
+		}
+
+		for i=0, 1 {
+			bcdendAP1 [i] bistratifiedcell_list.append()
+			bcdendAP2 [i] bistratifiedcell_list.append()
+		}
+		for i=0, 3 {
+			bcdendBAS1 [i] bistratifiedcell_list.append()
+			bcdendBAS2 [i] bistratifiedcell_list.append()
+		}
 }
 
 proc size_sections() { local i
@@ -235,7 +316,6 @@ proc position(){ local i
 
 objref syn  
 proc define_synapses() {
-
 
 }
 endtemplate ivycell
