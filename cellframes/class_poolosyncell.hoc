@@ -571,7 +571,6 @@ proc insert_mechs() {
 	CmAx  = Cm
 	CmDend = Cm*2
 
-	print "celsius: ", celsius
 	//celsius = 34.0  
 
 	RaAll= 150 

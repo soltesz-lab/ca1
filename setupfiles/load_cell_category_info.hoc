@@ -26,7 +26,8 @@ tmpct=0 //## added for now
 		celltypestring[i]= new String()
 		f2.scanstr(celltypestring[i].s)				// Scan in the cell name
 		cellnumvar[i]=f2.scanvar					// Scan in the initial (before sclerosis) number of each cell type
-		cellnumvar[i]=int(cellnumvar[i]/Scale)	// Account for the scaled model size
+				
+		cellnumvar[i]=int(cellnumvar[i]/Scale + .5)	// Account for the scaled model size
 		if (cellnumvar[i]<1) {
 			cellnumvar[i]=1
 		}
@@ -44,9 +45,9 @@ tmpct=0 //## added for now
 	}
 	f2.close()
 
-	if (cellnumvar[0] < (tmpct - cellnumvar[0] + 4*2)) {
-		cellnumvar[0] = tmpct - cellnumvar[0] + 4*2 //## added for now
-	}
+	//if (cellnumvar[0] < (tmpct - cellnumvar[0] + 4*2)) { // this is only needed if you want one art cell per real cell, so they are each independently stim by one cell
+	//	cellnumvar[0] = tmpct - cellnumvar[0] + 4*2 //## added for now
+	//}
 
 	startpos=0
 	for i=0, numCellTypes-1 {

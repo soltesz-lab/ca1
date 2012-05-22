@@ -38,8 +38,8 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 		 counter=0
 		synWeight = cellType[$1].wgtConns.x[$2]
 		numSyns = cellType[$1].numSyns.x[$2]
-		numConns = cellType[$1].numConns.x[$2]
-		numConns = int(numConns/(Scale)) // higher connectivity in smaller scale models
+		numConns = cellType[$1].numConns.x[$2]				
+		numConns = int(numConns/(Scale) + .5) // higher connectivity in smaller scale models
 		//getSynapseData($s3, $s4)	// Given the pre and post cell types, look up the weight, delay,
 									//	and probability of connection between these two types
 
