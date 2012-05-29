@@ -211,15 +211,15 @@ proc set_nseg() {
 }
 
 proc insert_mechs() {
-	gna_scale = 1 // 0.5
-	kdrf = .00065
-	kscale=1
+	gna_scale = 9 // 0.5
+	kdrf = .013
+	kscale=.25
 	forsec all {
 		insert iconc_Ca
 			catau_iconc_Ca = 10
 			caiinf_iconc_Ca = 5.e-6
 		insert ch_KvA
-	gmax_ch_KvA=0.00005
+	gmax_ch_KvA=0.00005*100
 		insert ch_CavN  // HAV-N- Ca channel
 	gmax_ch_CavN=0.0008   
 		insert ch_CavL 
@@ -228,13 +228,12 @@ proc insert_mechs() {
 	gmax_ch_KCaS=0.000145*kscale
 		insert ch_KvCaB
 	gmax_ch_KvCaB =0.00001*kscale
-		insert ch_HCN
-	gmax_ch_HCN=0.0015
 	}
 
 	soma {
-	insert ch_Nav
-	gmax_ch_Nav=0.10*gna_scale
+	insert ch_Navngf
+	gmax_ch_Navngf=0.10*gna_scale
+	ena = 55 
 		insert ch_Kdrfast
 	gmax_ch_Kdrfast=kdrf 
 	
@@ -244,8 +243,9 @@ proc insert_mechs() {
 	} 
 
 	forsec adend {
-	insert ch_Nav
-	gmax_ch_Nav=0.08*gna_scale
+	insert ch_Navngf
+	gmax_ch_Navngf=0.08*gna_scale
+	ena = 55 
 		insert ch_Kdrfast
 	gmax_ch_Kdrfast=0.007 //0.013
 	
@@ -254,9 +254,10 @@ proc insert_mechs() {
 	cm=1.8
 	}		
 	forsec	bdend {
-	insert ch_Nav
-	gmax_ch_Nav=0.08*gna_scale
-		insert ch_Kdrfast
+	insert ch_Navngf
+	gmax_ch_Navngf=0.08*gna_scale
+	ena = 55 
+	insert ch_Kdrfast
 	gmax_ch_Kdrfast=kdrf
 	
 	insert ch_leak
@@ -264,21 +265,11 @@ proc insert_mechs() {
 	cm=1.8}
 		
 	forsec 	cdend {
-	insert ch_Nav
-	gmax_ch_Nav=0.0
-		insert ch_Kdrfast
-	gmax_ch_Kdrfast=0.00
-	
 	insert ch_leak
 	gmax_ch_leak = 0.00018
 	cm=1.8}
 
 	forsec	ddend {
-		insert ch_Nav
-	gmax_ch_Nav=0.0
-		insert ch_Kdrfast
-	gmax_ch_Kdrfast=0.00
-	
 	insert ch_leak
 	gmax_ch_leak = 0.00018
 	cm=1.8}
@@ -287,8 +278,8 @@ proc insert_mechs() {
 proc set_biophys() {
 
 	forsec all {Ra=75}
-	forsec all {ena = 55 ek=-90  elca=130
-		 e_ch_leak =-60.06 	eh=-40
+	forsec all {ek=-90  elca=130
+		 e_ch_leak =-60.06
 	cao_iconc_Ca=2 
 		//cao_ccanl=2 
 		}  // make catau slower70e-3 	cao=2 cai=50.e-6 

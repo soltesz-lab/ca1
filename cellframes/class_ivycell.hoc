@@ -212,88 +212,77 @@ proc set_nseg() {
 }
 
 proc insert_mechs() {
-	gna = 0.15
-	kdrf = 0.0065*.001
+	gna_scale = 9 // 0.5
+	kdrf = .013
+	kscale=.25
 	forsec all {
 		insert iconc_Ca
 			catau_iconc_Ca = 10
 			caiinf_iconc_Ca = 5.e-6
 		insert ch_KvA
-			gmax_ch_KvA=0.00015
-		insert ch_CavN
-			gmax_ch_CavN=0.0008   
+	gmax_ch_KvA=0.00005*100
+		insert ch_CavN  // HAV-N- Ca channel
+	gmax_ch_CavN=0.0008   
 		insert ch_CavL 
-			gmax_ch_CavL=0.005
+	gmax_ch_CavL=0.005
 		insert ch_KCaS
-			gskbar_ch_KCaS = 0.000002/.001 // 0.00002
+	gmax_ch_KCaS=0.000145*kscale
 		insert ch_KvCaB
-			gkbar_ch_KvCaB = 0.0002/.001 // 0.002
+	gmax_ch_KvCaB =0.00001*kscale
 	}
 
-	soma {		
-		insert ch_Nav
-			gmax_ch_Nav = gna // 0.012*20  
-			ena = 55 // newly added
-		insert ch_leak
-			gmax_ch_leak = 0.00018
+	soma {
+	insert ch_Navngf
+	gmax_ch_Navngf=0.10*gna_scale
+	ena = 55 
 		insert ch_Kdrfast
-			gkfbar_ch_Kdrfast=kdrf  
+	gmax_ch_Kdrfast=kdrf 
+	
+	insert ch_leak
+	gmax_ch_leak = 0.00018
+	cm=1.8
 	} 
 
 	forsec adend {
-		insert ch_Nav
-			gmax_Nav= gna // 0.012  *20
-			ena = 55 
-		insert ch_leak
-			gmax_ch_leak = 0.00018
+	insert ch_Navngf
+	gmax_ch_Navngf=0.08*gna_scale
+	ena = 55 
 		insert ch_Kdrfast
-			gmax_ch_Kdrfast=kdrf
+	gmax_ch_Kdrfast=0.007 //0.013
+	
+	insert ch_leak
+	gmax_ch_leak = 0.00018
+	cm=1.8
 	}		
 	forsec	bdend {
-		insert ch_Nav
-			gmax_Nav=gna  // *20
-		insert ch_leak
-			gmax_ch_leak = 0.00018
-		insert ch_Kdrfast
-			gmax_ch_Kdrfast=kdrf
-	}
+	insert ch_Navngf
+	gmax_ch_Navngf=0.08*gna_scale
+	ena = 55 
+	insert ch_Kdrfast
+	gmax_ch_Kdrfast=kdrf
+	
+	insert ch_leak
+	gmax_ch_leak = 0.00018
+	cm=1.8}
 		
 	forsec 	cdend {
-		insert ch_Nav
-			gmax_Nav=gna //  *20
-		insert ch_leak
-			gmax_ch_leak = 0.00018
-		insert ch_Kdrfast
-			gmax_ch_Kdrfast=kdrf
-	}
+	insert ch_leak
+	gmax_ch_leak = 0.00018
+	cm=1.8}
 
 	forsec	ddend {
-		insert ch_Nav
-			gmax_Nav=gna //  *20
-		insert ch_leak
-			gmax_ch_leak = 0.00018
-		insert ch_Kdrfast
-			gmax_ch_Kdrfast=kdrf
-	}
+	insert ch_leak
+	gmax_ch_leak = 0.00018
+	cm=1.8}
 }
 
 proc set_biophys() {
-	forsec all {
-		Ra=100		// Ra = Axial resistivity in ohm-cm. Ra is a
-					//  section variable that must be set for each
-					//  section. Default is 35.4.
-	
-		cm=1.4		// capacitance in uF/cm^2. default = 1.0
-	
-		//ena = 55 
-		ek=-90  
-		//ekca=-90		// ek = reversal potential in mV. Associated with 
-		//ekfa=-90		// ek = reversal potential in mV. Associated with 
-		//ekls=-90		// ek = reversal potential in mV. Associated with 
-		elca=130	
-		e_ch_leak =-60
 
-		cao_iconc_Ca=2
+	forsec all {Ra=75}
+	forsec all {ek=-90  elca=130
+		 e_ch_leak =-60.06
+	cao_iconc_Ca=2 
+		//cao_ccanl=2 
 		}  // make catau slower70e-3 	cao=2 cai=50.e-6 
 }
 
