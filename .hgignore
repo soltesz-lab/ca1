@@ -3,6 +3,7 @@ x86_64/**
 jobscripts/**
 tools/**
 results/**
+PerCellResults/**
 connections/**
 synapses/**
 setupfiles/voltagetrace.hoc
@@ -16,4 +17,5 @@ setupfiles/mechclamp.dat
 setupfiles/pairclamp.dat
 setupfiles/pairtypes.txt
 stimulation/stimvecs/*
+stimulation/sintrainparams.hoc
 *.*~

@@ -25,6 +25,10 @@ proc typeout() {local i, rn, rank, gid, srcid localobj tgt, f, cell// Write out 
 		sprint(dircmd, "cp ../setupfiles/lowindex.hoc ../results/%s", RunName)
 		{system(dircmd, direx)}
 
+		sprint(dircmd, "cp ../stimulation/sintrainparams.hoc ../results/%s", RunName)
+		{system(dircmd, direx)}
+
+
 		sprint(dircmd, "hg status")
 		{system(dircmd, direx)}
 		if (strcmp(direx,"")>0) {
