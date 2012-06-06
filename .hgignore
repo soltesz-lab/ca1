@@ -1,4 +1,5 @@
 syntax: glob
+.hgignore
 x86_64/**
 jobscripts/**
 tools/**
@@ -18,4 +19,5 @@ setupfiles/pairclamp.dat
 setupfiles/pairtypes.txt
 stimulation/stimvecs/*
 stimulation/sintrainparams.hoc
+parameterspace/*
 *.*~
