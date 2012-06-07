@@ -339,6 +339,8 @@ proc append_sections() { local i
 	forsec lm_list {eccell_list.append()}
 	forsec rad_list {ca3cell_list.append()}
 	forsec rad_list {mscell_list.append()}
+	forsec basal_list {eccell_list.append()}
+	forsec basal_list {ca3cell_list.append()}
 }
 
 proc size_sections1() {
