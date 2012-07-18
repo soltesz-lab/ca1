@@ -46,7 +46,7 @@ proc loadCellTemplates(){local i		// Proc to load the template that defines (eac
 
 	for i=0, numCellTypes-1 {			// Iterate over each cell type in cells2include (and art cells?)
 	
-		sprint(tempFileStr,"./cells/class_%s.hoc",cellType[i].cellType_string)	// Concatenate the
+		sprint(tempFileStr,"./cells/class_%s.hoc",cellType[i].technicalType)	// Concatenate the
 																				//  path and file
 																				
 		load_file(tempFileStr)			// Load the file with the template that defines the class

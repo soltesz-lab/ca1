@@ -37,6 +37,7 @@ default_var("DegreeStim",10)		// Intensity of stimulation; slightly different me
 									//  alternately, if spontaneous stimulation is used, what should the maximal rate be?
 default_var("Onint",125)		// Interval of stimulation
 default_var("Offint",0)		// Interval of no stimulation
+default_var("RipStim",200)		// Ripple frequency from CA3 cells 
 
 // Sprouting and cell death
 default_var("PercentAxonSprouting",0)	// Set % of mossy fiber (granule cell) sprouting

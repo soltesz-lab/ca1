@@ -1,9 +1,9 @@
 objref f2								// Define object reference for the cells2include file
 
-objref celltypestring[1], cellType[1]	// Define placeholder objects with a size of one, then
+objref celltypestring[1], techstring[1], cellType[1]	// Define placeholder objects with a size of one, then
 										//  redefine them with the correct size in the proc
 
-double cellnumvar[1], cellLayerflag[1], numCellTypes[1]	// Define placeholder doubles with a size
+double cellnumvar[1], cellLayerflag[1], cellArtflag[1], numCellTypes[1]	// Define placeholder doubles with a size
 														//   of one, then redefine them with the
 														//   correct size in the proc
 objref pnmtmp, pctmp, nil
@@ -16,22 +16,24 @@ proc loadCellCategoryInfo() {local i, startpos, tmpct	// Load celltype info into
 										// # cell types, including stimulating (artificial) cells (still?)
 
 	// Define variables to temporarily hold data scanned from file
-	objref celltypestring[numCellTypes], cellType[numCellTypes]
-	double cellnumvar[numCellTypes], cellLayerflag[numCellTypes]
+	objref celltypestring[numCellTypes], techstring[numCellTypes], cellType[numCellTypes]
+	double cellnumvar[numCellTypes], cellLayerflag[numCellTypes], cellArtflag[numCellTypes]
 
 // LEFT OFF HERE WITH FIXING THE DOCUMENTATION!!!
 
 tmpct=0 //## added for now
 	for i=0, numCellTypes-1 {
 		celltypestring[i]= new String()
+		techstring[i] = new String()
 		f2.scanstr(celltypestring[i].s)				// Scan in the cell name
+		f2.scanstr(techstring[i].s)
 		cellnumvar[i]=f2.scanvar					// Scan in the initial (before sclerosis) number of each cell type
 				
 		cellnumvar[i]=int(cellnumvar[i]/Scale + .5)	// Account for the scaled model size
 		if (cellnumvar[i]<1) {
 			cellnumvar[i]=1
 		}
-		if (strcmp(celltypestring[i].s,"ppsept")==0) {
+		if (strcmp(techstring[i].s,"ppsept")==0 || strcmp(techstring[i].s,"ppspont")==0) {
 			pnmtmp = new ParallelNetManager(1)	// Set up a parallel net manager for all the cells
 			pctmp = pnmtmp.pc
 			cellnumvar[i]=cellnumvar[i] + 2*pctmp.nhost	// Account for 2*processors worth of on/off cells	
@@ -41,6 +43,9 @@ tmpct=0 //## added for now
 		
 		cellLayerflag[i]=f2.scanvar					// Scan the layer flag (hilar=2, granular=1, molecular=0), where hilar cells
 													//	are subject to sclerosis
+		
+		cellArtflag[i]=f2.scanvar					// Scan the layer flag (hilar=2, granular=1, molecular=0), where hilar cells
+
 		tmpct = tmpct + cellnumvar[i] //## added for now
 	}
 	f2.close()
@@ -52,7 +57,7 @@ tmpct=0 //## added for now
 	startpos=0
 	for i=0, numCellTypes-1 {
 	cellType[i] = new CellCategoryInfo(i)	// Make one object for each cell type to store cell type info
-	cellType[i].setCellTypeParams(celltypestring[i].s, startpos, cellnumvar[i], cellLayerflag[i])	// Set parameters
+	cellType[i].setCellTypeParams(celltypestring[i].s, techstring[i].s, startpos, cellnumvar[i], cellLayerflag[i], cellArtflag[i])	// Set parameters
 	cellType[i].numCons = new Vector(numCellTypes,0)
 	//if (cellType[i].is_art==0) {cellType[i].setCellTypeDist}	// Load distribution file
 	cellType[i].setCellTypeDist	// Load distribution file

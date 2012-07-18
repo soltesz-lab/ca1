@@ -519,8 +519,8 @@ proc size_sections2() {
 	basal[26] {nseg=1 diam= .4  L= 11.31487  }
 	basal[27] {nseg=1 diam= .4  L= 25.26186  }
 	basal[28] {nseg=1 diam= .4  L= 26.09189  }
-	basal[29] {nseg=3 diam= .4  L= 73.88529  }
-	basal[30] {nseg=3 diam= .4  L= 69.03699  }
+	basal[29] {nseg=3 diam= .4  L= 64  }
+	basal[30] {nseg=3 diam= .4  L= 70  }
 	basal[31] {nseg=4 diam= .4  L= 81.94038  }
 	basal[32] {nseg=7 diam= .4  L= 157.9888  }
 	basal[33]  {nseg=1 diam= .4  L= 12.65634  }

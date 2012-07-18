@@ -5,7 +5,7 @@ begintemplate CellCategoryInfo			// Define a template that describes
 										//  used in creating the network model
 										
 	public setCellTypeParams, setCellTypeDist			// Define variables and funcs that are
-	public cellType_string, cellStartGid, cellEndGid	//  accessible from outside the class
+	public cellType_string, technicalType, cellStartGid, cellEndGid	//  accessible from outside the class
 	public updateGidRange, addPosVec, layerflag			//  object
 	public dist, numCells, CellList, addCell, numCons, numConns, numSyns, wgtConns, numThisHost
 	public setBins, dentateYBins, dentateXBins, dentateZBins
@@ -15,7 +15,7 @@ begintemplate CellCategoryInfo			// Define a template that describes
 																//  'this', which is this
 																//  instance of the class
 																
-	strdef cellType_string, tempString, cmd, strtomax 			// Define strings
+	strdef cellType_string, technicalType, tempString, cmd, strtomax 			// Define strings
 
 	proc setCellTypeParams(){			// Define a proc to set the parameters
 										//  corresponding to the celltype this
@@ -23,31 +23,24 @@ begintemplate CellCategoryInfo			// Define a template that describes
 										
 		cellType_string = $s1		// Name of the cell type
 		
-		cellStartGid = $2 			// First number in gid range (all cells
+		technicalType = $s2
+		
+		cellStartGid = $3 			// First number in gid range (all cells
 									//  of this type have consecutive numbers
 									//  in the gid range)
 									
-		numCells = $3				// Number of cells of this type
+		numCells = $4				// Number of cells of this type
 		
-		cellEndGid =  $2 + $3 -1	// Last number in gid range
+		cellEndGid =  $3 + $4 -1	// Last number in gid range
 		
-		layerflag = $4				// Layer in which the somata of this cell type
+		layerflag = $5				// Layer in which the somata of this cell type
 									//  are found (order of the layers is a matter
 									//  of convention, documented by YOU)
 		
 		ctype = new StringFunctions()	// Create a new StringFunctions object
 										//  for parsing the name of the celltype
 														
-		index = ctype.substr(cellType_string, "pp")	// Now search the celltype
-														//  name for 'pp', which
-														//  is used to denote
-														//  artificial cells
-		
-		if (index>-1) {			// If the celltype name contains 'pp',
-			is_art=1			//  then the cell type is artificial
-		} else {				//  otherwise the celltype is biological
-			is_art=0
-		}
+		is_art=$6			//  if the cell type is artificial
 		
 		objref CellList[numCells]	// Create a new CellList for this celltype,
 									//  the length of which equals the number
