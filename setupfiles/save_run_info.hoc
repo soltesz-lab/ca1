@@ -117,7 +117,7 @@ proc typeout() {local i, rn, rank, gid, srcid localobj tgt, f, cell// Write out 
 			if (strcmp(cellType[i].technicalType,"ppsept")==0 || strcmp(cellType[i].technicalType,"ppspont")==0) { 
 				addflag = pc.nhost*2
 			}
-			f.printf("%s\t%d\t%d\t%d\n", cellType[i].cellType_string, i, cellType[i].cellStartGid+addflag, cellType[i].cellEndGid)
+			f.printf("%s\t%s\t%d\t%d\t%d\n", cellType[i].cellType_string, cellType[i].technicalType, i, cellType[i].cellStartGid+addflag, cellType[i].cellEndGid)
 		}
 		f.close()
 	}
