@@ -6,11 +6,11 @@ proc perfpathStims() { local i, wgt, reli, typei, jgid, celltype, counter, jstar
 		}
 	}
 
-	for celltype=0, numCellTypes-1 {
+	/*for celltype=0, numCellTypes-1 {
 		if (cellType[celltype].is_art==0) {
 			wgt = cellType[idx].wgtConns.x[celltype]
 			if (wgt > 0) {
-				for pcitr(&reli, &typei, &jgid, cellType[celltype].cellStartGid, cellType[celltype].cellEndGid) {
+				for pcitr(&reli, &typei, &jgid, cellType[celltype].cellStartGid+pc.nhost*2, cellType[celltype].cellEndGid) {
 					if (pc.gid_exists(jgid)) {
 						cell = pc.gid2cell(jgid)
 						wgt = cellType[idx].wgtConns.x[celltype]
@@ -22,7 +22,7 @@ proc perfpathStims() { local i, wgt, reli, typei, jgid, celltype, counter, jstar
 				}
 			}
 		}
-	}
+	}*/
 }
 perfpathStims()
 

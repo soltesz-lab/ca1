@@ -185,7 +185,7 @@ proc position(){ local i
 }
 
 objref syn
-proc define_synapses() {	// Currently, there are no synapses defined for pp --> hipp (though previous code versions had this)
+proc define_synapses() {local i localobj f2	// Currently, there are no synapses defined for pp --> hipp (though previous code versions had this)
 
 }
 endtemplate olmcell

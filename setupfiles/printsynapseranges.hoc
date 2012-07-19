@@ -1,0 +1,45 @@
+{load_file("nrngui.hoc")}				// Standard definitions - NEURON library file
+objref f2
+f2 = new File()
+f2.ropen("./cells/cells2include.hoc")		// Open the celltype
+
+numCellTypes = f2.scanvar			// Scan the first line, which contains a number giving the
+									// # cell types, including stimulating (artificial) cells (still?)
+
+objref celltypestring[numCellTypes], techstring[numCellTypes], cellType[numCellTypes], cell
+double cellnumvar[numCellTypes], cellLayerflag[numCellTypes], cellArtflag[numCellTypes]
+
+begintemplate CellCategoryInfo
+	public cellType_string, technicalType, setCellTypeParams
+	strdef cellType_string, technicalType
+	proc setCellTypeParams(){
+		cellType_string = $s1		// Name of the cell type
+		technicalType = $s2
+	}
+endtemplate CellCategoryInfo	
+
+for i=0, numCellTypes-1 {
+	celltypestring[i]= new String()
+	techstring[i] = new String()
+	f2.scanstr(celltypestring[i].s)				// Scan in the cell name
+	f2.scanstr(techstring[i].s)
+	cellnumvar[i]=f2.scanvar					// Scan in the initial (before sclerosis) number of each cell type
+	cellLayerflag[i]=f2.scanvar					// Scan the layer flag (hilar=2, granular=1, molecular=0), where hilar cells
+	cellArtflag[i]=f2.scanvar					// Scan the layer flag (hilar=2, granular=1, molecular=0), where hilar cells
+
+	cellType[i] = new CellCategoryInfo(i)	// Make one object for each cell type to store cell type info
+	cellType[i].setCellTypeParams(celltypestring[i].s, techstring[i].s)
+}
+
+DegreeStim=1
+
+strdef cmdstr, tempFileStr
+for i = 0, numCellTypes-1 {
+	if (cellArtflag[i]==0) {
+		sprint(tempFileStr,"./cells/class_%s.hoc", cellType[i].technicalType)	// Concatenate the
+		load_file(tempFileStr)			// Load the file with the template that defines the class
+		sprint(cmdstr, "cell = new %s(i,i)", cellType[i].technicalType)
+		{execute1(cmdstr)}
+	}
+}
+

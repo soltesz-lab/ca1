@@ -52,6 +52,9 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			conns2make = new Vector(1+connlength*6)
 
 			params.x[0]=cellType[precellType].cellStartGid //gmin -- start gid of pre cell type
+			if (strcmp(cellType[precellType].technicalType,"ppsept")==0 || strcmp(cellType[precellType].technicalType,"ppspont")==0) {
+				params.x[0]=params.x[0]+pc.nhost*2
+			}
 			params.x[1]=cellType[precellType].cellEndGid //gmax -- end gid of pre cell type
 			params.x[2]= numConns //nconn
 			params.x[3]= cellType[postcellType].numCells // number of cells of the postsynaptic type (total)
