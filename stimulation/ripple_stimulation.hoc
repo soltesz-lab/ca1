@@ -62,6 +62,7 @@ proc addstims() {local reli, typei, jgid localobj cell, onstimobj, offstimobj
 			cell.noiseFromRandom(ransynlist.object(reli).r)
 			cell.interval = 1000/RipStim //ms
 			cell.start = 0
+			cell.noise = 0
 			cell.number = 1e9
 		}
 	}	
