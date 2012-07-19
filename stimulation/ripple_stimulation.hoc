@@ -59,11 +59,17 @@ proc addstims() {local reli, typei, jgid localobj cell, onstimobj, offstimobj
 												// use the ransynlist because we can continue along this stream for a very long time
 												// ranconlist is a small segment reserved upstream of ransynlist, so if there is
 												// a long simulation duration, then there could be a problem
-			cell.noiseFromRandom(ransynlist.object(reli).r)
+			//cell.noiseFromRandom(ransynlist.object(reli).r)
 			cell.interval = 1000/RipStim //ms
-			cell.start = 0
 			cell.noise = 0
-			cell.number = 1e9
+			// pick a number between 0 and 1/2 of RipStim/1000*Onint
+			// that number gives the start time = # * 5 ms
+			// and the number of spikes = # * 2
+			MaxSpikes = (Onint/2)*(RipStim/1000)
+			ransynlist.object(reli).r.discunif(0,MaxSpikes)
+			halfSpikes = ransynlist.object(reli).repick
+			cell.start = (MaxSpikes - halfSpikes)*(1000/RipStim)
+			cell.number = halfSpikes*2 + 1
 		}
 	}	
 }
