@@ -20,5 +20,4 @@ setupfiles/pairtypes.txt
 stimulation/stimvecs/*
 stimulation/sintrainparams.hoc
 parameterspace/*
-cells/allsyns.dat
 *.*~

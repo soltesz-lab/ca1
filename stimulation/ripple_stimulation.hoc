@@ -68,7 +68,7 @@ proc addstims() {local reli, typei, jgid localobj cell, onstimobj, offstimobj
 			MaxSpikes = (Onint/2)*(RipStim/1000)
 			ransynlist.object(reli).r.discunif(0,MaxSpikes)
 			halfSpikes = ransynlist.object(reli).repick
-			cell.start = (MaxSpikes - halfSpikes)*(1000/RipStim)
+			cell.start = Offint + (MaxSpikes - halfSpikes)*(1000/RipStim)
 			cell.number = halfSpikes*2 + 1
 		}
 	}	
