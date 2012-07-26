@@ -172,7 +172,6 @@ ransynlist = new List()
 ranNSlist = new List()
 ranPPlist = new List()
 
-if (pc.id == 24) {printf("%ld memory use BEFORE create\n", nrn_mallinfo(0))}
 {load_file("./setupfiles/position_functions.hoc")}	// Defines the algorithm used to set the
 													//  positions of the cells
 													
@@ -194,7 +193,6 @@ connectstart = startsw()				// Grab start time of cell connection
 /***********************************************************************************************
 V.	CONNECT THE MODEL CELLS AND CONNECT THE STIMULATION CELLS TO SOME MODEL CELLS
 ***********************************************************************************************/
-if (pc.id == 24) {printf("%ld memory use BEFORE connect\n", nrn_mallinfo(0))}
 {load_file("./setupfiles/nc_append_functions.hoc")}	// Defines nc_append and nc_appendo, which 
 													//  are procs (?) needed to create the netcon
 													//  object associated with each connection
@@ -204,13 +202,11 @@ if (pc.id == 24) {printf("%ld memory use BEFORE connect\n", nrn_mallinfo(0))}
 {load_file(cmd)}			// Loads in a particular definition of the connectCells function,
 							//  depending on the value of the Connectivity string
 
-if (pc.id == 24) {printf("%ld memory use BEFORE stim connect\n", nrn_mallinfo(0))}
 {sprint(cmd,"./stimulation/%s_stimulation.hoc", Stimulation)}
 {load_file(cmd)}			// Loads in a particular stimulation protocol, including the spike
 							//  vectors for the artificial cells and their connections to the
 							//  'real' cells (where do we define the # of art cells and create them?)
 
-if (pc.id == 24) {printf("%ld memory use BEFORE write numcons file\n", nrn_mallinfo(0))}
 {load_file("./setupfiles/write_conns_functions.hoc")}	// Defines two funcs (procs?): printNumConFile()
 														//  writes the number of synapses between every
 														//  combination of pre- and post-synaptic cell type
@@ -232,7 +228,6 @@ runstart = startsw()							// grab start time of the simulation
 /***********************************************************************************************
 VI.	INITIALIZE AND RUN NETWORK, OUTPUT RESULT FILES
 ***********************************************************************************************/
-if (pc.id == 24) {printf("%ld memory use BEFORE initialize\n", nrn_mallinfo(0))}
 if (PrintVoltage==1) {load_file("./setupfiles/recordvoltageauto.hoc")}	// If we are going to record some voltages, then set up the recordings
 
 proc init() { local dtsav, temp, secsav, secondordersav	// Redefine the proc that initializes the
@@ -326,9 +321,7 @@ proc rrun(){									// Run the network simulation and write out the results
 	sumnumout()	// Write out a file with the total number of cells, spikes, and connections (including contributions from artificial cells)
 }
 
-if (pc.id == 24) {printf("%ld memory use BEFORE run\n", nrn_mallinfo(0))}
 rrun()	// Run the network simulation (in proc rrun)
- if (pc.id == 24) {printf("%ld memory use AFTER run\n", nrn_mallinfo(0))}
 
 {pc.runworker()} 	// Everything after this line is executed only by the host node
 					//  The NEURON website describes this as "The master host returns immediately. Worker hosts
