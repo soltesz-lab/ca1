@@ -94,10 +94,10 @@ beta = 0.00025
 :	beta = 0.006/exp((12*log10(cai)+60.4)/35)
 : alpha = 0.00246/fctrap(cai)
 : beta = 0.006/fctrap(cai)
-	qtau = 1 / (alpha + beta)
+	qtau = 1 /(alpha + beta)/q10
 	qinf = alpha * qtau
-	tinc = -dt*q10
-	qexp = 1 - exp(tinc/qtau)*q10
+	tinc = -dt
+	qexp = 1 - exp(tinc/qtau)
 }
 
 UNITSON
