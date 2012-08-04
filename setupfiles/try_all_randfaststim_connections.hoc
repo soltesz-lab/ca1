@@ -47,7 +47,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 
 		if (numConns != 0 && synWeight != 0) {
 			params = new Vector(26)
-			connlength = int((numConns+cellType[postcellType].numCells)/pc.nhost+.5)
+			connlength = int((numConns)/pc.nhost+.5)+cellType[postcellType].numCells
 			
 			conns2make = new Vector(1+connlength*6)
 
