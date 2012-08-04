@@ -117,7 +117,7 @@ static double get_z_pos (int gid, int gmin, int BinNumZ, int binSizeZ, int ZHeig
 }
 
 static int fastconn (void* vv) {
-  int finalconn, ny, nz, num_pre, num_post, gmin, gmax, nconn, ncell, maxd, steps, myi, postgmin;
+  int finalconn, ny, nz, num_pre, num_post, gmin, gmax, nconn, ncell, maxd, steps, myi, postgmin, stepover;
   double *x, *y, *z, a, b, c;
 
 	/* Get hoc vectors into c arrays */
@@ -142,6 +142,7 @@ static int fastconn (void* vv) {
 	b = y[8];		// distribution fit coefficient b
 	c = y[9];		// distribution fit coefficient c
 	postgmin = y[24];	// postsynaptic start gid
+	stepover = y[26];	// postsynaptic start gid
 
 	myi=1;	// myi will give the next index into finalconn
 			// 0 is reserved for # conns to make
@@ -326,8 +327,8 @@ static int fastconn (void* vv) {
 											// the gid range is continuous from gmin to gmax arguments to this mechanism.
 											// n is the post-cell here. 
 					x [myi] = (r[q]+gmin)*1.0;				// presynaptic gid	
-					x [myi+1*(nconn+ncell)] = (z[n])*1.0;	// postsynaptic gid
-					x [myi+2*(nconn+ncell)] = (step+1)*1.0;	// distance step
+					x [myi+1*stepover] = (z[n])*1.0;	// postsynaptic gid
+					x [myi+2*stepover] = (step+1)*1.0;	// distance step
 					myi++;
 				}
 			} 

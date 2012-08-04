@@ -174,7 +174,7 @@ proc q() {
         pccc.runworker()
         system("sleep 10")
         pccc.done()
-        quit()
+        //quit()
 }
 func mallinfo() {local m
         pccc.barrier // in case we want to print for all processes.

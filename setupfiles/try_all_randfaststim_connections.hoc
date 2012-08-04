@@ -46,17 +46,24 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 		if (PrintTerminal>1) {print "Host ", pc.id, " is connecting: ", $s3, "s to ", $s4, "s."}
 
 		if (numConns != 0 && synWeight != 0) {
-			params = new Vector(26)
-			connlength = int((numConns)/pc.nhost+.5)+cellType[postcellType].numCells
+			params = new Vector(27)
+			if (cellType[postcellType].numCells>=pc.nhost) {
+				connlength = int((numConns)/pc.nhost+.5)+cellType[postcellType].numCells
+			} else {
+				connlength = int((numConns)/cellType[postcellType].numCells+.5)+cellType[postcellType].numCells
+			}
 			
-			zzz = mallinfo(zzz, cmd)
-			q()
+			if (pccc.id == 0) {print " "}
+			if (pccc.id == 0) {print $s3, "s to ", $s4, "s"}
+			
+			zzz = mallinfo(zzz, "before redefine conns2make")
+			//q()
 
 			
 			conns2make = new Vector(1+connlength*6)
 			
-			zzz = mallinfo(zzz, cmd)
-			q()
+			zzz = mallinfo(zzz, "after redefine conns2make")
+			//q()
 
 			
 
@@ -97,16 +104,17 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			params.x[23]= addheight
 			params.x[24]= cellType[postcellType].cellStartGid
 			params.x[25]= sum_numconns
+			params.x[26]= connlength
 			sum_numconns = sum_numconns + cellType[precellType].numCells
 
-zzz = mallinfo(zzz, cmd)
-q()
+zzz = mallinfo(zzz, "before conns2make.fastconn")
+//q()
 
 
 			conns2make.fastconn(params, postcellgids)
 			
-			zzz = mallinfo(zzz, cmd)
-q()
+			zzz = mallinfo(zzz, "after conns2make.fastconn")
+//q()
 
 			
 			for r=1, int(conns2make.x[0]/1) {
@@ -122,8 +130,8 @@ q()
 					counter +=1
 				}
 			}
-			zzz = mallinfo(zzz, cmd)
-q()
+			zzz = mallinfo(zzz, "after iteration thru conns2make")
+//q()
 
 		}
 		return counter
@@ -147,9 +155,9 @@ q()
 		}	 	// Reduce the probability of granule cell connection by the same degree as the sclerosis
 				//	because mossy fibers connecting back to granule cells are subject to sclerosis (?)
 makeConnections()								// Try making connections between every type of cell
-zzz = mallinfo(zzz, cmd)
-q()
+zzz = mallinfo(zzz, "makeConnections()")
+//q()
 
 objref conns2make
-zzz = mallinfo(zzz, cmd)
-q()
+zzz = mallinfo(zzz, "objref conns2make")
+//q()
