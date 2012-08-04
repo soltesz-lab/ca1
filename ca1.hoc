@@ -193,6 +193,24 @@ connectstart = startsw()				// Grab start time of cell connection
 /***********************************************************************************************
 V.	CONNECT THE MODEL CELLS AND CONNECT THE STIMULATION CELLS TO SOME MODEL CELLS
 ***********************************************************************************************/
+
+objref pccc
+pccc = new ParallelContext()
+zzz=0
+proc q() {
+        pccc.runworker()
+        system("sleep 10")
+        pccc.done()
+        quit()
+}
+func mallinfo() {local m
+        pccc.barrier // in case we want to print for all processes.
+        m = nrn_mallinfo(0)
+        if (pccc.id == 0) {printf("%s: total memory usage: %ld  Since last call: %ld\n", $s2, m, m - $1)}
+        pccc.barrier
+        return m
+}
+
 {load_file("./setupfiles/nc_append_functions.hoc")}	// Defines nc_append and nc_appendo, which 
 													//  are procs (?) needed to create the netcon
 													//  object associated with each connection

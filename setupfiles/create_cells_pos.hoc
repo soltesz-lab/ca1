@@ -1,6 +1,9 @@
 proc createCells(){ local i, ij, si, pci, cellind, runresult, gid	// Create cells and assign a GID to each cell
 	for cellind=0, numCellTypes-1 {																		//	number stream have already been used
 		for pcitr(&i, &ij, &gid, cellType[cellind].cellStartGid, cellType[cellind].cellEndGid) {// use the pciter over all cells of this type
+			zzz = mallinfo(zzz, cmd)
+			q()
+
 			if (pc.gid_exists(gid)) {
 				sprint(cmd, "cellType[%g].CellList[%g]=new %s(%g,%g)", cellind, ij, cellType[cellind].technicalType, gid, i) //+cellType[cellind].cellStartGid) // why add the startgid to the gid? 
 
@@ -31,7 +34,12 @@ proc createCells(){ local i, ij, si, pci, cellind, runresult, gid	// Create cell
 					zpos=zpos_algorithm(gid,cellType[cellind].numCells,cellType[cellind].cellStartGid,cellType[cellind].dentateZBins,cellType[cellind].dentateZBinSize,cellType[cellind].layerflag)	// Algorithmically generate cell position
 					cellType[cellind].CellList[ij].position(xpos,ypos,zpos)									// Record cell position in cell object
 					
-					if ((ij%int(cellType[cellind].numCells/10+1) == 0) && (PrintTerminal>1)) {print cellType[cellind].cellType_string, ": ", i}
+					if ((ij%int(cellType[cellind].numCells/10+1) == 0) ) { //&& (PrintTerminal>1)) {
+					print cellType[cellind].cellType_string, ": ", i
+					zzz = mallinfo(zzz, cmd)
+					q()
+
+					}
 				}
 			}
 		} 

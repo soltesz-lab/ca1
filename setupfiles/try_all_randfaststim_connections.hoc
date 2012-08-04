@@ -49,7 +49,16 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			params = new Vector(26)
 			connlength = int((numConns)/pc.nhost+.5)+cellType[postcellType].numCells
 			
+			zzz = mallinfo(zzz, cmd)
+			q()
+
+			
 			conns2make = new Vector(1+connlength*6)
+			
+			zzz = mallinfo(zzz, cmd)
+			q()
+
+			
 
 			params.x[0]=cellType[precellType].cellStartGid //gmin -- start gid of pre cell type
 			if (strcmp(cellType[precellType].technicalType,"ppsept")==0 || strcmp(cellType[precellType].technicalType,"ppspont")==0) {
@@ -90,7 +99,15 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			params.x[25]= sum_numconns
 			sum_numconns = sum_numconns + cellType[precellType].numCells
 
+zzz = mallinfo(zzz, cmd)
+q()
+
+
 			conns2make.fastconn(params, postcellgids)
+			
+			zzz = mallinfo(zzz, cmd)
+q()
+
 			
 			for r=1, int(conns2make.x[0]/1) {
 				cell = pc.gid2cell(conns2make.x[r+connlength])
@@ -105,6 +122,9 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 					counter +=1
 				}
 			}
+			zzz = mallinfo(zzz, cmd)
+q()
+
 		}
 		return counter
 	}
@@ -127,4 +147,9 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 		}	 	// Reduce the probability of granule cell connection by the same degree as the sclerosis
 				//	because mossy fibers connecting back to granule cells are subject to sclerosis (?)
 makeConnections()								// Try making connections between every type of cell
+zzz = mallinfo(zzz, cmd)
+q()
+
 objref conns2make
+zzz = mallinfo(zzz, cmd)
+q()
