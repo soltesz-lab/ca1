@@ -48,10 +48,6 @@ proc addstims() {local reli, typei, jgid localobj cell, onstimobj, offstimobj
 	for pcitr(&reli, &typei, &jgid, cellType[idx].cellStartGid+pc.nhost*2, cellType[idx].cellEndGid) {
 		if (pc.gid_exists(jgid)) {
 			cell = pc.gid2cell(jgid)
-			onstimobj = pc.gid2cell(pc.id) // what are the gids for these things?
-			offstimobj = pc.gid2cell(pc.id+pc.nhost) // what are the gids for these things?
-			add_on_off(jgid, onstimobj, offstimobj)
-			//cellType[0].numCons.x[0] +=2
 			ransynlist.object(reli).r.negexp(1) // always use 1 for this - the interval for the netstim will set the 'rate'
 												// for another example (which has the randomstream class defined differently,
 												// and therefore calls different commands at different times) see the following file:
@@ -68,8 +64,14 @@ proc addstims() {local reli, typei, jgid localobj cell, onstimobj, offstimobj
 			MaxSpikes = (Onint/2)*(RipStim/1000)
 			ransynlist.object(reli).r.discunif(0,MaxSpikes)
 			halfSpikes = ransynlist.object(reli).repick
-			cell.start = Offint + (MaxSpikes - halfSpikes)*(1000/RipStim)
+			ondelay = (MaxSpikes - halfSpikes)*(1000/RipStim)
+			cell.start = Offint + ondelay
 			cell.number = halfSpikes*2 + 1
+
+			onstimobj = pc.gid2cell(pc.id) // what are the gids for these things?
+			offstimobj = pc.gid2cell(pc.id+pc.nhost) // what are the gids for these things?
+			add_on_off(jgid, ondelay, onstimobj, offstimobj)
+			//cellType[0].numCons.x[0] +=2
 		}
 	}	
 }
@@ -79,13 +81,13 @@ proc addstims() {local reli, typei, jgid localobj cell, onstimobj, offstimobj
 													
 		ns = pc.gid2cell($1)
 
-		ctrlsyn = new NetCon($o2, ns)
+		ctrlsyn = new NetCon($o3, ns)
 		ctrlsyn.weight = 1
-		ctrlsyn.delay = 0
+		ctrlsyn.delay = $2
 		nclist.append(ctrlsyn)
 
 
-		offsyn = new NetCon($o3, ns)
+		offsyn = new NetCon($o4, ns)
 		offsyn.weight = -1
 		offsyn.delay = 0
 		nclist.append(offsyn)
