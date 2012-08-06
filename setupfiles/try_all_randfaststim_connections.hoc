@@ -49,8 +49,10 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			params = new Vector(27)
 			if (cellType[postcellType].numCells>=pc.nhost) {
 				connlength = int((numConns)/pc.nhost+.5)+cellType[postcellType].numCells
+				if (pc.id==0) {print $s3, "s to ", $s4, ", ", "set connlength = ", connlength, " = int((numConns)/pc.nhost = ", (numConns)/pc.nhost ,"+.5)+cellType[postcellType].numCells = ", cellType[postcellType].numCells}
 			} else {
 				connlength = int((numConns)/cellType[postcellType].numCells+.5)+cellType[postcellType].numCells
+				if (pc.id==0) {print $s3, "s to ", $s4, ", ", "set connlength = ", connlength, " = int((numConns)/cellType[postcellType].numCells = ", (numConns)/cellType[postcellType].numCells ,"+.5)+cellType[postcellType].numCells = ", cellType[postcellType].numCells}
 			}
 			
 			if (pccc.id == 0) {print " "}
