@@ -128,10 +128,11 @@ zzz = mallinfo(zzz, "before conns2make.fastconn")
 							conDelay =  3 //sqrt(conns2make.x[r+2*connlength]/distres)*LongitudinalLength*speed+.1
 							nc_append(conns2make.x[r], conns2make.x[r+connlength], precellType, randSynNumber, synWeight*numSyns + (conns2make.x[r]+1)*1000, conDelay)	// Make the connection  // the latter part is for tracing the big bug, used by exp2sid mech (it will take away this extra part)
 						//}
+						if (conns2make.x[r+connlength]==5524) {print "pre ", $s3, ", gid ", conns2make.x[r], ", syn ", randSynNumber, ", wgt ", synWeight*numSyns}
 						counter +=1
 					}
 				} else {
-					print "pc.id = ", pc.id, " can't make gid ", conns2make.x[r+connlength], " which is r = ", r, " +  connlength = ", connlength, " = ", r+connlength, " from x[r] = ", conns2make.x[r], " total conns = ", int(conns2make.x[0]/1)
+					if (pc.id==0) {print $s3, "s to ", $s4, "s:", " can't make gid ", conns2make.x[r+connlength], " which is r = ", r, " +  connlength = ", connlength, " = ", r+connlength, " from x[r] = ", conns2make.x[r], " total conns = ", int(conns2make.x[0]/1)}
 				}
 			}
 			zzz = mallinfo(zzz, "after iteration thru conns2make")
