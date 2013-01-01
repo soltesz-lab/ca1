@@ -422,7 +422,7 @@ proc position(){ local i
 }
 
 objref syn  
-proc define_synapses() {local i localobj f2
+proc define_synapses() {local i localobj f2, f3
 
 }
 endtemplate axoaxoniccell
