@@ -102,7 +102,7 @@ PROCEDURE rates(v) {  :Computes rate and other constants at current v.
 	sum = alpha+beta        
 	ctau = 1/sum      cinf = alpha/sum
                 :"d" NCa inactivation system
-	alpha = 0.00016/exp(-v/48.4)
+	alpha = 0.00016/exp(-v/48.4) : this is not divided in Aradi & Holmes formula
 	beta = 1/(exp((-v+39)/10)+1)
 	sum = alpha+beta        
 	dtau = 1/sum      dinf = alpha/sum
