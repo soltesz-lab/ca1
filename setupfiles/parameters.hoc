@@ -1,7 +1,6 @@
 // This file sets the default values of parameters
 //  in such a way that they can be overridden using
 //  certain options at the command line
-default_var("testrun",0)		// stop run if not using a committed Mercurial version (unless doing a testrun before commit)
 
 // Files to print
 default_var("PrintVoltage",1)		// records and prints the voltage traces for the cells listed in voltagetrace.hoc
@@ -11,11 +10,6 @@ default_var("PrintCellPositions",1)	// Controls whether to print the position li
 default_var("PrintConnDetails",0)	// Controls whether to print the detailed Connection list
 								//	(2=yes immediately, 1=yes at end of program, 0=no)
 default_var("RandomSeeds",0)	// Controls whether to print the random seed list (1=yes, 0=no)
-
-// Load balancing					
-default_var("LoadBalance",0)	// Use a loadbalancer to distribute cells among the hosts (1=yes, 0=no, use round robin)
-								//  If a loadbalance file doesn't yet exist, the call of the model will create the loadbalance file
-								//  and another call will be needed to actually run the program
 
 // Model size
 default_var("LongitudinalLength",6000)	// X Length of dentate in microns
@@ -51,7 +45,7 @@ default_var("Scale",1000) // Scale of model (1:X), so 1 is 1M cells, 20 is 50K c
 default_var("SimDuration",300)	// Stop time of simulation
 default_var("TemporalResolution",0.1)	// Step time / resolution of simulation
 
-default_var("RunComments","none") // Run Comments
+default_var("RunComments","") // Run Comments
 default_var("RunName","none") // Run Comments
 default_var("NumTraces",100) // Run Comments
 default_var("FracTraces",50) // Run Comments

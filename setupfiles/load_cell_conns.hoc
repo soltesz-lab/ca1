@@ -25,6 +25,9 @@ proc conn_cells() {local num, wgt, syn
 		sprint(cmdstr, "%s_idx", pre_type)
 		sprint(cmdstr1, "%s_idx", post_type)
 		if ((name_declared(cmdstr) > 0) && (name_declared(cmdstr1) > 0)) {
+			sprint(cmdstr, "if ((strcmp(pre_type,\"granulecell\")==0) && (strcmp(post_type,\"granulecell\")==0)) {num = percentSprouting/100*cellType[%s_idx].numCells*cellType[%s_idx].numCells}", pre_type, post_type)
+			{execute1(cmdstr)}
+
 			sprint(cmdstr, "cellType[%s_idx].numConns.x[%s_idx] = %f", pre_type, post_type, num)
 			{execute1(cmdstr)}
 			
