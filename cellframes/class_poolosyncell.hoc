@@ -334,6 +334,8 @@ proc append_sections() { local i
 	forsec basal_list {scacell_list.append()}
 	forsec rad_list {scacell_list.append()}
 	forsec lm_list {eccell_list.append()}
+	forsec lm_list {eccell_list.append()}
+	forsec lm_list {eccell_list.append()} // append the same list 3 times to weight it more heavily against the basal list for synapse choice for eccells
 	forsec rad_list {ca3cell_list.append()}
 	forsec rad_list {mscell_list.append()}
 	forsec basal_list {eccell_list.append()}
