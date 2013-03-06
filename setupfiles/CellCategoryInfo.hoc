@@ -77,6 +77,7 @@ begintemplate CellCategoryInfo			// Define a template that describes
 		
 		cellEndGid = $1 + numCells -1	// Solve for the end gid given the
 										//  number of cells
+		objref CellList[numCells]	// Create a new CellList for this celltype,
 	}
 	
 	proc setBins() {local runresult, toohigh, numtomin	// Defines the proc setBins,

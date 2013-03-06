@@ -1,9 +1,14 @@
 {load_file("nrngui.hoc")}				// Standard definitions - NEURON library file
-objref f2
-f2 = new File()
-f2.ropen("./cells/cells2include.hoc")		// Open the celltype
 
-numCellTypes = f2.scanvar			// Scan the first line, which contains a number giving the
+{load_file("/home/casem/repos/ca1/setupfiles/defaultvar.hoc")}	// Contains the proc definition for default_var proc
+{default_var("NumData",100)}		// for paired recording, use these synapse weights
+strdef cmdstr
+objref f2
+	f2 = new File()
+	sprint(cmdstr, "/home/casem/repos/ca1/connections/cellnumbers_%g.dat", NumData)
+	f2.ropen(cmdstr)		// Open the celltype
+	
+	numCellTypes = f2.scanvar       // Scan the first line, which contains a number giving the
 									// # cell types, including stimulating (artificial) cells (still?)
 
 objref celltypestring[numCellTypes], techstring[numCellTypes], cellType[numCellTypes], cell
@@ -43,3 +48,4 @@ for i = 0, numCellTypes-1 {
 	}
 }
 
+f2.close

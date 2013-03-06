@@ -308,20 +308,17 @@ proc append_sections() { local i
 								apical_list.append()}	
 
 
-	for i=0, 21 apical[i] { rad_list.append()}
-	for i=26, 32 apical[i] { rad_list.append()}
-	for i=35, 45 apical[i] { rad_list.append()}
-	for i=47, 52 apical[i] { rad_list.append()}
-	for i=59, 67 apical[i] { rad_list.append()}
-	for i=70, 73 apical[i] { rad_list.append()}
-	for i=76, 126 apical[i] { rad_list.append()}
 
-	for i=22, 25 apical[i] { lm_list.append()}
-	for i=33, 34 apical[i] { lm_list.append()}
-	for i=46, 46 apical[i] { lm_list.append()}
-	for i=52, 58 apical[i] { lm_list.append()}
-	for i=68, 69 apical[i] { lm_list.append()}
-	for i=74, 75 apical[i] { lm_list.append()}
+	for i=0, 17 apical[i] { rad_list.append()}
+	for i=26, 28 apical[i] { rad_list.append()}
+	for i=64, 64 apical[i] { rad_list.append()}
+	for i=76, 80 apical[i] { rad_list.append()}
+	for i=90, 126 apical[i] { rad_list.append()}
+
+	for i=18, 25 apical[i] { lm_list.append()}
+	for i=29, 63 apical[i] { lm_list.append()}
+	for i=65, 75 apical[i] { lm_list.append()}
+	for i=81, 89 apical[i] { lm_list.append()}
 
 // precell lists
 	forsec basal_list {pyramidalcell_list.append()}
@@ -573,7 +570,7 @@ proc insert_mechs() {
 	CmAx  = Cm
 	CmDend = Cm*2
 
-	//celsius = 34.0  
+	celsius = 34.0  
 
 	RaAll= 150 
 	RaSoma=150 
