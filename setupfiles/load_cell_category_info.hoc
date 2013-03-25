@@ -10,7 +10,7 @@ objref pnmtmp, pctmp, nil
 proc loadCellCategoryInfo() {local i, startpos, tmpct	// Load celltype info into a CellCategoryInfo
 												//  object (one object per cell type)
 	f2 = new File()
-	sprint(cmdstr, "/home/casem/repos/ca1/connections/cellnumbers_%g.dat", NumData)
+	sprint(cmdstr, "../connections/cellnumbers_%g.dat", NumData)
 	f2.ropen(cmdstr)		// Open the celltype
 	
 	numCellTypes = f2.scanvar			// Scan the first line, which contains a number giving the
