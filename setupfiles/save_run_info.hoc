@@ -1,4 +1,4 @@
-objref frec
+objref frec, f2c
 strdef cmd, dircmd, direx, comper, version, vercomment, mypath, userstr, machname, machnick, outfile, edate, comver
 strdef verleft, verright
 	objref  strobj
@@ -31,43 +31,66 @@ proc typeout() {local i, rn, rank, gid, srcid localobj tgt, f, cell// Write out 
 		sprint(dircmd, "cp ../cells/allsyns.dat ../results/%s", RunName)
 		{system(dircmd, direx)}
 
-
-		sprint(dircmd, "hg status")
+		// check for hg
+		sprint(dircmd, "which hg")
 		{system(dircmd, direx)}
-		if (strcmp(direx,"")>0) {
-			comver = "Yes"
-			sprint(dircmd, "hg status > ../results/%s/hg_status.out", RunName)
+		
+		// check string for "no hg in"
+		index = strobj.substr(direx, "no hg in")
+
+		// if the check matches, then use backup files
+		if (index>-1) {
+			sprint(dircmd, "cp ../hg_status.out > ../results/%s/hg_status.out", RunName)
 			{system(dircmd, direx)}
 			
-			sprint(dircmd, "hg diff > ../results/%s/hg_diff.out", RunName)
+			sprint(dircmd, "cp ../hg_diff.out > ../results/%s/hg_diff.out", RunName)
 			{system(dircmd, direx)}
-		} else {
-			comver = "No"
-		}
-		sprint(dircmd, "hg parent --template '{rev}: {desc}\n'")
-		{system(dircmd, direx)}
-		strobj.left(direx, strobj.len(direx)-1) // hg parent rev/desc
-		vercomment=direx
-		i = strobj.substr(vercomment, "'")
-		while (i>0) {
-			verleft = vercomment
-			strobj.left(verleft, i)
-
-			verright = vercomment
-			strobj.right(verright, i+1)
+						
+			f2c.ropen("../vercomment.txt")		// Open the celltype
+			f2c.scanstr(vercomment)			
+			f2c.close
 			
-			sprint(vercomment,"%s''%s", verleft, verright)
-			
-			i = strobj.substr(verright, "'")
-			if (i>0) {
-				i = i + strobj.len(verleft)+2
+			f2c.ropen("../version.txt")		// Open the celltype
+			f2c.scanstr(version)			
+			f2c.close			
+		} else { // else use built in hg
+			sprint(dircmd, "hg status")
+			{system(dircmd, direx)}
+			if (strcmp(direx,"")>0) {
+				comver = "Yes"
+				sprint(dircmd, "hg status > ../results/%s/hg_status.out", RunName)
+				{system(dircmd, direx)}
+				
+				sprint(dircmd, "hg diff > ../results/%s/hg_diff.out", RunName)
+				{system(dircmd, direx)}
+			} else {
+				comver = "No"
 			}
-		}
+			sprint(dircmd, "hg parent --template '{rev}: {desc}\n'")
+			{system(dircmd, direx)}
+			strobj.left(direx, strobj.len(direx)-1) // hg parent rev/desc
+			vercomment=direx
+			i = strobj.substr(vercomment, "'")
+			while (i>0) {
+				verleft = vercomment
+				strobj.left(verleft, i)
 
-		sprint(dircmd, "hg parent --template '{node}\n'")
-		{system(dircmd, direx)}
-		strobj.left(direx, strobj.len(direx)-1) // hg parent node
-		version=direx
+				verright = vercomment
+				strobj.right(verright, i+1)
+				
+				sprint(vercomment,"%s''%s", verleft, verright)
+				
+				i = strobj.substr(verright, "'")
+				if (i>0) {
+					i = i + strobj.len(verleft)+2
+				}
+			}
+
+			sprint(dircmd, "hg parent --template '{node}\n'")
+			{system(dircmd, direx)}
+			strobj.left(direx, strobj.len(direx)-1) // hg parent node
+			version=direx
+		}
 
 		system("cd ..;pwd",mypath)
 		strobj.left(mypath, strobj.len(mypath)-1) // path

@@ -15,7 +15,6 @@ proc loadCellCategoryInfo() {local i, startpos, tmpct	// Load celltype info into
 	
 	numCellTypes = f2.scanvar			// Scan the first line, which contains a number giving the
 										// # cell types, including stimulating (artificial) cells (still?)
-										print "numCellTypes: ", numCellTypes
 
 	// Define variables to temporarily hold data scanned from file
 	objref celltypestring[numCellTypes], techstring[numCellTypes], cellType[numCellTypes]
