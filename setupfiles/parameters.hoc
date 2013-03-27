@@ -17,7 +17,7 @@ default_var("TransverseLength",1000)	// Y Length of dentate in microns
 // default_var("HilarHeight",500)		// Height of the hilar layer in microns
 // default_var("GCLHeight",100) 		// Height of the granule cell layer in microns
 // default_var("MolecularHeight",400) 	// Height of the molecular layer in microns
-default_var("LayerHeights","3;500;100;400;") 	// Height of the molecular layer in microns
+default_var("LayerHeights","4;500;100;400;100;") 	// Height of the molecular layer in microns
 
 // Model stimulation
 													

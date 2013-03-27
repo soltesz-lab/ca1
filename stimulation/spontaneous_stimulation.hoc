@@ -12,7 +12,7 @@ proc perfpathStims() { local i, wgt, reli, typei, jgid, celltype, idx, counter, 
 								cell = pc.gid2cell(jgid)
 								wgt = cellType[idx].wgtConns.x[celltype]
 								if (cell.pre_list.o(idx).count()>0) {
-									nc_appendo(jgid-cellType[idx].cellEndGid-1+cellType[idx].cellStartGid, cell, idx, 0, wgt, 3)  // 1e-3
+									nc_appendo(jgid-cellType[celltype].cellEndGid-1+cellType[idx].cellStartGid, cell, idx, 0, wgt, 3)  // 1e-3
 									cellType[idx].numCons.x[celltype] +=1
 								}
 							}
@@ -23,7 +23,7 @@ proc perfpathStims() { local i, wgt, reli, typei, jgid, celltype, idx, counter, 
 		}
 	}
 }
-if (strcmp("Connectivity", "randfaststim")!=0) { // only run this if the art stims are not being connected at another time
+if (strcmp("Connectivity", "try_all_randfaststim")!=0) { // only run this if the art stims are not being connected at another time
 	perfpathStims()
 }
 

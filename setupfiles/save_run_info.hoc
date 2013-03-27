@@ -1,10 +1,10 @@
-objref frec, f2c
+objref frec
 strdef cmd, dircmd, direx, comper, version, vercomment, mypath, userstr, machname, machnick, outfile, edate, comver
 strdef verleft, verright
 	objref  strobj
     strobj = new StringFunctions()
 
-proc typeout() {local i, rn, rank, gid, srcid localobj tgt, f, cell// Write out the cell types & gid ranges
+proc typeout() {local i, rn, rank, gid, srcid localobj tgt, f, cell, f2c // Write out the cell types & gid ranges
 	if (pc.id == 0) { 				// Write header to file 1 time only
 		rn = -1
 		sprint(dircmd, "ls ../results/%s", RunName)
@@ -32,20 +32,21 @@ proc typeout() {local i, rn, rank, gid, srcid localobj tgt, f, cell// Write out 
 		{system(dircmd, direx)}
 
 		// check for hg
-		sprint(dircmd, "which hg")
-		{system(dircmd, direx)}
+			sprint(dircmd, "hg parent --template '{rev}: {desc}\n'")
+			{system(dircmd, direx)}
 		
 		// check string for "no hg in"
-		index = strobj.substr(direx, "no hg in")
+		index = strobj.len(direx)
 
 		// if the check matches, then use backup files
-		if (index>-1) {
-			sprint(dircmd, "cp ../hg_status.out > ../results/%s/hg_status.out", RunName)
+		if (index<1) {
+			sprint(dircmd, "cp ../hg_status.out  ../results/%s/hg_status.out", RunName)
 			{system(dircmd, direx)}
 			
-			sprint(dircmd, "cp ../hg_diff.out > ../results/%s/hg_diff.out", RunName)
+			sprint(dircmd, "cp ../hg_diff.out  ../results/%s/hg_diff.out", RunName)
 			{system(dircmd, direx)}
-						
+				
+			f2c = new File()		
 			f2c.ropen("../vercomment.txt")		// Open the celltype
 			f2c.scanstr(vercomment)			
 			f2c.close
