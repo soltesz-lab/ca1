@@ -1,3 +1,4 @@
+idx = 0
 proc perfpathStims() { local i, wgt, reli, typei, jgid, celltype, counter, jstart, jend, jtot localobj cell		// Connect the perforant path cells to the model cells
 	// find ppspont index
 	for celltype=0, numCellTypes-1 {
@@ -15,7 +16,7 @@ proc perfpathStims() { local i, wgt, reli, typei, jgid, celltype, counter, jstar
 						cell = pc.gid2cell(jgid)
 						wgt = cellType[idx].wgtConns.x[celltype]
 						if (cell.pre_list.o(idx).count()>0) {
-							nc_appendo(jgid-cellType[idx].cellEndGid-1+cellType[idx].cellStartGid, cell, idx, 0, wgt, 3)  // 1e-3
+							nc_appendo(jgid-cellType[celltype].cellEndGid-1+cellType[idx].cellStartGid+pc.nhost*2, cell, idx, 0, wgt, 3)  // 1e-3
 							cellType[idx].numCons.x[celltype] +=1
 						}
 					}
@@ -45,11 +46,11 @@ proc setupburst() {localobj onstimobj, offstimobj
 setupburst()
 
 proc addstims() {local reli, typei, jgid localobj cell, onstimobj, offstimobj
-	for pcitr(&reli, &typei, &jgid, cellType[0].cellStartGid+pc.nhost*2, cellType[0].cellEndGid) {
+	for pcitr(&reli, &typei, &jgid, cellType[idx].cellStartGid+pc.nhost*2, cellType[idx].cellEndGid) {
 		if (pc.gid_exists(jgid)) {
 			cell = pc.gid2cell(jgid)
-			onstimobj = pc.gid2cell(pc.id) // what are the gids for these things?
-			offstimobj = pc.gid2cell(pc.id+pc.nhost) // what are the gids for these things?
+			onstimobj = pc.gid2cell(pc.id+cellType[idx].cellStartGid) // what are the gids for these things?
+			offstimobj = pc.gid2cell(pc.id+pc.nhost+cellType[idx].cellStartGid) // what are the gids for these things?
 			add_on_off(jgid, onstimobj, offstimobj)
 			//cellType[0].numCons.x[0] +=2
 			ransynlist.object(reli).r.negexp(1) // always use 1 for this - the interval for the netstim will set the 'rate'
