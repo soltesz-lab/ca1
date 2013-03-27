@@ -41,7 +41,7 @@ tmpct=0 //## added for now
 		cellLayerflag[i]=f2.scanvar					// Scan the layer flag (hilar=2, granular=1, molecular=0), where hilar cells
 													//	are subject to sclerosis
 		if (cellLayerflag[i]==0) {	// For cell types that are susceptible to death (sclerosis)
-			cellnumvar[i] = int(cellnumvar[i] * ((100-percentSclerosis)/100))	// Calculate the # of cells after sclerosis
+			cellnumvar[i] = int(cellnumvar[i] * ((100-PercentCellDeath)/100))	// Calculate the # of cells after sclerosis
 		}
 		cellnumvar[i]=int(cellnumvar[i]/Scale + .5)	// Account for the scaled model size
 		if (cellnumvar[i]<1) {
