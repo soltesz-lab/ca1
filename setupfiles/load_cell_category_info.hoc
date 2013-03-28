@@ -36,6 +36,7 @@ tmpct=0 //## added for now
 			pnmtmp = new ParallelNetManager(1)	// Set up a parallel net manager for all the cells
 			pctmp = pnmtmp.pc
 			cellnumvar[i]=cellnumvar[i] + 2*pctmp.nhost	// Account for 2*processors worth of on/off cells	
+			print "pctmp.nhost = ", pctmp.nhost
 			pnmtmp = nil
 			pctmp = nil
 		}
@@ -51,7 +52,6 @@ tmpct=0 //## added for now
 		tmpct = tmpct + cellnumvar[i] //## added for now
 	}
 	f2.close()
-print "pctmp.nhost = ", pctmp.nhost
 
 	//if (cellnumvar[0] < (tmpct - cellnumvar[0] + 4*2)) { // this is only needed if you want one art cell per real cell, so they are each independently stim by one cell
 	//	cellnumvar[0] = tmpct - cellnumvar[0] + 4*2 //## added for now
