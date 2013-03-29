@@ -48,11 +48,12 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 		if (numConns != 0 && synWeight != 0) {
 			params = new Vector(27)
 			if (cellType[postcellType].numCells>=pc.nhost) {
-				connlength = int((numConns)/pc.nhost+.5)+cellType[postcellType].numCells
-				if (pc.id==0) {print $s3, "s to ", $s4, ", ", "set connlength = ", connlength, " = int((numConns)/pc.nhost = ", (numConns)/pc.nhost ,"+.5)+cellType[postcellType].numCells = ", cellType[postcellType].numCells}
+				connlength = int((numConns)/cellType[postcellType].numCells+.5)*int(cellType[postcellType].numCells/pc.nhost+1.5)+cellType[postcellType].numCells
+				//connlength = int((numConns)/pc.nhost+.5)+cellType[postcellType].numCells
+				//if (pc.id==0) {print $s3, "s to ", $s4, ", ", "set connlength = ", connlength, " = int((numConns)/pc.nhost = ", (numConns)/pc.nhost ,"+.5)+cellType[postcellType].numCells = ", cellType[postcellType].numCells}
 			} else {
 				connlength = int((numConns)/cellType[postcellType].numCells+.5)+cellType[postcellType].numCells
-				if (pc.id==0) {print $s3, "s to ", $s4, ", ", "set connlength = ", connlength, " = int((numConns)/cellType[postcellType].numCells = ", (numConns)/cellType[postcellType].numCells ,"+.5)+cellType[postcellType].numCells = ", cellType[postcellType].numCells}
+				//if (pc.id==0) {print $s3, "s to ", $s4, ", ", "set connlength = ", connlength, " = int((numConns)/cellType[postcellType].numCells = ", (numConns)/cellType[postcellType].numCells ,"+.5)+cellType[postcellType].numCells = ", cellType[postcellType].numCells}
 			}
 			
 			if (pccc.id == 0) {print " "}
@@ -112,7 +113,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 zzz = mallinfo(zzz, "before conns2make.fastconn")
 //q()
 
-			if ((PrintTerminal>0)) {print "Host ", pc.id, " pre: ", $s3 , " post: ", $s4  , " fastconn size: ", conns2make, " numConns/postcells: ", numConns/params.x[3]}
+			if ((PrintTerminal>0)) {print "Host ", pc.id, " pre: ", $s3 , " post: ", $s4  , " fastconn size: ", conns2make, " numConns/postcells: ", numConns/params.x[3], " postcells/host: ", numpost}
 
 			conns2make.fastconn(params, postcellgids)
 			
