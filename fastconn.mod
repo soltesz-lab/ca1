@@ -194,6 +194,8 @@ static int fastconn (void* vv) {
 		}
 	}
 
+	printf("steps: %d  nconn: %d  ncell: %d\n", step, nconn, ncell);
+
 
 	/* for each postsynaptic cell, find the possible connections and
 	 * make the desired number of connections where possible */   
