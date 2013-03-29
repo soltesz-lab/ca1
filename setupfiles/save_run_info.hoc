@@ -140,7 +140,7 @@ proc typeout() {local i, rn, rank, gid, srcid localobj tgt, f, cell, f2c // Writ
 		f.wopen()
 		f.printf("celltype\ttypeIndex\trangeStart\trangeEnd\n")
 		for i=0, numCellTypes-1 {
-			//addflag=0
+			addflag=0
 			//if (strcmp(cellType[i].technicalType,"ppsept")==0 || strcmp(cellType[i].technicalType,"ppspont")==0) { 
 			//	addflag = pc.nhost*2
 			//}

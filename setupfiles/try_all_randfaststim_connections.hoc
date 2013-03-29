@@ -112,6 +112,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 zzz = mallinfo(zzz, "before conns2make.fastconn")
 //q()
 
+			if ((PrintTerminal>0)) {print "Host ", pc.id, " fastconn size: ", conns2make}
 
 			conns2make.fastconn(params, postcellgids)
 			
