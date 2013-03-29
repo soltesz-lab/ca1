@@ -26,7 +26,8 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			}		
 		}
 	}
-	if ((PrintTerminal>0)) {print "Host ", pc.id, " connected cells."}
+	//if ((PrintTerminal>0)) {print "Host ", pc.id, " connected cells."}
+	if ((pc.id==0)) {print "Host ", pc.id, " connected cells."}
 }
 
 	objref params, conns2make
@@ -56,16 +57,16 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 				//if (pc.id==0) {print $s3, "s to ", $s4, ", ", "set connlength = ", connlength, " = int((numConns)/cellType[postcellType].numCells = ", (numConns)/cellType[postcellType].numCells ,"+.5)+cellType[postcellType].numCells = ", cellType[postcellType].numCells}
 			}
 			
-			if (pccc.id == 0) {print " "}
-			if (pccc.id == 0) {print $s3, "s to ", $s4, "s"}
+			//if (pccc.id == 0) {print " "}
+			//if (pccc.id == 0) {print $s3, "s to ", $s4, "s"}
 			
-			zzz = mallinfo(zzz, "before redefine conns2make")
+			//zzz = mallinfo(zzz, "before redefine conns2make")
 			//q()
 
 			
 			conns2make = new Vector(1+connlength*6)
 			
-			zzz = mallinfo(zzz, "after redefine conns2make")
+			//zzz = mallinfo(zzz, "after redefine conns2make")
 			//q()
 
 			
@@ -110,14 +111,14 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			params.x[26]= connlength
 			sum_numconns = sum_numconns + cellType[precellType].numCells
 
-zzz = mallinfo(zzz, "before conns2make.fastconn")
+//zzz = mallinfo(zzz, "before conns2make.fastconn")
 //q()
 
-			if ((PrintTerminal>0)) {print "Host ", pc.id, " pre: ", $s3 , " post: ", $s4  , " fastconn size: ", conns2make, " numConns/postcells: ", numConns/params.x[3], " postcells/host: ", numpost}
+			if ((pc.id==0)) {print "Host ", pc.id, " pre: ", $s3 , " post: ", $s4  , " fastconn size: ", conns2make, " numConns/postcells: ", numConns/params.x[3], " postcells/host: ", numpost}
 
 			conns2make.fastconn(params, postcellgids)
 			
-			zzz = mallinfo(zzz, "after conns2make.fastconn")
+			//zzz = mallinfo(zzz, "after conns2make.fastconn")
 //q()
 
 			
@@ -132,14 +133,14 @@ zzz = mallinfo(zzz, "before conns2make.fastconn")
 							conDelay =  3 //sqrt(conns2make.x[r+2*connlength]/distres)*LongitudinalLength*speed+.1
 							nc_append(conns2make.x[r], conns2make.x[r+connlength], precellType, randSynNumber, synWeight*numSyns + (conns2make.x[r]+1)*1000, conDelay)	// Make the connection  // the latter part is for tracing the big bug, used by exp2sid mech (it will take away this extra part)
 						//}
-						if (conns2make.x[r+connlength]==5524) {print "pre ", $s3, ", gid ", conns2make.x[r], ", syn ", randSynNumber, ", wgt ", synWeight*numSyns}
+						//if (conns2make.x[r+connlength]==5524) {print "pre ", $s3, ", gid ", conns2make.x[r], ", syn ", randSynNumber, ", wgt ", synWeight*numSyns}
 						counter +=1
 					}
 				} else {
 					if (pc.id==0) {print $s3, "s to ", $s4, "s:", " can't make gid ", conns2make.x[r+connlength], " which is r = ", r, " +  connlength = ", connlength, " = ", r+connlength, " from x[r] = ", conns2make.x[r], " total conns = ", int(conns2make.x[0]/1)}
 				}
 			}
-			zzz = mallinfo(zzz, "after iteration thru conns2make")
+			//zzz = mallinfo(zzz, "after iteration thru conns2make")
 //q()
 
 		}
@@ -164,9 +165,9 @@ zzz = mallinfo(zzz, "before conns2make.fastconn")
 		}	 	// Reduce the probability of granule cell connection by the same degree as the sclerosis
 				//	because mossy fibers connecting back to granule cells are subject to sclerosis (?)
 makeConnections()								// Try making connections between every type of cell
-zzz = mallinfo(zzz, "makeConnections()")
+//zzz = mallinfo(zzz, "makeConnections()")
 //q()
 
 objref conns2make
-zzz = mallinfo(zzz, "objref conns2make")
+//zzz = mallinfo(zzz, "objref conns2make")
 //q()
