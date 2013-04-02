@@ -83,7 +83,10 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			//100 //maxd - the distance of the dimension for which the fit equation was designed (should add all three...), in um
 						// this also confusing because, right now, the equation calculates the overall distance (through all dimensions).
 						// If per dimension, should compare to distance in that dimension only
-			params.x[6]= distres //5 //steps - resolution of the fit , in number of steps to take
+			params.x[6]= 0 // distres //5 //steps - resolution of the fit , in number of steps to take
+			
+			if ((pc.id==0) && (strcmp(cellType[precellType].technicalType,"eccell")==0)  && (strcmp(cellType[postcellType].technicalType,"scacell")==0)) {params.x[6]=pc.id}
+			
 			params.x[7]= cellType[precellType].dist.x[0] //a in the Gaussian fit // 5, .001, 30
 			params.x[8]= cellType[precellType].dist.x[1] //b in the Gaussian fit
 			params.x[9]= cellType[precellType].dist.x[2] //c in the Gaussian fit
@@ -114,7 +117,8 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 //zzz = mallinfo(zzz, "before conns2make.fastconn")
 //q()
 
-			if ((pc.id==0)) {print "Host ", pc.id, " pre: ", $s3 , " post: ", $s4  , " fastconn size: ", conns2make, " numConns/postcells: ", numConns/params.x[3], " postcells/host: ", numpost}
+			if ((pc.id==0) && (strcmp(cellType[precellType].technicalType,"eccell")==0)  && (strcmp(cellType[postcellType].technicalType,"scacell")==0)) {print "Host ", pc.id, " pre: ", $s3 , " post: ", $s4  , " fastconn size: ", conns2make, " numConns/postcells: ", numConns/params.x[3], " postcells/host: ", numpost}
+			if ((pc.id==0) && (strcmp(cellType[precellType].technicalType,"eccell")==0)  && (strcmp(cellType[postcellType].technicalType,"scacell")==0)) {print "Host ", pc.id, " conns2make: ", conns2make.size , " params: ", params.size  , " postcellgids: ", postcellgids.size}
 
 			conns2make.fastconn(params, postcellgids)
 			
