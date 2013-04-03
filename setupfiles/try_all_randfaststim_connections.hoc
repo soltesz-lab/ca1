@@ -26,8 +26,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			}		
 		}
 	}
-	//if ((PrintTerminal>0)) {print "Host ", pc.id, " connected cells."}
-	if ((pc.id==0)) {print "Host ", pc.id, " connected cells."}
+	if ((PrintTerminal>0)) {print "Host ", pc.id, " connected cells."}
 }
 
 	objref params, conns2make
@@ -50,26 +49,11 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			params = new Vector(27)
 			if (cellType[postcellType].numCells>=pc.nhost) {
 				connlength = int((numConns)/cellType[postcellType].numCells+.5)*int(cellType[postcellType].numCells/pc.nhost+1.5)+cellType[postcellType].numCells
-				//connlength = int((numConns)/pc.nhost+.5)+cellType[postcellType].numCells
-				//if (pc.id==0) {print $s3, "s to ", $s4, ", ", "set connlength = ", connlength, " = int((numConns)/pc.nhost = ", (numConns)/pc.nhost ,"+.5)+cellType[postcellType].numCells = ", cellType[postcellType].numCells}
 			} else {
 				connlength = int((numConns)/cellType[postcellType].numCells+.5)+cellType[postcellType].numCells
-				//if (pc.id==0) {print $s3, "s to ", $s4, ", ", "set connlength = ", connlength, " = int((numConns)/cellType[postcellType].numCells = ", (numConns)/cellType[postcellType].numCells ,"+.5)+cellType[postcellType].numCells = ", cellType[postcellType].numCells}
 			}
 			
-			//if (pccc.id == 0) {print " "}
-			//if (pccc.id == 0) {print $s3, "s to ", $s4, "s"}
-			
-			//zzz = mallinfo(zzz, "before redefine conns2make")
-			//q()
-
-			
 			conns2make = new Vector(1+connlength*6)
-			
-			//zzz = mallinfo(zzz, "after redefine conns2make")
-			//q()
-
-			
 
 			params.x[0]=cellType[precellType].cellStartGid //gmin -- start gid of pre cell type
 			if (strcmp(cellType[precellType].technicalType,"ppsept")==0 || strcmp(cellType[precellType].technicalType,"ppspont")==0) {
@@ -83,10 +67,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			//100 //maxd - the distance of the dimension for which the fit equation was designed (should add all three...), in um
 						// this also confusing because, right now, the equation calculates the overall distance (through all dimensions).
 						// If per dimension, should compare to distance in that dimension only
-			params.x[6]= 0 // distres //5 //steps - resolution of the fit , in number of steps to take
-			
-			if ((pc.id==0) && (strcmp(cellType[precellType].technicalType,"eccell")==0)  && (strcmp(cellType[postcellType].technicalType,"scacell")==0)) {params.x[6]=pc.id}
-			
+			params.x[6]= distres //5 //steps - resolution of the fit , in number of steps to take			
 			params.x[7]= cellType[precellType].dist.x[0] //a in the Gaussian fit // 5, .001, 30
 			params.x[8]= cellType[precellType].dist.x[1] //b in the Gaussian fit
 			params.x[9]= cellType[precellType].dist.x[2] //c in the Gaussian fit
@@ -114,17 +95,9 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			params.x[26]= connlength
 			sum_numconns = sum_numconns + cellType[precellType].numCells
 
-//zzz = mallinfo(zzz, "before conns2make.fastconn")
-//q()
-
-			if ((pc.id==0) && (strcmp(cellType[precellType].technicalType,"eccell")==0)  && (strcmp(cellType[postcellType].technicalType,"scacell")==0)) {print "Host ", pc.id, " pre: ", $s3 , " post: ", $s4  , " fastconn size: ", conns2make, " numConns/postcells: ", numConns/params.x[3], " postcells/host: ", numpost}
-			if ((pc.id==0) && (strcmp(cellType[precellType].technicalType,"eccell")==0)  && (strcmp(cellType[postcellType].technicalType,"scacell")==0)) {print "Host ", pc.id, " conns2make: ", conns2make.size , " params: ", params.size  , " postcellgids: ", postcellgids.size}
 
 			conns2make.fastconn(params, postcellgids)
 			
-			//zzz = mallinfo(zzz, "after conns2make.fastconn")
-//q()
-
 			
 			for r=1, int(conns2make.x[0]/1) {
 				if (pc.gid_exists(conns2make.x[r+connlength])) {
@@ -144,9 +117,6 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 					if (pc.id==0) {print $s3, "s to ", $s4, "s:", " can't make gid ", conns2make.x[r+connlength], " which is r = ", r, " +  connlength = ", connlength, " = ", r+connlength, " from x[r] = ", conns2make.x[r], " total conns = ", int(conns2make.x[0]/1)}
 				}
 			}
-			//zzz = mallinfo(zzz, "after iteration thru conns2make")
-//q()
-
 		}
 		return counter
 	}
@@ -169,8 +139,6 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 		}	 	// Reduce the probability of granule cell connection by the same degree as the sclerosis
 				//	because mossy fibers connecting back to granule cells are subject to sclerosis (?)
 makeConnections()								// Try making connections between every type of cell
-//zzz = mallinfo(zzz, "makeConnections()")
-//q()
 
 objref conns2make
 //zzz = mallinfo(zzz, "objref conns2make")

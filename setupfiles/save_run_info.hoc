@@ -105,7 +105,9 @@ proc typeout() {local i, rn, rank, gid, srcid localobj tgt, f, cell, f2c // Writ
 		if (i>0) {
 			strobj.right(machnick, i+1)
 			i = strobj.substr(machnick, ".")
-			strobj.left(machnick, i)
+			if (i>0) {
+				strobj.left(machnick, i)
+			}
 		}
 
 		{system("date \"+%d-%b-%Y %H:%M:%S\"", edate)}
@@ -117,7 +119,9 @@ proc typeout() {local i, rn, rank, gid, srcid localobj tgt, f, cell, f2c // Writ
 		frec.printf("NumProcessors = %g;\n", pc.nhost)
 		frec.printf("ExecutionDate = '%s';\n", edate)
 		frec.printf("ExecutedBy = '%s';\n", userstr)
-		frec.printf("Machine = '%s';\n", machnick)
+		if (strcmp(machnick,"local")!=0) {
+			frec.printf("Machine = '%s';\n", machnick)
+		}
 		frec.printf("MachineFull = '%s';\n", machname)
 		frec.printf("ModelVerComment='%s';\n", vercomment)
 		frec.printf("ModelVersion='%s';\n", version)

@@ -137,8 +137,7 @@ static int fastconn (void* vv) {
 	ncell = y[3];	// total number of postsynaptic cells
 	num_post = y[4];	// number of postsynaptic cells owned by this host
 	maxd = y[5];	// total distance over which distribution fits
-	steps = 5; 
-	myflaggy = y[6];	// resolution of the distribution fit (in steps)
+	steps = y[6];	// resolution of the distribution fit (in steps)
 	a = y[7];		// distribution fit coefficient a
 	b = y[8];		// distribution fit coefficient b
 	c = y[9];		// distribution fit coefficient c
@@ -194,11 +193,6 @@ static int fastconn (void* vv) {
 															// distance bin step, per cell
 		}
 	}
-
-	if (myflaggy==1) {
-	printf("steps: %d  nconn: %d  ncell: %d npost: %d \n", step, nconn, ncell, num_post);
-	}
-
 
 	/* for each postsynaptic cell, find the possible connections and
 	 * make the desired number of connections where possible */   
