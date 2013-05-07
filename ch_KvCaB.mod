@@ -75,7 +75,7 @@ ASSIGNED {	: clean up the PARAMETER and ASSIGNED blocks
 }
 
 INITIAL {
-	cai= ncai + lcai + tcai
+	cai= ncai + lcai : + tcai
         rate(v,cai)
         o=oinf
 }
@@ -90,6 +90,7 @@ BREAKPOINT {
 }
 
 DERIVATIVE state {	: exact when v held constant; integrates over dt step
+	cai= ncai + lcai : + tcai
 	rate(v, cai)
 	o' = (oinf - o)/otau
 }

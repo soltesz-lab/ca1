@@ -2,7 +2,7 @@ TITLE T-type calcium channel
 
 COMMENT
 T-Type Ca2+ channel
-From: Migliore CA3 (Model # and/or paper)
+From: Migliore et al, 1995; based on Jaffe et al, 1994
 Updates:
 20100910-MJCASE-documented
 ENDCOMMENT

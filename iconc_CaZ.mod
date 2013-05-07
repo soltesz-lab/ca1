@@ -7,6 +7,8 @@ Notes:
 	calcium accumulation into a volume of area*depth next to the
 	membrane with a decay (time constant tau) to resting level
 	given by the global calcium variable cai0_ca_ion
+	
+	Modified from Aradi & Holmes 1999
 Updates:
 	20100910-MJCASE-documented
 ENDCOMMENT

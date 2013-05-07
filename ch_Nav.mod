@@ -87,7 +87,7 @@ PROCEDURE rates(v) {  :Computes rate and other constants at current v.
                       :Call once from HOC to initialize inf at resting v.
 	LOCAL  alpha, beta, sum	: only available to block; must be first line in block
 
-	q10 = 3^((celsius - 6.3)/10)
+	q10 = 3^((celsius - 6.3)/10) : but were the parameters obtained in the paper gotten at 6.3 celsius, or did they just choose this b/c of the NEURON default?
 
 	:"m" sodium activation system - act and inact cross at -40
 	alpha = -0.3*vtrap((v+60-17),-5)

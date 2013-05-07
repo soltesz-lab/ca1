@@ -2,7 +2,7 @@ TITLE N-type calcium channel
  
 COMMENT
 N-Type Ca2+ channel
-From: I Aradi
+From: Aradi and Holmes, 1999
 Updates:
 20100910-MJCASE-documentation in progress
 ENDCOMMENT
@@ -18,11 +18,8 @@ ENDVERBATIM
 UNITS {
 	(mA) =(milliamp)
 	(mV) =(millivolt)
-	(uF) = (microfarad)
 	(molar) = (1/liter)
-	(nA) = (nanoamp)
 	(mM) = (millimolar)
-	(um) = (micron)
 	FARADAY = 96520 (coul)
 	R = 8.3134	(joule/degC)
 }
@@ -30,11 +27,10 @@ UNITS {
  
 NEURON {
 	SUFFIX ch_CavN				: The name of the mechanism
-	USEION nca READ enca WRITE inca VALENCE 2 
-	: note that CavT additionally uses ion 'ca' and reads cai, cao
-	RANGE  g
+	USEION ca READ eca WRITE ica VALENCE 2 
+	RANGE g
 	RANGE gmax
-	RANGE cinf, ctau, dinf, dtau, inca
+	RANGE cinf, ctau, dinf, dtau
 	RANGE myi
 	THREADSAFE
 }
@@ -55,21 +51,22 @@ STATE {
 ASSIGNED {			: assigned (where?)
 	dt (ms) 				: simulation time step
 
-	inca (mA/cm2)	: current flux
+	ica (mA/cm2)	: current flux
 	g (mho/cm2)	: conductance flux
-	enca (mV)		: reversal potential
+	eca (mV)		: reversal potential
 
 	cinf dinf
-	ctau (ms) dtau (ms) 
+	ctau (ms)
+	dtau (ms) 
 	cexp dexp      
 	myi (mA/cm2)
-} 
+}
 
 BREAKPOINT {
 	SOLVE states : what is the method? let's specify one
     g = gmax*c*c*d
-	inca = g*(v-enca)
-	myi = inca
+	ica = g*(v-eca)
+	myi = ica
 }
  
 UNITSOFF
@@ -96,40 +93,41 @@ PROCEDURE rates(v) {  :Computes rate and other constants at current v.
                       :Call once from HOC to initialize inf at resting v.
         LOCAL  alpha, beta, sum
        q10 = 3^((celsius - 6.3)/10)
+       :q10 = 3^((celsius - 34)/10)
                 :"c" NCa activation system
         alpha = -0.19*vtrap(v-19.88,-10)
 	beta = 0.046*exp(-v/20.73)
 	sum = alpha+beta        
 	ctau = 1/sum      cinf = alpha/sum
                 :"d" NCa inactivation system
-	alpha = 0.00016/exp(-v/48.4) : this is not divided in Aradi & Holmes formula
+	alpha = 0.00016*exp(-v/48.4) : this is multiplied, not divided in Aradi & Holmes formula
 	beta = 1/(exp((-v+39)/10)+1)
 	sum = alpha+beta        
 	dtau = 1/sum      dinf = alpha/sum
 }
- 
+
 PROCEDURE trates(v) {  :Computes rate and other constants at current v.
                       :Call once from HOC to initialize inf at resting v.
 	LOCAL tinc
-        TABLE  cinf, cexp, dinf, dexp, ctau, dtau
+	TABLE  cinf, cexp, dinf, dexp, ctau, dtau
 	DEPEND dt, celsius FROM -100 TO 100 WITH 200
                            
 	rates(v)	: not consistently executed from here if usetable_hh == 1
-		: so don't expect the tau values to be tracking along with
-		: the inf values in hoc
+				: so don't expect the tau values to be tracking along with
+				: the inf values in hoc
 
-	       tinc = -dt * q10
+	tinc = -dt * q10
 	cexp = 1 - exp(tinc/ctau)
 	dexp = 1 - exp(tinc/dtau)
 }
- 
+
 FUNCTION vtrap(x,y) {  :Traps for 0 in denominator of rate eqns.
-        if (fabs(x/y) < 1e-6) {
-                vtrap = y*(1 - x/y/2)
-        }else{  
-                vtrap = x/(exp(x/y) - 1)
-        }
+	if (fabs(x/y) < 1e-6) {
+		vtrap = y*(1 - x/y/2)
+	}else{  
+		vtrap = x/(exp(x/y) - 1)
+	}
 }
- 
+
 UNITSON
 

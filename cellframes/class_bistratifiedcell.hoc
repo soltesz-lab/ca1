@@ -10,11 +10,11 @@ public pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_li
 public ivycell_list, ngfcell_list, olmcell_list, pvbasketcell_list, scacell_list
 public eccell_list, ca3cell_list, mscell_list
 
-// objects
-objref syn, pre_list, templist
-
 // external variables
 external numCellTypes, cellType
+
+// objects
+objref syn, pre_list, templist
 
 // create the sections[nsegments]
 // if nsegments (the number of segments in each section) is updated,
@@ -215,6 +215,8 @@ proc set_nseg() {
 proc insert_mechs() {
 	gna = 0.15
 	kdrf = 0.0065
+	gleak = 0.00018
+	
 	forsec all {
 		insert iconc_Ca
 			catau_iconc_Ca = 10
@@ -228,7 +230,7 @@ proc insert_mechs() {
 		insert ch_KCaS
 			gskbar_ch_KCaS = 0.000002 // 0.00002
 		insert ch_KvCaB
-			gkbar_ch_KvCaB = 0.0002 // 0.002
+			gmax_ch_KvCaB = 0.00002 // 0.002
 	}
 
 	soma {		
@@ -236,7 +238,7 @@ proc insert_mechs() {
 			gmax_ch_Nav = gna // 0.012*20  
 			ena = 55 // newly added
 		insert ch_leak
-			gmax_ch_leak = 0.00018
+			gmax_ch_leak = gleak
 		insert ch_Kdrfast
 			gkfbar_ch_Kdrfast=kdrf  
 	} 
@@ -246,7 +248,7 @@ proc insert_mechs() {
 			gmax_Nav= gna // 0.012  *20
 			ena = 55 
 		insert ch_leak
-			gmax_ch_leak = 0.00018
+			gmax_ch_leak = gleak
 		insert ch_Kdrfast
 			gmax_ch_Kdrfast=kdrf
 	}		
@@ -254,7 +256,7 @@ proc insert_mechs() {
 		insert ch_Nav
 			gmax_Nav=gna  // *20
 		insert ch_leak
-			gmax_ch_leak = 0.00018
+			gmax_ch_leak = gleak
 		insert ch_Kdrfast
 			gmax_ch_Kdrfast=kdrf
 	}
@@ -263,7 +265,7 @@ proc insert_mechs() {
 		insert ch_Nav
 			gmax_Nav=gna //  *20
 		insert ch_leak
-			gmax_ch_leak = 0.00018
+			gmax_ch_leak = gleak
 		insert ch_Kdrfast
 			gmax_ch_Kdrfast=kdrf
 	}
@@ -272,7 +274,7 @@ proc insert_mechs() {
 		insert ch_Nav
 			gmax_Nav=gna //  *20
 		insert ch_leak
-			gmax_ch_leak = 0.00018
+			gmax_ch_leak = gleak
 		insert ch_Kdrfast
 			gmax_ch_Kdrfast=kdrf
 	}

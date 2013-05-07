@@ -5,6 +5,7 @@ COMMENT
 	They couldn't quite fit the fast delayed rectifier (of the squid axon??),
 	 so they called it just the fast potassium conductance. Not sure what all it represents anymore.
 	Aradi shifted the voltage dependence by 16 mV - don't know why.
+	Someone else shifted it by 65 as compared to the Aradi & Holmes paper. don't know why...
 ENDCOMMENT
 
 VERBATIM
