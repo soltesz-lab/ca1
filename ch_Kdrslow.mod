@@ -87,7 +87,8 @@ LOCAL q10
 PROCEDURE rates(v) {  :Computes rate and other constants at current v.
                       :Call once from HOC to initialize inf at resting v.
 	LOCAL  alpha, beta, sum
-	q10 = 3^((celsius - 6.3)/10)
+	q10 = 3^((celsius - 34)/10)
+	:q10 = 3^((celsius - 6.3)/10)
 
 	:"ns" sKDR activation system
 	alpha = -0.028*vtrap((v+65-35),-6)

@@ -92,8 +92,8 @@ LOCAL q10
 PROCEDURE rates(v) {  :Computes rate and other constants at current v.
                       :Call once from HOC to initialize inf at resting v.
         LOCAL  alpha, beta, sum
-       q10 = 3^((celsius - 6.3)/10)
-       :q10 = 3^((celsius - 34)/10)
+       :q10 = 3^((celsius - 6.3)/10)
+       q10 = 3^((celsius - 34)/10)
                 :"c" NCa activation system
         alpha = -0.19*vtrap(v-19.88,-10)
 	beta = 0.046*exp(-v/20.73)

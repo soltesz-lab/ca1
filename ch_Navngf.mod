@@ -106,8 +106,8 @@ PROCEDURE rates(v) {  :Computes rate and other constants at current v.
 :	LOCAL  alpha, beta, sum	: only available to block; must be first line in block
 	LOCAL  alpha, beta, sum, tinc	: only available to block; must be first line in block
 
-	q10 = 3^((celsius - 6.3)/10)
-	:q10 = 3^((celsius - 34)/10)
+	:q10 = 3^((celsius - 6.3)/10)
+	q10 = 3^((celsius - 34)/10)
 
 	:"m" sodium activation system - act and inact cross at -40
 	alpha = -1*slope1*vtrap((v+43-offset1),-5) : -0.3*vtrap((v+60-27),-5) 

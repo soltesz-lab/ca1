@@ -212,13 +212,13 @@ proc set_nseg() {
   	forsec all { nseg = int((L/(0.1*lambda_f(100))+.9)/2)*2 + 1  }
 }
 
-proc mechinit() {
+proc mechinitold() {
 	gNasoma=7.49968 
 	gKvA=0.00334105
 	kdrf=0.11448138
 	gleak=8.470825e-5
 	gCavL=0.004383465 
-	gCavN=0.00071007796 
+	gCavN=0.00071007796
 	gKvCaB=5.2404825e-6 
 	gKCaS=0.00014448716 
 	myRa = 14 //75
@@ -233,6 +233,30 @@ proc mechinit() {
 	slope4=3.0931
 	offset5=15
 	offset6=15
+	slope5=.07
+	slope6=.264
+}
+proc mechinit() {
+	gNasoma=5.1837788  
+	gKvA=1.0440781e-05
+	kdrf=0.048482864
+	gleak=8.470825e-05
+	gCavL=0.04383465
+	gCavN=0.00071007796
+	gKvCaB=6.5506031e-07 
+	gKCaS=1.4448716e-07  
+	myRa = 14 //75
+	CM = 1.8 //1.8
+	offset1=20
+	offset2=20
+	offset3=16.5816
+	offset4=16.35371
+	slope1=0.68266
+	slope2=0.56966
+	slope3=0.59296
+	slope4=3.0931
+	offset5=9
+	offset6=9
 	slope5=.07
 	slope6=.264
 }

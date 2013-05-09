@@ -89,7 +89,8 @@ PROCEDURE trates(v) {  :Computes rate and other constants at current v.
 	DEPEND celsius 
 	FROM -120 TO 100 WITH 220
                            
-    q10 = 3^((celsius - 6.3)/10)
+    :q10 = 3^((celsius - 6.3)/10)
+    q10 = 3^((celsius - 34)/10)
        
 	hinf =  1 / (1 + exp( (v+91)/10 ))
 

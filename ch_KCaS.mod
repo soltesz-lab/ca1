@@ -85,7 +85,8 @@ PROCEDURE state() {  :Computes state variable q at current v and dt.
 LOCAL q10
 PROCEDURE rate(cai) {  :Computes rate and other constants at current v.
 	LOCAL alpha, beta, tinc
-	q10 = 3^((celsius - 6.3)/10) : set to 1 for the cutsuridis model?
+	:q10 = 3^((celsius - 6.3)/10) : set to 1 for the cutsuridis model?
+	q10 = 3^((celsius - 34)/10) : set to 1 for the cutsuridis model?
 		:"q" activation system
 alpha = 1.25e1 * cai * cai
 beta = 0.00025 
