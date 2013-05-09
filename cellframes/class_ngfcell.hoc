@@ -33,6 +33,7 @@ proc init() {
 	set_nseg()		// set the number of segments in each section
 	
 	// subcellular mechanisms: channels, pumps, transporters
+	mechinit()
 	insert_mechs()
 	set_biophys()
 	define_shape()
@@ -193,16 +194,16 @@ objref eccell_list, ca3cell_list, mscell_list
 proc size_sections() { local i
 	soma {L=20 diam=15}
 	for i=0, 3 { // upper bound is # of segments - 1
-		bcdendAP1 [i] {L=75 diam=4-i}
+		bcdendAP1 [i] {L=50 diam=4-i}
 	}	
 	for i=0, 3 { // upper bound is # of segments - 1
-		bcdendAP2 [i] {L=75 diam=4-i}
+		bcdendAP2 [i] {L=50 diam=4-i}
 	}	
 	for i=0, 3 { // upper bound is # of segments - 1
-		bcdendBAS1 [i] {L=50 diam=4-i}
+		bcdendBAS1 [i] {L=25 diam=4-i}
 	}	
 	for i=0, 3 { // upper bound is # of segments - 1
-		bcdendBAS2 [i] {L=50 diam=4-i}
+		bcdendBAS2 [i] {L=25 diam=4-i}
 	}
 }
 
@@ -210,77 +211,142 @@ proc set_nseg() {
   forsec all { nseg = 1 }
 }
 
+proc mechinit() {
+	gNasoma=3.7860265 
+	gNadend=0.25918894  
+	gKvA=5.2203905e-06
+	kdrf=0.15514516
+	kdrfdend = 0.0021817289
+	gleak=8.470825e-05
+	gCavL=0.056108352
+	gCavN=0.00058169587
+	gKvCaB=1.0235317e-06 
+	gKCaS=4.5152237e-07  
+	myRa = 14 //75
+	CM = 1.8 //1.8
+	offset1=20
+	offset2=20
+	offset3=13.5816 
+	offset4=13.35371
+	slope1=0.68266
+	slope2=0.56966
+	slope3=1.18592
+	slope4=49.4896
+	offset5=9
+	offset6=9
+	slope5=.07
+	slope6=.264
+}
+	
 proc insert_mechs() {
-	gna_scale = 9 // 0.5
-	kdrf = .013
-	kscale=.25
 	forsec all {
-		insert iconc_Ca
-			catau_iconc_Ca = 10
-			caiinf_iconc_Ca = 5.e-6
-		insert ch_KvA
-	gmax_ch_KvA=0.00005*100
+		insert iconc_CaZ
+			catau_iconc_CaZ = 10
+			caiinf_iconc_CaZ = 5.e-6
+		insert ch_KvAngf
+	gmax_ch_KvAngf = gKvA
 		insert ch_CavN  // HAV-N- Ca channel
-	gmax_ch_CavN=0.0008   
+	gmax_ch_CavN =   gCavN
 		insert ch_CavL 
-	gmax_ch_CavL=0.005
+	gmax_ch_CavL=gCavL
 		insert ch_KCaS
-	gmax_ch_KCaS=0.000145*kscale
+	gmax_ch_KCaS=gKCaS
 		insert ch_KvCaB
-	gmax_ch_KvCaB =0.00001*kscale
+	gmax_ch_KvCaB =gKvCaB
+	cm=CM
 	}
 
 	soma {
 	insert ch_Navngf
-	gmax_ch_Navngf=0.10*gna_scale
+	gmax_ch_Navngf=gNasoma //0.10*gna_scale
+	offset1_ch_Navngf=offset1
+	offset2_ch_Navngf=offset2
+	offset3_ch_Navngf=offset3
+	offset4_ch_Navngf=offset4
+	slope1_ch_Navngf=slope1
+	slope2_ch_Navngf=slope2
+	slope3_ch_Navngf=slope3
+	slope4_ch_Navngf=slope4
 	ena = 55 
-		insert ch_Kdrfast
-	gmax_ch_Kdrfast=kdrf 
+		insert ch_Kdrfastngf
+	gmax_ch_Kdrfastngf=kdrf 
+	offset5_ch_Kdrfastngf=offset5 
+	offset6_ch_Kdrfastngf=offset6 
+	slope6_ch_Kdrfastngf=slope6 
+	slope5_ch_Kdrfastngf=slope5	
+//		insert ch_Kdrslow
+//	gmax_ch_Kdrslow=kdrf 
 	
 	insert ch_leak
-	gmax_ch_leak = 0.00018
-	cm=1.8
+	gmax_ch_leak = gleak
 	} 
 
 	forsec adend {
 	insert ch_Navngf
-	gmax_ch_Navngf=0.08*gna_scale
+	gmax_ch_Navngf=gNadend //0.08*gna_scale
+	offset1_ch_Navngf=offset1
+	offset2_ch_Navngf=offset2
+	offset3_ch_Navngf=offset3
+	offset4_ch_Navngf=offset4
+	slope1_ch_Navngf=slope1
+	slope2_ch_Navngf=slope2
+	slope3_ch_Navngf=slope3
+	slope4_ch_Navngf=slope4
 	ena = 55 
-		insert ch_Kdrfast
-	gmax_ch_Kdrfast=0.007 //0.013
+		insert ch_Kdrfastngf
+	gmax_ch_Kdrfastngf=kdrfdend //.007
+	offset5_ch_Kdrfastngf=offset5 
+	offset6_ch_Kdrfastngf=offset6 
+	slope6_ch_Kdrfastngf=slope6 
+	slope5_ch_Kdrfastngf=slope5	
+//		insert ch_Kdrslow
+//	gmax_ch_Kdrslow=kdrf 
 	
 	insert ch_leak
-	gmax_ch_leak = 0.00018
-	cm=1.8
-	}		
-	forsec	bdend {
-	insert ch_Navngf
-	gmax_ch_Navngf=0.08*gna_scale
-	ena = 55 
-	insert ch_Kdrfast
-	gmax_ch_Kdrfast=kdrf
-	
-	insert ch_leak
-	gmax_ch_leak = 0.00018
-	cm=1.8}
+	gmax_ch_leak = gleak
+	}	
 		
-	forsec 	cdend {
+	forsec bdend {
+	insert ch_Navngf
+	gmax_ch_Navngf=gNadend //0.08*gna_scale
+	offset1_ch_Navngf=offset1
+	offset2_ch_Navngf=offset2
+	offset3_ch_Navngf=offset3
+	offset4_ch_Navngf=offset4
+	slope1_ch_Navngf=slope1
+	slope2_ch_Navngf=slope2
+	slope3_ch_Navngf=slope3
+	slope4_ch_Navngf=slope4
+	ena = 55 
+		insert ch_Kdrfastngf
+	gmax_ch_Kdrfastngf=kdrfdend //.007
+	offset5_ch_Kdrfastngf=offset5 
+	offset6_ch_Kdrfastngf=offset6 
+	slope6_ch_Kdrfastngf=slope6 
+	slope5_ch_Kdrfastngf=slope5	
+//		insert ch_Kdrslow
+//	gmax_ch_Kdrslow=kdrf 
+	
 	insert ch_leak
-	gmax_ch_leak = 0.00018
-	cm=1.8}
+	gmax_ch_leak = gleak
+	}
+		
+	forsec cdend {
+	insert ch_leak
+	gmax_ch_leak = gleak
+	}
 
-	forsec	ddend {
+	forsec ddend {
 	insert ch_leak
-	gmax_ch_leak = 0.00018
-	cm=1.8}
+	gmax_ch_leak = gleak
+	}
 }
 
 proc set_biophys() {
-
-	forsec all {Ra=75}
+	forsec all {Ra=myRa}
 	forsec all {ek=-90  elca=130
-		 e_ch_leak =-60.06
-	cao_iconc_Ca=2 
+		 e_ch_leak =-60
+	cao_iconc_CaZ=2 
 		//cao_ccanl=2 
 		}  // make catau slower70e-3 	cao=2 cai=50.e-6 
 }
