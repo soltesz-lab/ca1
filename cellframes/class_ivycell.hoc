@@ -345,7 +345,7 @@ proc insert_mechs() {
 
 proc set_biophys() {
 	forsec all {Ra=myRa}
-	forsec all {ek=-90  elca=130
+	forsec all {ek=-90  eca=130
 		 e_ch_leak =-60
 	cao_iconc_CaZ=2 
 		//cao_ccanl=2 

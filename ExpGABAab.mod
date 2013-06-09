@@ -112,7 +112,7 @@ NET_RECEIVE(weight (uS)) {
 	Aa = Aa + w*factora
 	Ba = Ba + w*factora
 	totala = totala+w
-	Ab = Ab + w*factorb/3.72
-	Bb = Bb + w*factorb/3.72
-	totalb = totalb+w/3.72
+	Ab = Ab + w*factorb/3.37
+	Bb = Bb + w*factorb/3.37
+	totalb = totalb+w/3.37
 }

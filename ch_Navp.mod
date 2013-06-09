@@ -14,7 +14,7 @@ PARAMETER {
 	sh   = 15	(mV)
 	gmax = 0.010   	(mho/cm2)	
 								
-	tha  = -36 (mV)
+	tha  = -30 (mV) :-30 (mV) : previously I had updated it to -40, then -36 (mV)
 	qa   = 7.2	(mV)		: act slope (4.5)		
 	Ra   = 0.4	(/ms)		: open (v)		
 	Rb   = 0.124 	(/ms)		: close (v)		

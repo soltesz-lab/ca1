@@ -27,7 +27,7 @@ UNITS {
 NEURON {
 	SUFFIX ch_CavL
 	USEION ca READ cai, cao, eca WRITE ica VALENCE 2 
-    RANGE gmax, cai, ica, eca
+    RANGE gmax, g, cai, ica, eca
  	RANGE myi
     RANGE minf, mtau
     THREADSAFE
