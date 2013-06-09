@@ -40,6 +40,10 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 		numSyns = cellType[$1].numSyns.x[$2]
 		numConns = cellType[$1].numConns.x[$2]				
 		numConns = int(numConns/(Scale) + .5) // higher connectivity in smaller scale models
+		
+		if (pc.id==0) {print "Host ", pc.id, " is connecting: ", $s3, "s to ", $s4, "s: numConns: ", numConns, " for ", cellType[postcellType].numCells, " postcells (orig numConns: ", cellType[$1].numConns.x[$2], ")"}
+
+		
 		//getSynapseData($s3, $s4)	// Given the pre and post cell types, look up the weight, delay,
 									//	and probability of connection between these two types
 
