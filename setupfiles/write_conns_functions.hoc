@@ -44,6 +44,31 @@ proc tracenet() {local i, rank, srcid localobj tgt, f	// Write out the connectio
 	}
 }
 
+proc tracenetfast() {local i, g, rank, srcid localobj tgt, f	// Write out the connections list, including synapse type
+	pc.barrier()									// Wait for all ranks to get to this point
+
+	sprint(cmd,"./results/%s/subconns_%g.dat", RunName, pc.id)
+	f = new File(cmd)
+	f.wopen()
+	for i=0, nclist.count -1 {		// For each connection in the list
+		srcid = nclist.o(i).srcgid()	// Get the gid of the source cell
+		tgt = nclist.o(i).syn			// Get a reference to the target cell
+		f.printf("%d\t%d\t%d\n", srcid, tgt.cid, tgt.sid)	// Print source gid, target gid, synapse id
+	}
+	f.close()
+	
+	g=1
+	while (pc.nhost>g) {
+		g=g*2
+		if ((pc.id/g - int(pc.id/g))==0.5) {
+			sprint(dircmd,"cat ./results/%s/subconns_%g.dat >> ./results/%s/subconns_%g.dat", RunName, pc.id, int(pc.id-g/2))
+			{system(dircmd, direx)}			
+			sprint(dircmd,"rm ./results/%s/subconns_%g.dat", RunName, pc.id)
+			{system(dircmd, direx)}			
+		}
+		pc.barrier()
+	}	
+}
 
 objref traceidxlist
 traceidxlist = new Vector()
@@ -76,4 +101,37 @@ proc tracecells() {local i, tr, rank, srcid localobj tgt, f	// Write out the con
 		}		
 		pc.barrier()
 	}
+}
+
+proc tracecellsfast() {local i, tr, rank, srcid localobj tgt, f	// Write out the connections list, including synapse type
+	pc.barrier()									// Wait for all ranks to get to this point
+	sprint(cmd,"./results/%s/subconns_%g.dat", RunName, pc.id)
+	f = new File(cmd)
+	f.wopen()
+	for i=0, nclist.count -1 {		// For each connection in the list
+		srcid = nclist.o(i).srcgid()	// Get the gid of the source cell
+		tgt = nclist.o(i).syn			// Get a reference to the target cell
+		myflag=0
+		for tr = 0, numtrace-1 {
+			if (traceidxlist.x[tr]==tgt.cid || traceidxlist.x[tr]==srcid) {	// If this is a cell of interest
+				myflag=1					
+			}
+		}
+		if (myflag==1) {
+			f.printf("%d\t%d\t%d\n", srcid, tgt.cid, tgt.sid)	// Print source gid, target gid, synapse id
+		}
+	}
+	f.close()
+	
+	g=1
+	while (pc.nhost>g) {
+		g=g*2
+		if ((pc.id/g - int(pc.id/g))==0.5) {
+			sprint(dircmd,"cat ./results/%s/subconns_%g.dat >> ./results/%s/subconns_%g.dat", RunName, pc.id, int(pc.id-g/2))
+			{system(dircmd, direx)}			
+			sprint(dircmd,"rm ./results/%s/subconns_%g.dat", RunName, pc.id)
+			{system(dircmd, direx)}			
+		}
+		pc.barrier()
+	}	
 }
