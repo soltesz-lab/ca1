@@ -56,6 +56,7 @@ proc tracenetfast() {local i, g, rank, srcid localobj tgt, f	// Write out the co
 		f.printf("%d\t%d\t%d\n", srcid, tgt.cid, tgt.sid)	// Print source gid, target gid, synapse id
 	}
 	f.close()
+	pc.barrier()
 	
 	g=1
 	while (pc.nhost>g) {
@@ -122,6 +123,7 @@ proc tracecellsfast() {local i, tr, rank, srcid localobj tgt, f	// Write out the
 		}
 	}
 	f.close()
+	pc.barrier()
 	
 	g=1
 	while (pc.nhost>g) {
@@ -133,6 +135,8 @@ proc tracecellsfast() {local i, tr, rank, srcid localobj tgt, f	// Write out the
 			{system(dircmd, direx)}			
 			if (pc.id==3 || pc.id==2) {
 				print "gonna move ", pc.id," results to pc: ",  int(pc.id-g/2)
+				print "dircmd: ", dircmd
+				print "direx: ", direx
 			} else {
 				sprint(dircmd,"rm ./results/%s/subconns_%g.dat", RunName, pc.id)
 				{system(dircmd, direx)}		
