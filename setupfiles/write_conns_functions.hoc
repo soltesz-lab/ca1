@@ -128,19 +128,11 @@ proc tracecellsfast() {local i, tr, rank, srcid localobj tgt, f	// Write out the
 	g=1
 	while (pc.nhost>g) {
 		g=g*2
-		if (pc.id==3) {print "pc 3 g: ", g, " cond = ", (pc.id/g - int(pc.id/g))}
-		if (pc.id==2) {print "pc 2 g: ", g, " cond = ", (pc.id/g - int(pc.id/g))}
 		if ((pc.id/g - int(pc.id/g))==0.5) {
 			sprint(dircmd,"cat ./results/%s/subconns_%g.dat >> ./results/%s/subconns_%g.dat", RunName, pc.id, RunName, int(pc.id-g/2))
 			{system(dircmd, direx)}			
-			if (pc.id==3 || pc.id==2) {
-				print "gonna move ", pc.id," results to pc: ",  int(pc.id-g/2)
-				print "dircmd: ", dircmd
-				print "direx: ", direx
-			} else {
-				sprint(dircmd,"rm ./results/%s/subconns_%g.dat", RunName, pc.id)
-				{system(dircmd, direx)}		
-			}	
+			sprint(dircmd,"rm ./results/%s/subconns_%g.dat", RunName, pc.id)
+			{system(dircmd, direx)}		
 		}
 		pc.barrier()
 	}	

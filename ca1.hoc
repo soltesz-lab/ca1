@@ -339,13 +339,8 @@ proc rrun(){									// Run the network simulation and write out the results
 	if (PrintVoltage==1) {voltageout()}	// Write out any voltages that were recorded during simulation
 	if (PrintConnDetails==1) {tracenetfast()}	// Write the file of all cell connections (pre and post gids, synapse type,
 										//  host on which cell exists), "connections.dat"
-	oldstart = startsw()				// Calculate runtime of simulation
-	if ((PrintConnDetails==0) && (PrintVoltage==1)) {tracecells()}	// If detailed connections are not being written out, at least write them out for cells that are being traced
-	oldtime = startsw() - oldstart				// Calculate runtime of simulation
-	newstart = startsw()				// Calculate runtime of simulation
+
 	if ((PrintConnDetails==0) && (PrintVoltage==1)) {tracecellsfast()}	// If detailed connections are not being written out, at least write them out for cells that are being traced
-	newtime = startsw() - newstart				// Calculate runtime of simulation
-	if (pc.id == 0) {printf("~~~~~~~~~~\n OTHER TIME SUMMARY for host 0\n old way: %g\n new way: %g\n~~~~~~~~~~~~~~~~~\n", oldtime, newtime)}
 	
 	sumnumout()	// Write out a file with the total number of cells, spikes, and connections (including contributions from artificial cells)
 }
