@@ -136,4 +136,15 @@ proc tracecellsfast() {local i, tr, rank, srcid localobj tgt, f	// Write out the
 		}
 		pc.barrier()
 	}	
+	if (pc.id==0) {
+		sprint(cmd,"./results/%s/cell_syns.dat", RunName)
+		f = new File(cmd)
+		if (pc.id == 0) { 								// Write header to file 1 time only
+			f.wopen()
+			f.printf("source\ttarget\tsynapse\n")
+			f.close()
+		}
+		sprint(dircmd,"mv ./results/%s/subconns_0.dat >> ./results/%s/cell_syns.dat", RunName, RunName)
+		{system(dircmd, direx)}		
+	}
 }
