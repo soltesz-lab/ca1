@@ -46,6 +46,7 @@ default_var("Scale",1000) // Scale of model (1:X), so 1 is 1M cells, 20 is 50K c
 default_var("SimDuration",300)	// Stop time of simulation
 default_var("TemporalResolution",0.1)	// Step time / resolution of simulation
 
+default_var("UID","0") // Run unique ID
 default_var("RunComments","") // Run Comments
 default_var("RunName","none") // Run Comments
 default_var("NumTraces",100) // Run Comments

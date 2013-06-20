@@ -43,9 +43,15 @@ proc SetOtherParameters() {local ind, i, layernum, tempheight
 															// 	sections must be at least this long to
 															// 	prevent overlap
 															
-	connectionFactor = 1 // Set factor to control # connections formed in the network;
+	//connectionFactor = 1 // Set factor to control # connections formed in the network;
 						// 	changes depending on total # cells and model size (Scale)
-	if (Scale>=20) {connectionFactor = 1} //5}
-	if (Scale>=2000) {connectionFactor = 1} //500}
+	//if (Scale>=20) {connectionFactor = 1} //5}
+	//if (Scale>=2000) {connectionFactor = 1} //500}
+	
+	if (strcmp(UID,"0")==0) {
+		{system("uuidgen", direx)} // unix or mac
+		//{system("cscript //NoLogo uuid.vbs", direx)} // pc
+		UID = direx
+	}
 }	
 SetOtherParameters()
