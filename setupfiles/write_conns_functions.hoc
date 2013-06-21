@@ -144,7 +144,9 @@ proc tracecellsfast() {local i, tr, rank, srcid localobj tgt, f	// Write out the
 			f.printf("source\ttarget\tsynapse\n")
 			f.close()
 		}
-		sprint(dircmd,"mv ./results/%s/subconns_0.dat >> ./results/%s/cell_syns.dat", RunName, RunName)
+		sprint(dircmd,"cat ./results/%s/subconns_0.dat >> ./results/%s/cell_syns.dat", RunName, RunName)
+		{system(dircmd, direx)}		
+		sprint(dircmd,"rm ./results/%s/subconns_%g.dat", RunName, pc.id)
 		{system(dircmd, direx)}		
 	}
 }
