@@ -159,6 +159,21 @@ iterator pcitr() {local i2, startgid	// Create iterator for use as a standard 'f
 		}
 	}
 }
+
+objref  strobj
+strobj = new StringFunctions()
+strdef direx
+if (strcmp(UID,"0")==0 && pc.id==0) {
+	type = unix_mac_pc() // 1 if unix, 2 if mac, 3 if mswin, or 4 if mac osx darwin
+	if (type<3) {
+		{system("uuidgen", direx)} // unix or mac
+		strobj.left(direx, strobj.len(direx)-1)
+	} else {
+		{system("cscript //NoLogo uuid.vbs", direx)} // pc
+	}
+	UID = direx
+}
+
 {load_file("./setupfiles/save_run_info.hoc")}
 
 loadtime = startsw() - loadstart		// Calculate the set up time (now - recorded start time) in seconds

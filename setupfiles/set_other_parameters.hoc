@@ -48,10 +48,5 @@ proc SetOtherParameters() {local ind, i, layernum, tempheight
 	//if (Scale>=20) {connectionFactor = 1} //5}
 	//if (Scale>=2000) {connectionFactor = 1} //500}
 	
-	if (strcmp(UID,"0")==0) {
-		{system("uuidgen", direx)} // unix or mac
-		//{system("cscript //NoLogo uuid.vbs", direx)} // pc
-		UID = direx
-	}
 }	
 SetOtherParameters()
