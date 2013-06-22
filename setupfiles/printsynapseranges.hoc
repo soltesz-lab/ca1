@@ -1,11 +1,11 @@
 {load_file("nrngui.hoc")}				// Standard definitions - NEURON library file
 
-{load_file("/home/casem/repos/ca1/setupfiles/defaultvar.hoc")}	// Contains the proc definition for default_var proc
+{load_file("setupfiles/defaultvar.hoc")}	// Contains the proc definition for default_var proc
 {default_var("NumData",100)}		// for paired recording, use these synapse weights
 strdef cmdstr
 objref f2
 	f2 = new File()
-	sprint(cmdstr, "/home/casem/repos/ca1/connections/cellnumbers_%g.dat", NumData)
+	sprint(cmdstr, "connections/cellnumbers_%g.dat", NumData)
 	f2.ropen(cmdstr)		// Open the celltype
 	
 	numCellTypes = f2.scanvar       // Scan the first line, which contains a number giving the
