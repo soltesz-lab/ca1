@@ -1,53 +1,31 @@
 // This file sets the default values of parameters
 //  in such a way that they can be overridden using
 //  certain options at the command line
-
-// Files to print
-default_var("PrintVoltage",1)		// records and prints the voltage traces for the cells listed in voltagetrace.hoc
-default_var("PrintTerminal",1)		// controls how many notes print to screen. 0=few, 1=some, 2=many
-default_var("PrintConnSummary",1)	// Controls whether to print the Number of Connections (1=yes, 0=no)
-default_var("PrintCellPositions",1)	// Controls whether to print the position list (1=yes, 0=no)
-default_var("PrintConnDetails",0)	// Controls whether to print the detailed Connection list
-								//	(2=yes immediately, 1=yes at end of program, 0=no)
-default_var("RandomSeeds",0)	// Controls whether to print the random seed list (1=yes, 0=no)
-
-// Model size
-default_var("LongitudinalLength",6000)	// X Length of dentate in microns
-default_var("TransverseLength",1000)	// Y Length of dentate in microns
-// default_var("HilarHeight",500)		// Height of the hilar layer in microns
-// default_var("GCLHeight",100) 		// Height of the granule cell layer in microns
-// default_var("MolecularHeight",400) 	// Height of the molecular layer in microns
-default_var("LayerHeights","4;500;100;400;100;") 	// Height of the molecular layer in microns
-
-// Model stimulation
-													
-default_var("Connectivity","try_all_randfast")		// Connectivity = [try_all_random]
-default_var("SynData",108)						// Connection set to use
-default_var("ConnData",168)						// Connection set to use
-default_var("NumData",100)						// Cell Numbers set to use
-default_var("Stimulation","spontaneous")		// Stimulation = [pulse | spontaneous | grid]
-
-default_var("DegreeStim",10)		// Intensity of stimulation; slightly different meaning depending on the 
-									//  stimulation protocol used. Ex:
-									//  If pulse stimulation is used (spontaneousAct==0), what percent of granule, basket, mossy cells
-									//  alternately, if spontaneous stimulation is used, what should the maximal rate be?
-default_var("Onint",125)		// Interval of stimulation
-default_var("Offint",0)		// Interval of no stimulation
-default_var("RipStim",200)		// Ripple frequency from CA3 cells 
-
-// Sprouting and cell death
-default_var("PercentAxonSprouting",0)	// Set % of mossy fiber (granule cell) sprouting
-default_var("PercentCellDeath",PercentAxonSprouting)	// Set % of cell death, for cells flagged as susceptible to death
-
-// Model scale (1:X)
-default_var("Scale",1000) // Scale of model (1:X), so 1 is 1M cells, 20 is 50K cells, etc
-
-// Simulation time and other settings
-default_var("SimDuration",300)	// Stop time of simulation
-default_var("TemporalResolution",0.1)	// Step time / resolution of simulation
-
-default_var("UID","0") // Run unique ID
-default_var("RunComments","") // Run Comments
-default_var("RunName","none") // Run Comments
-default_var("NumTraces",100) // Run Comments
-default_var("FracTraces",50) // Run Comments
+default_var("RunName","none")		// Name of simulation run
+default_var("UID","0")		// Unique ID for this simulation run
+default_var("Stimulation","spontaneous")		// Filename of the stimulation protocol used to stimulate the network
+default_var("Connectivity","try_all_randfaststim")		// Filename of the connection protocol used to connect the cells of the network
+default_var("Scale",1000)		// Network scale (1:Scale)
+default_var("SimDuration",300)		// Duration of time simulated, in milliseconds
+default_var("RandomSeeds",0)		// Method used to assign seeds to random processors
+default_var("Positioning","")		// Algorithm used to position the cells
+default_var("PrintVoltage",1)		// Flag for recording and printing intracellular voltage traces for select cells
+default_var("PrintTerminal",1)		// Level of printouts to screen (affects run time) 0: minimal, 1: some, 2: max printouts
+default_var("PrintConnDetails",0)		// Flag for printing the detailed connection matrix
+default_var("PrintCellPositions",1)		// Flag for printing the cell positions
+default_var("PrintConnSummary",1)		// Flag for printing the summary connection matrix
+default_var("TransverseLength",1000)		// Length of the network subfield in the transverse direction in microns
+default_var("LongitudinalLength",6000)		// Length of the network subfield in the longitudinal direction in microns
+default_var("LayerHeights","4;500;100;400;100;")		// Vector of heights of each network subfield layer in microns (from basal to molecular layer)
+default_var("SpatialResolution",100)		// Spatial discretization method or resolution
+default_var("ConnData",1)		// Number of the connection dataset to use
+default_var("NumData",1)		// Number of the cells dataset to use
+default_var("TemporalResolution",0.1)		// Temporal resolution of the simulation (in ms)
+default_var("NumTraces",100)		// The maximum number of cells to record intracellularly, for each cell type
+default_var("FracTraces",50)		// The percent of cells to record intracellularly, for each cell type
+default_var("DegreeStim",10)		// Degree of stimulation; meaning depends on Stimulation type
+default_var("Onint",125)		// Duration of burst (in ms) when burst stimulation is used
+default_var("Offint",0)		// Duration of rest interval between bursts (in ms) when burst stimulation is used
+default_var("PercentCellDeath",0)		// Percent of cells that are killed (removed), for cell types flagged for cell death
+default_var("PercentAxonSprouting",0)		// Probability of connection between granule cells, given as a percent of connections to make out of all possible granule cell connections
+default_var("RipStim",200)		// Degree of ripple CA3 stimulation; Higher=more
