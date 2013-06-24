@@ -169,7 +169,7 @@ if (strcmp(UID,"0")==0 && pc.id==0) {
 		{system("uuidgen", direx)} // unix or mac
 		strobj.left(direx, strobj.len(direx)-1)
 	} else {
-		{system("cscript //NoLogo uuid.vbs", direx)} // pc
+		{system("cscript //NoLogo setupfiles/uuid.vbs", direx)} // pc
 	}
 	UID = direx
 }

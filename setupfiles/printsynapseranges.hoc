@@ -49,3 +49,4 @@ for i = 0, numCellTypes-1 {
 }
 
 f2.close
+quit()
