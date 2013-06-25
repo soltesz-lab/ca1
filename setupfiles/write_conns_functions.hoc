@@ -126,16 +126,18 @@ proc tracecellsfast() {local i, tr, rank, srcid localobj tgt, f	// Write out the
 	pc.barrier()
 	
 	g=1
-	while (pc.nhost>g) {
-		g=g*2
-		if ((pc.id/g - int(pc.id/g))==0.5) {
-			sprint(dircmd,"cat ./results/%s/subconns_%g.dat >> ./results/%s/subconns_%g.dat", RunName, pc.id, RunName, int(pc.id-g/2))
-			{system(dircmd, direx)}			
-			sprint(dircmd,"rm ./results/%s/subconns_%g.dat", RunName, pc.id)
-			{system(dircmd, direx)}		
-		}
-		pc.barrier()
-	}	
+	if (CatFlag==1) {
+		while (pc.nhost>g) {
+			g=g*2
+			if ((pc.id/g - int(pc.id/g))==0.5) {
+				sprint(dircmd,"cat ./results/%s/subconns_%g.dat >> ./results/%s/subconns_%g.dat", RunName, pc.id, RunName, int(pc.id-g/2))
+				{system(dircmd, direx)}			
+				sprint(dircmd,"rm ./results/%s/subconns_%g.dat", RunName, pc.id)
+				{system(dircmd, direx)}		
+			}
+			pc.barrier()
+		}	
+	}
 	if (pc.id==0) {
 		sprint(cmd,"./results/%s/cell_syns.dat", RunName)
 		f = new File(cmd)
@@ -143,10 +145,12 @@ proc tracecellsfast() {local i, tr, rank, srcid localobj tgt, f	// Write out the
 			f.wopen()
 			f.printf("source\ttarget\tsynapse\n")
 			f.close()
+			if (CatFlag==1) {		
+				sprint(dircmd,"cat ./results/%s/subconns_0.dat >> ./results/%s/cell_syns.dat", RunName, RunName)
+				{system(dircmd, direx)}		
+				sprint(dircmd,"rm ./results/%s/subconns_%g.dat", RunName, pc.id)
+				{system(dircmd, direx)}	
+			}	
 		}
-		sprint(dircmd,"cat ./results/%s/subconns_0.dat >> ./results/%s/cell_syns.dat", RunName, RunName)
-		{system(dircmd, direx)}		
-		sprint(dircmd,"rm ./results/%s/subconns_%g.dat", RunName, pc.id)
-		{system(dircmd, direx)}		
 	}
 }

@@ -1,6 +1,7 @@
 // This file sets the default values of parameters
 //  in such a way that they can be overridden using
 //  certain options at the command line
+ 
 default_var("RunName","none")		// Name of simulation run
 default_var("UID","0")		// Unique ID for this simulation run
 default_var("Stimulation","spontaneous")		// Filename of the stimulation protocol used to stimulate the network
@@ -29,3 +30,4 @@ default_var("Offint",0)		// Duration of rest interval between bursts (in ms) whe
 default_var("PercentCellDeath",0)		// Percent of cells that are killed (removed), for cell types flagged for cell death
 default_var("PercentAxonSprouting",0)		// Probability of connection between granule cells, given as a percent of connections to make out of all possible granule cell connections
 default_var("RipStim",200)		// Degree of ripple CA3 stimulation; Higher=more
+default_var("CatFlag",1)		// Whether to concatenate and remove trace connection files
