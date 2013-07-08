@@ -20,6 +20,7 @@ default_var("LongitudinalLength",6000)		// Length of the network subfield in the
 default_var("LayerHeights","4;500;100;400;100;")		// Vector of heights of each network subfield layer in microns (from basal to molecular layer)
 default_var("SpatialResolution",100)		// Spatial discretization method or resolution
 default_var("ConnData",1)		// Number of the connection dataset to use
+default_var("SynData",1)		// Number of the synapse kinetics dataset that was used to prepare the cell definition files
 default_var("NumData",1)		// Number of the cells dataset to use
 default_var("TemporalResolution",0.1)		// Temporal resolution of the simulation (in ms)
 default_var("NumTraces",100)		// The maximum number of cells to record intracellularly, for each cell type
