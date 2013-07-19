@@ -129,10 +129,8 @@ proc tracecellsfast() {local i, tr, rank, srcid localobj tgt, f	// Write out the
 	for i=0, nclist.count -1 {		// For each connection in the list
 		srcid = nclist.o(i).srcgid()	// Get the gid of the source cell
 		tgt = nclist.o(i).syn			// Get a reference to the target cell
-		if (tgt.cid==711) {print "Rank ", pc.id, " has gid ", srcid, " -> 711, synapse " tgt.sid}
 		myflag=0
 		for tr = 0, numtrace-1 {
-			if (i==0 && pc.id==0) {print "Host 0 says traceidxlist.x[", tr, "] = ", traceidxlist.x[tr]}
 			if (traceidxlist.x[tr]==tgt.cid || traceidxlist.x[tr]==srcid) {	// If this is a cell of interest
 				myflag=1					
 			}

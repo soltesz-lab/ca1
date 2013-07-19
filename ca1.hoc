@@ -362,6 +362,19 @@ proc rrun(){									// Run the network simulation and write out the results
 	sumnumout()	// Write out a file with the total number of cells, spikes, and connections (including contributions from artificial cells)
 }
 
+objref fih
+fih = new FInitializeHandler(2, "progress(0)")
+walltime = startsw()
+proc progress() {local wt
+	wt = startsw()
+	if ($1 == 1) {
+		if (wt - walltime > 20) { // or a reasonable time for 1/dt steps
+			if (pc.id == 0) { printf("1ms interval at t=%g was %g s\n", wt - walltime) }
+		}
+	}
+	walltime = wt
+	cvode.event(t+1, "progress(1)")
+}
 rrun()	// Run the network simulation (in proc rrun)
 
 {pc.runworker()} 	// Everything after this line is executed only by the host node
