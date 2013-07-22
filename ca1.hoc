@@ -348,7 +348,12 @@ proc rrun(){									// Run the network simulation and write out the results
 	
 	if (pc.id == 0) {printf("****\nTIME SUMMARY for host 0\nset up in %g seconds\ncreated cells in %g seconds\nconnected cells in %g seconds\nran simulation in %g seconds\n************\nThis run is called: %s\n************\n", loadtime, createtime, connecttime, runtime, RunName)}
 												// Print a time summary message to screen
+	comptime = pc.step_time
+	avgcomp = pc.allreduce(comptime, 1)/pc.nhost
+	maxcomp = pc.allreduce(comptime, 2)
 
+	if (pc.id == 0) { printf(“load_balance = %g\n”, avgcomp/maxcomp)
+	
 	spikeout()	// Write the spike times (in ms) and spiking cells (by gid) into a file called "spikeraster.dat"
 	
 	timeout()	// Write out a file of run times for each code section
