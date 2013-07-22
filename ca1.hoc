@@ -352,7 +352,7 @@ proc rrun(){									// Run the network simulation and write out the results
 	avgcomp = pc.allreduce(comptime, 1)/pc.nhost
 	maxcomp = pc.allreduce(comptime, 2)
 
-	if (pc.id == 0) { printf(“load_balance = %g\n”, avgcomp/maxcomp)
+	if (pc.id == 0) { printf("load_balance = %g\n", avgcomp/maxcomp)}
 	
 	spikeout()	// Write the spike times (in ms) and spiking cells (by gid) into a file called "spikeraster.dat"
 	
