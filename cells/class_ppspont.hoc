@@ -1,26 +1,20 @@
 begintemplate ppspont
 
-	public pp, connect_pre, is_art, acell, noiseFromRandom, setnoiseFromRandom
+	public pp, connect_pre, is_art, noiseFromRandom, setnoiseFromRandom
+	public x, y, z, position
 	external DegreeStim
-	create acell
 	objref pp
 
 	proc init() {
 		actemp() 	
 	}
 		proc actemp() {
-				acell pp = new MyNetStim(.5)
-				// Rob & Jonas protocol:
+				pp = new MyNetStim(.5)
 				pp.interval = 1000/DegreeStim // 100 for Rob and Jonas
 				pp.number = 1e9
 				pp.noise = 1				
 				pp.start = 0
-				/* My protocol:
-				pp.interval = 100 	// ms
-				pp.number = 500000000		// # of spikes - set it really high so that we don't run out of activity during sim. even if really long
-				pp.noise = 0.5		// percent of spike interval time that is decided by noise
-				pp.start = 5		// start time (ms) of stim protocol
-				*/
+
 				}
 	proc setnoiseFromRandom() {
 		pp.noiseFromRandom($o1)
@@ -28,6 +22,11 @@ begintemplate ppspont
 
 	func is_art() {return 1}
 	
-	proc connect_pre() {acell $o2 = new NetCon(pp, $o1)}
+	proc connect_pre() {$o2 = new NetCon(pp, $o1)}
+
+	proc position(){
+		x = $1  y = $2  z = $3	
+		pp.position(x, y, z)
+	}
 
 endtemplate ppspont

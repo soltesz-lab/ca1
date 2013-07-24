@@ -218,7 +218,7 @@ strdef cmd
 {load_file("./setupfiles/write_positions.hoc")}		// Defines the proc to write the position
 													//  of each cell to file
 													
-//if (PrintCellPositions>0) {posout()}	// Calls the proc that writes the position of each cell to the
+if (PrintCellPositions>0) {posout()}	// Calls the proc that writes the position of each cell to the
 								//  file "position.dat" in the format: gid, x, y, z
 
 createtime = startsw() - createstart	// Calculate time taken to create the cells
@@ -263,7 +263,6 @@ if (PrintConnDetails==2) {tracenet()}		// Write "connections.dat": a VERY SLOW, 
 
 connecttime = startsw() - connectstart			// calculate time taken to connect the cells
 if (pc.id == 0) {printf("\nTIME HOST 0: %g seconds (connected cells)\n************\n", connecttime)}
-runstart = startsw()							// grab start time of the simulation
 
 /***********************************************************************************************
 VI.	INITIALIZE AND RUN NETWORK, OUTPUT RESULT FILES
@@ -340,6 +339,7 @@ proc rrun(){									// Run the network simulation and write out the results
 	stdinit()									// Call the init fcn (which is redefined in this code) and
 												//  then make other standard calls (to stop watch, etc)
 
+	runstart = startsw()							// grab start time of the simulation
 	pc.psolve(tstop)							// Equivalent to calling cvode.solve(tstop) but for parallel NEURON;
 												//  solve will be broken into steps determined by the result of
 												//  set_maxstep
@@ -351,10 +351,14 @@ proc rrun(){									// Run the network simulation and write out the results
 	comptime = pc.step_time
 	avgcomp = pc.allreduce(comptime, 1)/pc.nhost
 	maxcomp = pc.allreduce(comptime, 2)
-
-	if (pc.id == 0) { printf("load_balance = %g\n", avgcomp/maxcomp)}
-	
-	spikeout()	// Write the spike times (in ms) and spiking cells (by gid) into a file called "spikeraster.dat"
+	if (maxcomp>0) {
+		if (pc.id == 0) { printf("load_balance = %g\n", avgcomp/maxcomp)}
+		if (pc.id == 0) { printf("exchange_time = %g\n", maxcomp - runtime) }
+	} else {
+		if (pc.id == 0) { printf("no load balance info available\nno spike exchange info available\n")}
+	}
+		
+	spikeout(runtime)	// Write the spike times (in ms) and spiking cells (by gid) into a file called "spikeraster.dat"
 	
 	timeout()	// Write out a file of run times for each code section
 

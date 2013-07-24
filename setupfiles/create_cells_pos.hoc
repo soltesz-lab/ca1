@@ -26,15 +26,17 @@ proc createCells(){ local i, ij, si, pci, cellind, runresult, gid	// Create cell
 																								//  Note: Parameters added to Syn2Gid mechanism
 						}
 					}
-					xpos=xpos_algorithm(gid,cellType[cellind].numCells,cellType[cellind].cellStartGid,cellType[cellind].dentateXBins,cellType[cellind].dentateYBins*cellType[cellind].dentateZBins,cellType[cellind].dentateXBinSize)	// Algorithmically generate cell position
-					ypos=ypos_algorithm(gid,cellType[cellind].numCells,cellType[cellind].cellStartGid,cellType[cellind].dentateYBins,cellType[cellind].dentateZBins,cellType[cellind].dentateYBinSize)	// Algorithmically generate cell position
-					zpos=zpos_algorithm(gid,cellType[cellind].numCells,cellType[cellind].cellStartGid,cellType[cellind].dentateZBins,cellType[cellind].dentateZBinSize,cellType[cellind].layerflag)	// Algorithmically generate cell position
-					cellType[cellind].CellList[ij].position(xpos,ypos,zpos)									// Record cell position in cell object
-					
+
 					if ((ij%int(cellType[cellind].numCells/10+1) == 0) && (PrintTerminal>1)) {
 					print cellType[cellind].cellType_string, ": ", i
 					}
-				}
+				}				
+				
+				xpos=xpos_algorithm(gid,cellType[cellind].numCells,cellType[cellind].cellStartGid,cellType[cellind].dentateXBins,cellType[cellind].dentateYBins*cellType[cellind].dentateZBins,cellType[cellind].dentateXBinSize)	// Algorithmically generate cell position
+				ypos=ypos_algorithm(gid,cellType[cellind].numCells,cellType[cellind].cellStartGid,cellType[cellind].dentateYBins,cellType[cellind].dentateZBins,cellType[cellind].dentateYBinSize)	// Algorithmically generate cell position
+				zpos=zpos_algorithm(gid,cellType[cellind].numCells,cellType[cellind].cellStartGid,cellType[cellind].dentateZBins,cellType[cellind].dentateZBinSize,cellType[cellind].layerflag)	// Algorithmically generate cell position
+				cellType[cellind].CellList[ij].position(xpos,ypos,zpos)									// Record cell position in cell object
+								
 			}
 		} 
 	}
