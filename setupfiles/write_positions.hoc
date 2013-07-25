@@ -13,7 +13,9 @@ proc posout() {local pci, pcti, rank, gid, srcid localobj tgt, f, cell	// Write 
 			for pcitr(&pci, &pcti, &gid, cellType[0].cellStartGid, cellType[numCellTypes-1].cellEndGid) {		// Use the pciter over all non ppStim cells
 				if (pc.gid_exists(gid)) {	// If cell exists on this machine
 					cell = pc.gid2cell(gid)	// Refer to cell
-					f.printf("%d\t%d\t%d\t%d\t%d\n", gid, cell.x, cell.y, cell.z, pc.id)
+					if (cell.is_art()==0) {
+						f.printf("%d\t%d\t%d\t%d\t%d\n", gid, cell.x, cell.y, cell.z, pc.id)
+					}
 				}
 			}		
 			f.close()
