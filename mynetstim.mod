@@ -30,8 +30,8 @@ ASSIGNED {
 	donotuse
 }
 
-PROCEDURE seed(x) {
-	set_seed(x)
+PROCEDURE seed(a) {
+	set_seed(a)
 }
 
 INITIAL {
