@@ -6,6 +6,7 @@ NEURON	{
   RANGE interval, number, start
   RANGE noise
   RANGE sid, cid
+  RANGE xpos, ypos, zpos
   THREADSAFE : only true if every instance has its own distinct Random
   POINTER donotuse
 }
@@ -17,6 +18,9 @@ PARAMETER {
 	noise		= 0 <0,1>	: amount of randomness (0.0 - 1.0)
 	sid = -1 (1) : synapse id, from cell template
 	cid = -1 (1) : id of cell to which this synapse is attached
+	xpos = 0
+	ypos = 0
+	zpos = 0
 }
 
 ASSIGNED {
@@ -65,7 +69,9 @@ FUNCTION is_art() {
 }
 
 FUNCTION position(a, b, c) { 
-
+	xpos = a
+	ypos = b
+	zpos = c
 }
 
 FUNCTION invl(mean (ms)) (ms) {
