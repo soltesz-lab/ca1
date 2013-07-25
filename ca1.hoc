@@ -358,7 +358,7 @@ proc rrun(){									// Run the network simulation and write out the results
 		if (pc.id == 0) { printf("no load balance info available\nno spike exchange info available\n")}
 	}
 		
-	spikeout(runtime)	// Write the spike times (in ms) and spiking cells (by gid) into a file called "spikeraster.dat"
+	spikeout()	// Write the spike times (in ms) and spiking cells (by gid) into a file called "spikeraster.dat"
 	
 	timeout()	// Write out a file of run times for each code section
 
@@ -368,7 +368,7 @@ proc rrun(){									// Run the network simulation and write out the results
 
 	if ((PrintConnDetails==0) && (PrintVoltage==1)) {tracecellsfast()}	// If detailed connections are not being written out, at least write them out for cells that are being traced
 	
-	sumnumout()	// Write out a file with the total number of cells, spikes, and connections (including contributions from artificial cells)
+	sumnumout(runtime)	// Write out a file with the total number of cells, spikes, and connections (including contributions from artificial cells)
 }
 rrun()	// Run the network simulation (in proc rrun)
 
