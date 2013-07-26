@@ -1,7 +1,7 @@
 begintemplate ppspont
 
 	public pp, connect_pre, is_art, noiseFromRandom, setnoiseFromRandom
-	public x, y, z, position
+	public x, y, z, position, xpos, ypos, zpos
 	external DegreeStim
 	objref pp
 
@@ -26,7 +26,8 @@ begintemplate ppspont
 
 	proc position(){
 		x = $1  y = $2  z = $3	
-		pp.position(x, y, z)
+		xpos = $1  ypos = $2  zpos = $3	
+		pp.position(xpos, ypos, zpos)
 	}
 
 endtemplate ppspont
