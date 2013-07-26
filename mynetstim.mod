@@ -68,7 +68,7 @@ FUNCTION is_art() {
 	is_art=1
 }
 
-FUNCTION position(a, b, c) { 
+PROCEDURE position(a, b, c) { 
 	xpos = a
 	ypos = b
 	zpos = c

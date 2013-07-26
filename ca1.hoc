@@ -370,30 +370,15 @@ proc rrun(){									// Run the network simulation and write out the results
 	
 	sumnumout(runtime)	// Write out a file with the total number of cells, spikes, and connections (including contributions from artificial cells)
 }
-objref fih
-fih = new FInitializeHandler(2, "midbal(0)")
-cvode.event(99, "midbal(0)")
-
+objref fihw
+fihw = new FInitializeHandler(2, "midbal()")
 walltime = startsw()
 proc midbal() {local wt
 	wt = startsw()
-	if ($1 == 0) {
-		if (pc.id == 0) { printf("100ms interval at t=%g was %g s\n", t, wt - walltime) }
-		comptime = pc.step_time
-		avgcomp = pc.allreduce(comptime, 1)/pc.nhost
-		maxcomp = pc.allreduce(comptime, 2)
-		if (maxcomp>0) {
-			if (pc.id == 0) { printf("t=%g load_balance = %g\n", t, avgcomp/maxcomp)}
-			if (pc.id == 0) { printf("t=%g exchange_time = %g\n", t, maxcomp - runtime) }
-		} else {
-			if (pc.id == 0) { printf("t=%g comptime=%g\nno load balance info available\nno spike exchange info available\n", t, comptime)}
-		}
-	}
+	if (pc.id == 0) { printf("100ms interval at t=%g was %g s\n", t, wt - walltime) }
 	walltime = wt
 	cvode.event(t+100, "midbal(0)")
-	sumnumout(runtime)	// Write out a file with the total number of cells, spikes, and connections (including contributions from artificial cells)
 }
-
 rrun()	// Run the network simulation (in proc rrun)
 
 {pc.runworker()} 	// Everything after this line is executed only by the host node
