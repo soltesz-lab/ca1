@@ -30,7 +30,7 @@ proc sumnumout() {local alltime, allct, allspk localobj f
 	exchtime=0
 	if (maxcomp>0) {
 		loadbal=avgcomp/maxcomp
-		exchtime=maxcomp - $1
+		exchtime= $1 - maxcomp
 	}
 
 	if (pc.id == 0) { 								// Write header to file 1 time only

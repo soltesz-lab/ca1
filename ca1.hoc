@@ -345,18 +345,18 @@ proc rrun(){									// Run the network simulation and write out the results
 												//  set_maxstep
 
 	runtime = startsw() - runstart				// Calculate runtime of simulation
-	
-	if (pc.id == 0) {printf("****\nTIME SUMMARY for host 0\nset up in %g seconds\ncreated cells in %g seconds\nconnected cells in %g seconds\nran simulation in %g seconds\n************\nThis run is called: %s\n************\n", loadtime, createtime, connecttime, runtime, RunName)}
 												// Print a time summary message to screen
 	comptime = pc.step_time
 	avgcomp = pc.allreduce(comptime, 1)/pc.nhost
 	maxcomp = pc.allreduce(comptime, 2)
 	if (maxcomp>0) {
 		if (pc.id == 0) { printf("load_balance = %g\n", avgcomp/maxcomp)}
-		if (pc.id == 0) { printf("exchange_time = %g\n", maxcomp - runtime) }
+		if (pc.id == 0) { printf("exchange_time = %g\n",  runtime - maxcomp) }
 	} else {
 		if (pc.id == 0) { printf("no load balance info available\nno spike exchange info available\n")}
 	}
+	
+	if (pc.id == 0) {printf("****\nTIME SUMMARY for host 0\nset up in %g seconds\ncreated cells in %g seconds\nconnected cells in %g seconds\nran simulation in %g seconds\n************\nThis run is called: %s\n************\n", loadtime, createtime, connecttime, runtime, RunName)}
 		
 	spikeout()	// Write the spike times (in ms) and spiking cells (by gid) into a file called "spikeraster.dat"
 	
@@ -379,6 +379,7 @@ proc midbal() {local wt
 	walltime = wt
 	cvode.event(t+100, "midbal(0)")
 }
+cvode.cache_efficient(1)
 rrun()	// Run the network simulation (in proc rrun)
 
 {pc.runworker()} 	// Everything after this line is executed only by the host node
