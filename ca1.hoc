@@ -379,7 +379,7 @@ proc midbal() {local wt
 	walltime = wt
 	cvode.event(t+100, "midbal(0)")
 }
-{cvode.cache_efficient(1)}
+{cvode.cache_efficient(1)} // always double check that this addition does not affect the spikeraster (via pointers in mod files, etc)
 objref spkhist
 spkhist = new Vector(pc.nhost)
 if (pc.id==0) {
@@ -387,8 +387,10 @@ if (pc.id==0) {
 }
 rrun()	// Run the network simulation (in proc rrun)
 objref f4
+strdef cmd
 if (pc.id==0) {
-	f4 = new File("spkhist.dat")
+	sprint(cmd,"./results/%s/spkhist.dat", RunName)
+	f4 = new File(cmd)
 	f4.wopen()
 
 			// Open for appending to file

@@ -23,7 +23,7 @@ default_var("ConnData",1)		// Number of the connection dataset to use
 default_var("SynData",1)		// Number of the synapse kinetics dataset that was used to prepare the cell definition files
 default_var("NumData",1)		// Number of the cells dataset to use
 default_var("TemporalResolution",0.1)		// Temporal resolution of the simulation (in ms)
-default_var("NumTraces",100)		// The maximum number of cells to record intracellularly, for each cell type
+default_var("NumTraces",10)		// The maximum number of cells to record intracellularly, for each cell type
 default_var("FracTraces",50)		// The percent of cells to record intracellularly, for each cell type
 default_var("DegreeStim",10)		// Degree of stimulation; meaning depends on Stimulation type
 default_var("Onint",125)		// Duration of burst (in ms) when burst stimulation is used
