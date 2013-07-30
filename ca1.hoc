@@ -380,8 +380,23 @@ proc midbal() {local wt
 	cvode.event(t+100, "midbal(0)")
 }
 {cvode.cache_efficient(1)}
+objref spkhist
+spkhist = new Vector(pc.nhost)
+if (pc.id==0) {
+	pc.max_histogram(spkhist)
+}
 rrun()	// Run the network simulation (in proc rrun)
+objref f4
+if (pc.id==0) {
+	f4 = new File("spkhist.dat")
+	f4.wopen()
 
+			// Open for appending to file
+	for i=0, pc.nhost-1 {
+		f4.printf("%d\t%d\n", i, spkhist.x[i])	// Print the spike time and spiking cell gid
+	}
+	f4.close()
+}
 {pc.runworker()} 	// Everything after this line is executed only by the host node
 					//  The NEURON website describes this as "The master host returns immediately. Worker hosts
 					//  start an infinite loop of requesting tasks for execution." 
