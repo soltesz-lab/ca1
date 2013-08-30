@@ -142,7 +142,7 @@ static int fastconn (void* vv) {
 	b = y[8];		// distribution fit coefficient b
 	c = y[9];		// distribution fit coefficient c
 	postgmin = y[24];	// postsynaptic start gid
-	stepover = y[26];	// postsynaptic start gid
+	stepover = y[26];	// buffer size for number of conns for results vector
 
 	myi=1;	// myi will give the next index into finalconn
 			// 0 is reserved for # conns to make

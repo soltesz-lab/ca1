@@ -51,14 +51,12 @@ proc typeout() {local i, myline, rn, rank, gid, srcid localobj tgt, f, cell, f2c
 			myline=f2c.gets(vercomment)		
 			strobj.left(vercomment, myline-1)			
 			f2c.close
-			print "vercomment says: |", vercomment, "|"
 			
 			f2c.ropen("../version.txt")		// Open the celltype
 			f2c.scanstr(version)			
 			f2c.close			
-			print "version says: |", version, "|"
+
 		} else { // else use built in hg
-			print "using built in log"
 			sprint(dircmd, "hg status")
 			{system(dircmd, direx)}
 			if (strcmp(direx,"")>0) {

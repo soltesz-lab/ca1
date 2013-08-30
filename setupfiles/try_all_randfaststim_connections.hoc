@@ -97,9 +97,9 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			params.x[26]= connlength
 			sum_numconns = sum_numconns + cellType[precellType].numCells
 
-			print "host ", pc.id, " will fastconn ", cellType[precellType].technicalType, " to ", cellType[postcellType].technicalType, ". params vec: ", params.size, ", gids vec: ", postcellgids.size, ", conns vec: ", conns2make.size
+			print "host ", pc.id, " fastconn ", cellType[precellType].cellType_string, " to ", cellType[postcellType].cellType_string, ", numpost: ", numpost, ", connlength: ", connlength, ", gids vec: ", postcellgids.size, ", conns vec: ", conns2make.size
 			conns2make.fastconn(params, postcellgids)
-			print "MADE conns: host", pc.id, ", ", cellType[precellType].technicalType, " to ", cellType[postcellType].technicalType
+			print "MADE conns: host", pc.id, ", ", cellType[precellType].cellType_string, " to ", cellType[postcellType].cellType_string
 			
 			
 			for r=1, int(conns2make.x[0]/1) {
