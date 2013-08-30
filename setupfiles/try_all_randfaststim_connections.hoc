@@ -99,6 +99,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 
 			print "host ", pc.id, " will fastconn ", cellType[precellType].technicalType, " to ", cellType[postcellType].technicalType, ". params vec: ", params.size, ", gids vec: ", postcellgids.size, ", conns vec: ", conns2make.size
 			conns2make.fastconn(params, postcellgids)
+			print "MADE conns: host", pc.id, ", ", cellType[precellType].technicalType, " to ", cellType[postcellType].technicalType
 			
 			
 			for r=1, int(conns2make.x[0]/1) {

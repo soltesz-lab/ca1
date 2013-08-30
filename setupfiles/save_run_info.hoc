@@ -4,7 +4,7 @@ strdef verleft, verright
 	objref  strobj
     strobj = new StringFunctions()
 
-proc typeout() {local i, rn, rank, gid, srcid localobj tgt, f, cell, f2c // Write out the cell types & gid ranges
+proc typeout() {local i, myline, rn, rank, gid, srcid localobj tgt, f, cell, f2c // Write out the cell types & gid ranges
 	if (pc.id == 0) { 				// Write header to file 1 time only
 		rn = -1
 		sprint(dircmd, "ls ../results/%s", RunName)
@@ -48,11 +48,10 @@ proc typeout() {local i, rn, rank, gid, srcid localobj tgt, f, cell, f2c // Writ
 				
 			f2c = new File()		
 			f2c.ropen("../vercomment.txt")		// Open the celltype
-			f2c.scanstr(vercomment)		
-			f2c.scanstr(vercomment2)
+			myline=f2c.gets(vercomment)		
+			strobj.left(vercomment, myline-1)			
 			f2c.close
 			print "vercomment says: |", vercomment, "|"
-			print "vercomment2 says: |", vercomment2, "|"
 			
 			f2c.ropen("../version.txt")		// Open the celltype
 			f2c.scanstr(version)			
