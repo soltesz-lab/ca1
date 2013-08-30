@@ -119,6 +119,7 @@ static double get_z_pos (int gid, int gmin, int BinNumZ, int binSizeZ, int ZHeig
 static int fastconn (void* vv) {
   int finalconn, ny, nz, num_pre, num_post, gmin, gmax, nconn, ncell, maxd, steps, myflaggy, myi, postgmin, stepover;
   double *x, *y, *z, a, b, c;
+	printf("just entered the fastconn mechanism\n");
 
 	/* Get hoc vectors into c arrays */
 	finalconn = vector_instance_px(vv, &x); // x is an array corresponding
@@ -143,6 +144,7 @@ static int fastconn (void* vv) {
 	c = y[9];		// distribution fit coefficient c
 	postgmin = y[24];	// postsynaptic start gid
 	stepover = y[26];	// buffer size for number of conns for results vector
+	printf("just finished loading the input vector\n");
 
 	myi=1;	// myi will give the next index into finalconn
 			// 0 is reserved for # conns to make
@@ -163,6 +165,7 @@ static int fastconn (void* vv) {
 		postpos [cell] [1] = get_y_pos(z[cell], postgmin, y[18], y[19], y[21]);
 		postpos [cell] [2] = get_z_pos(z[cell], postgmin, y[19], y[22], y[23]);
 	}
+	printf("just finished getting positions of pre and post cells\n");
 
 	/* calculate the distribution of desired connections*/   
 	double mt [steps], tu [steps], tsum, conndist, mytmp;
@@ -179,7 +182,7 @@ static int fastconn (void* vv) {
 		}
 		tsum = tsum + tu[step];
 	}
-
+	printf("just finished computing the tsum and tu per step\n");
 	if (tu[maxi]/tsum*nconn*1.0/ncell < 0.5) { //tsum) {
 		for (step=0; step<steps; step++) {
 			fdln[step] = round((2.0*tu[step]/tsum)*(nconn*1.0/ncell));// the number of desired
