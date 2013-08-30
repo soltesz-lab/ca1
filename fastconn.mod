@@ -153,19 +153,28 @@ static int fastconn (void* vv) {
 	double prepos [num_pre][3];
 	double postpos [num_post][3];
 	int cell;
+	printf("just defined the position vectors\n");
+	printf("gmin=%d, postgmin=%d\n", gmin, postgmin);
+	printf("num_pre=%d, num_post=%d\n", num_pre, num_post);
+	printf("y10-16: %d,%d,%d,%f,%f,%f,%f\n", gmin, postgmin, y[10], y[11], y[12], y[13], y[14], y[15], y[16]);
+	printf("y17-23: %d,%d,%d,%f,%f,%f,%f\n", gmin, postgmin, y[17], y[18], y[19], y[20], y[21], y[22], y[23]);
 
 	for (cell=0; cell<num_pre; cell++) {
+		printf("Starting PRE cell %d\n", cell);
 		prepos [cell] [0] = get_x_pos(cell+gmin, gmin, y[10], y[11]*y[12], y[13]);
 		prepos [cell] [1] = get_y_pos(cell+gmin, gmin, y[11], y[12], y[14]);
 		prepos [cell] [2] = get_z_pos(cell+gmin, gmin, y[12], y[15], y[16]);
 	}
+	printf("just finished getting positions of PRE cells\n");
 
 	for (cell=0; cell<num_post; cell++) {
+		printf("Starting POST cell %d\n", cell);
+		printf("POST cell is %d\n", z[cell]);
 		postpos [cell] [0] = get_x_pos(z[cell], postgmin, y[17], y[18]*y[19], y[20]);
 		postpos [cell] [1] = get_y_pos(z[cell], postgmin, y[18], y[19], y[21]);
 		postpos [cell] [2] = get_z_pos(z[cell], postgmin, y[19], y[22], y[23]);
 	}
-	printf("just finished getting positions of pre and post cells\n");
+	printf("just finished getting positions of POST cells\n");
 
 	/* calculate the distribution of desired connections*/   
 	double mt [steps], tu [steps], tsum, conndist, mytmp;
