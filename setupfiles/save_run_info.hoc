@@ -1,5 +1,5 @@
 objref frec
-strdef cmd, dircmd, direx, comper, version, vercomment, mypath, userstr, machname, machnick, outfile, edate, comver
+strdef cmd, dircmd, direx, comper, version, vercomment, vercomment2, mypath, userstr, machname, machnick, outfile, edate, comver
 strdef verleft, verright
 	objref  strobj
     strobj = new StringFunctions()
@@ -48,9 +48,11 @@ proc typeout() {local i, rn, rank, gid, srcid localobj tgt, f, cell, f2c // Writ
 				
 			f2c = new File()		
 			f2c.ropen("../vercomment.txt")		// Open the celltype
-			f2c.scanstr(vercomment)			
+			f2c.scanstr(vercomment)		
+			f2c.scanstr(vercomment2)
 			f2c.close
 			print "vercomment says: |", vercomment, "|"
+			print "vercomment2 says: |", vercomment2, "|"
 			
 			f2c.ropen("../version.txt")		// Open the celltype
 			f2c.scanstr(version)			
