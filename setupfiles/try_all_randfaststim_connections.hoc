@@ -58,9 +58,6 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			conns2make = new Vector(1+connlength*6)
 
 			params.x[0]=cellType[precellType].cellStartGid //gmin -- start gid of pre cell type
-			if (strcmp(cellType[precellType].technicalType,"ppsept")==0 || strcmp(cellType[precellType].technicalType,"ppspont")==0) {
-				params.x[0]=params.x[0]+pc.nhost*2
-			}
 			params.x[1]=cellType[precellType].cellEndGid //gmax -- end gid of pre cell type
 			params.x[2]= numConns //nconn
 			params.x[3]= cellType[postcellType].numCells // number of cells of the postsynaptic type (total)
@@ -97,10 +94,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			params.x[26]= connlength
 			sum_numconns = sum_numconns + cellType[precellType].numCells
 
-			print "host ", pc.id, " fastconn ", cellType[precellType].cellType_string, " to ", cellType[postcellType].cellType_string, ", numpost: ", numpost, ", connlength: ", connlength, ", gids vec: ", postcellgids.size, ", conns vec: ", conns2make.size
-			conns2make.fastconn(params, postcellgids)
-			print "MADE conns: host", pc.id, ", ", cellType[precellType].cellType_string, " to ", cellType[postcellType].cellType_string
-			
+			conns2make.fastconn(params, postcellgids)		
 			
 			for r=1, int(conns2make.x[0]/1) {
 				if (pc.gid_exists(conns2make.x[r+connlength])) {

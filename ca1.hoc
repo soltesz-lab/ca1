@@ -239,14 +239,8 @@ celsius=34
 													//  (synapse)
 
 {sprint(cmd,"./setupfiles/%s_connections.hoc", Connectivity)}
-pc.barrier()
-for rank=0, pc.nhost-1 {
-if (rank==pc.id) {
 {load_file(cmd)}			// Loads in a particular definition of the connectCells function,
 							//  depending on the value of the Connectivity string
-							}
-							pc.barrier()
-}
 
 {sprint(cmd,"./stimulation/%s_stimulation.hoc", Stimulation)}
 {load_file(cmd)}			// Loads in a particular stimulation protocol, including the spike
