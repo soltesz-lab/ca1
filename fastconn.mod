@@ -193,6 +193,10 @@ static int fastconn (void* vv) {
 															// distance bin step, per cell
 		}
 	}
+	
+	for (step=0; step<steps; step++) { // this part just for troubleshooting
+		printf("step: %d, numcons per cell: %d\n", step, fdln[step]);
+	}	
 
 	/* for each postsynaptic cell, find the possible connections and
 	 * make the desired number of connections where possible */   
