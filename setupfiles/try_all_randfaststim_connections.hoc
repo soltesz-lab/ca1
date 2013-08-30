@@ -93,6 +93,17 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			params.x[25]= sum_numconns
 			params.x[26]= connlength
 			sum_numconns = sum_numconns + cellType[precellType].numCells
+			
+			if (cellType[precellType].numCells>10000 && cellType[postcellType].numCells>10000 && pc.id==0) {
+				print "-------------------"
+				print "-------------------"
+				for r=0,26 {
+					print "params.x[", r, "]= ", params.x[r]
+				}
+				print "connlength = ", connlength, ", conns2make size = ", conns2make.size
+				print "-------------------"
+				print "-------------------"
+			}
 
 			conns2make.fastconn(params, postcellgids)		
 			

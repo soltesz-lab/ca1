@@ -193,7 +193,15 @@ static int fastconn (void* vv) {
 															// distance bin step, per cell
 		}
 	}
-
+	if (num_pre>10000) {
+		if (num_post>10000) {
+			if (z[0]==postgmin) {
+				for (step=0; step<steps; step++) {
+					printf("fdln[%d]=%d\n", step, fdln[step]);
+				}
+			}
+		}
+	}
 
 	/* for each postsynaptic cell, find the possible connections and
 	 * make the desired number of connections where possible */   
