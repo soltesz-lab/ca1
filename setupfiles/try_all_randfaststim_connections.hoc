@@ -59,7 +59,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 
 			params.x[0]=cellType[precellType].cellStartGid //gmin -- start gid of pre cell type
 			params.x[1]=cellType[precellType].cellEndGid //gmax -- end gid of pre cell type
-			params.x[2]= numConns //nconn
+			params.x[2]= numConns/cellType[postcellType].numCells //nconn
 			params.x[3]= cellType[postcellType].numCells // number of cells of the postsynaptic type (total)
 			params.x[4]= numpost  // number of cells of the postsynaptic type with gids on this computer
 			params.x[5]= sqrt(LongitudinalLength^2 + LayerVector.sum()^2 + TransverseLength^2)
@@ -93,17 +93,6 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			params.x[25]= sum_numconns
 			params.x[26]= connlength
 			sum_numconns = sum_numconns + cellType[precellType].numCells
-			
-			if (cellType[precellType].numCells>10000 && cellType[postcellType].numCells>10000 && pc.id==0) {
-				print "-------------------"
-				print "-------------------"
-				for r=0,26 {
-					print "params.x[", r, "]= ", params.x[r]
-				}
-				print "connlength = ", connlength, ", conns2make size = ", conns2make.size
-				print "-------------------"
-				print "-------------------"
-			}
 
 			conns2make.fastconn(params, postcellgids)		
 			

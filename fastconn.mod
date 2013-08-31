@@ -117,8 +117,8 @@ static double get_z_pos (int gid, int gmin, int BinNumZ, int binSizeZ, int ZHeig
 }
 
 static int fastconn (void* vv) {
-  int finalconn, ny, nz, num_pre, num_post, gmin, gmax, nconn, ncell, maxd, steps, myflaggy, myi, postgmin, stepover;
-  double *x, *y, *z, a, b, c;
+  int finalconn, ny, nz, num_pre, num_post, gmin, gmax, maxd, steps, myflaggy, myi, postgmin, stepover;
+  double *x, *y, *z, a, b, c, nconv, ncell;
 
 	/* Get hoc vectors into c arrays */
 	finalconn = vector_instance_px(vv, &x); // x is an array corresponding
@@ -133,7 +133,7 @@ static int fastconn (void* vv) {
 	gmax = y[1];	// presynaptic end gid
 	num_pre = gmax - gmin + 1;	// number of presynaptic cells
 	
-	nconn = y[2];	// total number of desired connections
+	nconv = y[2];	// total number of desired connections
 	ncell = y[3];	// total number of postsynaptic cells
 	num_post = y[4];	// number of postsynaptic cells owned by this host
 	maxd = y[5];	// total distance over which distribution fits
@@ -180,26 +180,17 @@ static int fastconn (void* vv) {
 		tsum = tsum + tu[step];
 	}
 
-	if (tu[maxi]/tsum*nconn*1.0/ncell < 0.5) { //tsum) {
+	if (tu[maxi]/tsum*nconv < 0.5) { //tsum) nconv=nconn*1.0/ncell
 		for (step=0; step<steps; step++) {
-			fdln[step] = round((2.0*tu[step]/tsum)*(nconn*1.0/ncell));// the number of desired
+			fdln[step] = round((2.0*tu[step]/tsum)*(nconv));// the number of desired
 															// connections for each
 															// distance bin step, per cell
 		}
 	} else {
 		for (step=0; step<steps; step++) {
-			fdln[step] = round((tu[step]/tsum)*(nconn*1.0/ncell));// the number of desired
+			fdln[step] = round((tu[step]/tsum)*(nconv));// the number of desired
 															// connections for each
 															// distance bin step, per cell
-		}
-	}
-	if (num_pre>10000) {
-		if (num_post>10000) {
-			if (z[0]==postgmin) {
-				for (step=0; step<steps; step++) {
-					printf("fdln[%d]=%d\n", step, fdln[step]);
-				}
-			}
 		}
 	}
 
@@ -340,6 +331,11 @@ static int fastconn (void* vv) {
 					myi++;
 				}
 			} 
+			//if (num_pre>10000) {
+					   // if (z[0]==21504) {
+					//printf("step=%d, gid=%f, myi=%d\n", step, z[n], myi);
+				//}
+			//}
 		}
 	}
 	x [0] = myi-1;	// fill the first element of the array (vector)
