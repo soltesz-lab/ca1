@@ -1,5 +1,5 @@
 COMMENT
-This fastconn mechanism written by marianne.case@uci.edu on April 19, 2011.
+This repeatconn mechanism written by marianne.case@uci.edu on April 19, 2011.
 It decreases the time taken to decide which connections to make between
 cell by an order of magnitude, compared to Rob & Viji's code (even the
 version that I parallelized). How it works, in context with hoc:
@@ -26,7 +26,7 @@ for each cell type (as postsynaptic cell type) - hoc
 
 The way to call this from hoc:
 - first, install the vector method with this argument:
-	install_fastconn()
+	install_repeatconn()
 	
 - then, create a vector with the parameters for the connections
 	(parameters described below)
@@ -35,7 +35,7 @@ The way to call this from hoc:
 	as the number of connections desired
 - finally, populate the placeholder vector with the connection
 	information using the following command:
-conns2make.fastconn(params, postcellgids)
+conns2make.repeatconn(params, postcellgids)
 
 params vector has 26 elements:
 0 - start gid of the presynaptic cell type
@@ -116,12 +116,12 @@ static double get_z_pos (int gid, int gmin, int BinNumZ, int binSizeZ, int ZHeig
 	return pos;
 }
 
-static int fastconn (void* vv) {
-  int finalconn, ny, nz, num_pre, num_post, gmin, gmax, maxd, steps, myflaggy, myi, postgmin, stepover;
+static int repeatconn (void* vv) {
+  int repeatfinal, ny, nz, num_pre, num_post, gmin, gmax, maxd, steps, myflaggy, myi, postgmin, stepover;
   double *x, *y, *z, a, b, c, nconv, ncell;
 
 	/* Get hoc vectors into c arrays */
-	finalconn = vector_instance_px(vv, &x); // x is an array corresponding
+	repeatfinal = vector_instance_px(vv, &x); // x is an array corresponding
 											// to the placeholder vector
 											// of connections to make
 
@@ -254,7 +254,7 @@ static int fastconn (void* vv) {
 		rem=0;extra=0;
 		for (step=0; step<steps; step++) {	// for each step except the last one
 			szr = szp [step]; // Get the number of available connections for this step
-			if (dln[step] + rem> szr) { //If more are wanted than are available,
+			if (szr < 1) { //Only if there are 0 available in that step, try it in a different step
 				rem=dln[step]+rem-szr;
 				// check the next level for extras
 				if (step<steps-1) {
@@ -292,41 +292,31 @@ static int fastconn (void* vv) {
 	
 		rem=0;
 		for (step=0; step<steps; step++) {	// for each step
-			if (dln[step]>0) { // if this particular step wants any connections
+			szr = szp [step]; // Get the number of available unique pre-cells for this step
+			if (dln[step]>0 && szr>0) { // if this particular step wants any connections
 				/* Find all the possible connections for each distance level  */
 				
 				/*if (ncell==2 && num_pre==3) {
 					printf("precells=%d postcells=%d step=%d szr=%d\n", num_pre, ncell, step, szr);
 				}*/
 				
-				szr = szp [step]; // Get the number of available connections for this step
-				int r[szr]; // Define an array the length of the number of available connections
+				int r[szr]; // Define an array the length of the number of available unique pre-cells
+				int rout[dln[step]]; // Define an array the length of the number of desired connections
 				for (i=0; i< szr; i++) { 
-					r[i] =  sortedpos [i] [step]; // Fill the array with the available connections (in terms of the pre cell)
+					r[i] =  sortedpos [i] [step]; // Fill the array with the available unique pre-cells
 				}
 
-				/* this random routine rearranges the possible pre-cells. the max number of connections can only get as high as the total number of available presynaptic cells
-				(Doesn't allow the same pre-cell to be used twice)*/
-				int tmp;
+				/* this random routine allows a pre-cell to make multiple connections on the post cell and makes the total number of desired connections*/
 				u_int32_t randi;
-				for (i=0; i<szr-1; i++) {
+				for (i=0; i<dln[step]; i++) {
 					randi =  nrnRan4int(&idx1, idx2) % (u_int32_t)szr; // limit to the range of indices in the r array
-					tmp = r [i];	// randomly reorganize the pre cells in the r array
-					r[i] = r[randi];
-					r[randi] = tmp;
+					rout[i] = r[randi];
 				}
 
-				if (dln[step]>szr) { 	// if the number of desired connections (ones wanted in this step, plus unmade ones from previous steps)
-										// is more than the available amt, set the remainder to the excess ones that can't be made in this step
-					goupto=szr;			// and set the number to make (based on the desired and available amts)
-				} else {
-					goupto=dln[step];	// set the number to make (based on the desired and available amts)
-				}
-
-				for (q=0; q<goupto; q++) { 	// for each one to make, r[q] gives the precell index in the pre_pos array (this program assumes
+				for (q=0; q<dln[step]; q++) { 	// for each one to make, r[q] gives the precell index in the pre_pos array (this program assumes
 											// the gid range is continuous from gmin to gmax arguments to this mechanism.
 											// n is the post-cell here. 
-					x [myi] = (r[q]+gmin)*1.0;				// presynaptic gid	
+					x [myi] = (rout[q]+gmin)*1.0;				// presynaptic gid	
 					x [myi+1*stepover] = (z[n])*1.0;	// postsynaptic gid
 					x [myi+2*stepover] = (step+1)*1.0;	// distance step
 					myi++;
@@ -343,15 +333,15 @@ static int fastconn (void* vv) {
 					// with the total number of connections to make,
 					// which may be less than the desired number (and
 					// hence the size of the array)
-	return finalconn;
+	return repeatfinal;
 }
 ENDVERBATIM
 
-: This PROCEDURE install_fastconn() should be called from hoc
-: to make the fastconn procedure available there
+: This PROCEDURE install_repeatconn() should be called from hoc
+: to make the repeatconn procedure available there
 
-PROCEDURE install_fastconn () {
+PROCEDURE install_repeatconn () {
 	VERBATIM
-	install_vector_method("fastconn", fastconn);
+	install_vector_method("repeatconn", repeatconn);
 	ENDVERBATIM
 }

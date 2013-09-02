@@ -1,0 +1,142 @@
+distres = 5
+objref postcellgids
+speed = 1
+
+strdef precellType_string, postcellType_string
+proc makeConnections () {local precellType, distres, postcellType, precellStart, precellEnd, postcellStart, postcellEnd, i, j, r
+	// Attempt to connect all cells of each pre and post type
+	install_repeatconn()
+
+	for j = 0, numCellTypes-1 {
+		if (cellType[j].is_art()==0) {	// ppstim cells are never the post synaptic cell in a connection, so exclude here
+			postcellType_string = cellType[j].cellType_string	// Load cell type string used to grab connection-specific properties later
+			numpost = cellType[j].numThisHost
+			postcellgids = new Vector(numpost)
+			
+			for r=0, numpost-1 {
+				postcellgids.x[r] = cellType[j].CellList[r].gid
+			}
+			sum_numconns = 0	
+			for i = 0, numCellTypes-1 {	
+				//if (cellType[i].is_art()==0) {
+				precellType_string =  cellType[i].cellType_string	// Load cell type string used to grab connection-specific properties later
+				//print "precellType_string: ", precellType_string, " -> postcellType_string: ", postcellType_string
+				cellType[i].numCons.x[j]=connectCells (i, j, precellType_string, postcellType_string)
+				//}	
+			}		
+		}
+	}
+	if ((PrintTerminal>0)) {print "Host ", pc.id, " connected cells."}
+}
+
+	objref params, conns2make
+	objref randnum, synRand
+	func connectCells () {local r, syn, distance, counter, precellType, postcellType, j, randSynNumber, pre_zpos, post_zpos , pre_xpos, post_xpos, pre_ypos, post_ypos, numSynTypes localobj cell
+		// Args: precellType, postcellType, precellType_string, postcellType_string
+		 precellType = $1
+		 postcellType = $2
+		 counter=0
+		synWeight = cellType[$1].wgtConns.x[$2]
+		numSyns = cellType[$1].numSyns.x[$2]
+		numConns = cellType[$1].numConns.x[$2]				
+		numConns = int(numConns/(Scale) + .5) // higher connectivity in smaller scale models
+		
+		
+		//getSynapseData($s3, $s4)	// Given the pre and post cell types, look up the weight, delay,
+									//	and probability of connection between these two types
+
+		if (PrintTerminal>1) {print "Host ", pc.id, " is connecting: ", $s3, "s to ", $s4, "s."}
+
+		if (numConns != 0 && synWeight != 0 && numpost !=0) {
+			params = new Vector(27)
+			if (cellType[postcellType].numCells>=pc.nhost) {
+				connlength = int((numConns)/cellType[postcellType].numCells+.5)*int(cellType[postcellType].numCells/pc.nhost+1.5)+cellType[postcellType].numCells
+			} else {
+				connlength = int((numConns)/cellType[postcellType].numCells+.5)+cellType[postcellType].numCells
+			}
+			
+			conns2make = new Vector(1+connlength*6)
+
+			params.x[0]=cellType[precellType].cellStartGid //gmin -- start gid of pre cell type
+			params.x[1]=cellType[precellType].cellEndGid //gmax -- end gid of pre cell type
+			params.x[2]= numConns/cellType[postcellType].numCells //nconn
+			params.x[3]= cellType[postcellType].numCells // number of cells of the postsynaptic type (total)
+			params.x[4]= numpost  // number of cells of the postsynaptic type with gids on this computer
+			params.x[5]= sqrt(LongitudinalLength^2 + LayerVector.sum()^2 + TransverseLength^2)
+			//100 //maxd - the distance of the dimension for which the fit equation was designed (should add all three...), in um
+						// this also confusing because, right now, the equation calculates the overall distance (through all dimensions).
+						// If per dimension, should compare to distance in that dimension only
+			params.x[6]= distres //5 //steps - resolution of the fit , in number of steps to take			
+			params.x[7]= cellType[precellType].dist.x[0] //a in the Gaussian fit // 5, .001, 30
+			params.x[8]= cellType[precellType].dist.x[1] //b in the Gaussian fit
+			params.x[9]= cellType[precellType].dist.x[2] //c in the Gaussian fit
+			params.x[10]= cellType[precellType].dentateXBins
+			params.x[11]= cellType[precellType].dentateYBins
+			params.x[12]= cellType[precellType].dentateZBins
+			params.x[13]= cellType[precellType].dentateXBinSize
+			params.x[14]= cellType[precellType].dentateYBinSize
+			params.x[15]= cellType[precellType].dentateZBinSize
+			addheight = 0
+			if (cellType[precellType].layerflag>0) {addheight=LayerVector.sum(0,cellType[precellType].layerflag-1)}
+			params.x[16]= addheight
+
+			params.x[17]= cellType[postcellType].dentateXBins
+			params.x[18]= cellType[postcellType].dentateYBins
+			params.x[19]= cellType[postcellType].dentateZBins
+			params.x[20]= cellType[postcellType].dentateXBinSize
+			params.x[21]= cellType[postcellType].dentateYBinSize
+			params.x[22]= cellType[postcellType].dentateZBinSize
+			addheight = 0
+			if (cellType[postcellType].layerflag>0) {addheight=LayerVector.sum(0,cellType[postcellType].layerflag-1)}
+			params.x[23]= addheight
+			params.x[24]= cellType[postcellType].cellStartGid
+			params.x[25]= sum_numconns
+			params.x[26]= connlength
+			sum_numconns = sum_numconns + cellType[precellType].numCells
+
+			conns2make.repeatconn(params, postcellgids)		
+			
+			for r=1, int(conns2make.x[0]/1) {
+				if (pc.gid_exists(conns2make.x[r+connlength])) {
+					cell = pc.gid2cell(conns2make.x[r+connlength])
+					numSynTypes = cell.pre_list.o(precellType).count()
+					if (numSynTypes > 0) {
+						ransynlist.object(cell.randi).r.discunif(0,numSynTypes-1)		// Create a uniform random INTEGER variable over the range specified (0 to # synapse types-1),
+						for s=1,numSyns {
+							randSynNumber = ransynlist.object(cell.randi).repick	// Randomly pick a synapse type from the available synapse types
+							conDelay =  3 //sqrt(conns2make.x[r+2*connlength]/distres)*LongitudinalLength*speed+.1
+							nc_append(conns2make.x[r], conns2make.x[r+connlength], precellType, randSynNumber, synWeight + (conns2make.x[r]+1)*1000, conDelay)	// Make the connection  // the latter part is for tracing the big bug, used by exp2sid mech (it will take away this extra part)
+						}
+						//if (conns2make.x[r+connlength]==5524) {print "pre ", $s3, ", gid ", conns2make.x[r], ", syn ", randSynNumber, ", wgt ", synWeight*numSyns}
+						counter +=1
+					}
+				} else {
+					print $s3, "s to ", $s4, "s:", " can't make gid ", conns2make.x[r+connlength], " which is r = ", r, " +  connlength = ", connlength, " = ", r+connlength, " from x[r] = ", conns2make.x[r], " total conns = ", int(conns2make.x[0]/1)
+				}
+			}
+		}
+		return counter
+	}
+		objref  f2
+		proc getSynapseData () {	// Args: precelltype name, postcelltype name
+			 strdef tempString
+			 f2 = new File()
+			 // Somehow, the program has switched the current directory to setupfiles (not sure where) so must get out of it
+			 sprint(tempString,"../connections/%s.%s",$s1,$s2)	// Get the file that specifies connection properties between these two cell types
+			 f2.ropen(tempString)
+			 if (f2.isopen) {
+			 synWeight = f2.scanvar
+			 numConns = f2.scanvar
+			  numConns = int(numConns/(Scale)) // higher connectivity in smaller scale models
+			 } else {
+				 synWeight = 0
+				 numConns = 0
+			 }
+			 if ((strcmp($s1,"granulecell")==0) && (strcmp($s2,"granulecell")==0)) {synProb = synProb * PercentAxonSprouting/100}
+		}	 	// Reduce the probability of granule cell connection by the same degree as the sclerosis
+				//	because mossy fibers connecting back to granule cells are subject to sclerosis (?)
+makeConnections()								// Try making connections between every type of cell
+
+objref conns2make
+//zzz = mallinfo(zzz, "objref conns2make")
+//q()
