@@ -5,14 +5,17 @@ public soma, radT2, radM2, radt2, lmM2, lmt2, radT1
 public radM1, radt1, lmM1, lmt1, oriT1, oriM1, orit1
 public oriT2, oriM2, orit2
 public all, basal_list, apical_list, soma_list, axon_list, lm_list, rad_list
-public x, y, z, position
+public x, y, z, position, myroot
 
 public pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_list
 public ivycell_list, ngfcell_list, olmcell_list, pvbasketcell_list, scacell_list
 public eccell_list, ca3cell_list, mscell_list
 
+// strings
+strdef myroot
+
 // objects
-objref syn, pre_list, templist
+objref syn, pre_list, templist, rootlist
 
 // external variables
 external numCellTypes, cellType
@@ -25,6 +28,7 @@ proc init() {
   	geom()
   	biophys()
   	geom_nseg()
+	get_root()
   	pre_list = new List()
 	define_synapses()
 }
@@ -419,6 +423,22 @@ proc position(){ local i
 		}
 	}
 	x = $1  y = $2  z = $3	
+}
+
+proc get_root() {local i localobj sref
+	rootlist = new SectionList()
+	rootlist.allroots()
+	i=0
+	forsec all {
+		sref = new SectionRef()
+		if (sref.has_parent==0) {
+			myroot = secname()
+			i=i+1
+		}
+	}
+	if (i>1) {
+		print "WARNING: cell ", gid, " has ", i, " root sections!"
+	}
 }
 
 objref syn  

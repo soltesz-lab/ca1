@@ -4,17 +4,20 @@ begintemplate ivycell
 public  pre_list, connect_pre, append_sections, is_art, is_connected, gid, randi
 public soma, bcdendAP1, bcdendAP2, bcdendBAS1, bcdendBAS2
 public all, adend, bdend, cdend, ddend, basal_list, apical_list, soma_list, axon_list
-public x, y, z, position
+public x, y, z, position, myroot
 
 public pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_list
 public ivycell_list, ngfcell_list, olmcell_list, pvbasketcell_list, scacell_list
 public eccell_list, ca3cell_list, mscell_list
 
+// strings
+strdef myroot
+
 // external variables
 external numCellTypes, cellType
 
 // objects
-objref syn, pre_list, templist
+objref syn, pre_list, templist, rootlist
 
 // create the sections[nsegments]
 // if nsegments (the number of segments in each section) is updated,
@@ -37,6 +40,7 @@ proc init() {
 	insert_mechs()
 	set_biophys()
 	define_shape()
+	get_root()
 
 	pre_list = new List() // define a list for the presynaptic connections
 	define_synapses()
@@ -367,6 +371,22 @@ proc position(){ local i
 		}
 	}
 	x = $1  y = $2  z = $3	
+}
+
+proc get_root() {local i localobj sref
+	rootlist = new SectionList()
+	rootlist.allroots()
+	i=0
+	forsec all {
+		sref = new SectionRef()
+		if (sref.has_parent==0) {
+			myroot = secname()
+			i=i+1
+		}
+	}
+	if (i>1) {
+		print "WARNING: cell ", gid, " has ", i, " root sections!"
+	}
 }
 
 objref syn  

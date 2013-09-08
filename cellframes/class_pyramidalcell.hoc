@@ -15,14 +15,17 @@ public soma, radTprox, radTmed, radTdist, lm_thick2, lm_medium2, lm_thin2
 public lm_thick1, lm_medium1, lm_thin1, oriprox1, oridist1, oriprox2, oridist2
 public axon
 public all, basal_list, apical_list, soma_list, axon_list, rad_list, lm_list
-public x, y, z, position
+public x, y, z, position, myroot
 
 public pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_list
 public ivycell_list, ngfcell_list, olmcell_list, pvbasketcell_list, scacell_list
 public eccell_list, ca3cell_list, mscell_list
 
+// strings
+strdef myroot
+
 // objects
-objref pre_list, templist
+objref syn, pre_list, templist, rootlist
 
 // create the sections[segments]
 create soma, radTprox, radTmed, radTdist, lm_thick2, lm_medium2, lm_thin2, axon
@@ -49,6 +52,7 @@ proc init() {
 					// if this is driven by an error-minimization rule,
 					// make sure to do it after setting the morphology
 					// and inserting the mechanisms, as it depends on those
+	get_root()
 	
 	pre_list = new List() // define a list for the presynaptic connections
 	define_synapses()
@@ -391,6 +395,22 @@ proc position(){ local i
 		}
 }
 	x = $1  y = $2  z = $3	
+}
+
+proc get_root() {local i localobj sref
+	rootlist = new SectionList()
+	rootlist.allroots()
+	i=0
+	forsec all {
+		sref = new SectionRef()
+		if (sref.has_parent==0) {
+			myroot = secname()
+			i=i+1
+		}
+	}
+	if (i>1) {
+		print "WARNING: cell ", gid, " has ", i, " root sections!"
+	}
 }
 
 objref syn
