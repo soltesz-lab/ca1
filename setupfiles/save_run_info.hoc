@@ -130,6 +130,7 @@ proc typeout() {local i, myline, rn, rank, gid, srcid localobj tgt, f, cell, f2c
 			i = strobj.substr(machnick, ".")
 			if (i>0) {
 				strobj.left(machnick, i)
+			}
 		}
 
 		{system("date \"+%d-%b-%Y %H:%M:%S\"", edate)}
