@@ -210,6 +210,10 @@ static int repeatconn (void* vv) {
 						// sum of all previous numconns/ncell (for this
 						// post cell type, with the previous pre cell types)?
 		idx2 = myx;		// set the low index equal to the gid
+		
+		if (myx==0 || myx==100 || myx==200 || myx==300 || myx==400) {
+			printf("INDEX: gid=%d, idx1=%d\n", idx2, idx1);
+		}
 
 		double sortedpos [num_pre][steps];
 		for (step=0; step< steps; step++) {
