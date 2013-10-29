@@ -1,12 +1,14 @@
 begintemplate ppspont
 
-	public pp, connect_pre, is_art, noiseFromRandom, setnoiseFromRandom
+	public pp, connect_pre, is_art, noiseFromRandom, setnoiseFromRandom, randi, gid
 	public x, y, z, position, xpos, ypos, zpos
 	external DegreeStim
 	objref pp
 
 	proc init() {
-		actemp() 	
+		gid = $1
+		randi = $2
+		actemp(gid,randi) 	
 	}
 		proc actemp() {
 				pp = new MyNetStim(.5)
@@ -14,8 +16,9 @@ begintemplate ppspont
 				pp.number = 1e9
 				pp.noise = 1				
 				pp.start = 0
-
-				}
+				pp.gid = $1
+				pp.randi = $2
+			}
 	proc setnoiseFromRandom() {
 		pp.noiseFromRandom($o1)
 	}

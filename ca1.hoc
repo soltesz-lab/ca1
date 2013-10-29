@@ -201,11 +201,10 @@ func mallinfo() {local m
         return m
 }
 
-objref cells, ransynlist, ranNSlist, ranPPlist
+objref cells, ransynlist, ranstimlist
 cells = new List()						
 ransynlist = new List()
-ranNSlist = new List()
-ranPPlist = new List()
+ranstimlist = new List()
 
 {load_file("./setupfiles/position_functions.hoc")}	// Defines the algorithm used to set the
 													//  positions of the cells
@@ -361,7 +360,10 @@ proc rrun(){									// Run the network simulation and write out the results
 	spikeout()	// Write the spike times (in ms) and spiking cells (by gid) into a file called "spikeraster.dat"
 	
 	timeout()	// Write out a file of run times for each code section
+	
+	highIndexout() // document how much of the random streams this run used
 
+	if (strcmp(Stimulation, "clampthetagamma")==0) {currentout()}	// Write out any voltages that were recorded during simulation
 	if (PrintVoltage==1) {voltageout()}	// Write out any voltages that were recorded during simulation
 	if (PrintConnDetails==1) {tracenetfast()}	// Write the file of all cell connections (pre and post gids, synapse type,
 										//  host on which cell exists), "connections.dat"

@@ -144,8 +144,9 @@ static int repeatconn (void* vv) {
 	postgmin = y[24];	// postsynaptic start gid
 	stepover = y[26];	// buffer size for number of conns for results vector
 
-	myi=1;	// myi will give the next index into finalconn
+	myi=2;	// myi will give the next index into finalconn
 			// 0 is reserved for # conns to make
+			// 1 is reserved for the last high index used by nrnRan4int
 
 	/* Get positions of the presynaptic and postsynaptic cells*/
 	double prepos [num_pre][3];
@@ -185,20 +186,27 @@ static int repeatconn (void* vv) {
 			fdln[step] = round((2.0*tu[step]/tsum)*(nconv));// the number of desired
 															// connections for each
 															// distance bin step, per cell
+			//printf("A. tu[%d]=%f, tsum=%f, nconv=%f\n", step, tu[step], tsum, nconv);
 		}
 	} else {
 		for (step=0; step<steps; step++) {
 			fdln[step] = round((tu[step]/tsum)*(nconv));// the number of desired
 															// connections for each
 															// distance bin step, per cell
+			//printf("B. tu[%d]=%f, tsum=%f, nconv=%f\n", step, tu[step], tsum, nconv);
 		}
 	}
+	
+	/*for (step=0; step<steps; step++) {
+		printf("fdln[%d]=%d\n", step, fdln[step]);
+	}*/
 
 	/* for each postsynaptic cell, find the possible connections and
 	 * make the desired number of connections where possible */   
 	int m, n, i, q, goupto, rem, extra, szr, szp [steps];
 	double pl;
-	u_int32_t idx1, idx2; // high and low index (seeds) for MCell_Ran4
+	u_int32_t idx1, idx2, maxidx1; // high and low index (seeds) for MCell_Ran4
+	maxidx1 = y[25];
 
 	for (n=0; n<num_post; n++) { // for each post cell
 		int myx = (int)z[n]; // get the gid of the current postsynaptic cell in int form
@@ -211,9 +219,9 @@ static int repeatconn (void* vv) {
 						// post cell type, with the previous pre cell types)?
 		idx2 = myx;		// set the low index equal to the gid
 		
-		if (myx==0 || myx==100 || myx==200 || myx==300 || myx==400) {
+		/*if (myx==0 || myx==100 || myx==200 || myx==300 || myx==400) {
 			printf("INDEX: gid=%d, idx1=%d\n", idx2, idx1);
-		}
+		}*/
 
 		double sortedpos [num_pre][steps];
 		for (step=0; step< steps; step++) {
@@ -332,11 +340,13 @@ static int repeatconn (void* vv) {
 				//}
 			//}
 		}
+		if (idx1>maxidx1) { maxidx1=idx1;}
 	}
-	x [0] = myi-1;	// fill the first element of the array (vector)
+	x [0] = myi-2;	// fill the first element of the array (vector)
 					// with the total number of connections to make,
 					// which may be less than the desired number (and
 					// hence the size of the array)
+	x [1] = (double)maxidx1;
 	return repeatfinal;
 }
 ENDVERBATIM

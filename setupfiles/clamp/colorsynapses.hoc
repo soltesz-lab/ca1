@@ -1,5 +1,5 @@
 {load_file("nrngui.hoc")}				// Standard definitions - NEURON library file
-{load_file("/home/casem/repos/ca1/setupfiles/defaultvar.hoc")}	// Contains the proc definition for default_var proc
+{load_file("./setupfiles/defaultvar.hoc")}	// Contains the proc definition for default_var proc
 
 default_var("studycell","poolosyncell") // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
 default_var("precell","eccell") // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
@@ -38,7 +38,7 @@ ss.color_list(pyrcello.all, 1)
 
 objref f2
 f2 = new File()
-sprint(cmdstr, "%s/autorig_results/%s/%s.%s.sids.dat", repodir, RunName, precell, postcell)				
+sprint(cmdstr, "%s/cellclamp_results/%s/%s.%s.sids.dat", repodir, RunName, precell, postcell)				
 f2.ropen(cmdstr)		// Open the celltype
 
 numsyns = f2.scanvar	
@@ -56,7 +56,7 @@ for i=0, numsyns-1 {
 f2.close
 
 ss.show(0)
-{sprint(pathstr,"%s/autorig_results/%s/%s.%s.used.eps", repodir, RunName, precell, postcell)}								
+{sprint(pathstr,"%s/cellclamp_results/%s/%s.%s.used.eps", repodir, RunName, precell, postcell)}								
 ss.printfile(pathstr)
 
 
@@ -66,6 +66,6 @@ sprint(cmdstr,"ss.color_list(pyrcello.%s_list, 2)", precell)
 print cmdstr
 execute1(cmdstr)
 ss.show(0)
-{sprint(pathstr,"%s/autorig_results/%s/%s.%s.available.eps", repodir, RunName, precell, postcell)}								
+{sprint(pathstr,"%s/cellclamp_results/%s/%s.%s.available.eps", repodir, RunName, precell, postcell)}								
 ss.printfile(pathstr)
-
+quit()

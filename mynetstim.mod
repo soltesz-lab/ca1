@@ -6,7 +6,7 @@ NEURON	{
   RANGE interval, number, start
   RANGE noise
   RANGE sid, cid
-  RANGE xpos, ypos, zpos
+  RANGE xpos, ypos, zpos, gid, randi
   THREADSAFE : only true if every instance has its own distinct Random
   POINTER donotuse
 }
@@ -21,6 +21,8 @@ PARAMETER {
 	xpos = 0
 	ypos = 0
 	zpos = 0
+	gid = 0
+	randi = 0
 }
 
 ASSIGNED {

@@ -16,7 +16,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			for r=0, numpost-1 {
 				postcellgids.x[r] = cellType[j].CellList[r].gid
 			}
-			sum_numconns = 0	
+			newhighindex = 1+RandomSeedsConn	
 			for i = 0, numCellTypes-1 {	
 				//if (cellType[i].is_art()==0) {
 				precellType_string =  cellType[i].cellType_string	// Load cell type string used to grab connection-specific properties later
@@ -24,6 +24,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 				cellType[i].numCons.x[j]=connectCells (i, j, precellType_string, postcellType_string)
 				//}	
 			}		
+			cellType[j].LastHighIndex = newhighindex
 		}
 	}
 	if ((PrintTerminal>0)) {print "Host ", pc.id, " connected cells."}
@@ -46,8 +47,10 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 									//	and probability of connection between these two types
 
 		if (PrintTerminal>1) {print "Host ", pc.id, " is connecting: ", $s3, "s to ", $s4, "s."}
+		//print "Host ", pc.id, " is connecting: ", $s3, "s to ", $s4, "s: numpost = ", numpost, ", numConns=", numConns
 
-		if (numConns != 0 && synWeight != 0 && numpost !=0) {
+		//if (numConns != 0 && synWeight != 0 && numpost !=0) {
+		if (numConns != 0 && numpost !=0) {
 			params = new Vector(27)
 			if (cellType[postcellType].numCells>=pc.nhost) {
 				connlength = int((numConns)/cellType[postcellType].numCells+.5)*int(cellType[postcellType].numCells/pc.nhost+1.5)+cellType[postcellType].numCells
@@ -62,6 +65,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			params.x[2]= numConns/cellType[postcellType].numCells //nconn
 			params.x[3]= cellType[postcellType].numCells // number of cells of the postsynaptic type (total)
 			params.x[4]= numpost  // number of cells of the postsynaptic type with gids on this computer
+			//print "gonna make ", params.x[2], " conns from ", $s3, "s to ", $s4, "s (", numpost, ")"
 			params.x[5]= sqrt(LongitudinalLength^2 + LayerVector.sum()^2 + TransverseLength^2)
 			//100 //maxd - the distance of the dimension for which the fit equation was designed (should add all three...), in um
 						// this also confusing because, right now, the equation calculates the overall distance (through all dimensions).
@@ -90,28 +94,31 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			if (cellType[postcellType].layerflag>0) {addheight=LayerVector.sum(0,cellType[postcellType].layerflag-1)}
 			params.x[23]= addheight
 			params.x[24]= cellType[postcellType].cellStartGid
-			params.x[25]= sum_numconns
+			params.x[25]= newhighindex
 			params.x[26]= connlength
-			sum_numconns = sum_numconns + cellType[precellType].numCells
 
 			conns2make.repeatconn(params, postcellgids)		
+			//print "host ", pc.id, " makes ", params.x[2], " conns from ", $s3, " to ", params.x[3], " ", $s4, " cells (connlength=", connlength, "), conns2make=", conns2make.x[0]
+			//newhighindex = newhighindex + cellType[precellType].numCells
+			newhighindex = newhighindex + int(conns2make.x[1]/1)+1
 			
 			for r=1, int(conns2make.x[0]/1) {
-				if (pc.gid_exists(conns2make.x[r+connlength])) {
-					cell = pc.gid2cell(conns2make.x[r+connlength])
+				if (pc.gid_exists(conns2make.x[r+1+connlength])) {
+					cell = pc.gid2cell(conns2make.x[r+1+connlength])
 					numSynTypes = cell.pre_list.o(precellType).count()
 					if (numSynTypes > 0) {
 						ransynlist.object(cell.randi).r.discunif(0,numSynTypes-1)		// Create a uniform random INTEGER variable over the range specified (0 to # synapse types-1),
 						for s=1,numSyns {
 							randSynNumber = ransynlist.object(cell.randi).repick	// Randomly pick a synapse type from the available synapse types
 							conDelay =  3 //sqrt(conns2make.x[r+2*connlength]/distres)*LongitudinalLength*speed+.1
-							nc_append(conns2make.x[r], conns2make.x[r+connlength], precellType, randSynNumber, synWeight + (conns2make.x[r]+1)*1000, conDelay)	// Make the connection  // the latter part is for tracing the big bug, used by exp2sid mech (it will take away this extra part)
+							//print $s3, "s to ", $s4, "s: nc_append ", s, "/", numSyns, " syns, ", r, "/", int(conns2make.x[0]/1), " conns, weight: ", synWeight
+							nc_append(conns2make.x[r+1], conns2make.x[r+1+connlength], precellType, randSynNumber, synWeight + (conns2make.x[r+1]+1)*1000, conDelay)	// Make the connection  // the latter part is for tracing the big bug, used by exp2sid mech (it will take away this extra part)
 						}
-						//if (conns2make.x[r+connlength]==5524) {print "pre ", $s3, ", gid ", conns2make.x[r], ", syn ", randSynNumber, ", wgt ", synWeight*numSyns}
+						//if (conns2make.x[r+1+connlength]==5524) {print "pre ", $s3, ", gid ", conns2make.x[r+1], ", syn ", randSynNumber, ", wgt ", synWeight*numSyns}
 						counter +=1
 					}
 				} else {
-					print $s3, "s to ", $s4, "s:", " can't make gid ", conns2make.x[r+connlength], " which is r = ", r, " +  connlength = ", connlength, " = ", r+connlength, " from x[r] = ", conns2make.x[r], " total conns = ", int(conns2make.x[0]/1)
+					print $s3, "s to ", $s4, "s:", " can't make gid ", conns2make.x[r+1+connlength], " which is r = ", r, " +  connlength = ", connlength, " = ", r+1+connlength, " from x[r+1] = ", conns2make.x[r+1], " total conns = ", int(conns2make.x[0]/1)
 				}
 			}
 		}

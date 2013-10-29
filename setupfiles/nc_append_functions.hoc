@@ -18,3 +18,12 @@ func nc_appendo() { localobj  nc	// Connect cell to synapse and set synapse prop
 		nclist.append(nc)
 	return nclist.count-1
 }
+
+
+func nc_appendstim() { localobj  nc	// Connect cell to synapse and set synapse properties
+		nc = pc.gid_connect($1, $o2)	// Connect the soma of the pre cell to the post cell
+		nc.weight = $3					// Set a synaptic connection weight
+		nc.delay = $4					// Set a delay time (axonal delay)
+		nclist.append(nc)
+	return nclist.count-1
+}

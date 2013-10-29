@@ -22,8 +22,8 @@ proc typeout() {local i, myline, rn, rank, gid, srcid localobj tgt, f, cell, f2c
 		printf(" so I will create it now\n")
 		sprint(dircmd, "mkdir ../results/%s", RunName)
 		{system(dircmd, direx)}
-		sprint(dircmd, "cp ../setupfiles/lowindex.hoc ../results/%s", RunName)
-		{system(dircmd, direx)}
+		//sprint(dircmd, "cp ../setupfiles/lowindex.hoc ../results/%s", RunName)
+		//{system(dircmd, direx)}
 
 		sprint(dircmd, "cp ../stimulation/sintrainparams.hoc ../results/%s", RunName)
 		{system(dircmd, direx)}

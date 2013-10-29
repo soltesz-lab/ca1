@@ -9,6 +9,9 @@ for i=0,numCellTypes-1 {			// Run the following code for 'real' cell types only 
 		if (numpercent>NumTraces) {
 			numpercent = NumTraces
 		}	
+		if (numpercent>cellType[i].numCells) {
+			numpercent = cellType[i].numCells
+		}	
 		tracevector.x[i] = numpercent		
 		numtrace = numtrace + numpercent
 	}

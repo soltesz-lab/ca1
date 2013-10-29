@@ -6,7 +6,7 @@ begintemplate CellCategoryInfo			// Define a template that describes
 										
 	public setCellTypeParams, setCellTypeDist			// Define variables and funcs that are
 	public cellType_string, technicalType, cellStartGid, cellEndGid	//  accessible from outside the class
-	public updateGidRange, addPosVec, layerflag			//  object
+	public updateGidRange, addPosVec, layerflag, LastHighIndex			//  object
 	public dist, numCells, CellList, addCell, numCons, numConns, numSyns, wgtConns, numThisHost
 	public setBins, dentateYBins, dentateXBins, dentateZBins
 	public dentateYBinSize, dentateXBinSize, dentateZBinSize, is_art
@@ -36,6 +36,8 @@ begintemplate CellCategoryInfo			// Define a template that describes
 		layerflag = $5				// Layer in which the somata of this cell type
 									//  are found (order of the layers is a matter
 									//  of convention, documented by YOU)
+									
+		LastHighIndex = 0
 		
 		ctype = new StringFunctions()	// Create a new StringFunctions object
 										//  for parsing the name of the celltype
@@ -58,8 +60,14 @@ begintemplate CellCategoryInfo			// Define a template that describes
 		sprint(tempString,"../cells/dist_%s.hoc",cellType_string)	//Specify file
 		
 		f1.ropen(tempString)		// Open the file
-			
-		dist.scanf(f1)				// Read in the values from the file
+		
+		if (f1.isopen()) {			
+			dist.scanf(f1)				// Read in the values from the file
+		} else {
+			dist.x[0]=1
+			dist.x[1]=1
+			dist.x[2]=1
+		}
 		
 		f1.close()					// Close the file
 	}

@@ -23,7 +23,7 @@ proc perfpathStims() { local i, wgt, reli, typei, jgid, celltype, idx, counter, 
 		}
 	}
 }
-if (strcmp("Connectivity", "try_all_randfaststim")!=0) { // only run this if the art stims are not being connected at another time
+if (strcmp("Connectivity", "try_all_randfast")==0) { // only run this if the art stims are not being connected at another time
 	perfpathStims()
 }
 
@@ -34,14 +34,13 @@ proc setnoise() {local reli, typei, jgid, celltype, idx localobj cell
 			idx = celltype
 			for pcitr(&reli, &typei, &jgid, cellType[idx].cellStartGid, cellType[idx].cellEndGid) {
 				cell = pc.gid2cell(jgid)
-				ransynlist.object(reli).r.negexp(1) // always use 1 for this - the interval for the netstim will set the 'rate'
+				ranstimlist.object(reli).r.negexp(1) // always use 1 for this - the interval for the netstim will set the 'rate'
 													// for another example (which has the randomstream class defined differently,
 													// and therefore calls different commands at different times) see the following file:
 													// <http://senselab.med.yale.edu/modeldb/showmodel.asp?model=83319&file=\destexhe_benchmarks\NEURON\common\netstim.hoc>
-													// use the ransynlist because we can continue along this stream for a very long time
-													// ranconlist is a small segment reserved upstream of ransynlist, so if there is
-													// a long simulation duration, then there could be a problem
-				cell.noiseFromRandom(ransynlist.object(reli).r)
+													// use the ranstimlist because we can continue along this stream for a very long time
+
+				cell.noiseFromRandom(ranstimlist.object(reli).r)
 			}
 		}
 	}

@@ -63,3 +63,44 @@ proc timeout() {local i, rank, gid, srcid localobj tgt, f, cell// Write out runt
 	}
 }
 
+proc highIndexout() {local i, ij, gid localobj cell
+	pc.barrier()					// Wait for all ranks to get to this point
+	sprint(cmd,"./results/%s/MaxHighIndex.txt", RunName)
+	f = new File(cmd)
+	
+	perRankmax=0
+	for j = 0, numCellTypes-1 {
+		if (cellType[j].LastHighIndex>perRankmax) {
+			perRankmax=cellType[j].LastHighIndex
+		}
+	}
+	maxconn = pc.allreduce(perRankmax, 2)
+	
+	perRankmax=0
+	for pcitr(&i, &ij, &gid, 0, ncell) {	
+		if (pc.gid_exists(gid)) {
+			cell = pc.gid2cell(gid)
+			if (ransynlist.object(cell.randi).seq()>perRankmax) {
+				perRankmax=ransynlist.object(cell.randi).seq()
+			}	
+		}
+	}
+	maxsyn = pc.allreduce(perRankmax, 2)
+	
+	perRankmax=0
+	for pcitr(&i, &ij, &gid, 0, ncell) {	
+		if (pc.gid_exists(gid)) {
+			cell = pc.gid2cell(gid)
+			if (ransynlist.object(cell.randi).seq()>perRankmax) {
+				perRankmax=ranstimlist.object(cell.randi).seq()
+			}	
+		}
+	}
+	maxstim = pc.allreduce(perRankmax, 2)
+	
+	if (pc.id == 0) { 				// Write header to file 1 time only
+		f.wopen()
+		f.printf("connection_highIndex=%f;\nsynapse_highIndex=%f;\nstimulation_highIndex=%f;\n",maxconn,maxsyn,maxstim)
+		f.close()
+	}
+}

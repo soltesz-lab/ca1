@@ -142,10 +142,11 @@ static int fastconn (void* vv) {
 	b = y[8];		// distribution fit coefficient b
 	c = y[9];		// distribution fit coefficient c
 	postgmin = y[24];	// postsynaptic start gid
-	stepover = y[26];	// buffer size for number of conns for results vector
+	stepover = y[26];	// postsynaptic start gid
 
-	myi=1;	// myi will give the next index into finalconn
+	myi=2;	// myi will give the next index into finalconn
 			// 0 is reserved for # conns to make
+			// 1 is reserved for the last high index used by nrnRan4int
 
 	/* Get positions of the presynaptic and postsynaptic cells*/
 	double prepos [num_pre][3];
@@ -180,7 +181,7 @@ static int fastconn (void* vv) {
 		tsum = tsum + tu[step];
 	}
 
-	if (tu[maxi]/tsum*nconv < 0.5) { //tsum) nconv=nconn*1.0/ncell
+	if (tu[maxi]/tsum*nconv < 0.5) { //tsum) { // nconv = nconn*1.0/ncell
 		for (step=0; step<steps; step++) {
 			fdln[step] = round((2.0*tu[step]/tsum)*(nconv));// the number of desired
 															// connections for each
@@ -198,7 +199,8 @@ static int fastconn (void* vv) {
 	 * make the desired number of connections where possible */   
 	int m, n, i, q, goupto, rem, extra, szr, szp [steps];
 	double pl;
-	u_int32_t idx1, idx2; // high and low index (seeds) for MCell_Ran4
+	u_int32_t idx1, idx2, maxidx1; // high and low index (seeds) for MCell_Ran4
+	maxidx1 = y[25];
 
 	for (n=0; n<num_post; n++) { // for each post cell
 		int myx = (int)z[n]; // get the gid of the current postsynaptic cell in int form
@@ -305,8 +307,7 @@ static int fastconn (void* vv) {
 					r[i] =  sortedpos [i] [step]; // Fill the array with the available connections (in terms of the pre cell)
 				}
 
-				/* this random routine rearranges the possible pre-cells. the max number of connections can only get as high as the total number of available presynaptic cells
-				(Doesn't allow the same pre-cell to be used twice)*/
+				/* this random routine allows a pre-cell to make multiple connections on the post cell*/
 				int tmp;
 				u_int32_t randi;
 				for (i=0; i<szr-1; i++) {
@@ -332,17 +333,14 @@ static int fastconn (void* vv) {
 					myi++;
 				}
 			} 
-			//if (num_pre>10000) {
-					   // if (z[0]==21504) {
-					//printf("step=%d, gid=%f, myi=%d\n", step, z[n], myi);
-				//}
-			//}
 		}
+		if (idx1>maxidx1) { maxidx1=idx1;}
 	}
-	x [0] = myi-1;	// fill the first element of the array (vector)
+	x [0] = myi-2;	// fill the first element of the array (vector)
 					// with the total number of connections to make,
 					// which may be less than the desired number (and
 					// hence the size of the array)
+	x [1] = (double)maxidx1;
 	return finalconn;
 }
 ENDVERBATIM
