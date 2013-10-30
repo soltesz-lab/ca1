@@ -117,7 +117,7 @@ static double get_z_pos (int gid, int gmin, int BinNumZ, int binSizeZ, int ZHeig
 }
 
 static int fastconn (void* vv) {
-  int finalconn, ny, nz, num_pre, num_post, gmin, gmax, maxd, steps, myflaggy, myi, postgmin, stepover;
+  int finalconn, ny, nz, num_pre, num_post, gmin, gmax, axonal_extent, steps, myflaggy, myi, postgmin, stepover;
   double *x, *y, *z, a, b, c, nconv, ncell;
 
 	/* Get hoc vectors into c arrays */
@@ -136,7 +136,7 @@ static int fastconn (void* vv) {
 	nconv = y[2];	// total number of desired connections
 	ncell = y[3];	// total number of postsynaptic cells
 	num_post = y[4];	// number of postsynaptic cells owned by this host
-	maxd = y[5];	// total distance over which distribution fits
+	axonal_extent = y[5];	// total distance over which distribution fits
 	steps = y[6];	// resolution of the distribution fit (in steps)
 	a = y[7];		// distribution fit coefficient a
 	b = y[8];		// distribution fit coefficient b
@@ -166,30 +166,29 @@ static int fastconn (void* vv) {
 	}
 
 	/* calculate the distribution of desired connections*/   
-	double mt [steps], tu [steps], tsum, conndist, mytmp;
-	int step, dln [steps], fdln [steps];
+	double current_distance [steps], connection_distribution [steps], distribution_denominator, conndist;
+	int step, feasible_conns_this_step [steps], desired_conns_this_step [steps];
 
-	tsum = 0.0;
-	mytmp = 0.0;
-	int maxi; maxi=0;
+	distribution_denominator = 0.0;
+	int max_fraction_step; max_fraction_step=0;
 	for (step=0; step<steps; step++) {
-		mt[step] = maxd*1.0*(step+1)/(steps); /* mt[step] = distance step (in terms of max distance)*/
-		tu[step] = (1.0/a)*exp(-((mt[step]-b)*1.0/c)*((mt[step]-b)*1.0/c))*maxd;
-		if (tu[step]>tu[maxi]) {
-			maxi=step;
+		current_distance[step] = axonal_extent*1.0*(step+1)/(steps); /* current_distance[step] = distance step (in terms of max distance)*/
+		connection_distribution[step] = (1.0/a)*exp(-((current_distance[step]-b)*1.0/c)*((current_distance[step]-b)*1.0/c))*axonal_extent;
+		if (connection_distribution[step]>connection_distribution[max_fraction_step]) {
+			max_fraction_step=step;
 		}
-		tsum = tsum + tu[step];
+		distribution_denominator = distribution_denominator + connection_distribution[step];
 	}
 
-	if (tu[maxi]/tsum*nconv < 0.5) { //tsum) { // nconv = nconn*1.0/ncell
+	if (connection_distribution[max_fraction_step]/distribution_denominator*nconv < 0.5) { //distribution_denominator) { // nconv = nconn*1.0/ncell
 		for (step=0; step<steps; step++) {
-			fdln[step] = round((2.0*tu[step]/tsum)*(nconv));// the number of desired
+			desired_conns_this_step[step] = round((2.0*connection_distribution[step]/distribution_denominator)*(nconv));// the number of desired
 															// connections for each
 															// distance bin step, per cell
 		}
 	} else {
 		for (step=0; step<steps; step++) {
-			fdln[step] = round((tu[step]/tsum)*(nconv));// the number of desired
+			desired_conns_this_step[step] = round((connection_distribution[step]/distribution_denominator)*(nconv));// the number of desired
 															// connections for each
 															// distance bin step, per cell
 		}
@@ -198,7 +197,7 @@ static int fastconn (void* vv) {
 	/* for each postsynaptic cell, find the possible connections and
 	 * make the desired number of connections where possible */   
 	int m, n, i, q, goupto, rem, extra, szr, szp [steps];
-	double pl;
+	double distance_between;
 	u_int32_t idx1, idx2, maxidx1; // high and low index (seeds) for MCell_Ran4
 	maxidx1 = y[25];
 
@@ -220,19 +219,19 @@ static int fastconn (void* vv) {
 							// index of the array you are on for that bin)
 							// when filling the array with available
 							// connections for each bin
-			dln[step] = fdln[step];		
+			feasible_conns_this_step[step] = desired_conns_this_step[step];		
 		}
 		
 		double dist;
 		for(m=0; m<num_pre; m++) { // for each pre cell
 			// calculate the distance between the pre and post cells
-			pl = sqrt((1.0*prepos[m][0] - postpos[n][0])*(prepos[m][0] - postpos[n][0])+(prepos[m][1] - postpos[n][1])*(prepos[m][1] - postpos[n][1])+(prepos[m][2] - postpos[n][2])*(prepos[m][2] - postpos[n][2]));
+			distance_between = sqrt((1.0*prepos[m][0] - postpos[n][0])*(prepos[m][0] - postpos[n][0])+(prepos[m][1] - postpos[n][1])*(prepos[m][1] - postpos[n][1])+(prepos[m][2] - postpos[n][2])*(prepos[m][2] - postpos[n][2]));
 			for (step=0; step< steps; step++) {
 				/*if (ncell==2 && num_pre==3) {
-					printf("distance=%f step=%d stepmax=%f gmin=%d postg=%d\n", pl, step, mt[step], gmin, postgmin);
+					printf("distance=%f step=%d stepmax=%f gmin=%d postg=%d\n", distance_between, step, current_distance[step], gmin, postgmin);
 				}*/
 
-				if (pl<= mt[step]) // if the distance is less than the max distance for that step
+				if (distance_between<= current_distance[step]) // if the distance is less than the max distance for that step
 				{
 					sortedpos [szp [step]] [step] = m;	// add this pre cell to this particular bin's column (the next row, which szp keeps track of)
 					szp [step]++;
@@ -250,36 +249,36 @@ static int fastconn (void* vv) {
 		// now, this particular post cell has an array (sortedpos) where each
 		// column contains a bunch of pre-cell gids whose distances fit within
 		// that column's "step" or "distance bin"
-		// There is also a dln array that gives the ideal # of connections
+		// There is also a feasible_conns_this_step array that gives the ideal # of connections
 		// for each step
 			
 		rem=0;extra=0;
 		for (step=0; step<steps; step++) {	// for each step except the last one
 			szr = szp [step]; // Get the number of available connections for this step
-			if (dln[step] + rem> szr) { //If more are wanted than are available,
-				rem=dln[step]+rem-szr;
+			if (feasible_conns_this_step[step] + rem> szr) { //If more are wanted than are available,
+				rem=feasible_conns_this_step[step]+rem-szr;
 				// check the next level for extras
 				if (step<steps-1) {
-					if (szp [step+1] > dln[step+1]) {
-						if (szp [step+1] - dln[step+1]>rem) {
+					if (szp [step+1] > feasible_conns_this_step[step+1]) {
+						if (szp [step+1] - feasible_conns_this_step[step+1]>rem) {
 							extra = rem;
 						} else {
-							extra = szp [step+1] - dln[step+1];
+							extra = szp [step+1] - feasible_conns_this_step[step+1];
 						}
-						dln[step+1] = dln[step+1] + extra;
-						dln[step] = dln[step] - extra;
+						feasible_conns_this_step[step+1] = feasible_conns_this_step[step+1] + extra;
+						feasible_conns_this_step[step] = feasible_conns_this_step[step] - extra;
 						rem = rem - extra;
 					}
 				}
 				if (rem>0 && step>0) { // if that still doesn't satisfy all the remainder
-					if (szp [step-1] > dln[step-1]) {
-						if (szp [step-1] - dln[step-1]>rem) {
+					if (szp [step-1] > feasible_conns_this_step[step-1]) {
+						if (szp [step-1] - feasible_conns_this_step[step-1]>rem) {
 							extra = rem;
 						} else {
-							extra = szp [step-1] - dln[step-1];
+							extra = szp [step-1] - feasible_conns_this_step[step-1];
 						}
-						dln[step-1] = dln[step-1] + extra;
-						dln[step] = dln[step] - extra;
+						feasible_conns_this_step[step-1] = feasible_conns_this_step[step-1] + extra;
+						feasible_conns_this_step[step] = feasible_conns_this_step[step] - extra;
 						rem = rem - extra;				
 					}
 				}
@@ -288,13 +287,13 @@ static int fastconn (void* vv) {
 
 		/*if (ncell==2 && num_pre==3) {
 			for (step=0; step< steps; step++) {
-				printf("step: %d  szp: %d  dln: %d\n", step, szp [step], dln[step]);
+				printf("step: %d  szp: %d  feasible_conns_this_step: %d\n", step, szp [step], feasible_conns_this_step[step]);
 			}
 		}*/
 	
 		rem=0;
 		for (step=0; step<steps; step++) {	// for each step
-			if (dln[step]>0) { // if this particular step wants any connections
+			if (feasible_conns_this_step[step]>0) { // if this particular step wants any connections
 				/* Find all the possible connections for each distance level  */
 				
 				/*if (ncell==2 && num_pre==3) {
@@ -317,11 +316,11 @@ static int fastconn (void* vv) {
 					r[randi] = tmp;
 				}
 
-				if (dln[step]>szr) { 	// if the number of desired connections (ones wanted in this step, plus unmade ones from previous steps)
-										// is more than the available amt, set the remainder to the excess ones that can't be made in this step
+				if (feasible_conns_this_step[step]>szr) { 	// if the number of desired connections (ones wanted in this step, plus unmade ones from previous steps)
+										// is more than the available amount, set the remainder to the excess ones that can't be made in this step
 					goupto=szr;			// and set the number to make (based on the desired and available amts)
 				} else {
-					goupto=dln[step];	// set the number to make (based on the desired and available amts)
+					goupto=feasible_conns_this_step[step];	// set the number to make (based on the desired and available amts)
 				}
 
 				for (q=0; q<goupto; q++) { 	// for each one to make, r[q] gives the precell index in the pre_pos array (this program assumes
