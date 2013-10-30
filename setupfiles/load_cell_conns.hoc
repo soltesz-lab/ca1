@@ -12,7 +12,7 @@ proc conn_cells() {local num, wgt, syn
 
 	// load file
 	f2c = new File()
-	sprint(cmdstr, "../connections/conndata_%g.dat", ConnData)
+	sprint(cmdstr, "../datasets/conndata_%g.dat", ConnData)
 	f2c.ropen(cmdstr)		// Open the celltype
 	connData = f2c.scanvar
 	for r=0,connData-1 {

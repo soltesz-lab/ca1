@@ -5,7 +5,7 @@
 strdef cmdstr
 objref f2
 	f2 = new File()
-	sprint(cmdstr, "connections/cellnumbers_%g.dat", NumData)
+	sprint(cmdstr, "datasets/cellnumbers_%g.dat", NumData)
 	f2.ropen(cmdstr)		// Open the celltype
 	
 	numCellTypes = f2.scanvar       // Scan the first line, which contains a number giving the

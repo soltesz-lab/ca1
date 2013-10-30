@@ -24,6 +24,8 @@ tracetypelist = new Vector(numtrace)
 
 tr = 0
 objref cell
+
+// Record from every 1/xth cell
 for i=0,numCellTypes-1 {
 	if (cellType[i].is_art==0) {
 		for k = 0, tracevector.x[i]-1 {
@@ -35,7 +37,8 @@ for i=0,numCellTypes-1 {
 			{execute(cmdstr)}
 			
 			tracetypelist.x[tr] = i		
-			traceidxlist.x[tr]=cellType[i].cellStartGid + k
+			traceidxlist.x[tr]=cellType[i].cellStartGid + k*int(cellType[i].numCells/tracevector.x[i]) // Record from every 1/xth cell
+			//traceidxlist.x[tr]=cellType[i].cellStartGid + k  // Record from first x cells
 		
 			if (pc.gid_exists(traceidxlist.x[tr])) {	// If cell exists on this machine
 				sprint(cmdstr, "%s%g = new Vector(%g)", tracenamelist[tr].s, tracepclist.x[tr], (tstop-tstart)/dt)
