@@ -40,11 +40,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 		synWeight = cellType[$1].wgtConns.x[$2]
 		numSyns = cellType[$1].numSyns.x[$2]
 		numConns = cellType[$1].numConns.x[$2]				
-		numConns = int(numConns/(Scale) + .5) // higher connectivity in smaller scale models
-		
-		
-		//getSynapseData($s3, $s4)	// Given the pre and post cell types, look up the weight, delay,
-									//	and probability of connection between these two types
+		// numConns = int(numConns/(Scale) + .5) // higher connectivity in smaller scale models
 
 		if (PrintTerminal>1) {print "Host ", pc.id, " is connecting: ", $s3, "s to ", $s4, "s."}
 		//print "Host ", pc.id, " is connecting: ", $s3, "s to ", $s4, "s: numpost = ", numpost, ", numConns=", numConns
@@ -53,16 +49,19 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 		if (numConns != 0 && numpost !=0) {
 			params = new Vector(27)
 			if (cellType[postcellType].numCells>=pc.nhost) {
-				connlength = int((numConns)/cellType[postcellType].numCells+.5)*int(cellType[postcellType].numCells/pc.nhost+1.5)+cellType[postcellType].numCells
+				connlength = numConns*int(cellType[postcellType].numCells/pc.nhost+1.5)+cellType[postcellType].numCells
+				//connlength = int((numConns)/cellType[postcellType].numCells+.5)*int(cellType[postcellType].numCells/pc.nhost+1.5)+cellType[postcellType].numCells
 			} else {
-				connlength = int((numConns)/cellType[postcellType].numCells+.5)+cellType[postcellType].numCells
+				connlength = numConns+cellType[postcellType].numCells
+				//connlength = int((numConns)/cellType[postcellType].numCells+.5)+cellType[postcellType].numCells
 			}
 			
 			conns2make = new Vector(1+connlength*6)
 
 			params.x[0]=cellType[precellType].cellStartGid //gmin -- start gid of pre cell type
 			params.x[1]=cellType[precellType].cellEndGid //gmax -- end gid of pre cell type
-			params.x[2]= numConns/cellType[postcellType].numCells //nconn
+			params.x[2]= numConns //nconn
+			//params.x[2]= numConns/cellType[postcellType].numCells //nconn
 			params.x[3]= cellType[postcellType].numCells // number of cells of the postsynaptic type (total)
 			params.x[4]= numpost  // number of cells of the postsynaptic type with gids on this computer
 			//print "gonna make ", params.x[2], " conns from ", $s3, "s to ", $s4, "s (", numpost, ")"
@@ -124,24 +123,6 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 		}
 		return counter
 	}
-		objref  f2
-		proc getSynapseData () {	// Args: precelltype name, postcelltype name
-			 strdef tempString
-			 f2 = new File()
-			 // Somehow, the program has switched the current directory to setupfiles (not sure where) so must get out of it
-			 sprint(tempString,"../connections/%s.%s",$s1,$s2)	// Get the file that specifies connection properties between these two cell types
-			 f2.ropen(tempString)
-			 if (f2.isopen) {
-			 synWeight = f2.scanvar
-			 numConns = f2.scanvar
-			  numConns = int(numConns/(Scale)) // higher connectivity in smaller scale models
-			 } else {
-				 synWeight = 0
-				 numConns = 0
-			 }
-			 if ((strcmp($s1,"granulecell")==0) && (strcmp($s2,"granulecell")==0)) {synProb = synProb * PercentAxonSprouting/100}
-		}	 	// Reduce the probability of granule cell connection by the same degree as the sclerosis
-				//	because mossy fibers connecting back to granule cells are subject to sclerosis (?)
 makeConnections()								// Try making connections between every type of cell
 
 objref conns2make

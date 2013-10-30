@@ -39,23 +39,26 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 		synWeight = cellType[$1].wgtConns.x[$2]
 		numSyns = cellType[$1].numSyns.x[$2]
 		numConns = cellType[$1].numConns.x[$2]
-		numConns = int(numConns/(Scale) + .5) // higher connectivity in smaller scale models
+		// numConns = int(numConns/(Scale) + .5) // higher connectivity in smaller scale models
 
 		if (PrintTerminal>1) {print "Host ", pc.id, " is connecting: ", $s3, "s to ", $s4, "s."}
 
 		if (numConns != 0 && numpost !=0) {
 			params = new Vector(27)
 			if (cellType[postcellType].numCells>=pc.nhost) {
-				connlength = int((numConns)/cellType[postcellType].numCells+.5)*int(cellType[postcellType].numCells/pc.nhost+1.5)+cellType[postcellType].numCells
+				connlength = numConns*int(cellType[postcellType].numCells/pc.nhost+1.5)+cellType[postcellType].numCells
+				//connlength = int((numConns)/cellType[postcellType].numCells+.5)*int(cellType[postcellType].numCells/pc.nhost+1.5)+cellType[postcellType].numCells
 			} else {
-				connlength = int((numConns)/cellType[postcellType].numCells+.5)+cellType[postcellType].numCells
+				connlength = numConns+cellType[postcellType].numCells
+				//connlength = int((numConns)/cellType[postcellType].numCells+.5)+cellType[postcellType].numCells
 			}
 			
 			conns2make = new Vector(1+connlength*6)
 
 			params.x[0]=cellType[precellType].cellStartGid //gmin -- start gid of pre cell type
 			params.x[1]=cellType[precellType].cellEndGid //gmax -- end gid of pre cell type
-			params.x[2]= numConns/cellType[postcellType].numCells //nconv
+			params.x[2]= numConns  //nconv
+			//params.x[2]= numConns/cellType[postcellType].numCells //nconv
 			params.x[3]= cellType[postcellType].numCells // number of cells of the postsynaptic type (total)
 			params.x[4]= numpost  // number of cells of the postsynaptic type with gids on this computer
 			params.x[5]= sqrt(LongitudinalLength^2 + LayerVector.sum()^2 + TransverseLength^2)
