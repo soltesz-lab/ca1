@@ -237,7 +237,7 @@ celsius=34
 													//  object associated with each connection
 													//  (synapse)
 
-{sprint(cmd,"./setupfiles/%s_connections.hoc", Connectivity)}
+{sprint(cmd,"./connectivity/%s_connections.hoc", Connectivity)}
 {load_file(cmd)}			// Loads in a particular definition of the connectCells function,
 							//  depending on the value of the Connectivity string
 
