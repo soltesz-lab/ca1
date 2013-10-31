@@ -214,7 +214,7 @@ static int repeatconn (void* vv) {
 	maxidx1 = y[25];
 
 	for (n=0; n<num_post; n++) { // for each post cell
-		if (n==100) {
+		if (z[n]==100) {
 		printf("nconv = %f\n", nconv);
 		}
 		int myx = (int)z[n]; // get the gid of the current postsynaptic cell in int form
@@ -374,7 +374,7 @@ static int repeatconn (void* vv) {
 					//printf("step=%d, gid=%f, myi=%d\n", step, z[n], myi);
 				//}
 			//}
-			if (n==100) {
+		if (z[n]==100) {
 				printf("step=%d\navailable conns = %d\nfeasible conns = %d\ndesired conns = %d\nmade conns = %d\n\n", step, szp [step], feasible_conns_this_step[step], desired_conns_this_step[step],q);
 				}			
 		}
