@@ -117,9 +117,10 @@ static double get_z_pos (int gid, int gmin, int BinNumZ, int binSizeZ, int ZHeig
 }
 
 static int repeatconn (void* vv) {
-  int repeatfinal, ny, nz, num_pre, num_post, gmin, gmax, steps, myflaggy, myi, postgmin, stepover;
+  int repeatfinal, ny, nz, num_pre, num_post, gmin, gmax, steps, myflaggy, myi, postgmin, stepover, reuse_conns_from_prev_step;
   double *x, *y, *z, a, b, c, nconv, ncell, axonal_extent;
 
+	reuse_conns_from_prev_step=1;
 	/* Get hoc vectors into c arrays */
 	repeatfinal = vector_instance_px(vv, &x); // x is an array corresponding
 											// to the placeholder vector
@@ -181,7 +182,7 @@ static int repeatconn (void* vv) {
 		}
 		distribution_denominator = distribution_denominator + connection_distribution[step]; // this will be used to normalize the distribution
 	}
-
+	
 	// connection_distribution[step]/distribution_denominator is the fraction of connections to make in this step
 	if (connection_distribution[max_fraction_step]/distribution_denominator*nconv < 0.5) { //distribution_denominator) nconv=nconn*1.0/ncell
 		for (step=0; step<steps; step++) {
@@ -213,6 +214,9 @@ static int repeatconn (void* vv) {
 	maxidx1 = y[25];
 
 	for (n=0; n<num_post; n++) { // for each post cell
+		if (n==2) {
+		printf("nconv = %f\n", nconv);
+		}
 		int myx = (int)z[n]; // get the gid of the current postsynaptic cell in int form
 		idx1 = y[25]; 	// reset the high index for the next postsynaptic
 						// cell. It should be set to a value that is 
@@ -273,32 +277,55 @@ static int repeatconn (void* vv) {
 		rem=0;extra=0;
 		for (step=0; step<steps; step++) {	// for each step except the last one
 			szr = szp [step]; // Get the number of available connections for this step
+			//if (feasible_conns_this_step[step] + rem> szr) { //If more are wanted than are available,
 			if (szr < 1) { //Only if there are 0 available in that step, try it in a different step
 				rem=feasible_conns_this_step[step]+rem-szr;
-				// check the next level for extras
-				if (step<steps-1) {
-					if (szp [step+1] > feasible_conns_this_step[step+1]) {
-						if (szp [step+1] - feasible_conns_this_step[step+1]>rem) {
-							extra = rem;
-						} else {
-							extra = szp [step+1] - feasible_conns_this_step[step+1];
+				// check the previous level (closer level) for extras
+				if (step>0) {
+					for(i=1; i<=step; i++) {
+						if (reuse_conns_from_prev_step==0) {
+							if (szp [step-i] > feasible_conns_this_step[step-i]) {
+								if (szp [step-i] - feasible_conns_this_step[step-i]>rem) {
+									extra = rem;
+								} else {
+									extra = szp [step-i] - feasible_conns_this_step[step-i];
+								}
+								feasible_conns_this_step[step-i] = feasible_conns_this_step[step-i] + extra;
+								feasible_conns_this_step[step] = feasible_conns_this_step[step] - extra;
+								rem = rem - extra;				
+							}
+						} else { // reuse_conns_from_prev_step==1
+							if (szp [step-i] > 0) {
+								extra = rem;
+								feasible_conns_this_step[step-i] = feasible_conns_this_step[step-i] + extra;
+								feasible_conns_this_step[step] = feasible_conns_this_step[step] - extra;
+								rem = rem - extra;				
+							}
 						}
-						feasible_conns_this_step[step+1] = feasible_conns_this_step[step+1] + extra;
-						feasible_conns_this_step[step] = feasible_conns_this_step[step] - extra;
-						rem = rem - extra;
-					}
+					}											
 				}
-				if (rem>0 && step>0) { // if that still doesn't satisfy all the remainder
-					if (szp [step-1] > feasible_conns_this_step[step-1]) {
-						if (szp [step-1] - feasible_conns_this_step[step-1]>rem) {
-							extra = rem;
-						} else {
-							extra = szp [step-1] - feasible_conns_this_step[step-1];
-						}
-						feasible_conns_this_step[step-1] = feasible_conns_this_step[step-1] + extra;
-						feasible_conns_this_step[step] = feasible_conns_this_step[step] - extra;
-						rem = rem - extra;				
-					}
+				if (rem>0 && step<steps-1) { // if that still doesn't satisfy all the remainder
+					for(i=step+1; i<steps; i++) {				
+						if (reuse_conns_from_prev_step==0) {
+							if (szp [i] > feasible_conns_this_step[i]) {
+								if (szp [i] - feasible_conns_this_step[i]>rem) {
+									extra = rem;
+								} else {
+									extra = szp [i] - feasible_conns_this_step[i];
+								}
+								feasible_conns_this_step[i] = feasible_conns_this_step[i] + extra;
+								feasible_conns_this_step[step] = feasible_conns_this_step[step] - extra;
+								rem = rem - extra;
+							}
+						} else { // reuse_conns_from_prev_step==1
+							if (szp [i] > 0) {
+								extra = rem;
+								feasible_conns_this_step[i] = feasible_conns_this_step[i] + extra;
+								feasible_conns_this_step[step] = feasible_conns_this_step[step] - extra;
+								rem = rem - extra;				
+							}
+						}					
+					}	
 				}
 			}
 		}
@@ -312,6 +339,7 @@ static int repeatconn (void* vv) {
 		rem=0;
 		for (step=0; step<steps; step++) {	// for each step
 			szr = szp [step]; // Get the number of available unique pre-cells for this step
+			q=0;
 			if (feasible_conns_this_step[step]>0 && szr>0) { // if this particular step wants any connections
 				/* Find all the possible connections for each distance level  */
 				
@@ -346,6 +374,9 @@ static int repeatconn (void* vv) {
 					//printf("step=%d, gid=%f, myi=%d\n", step, z[n], myi);
 				//}
 			//}
+			if (n==2) {
+				printf("step=%d\navailable conns = %d\nfeasible conns = %d\ndesired conns = %d\nmade conns = %d\n\n", step, szp [step], feasible_conns_this_step[step], desired_conns_this_step[step],q);
+				}			
 		}
 		if (idx1>maxidx1) { maxidx1=idx1;}
 	}

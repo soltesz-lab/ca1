@@ -258,20 +258,8 @@ static int fastconn (void* vv) {
 			szr = szp [step]; // Get the number of available connections for this step
 			if (feasible_conns_this_step[step] + rem> szr) { //If more are wanted than are available,
 				rem=feasible_conns_this_step[step]+rem-szr;
-				// check the next level for extras
-				if (step<steps-1) {
-					if (szp [step+1] > feasible_conns_this_step[step+1]) {
-						if (szp [step+1] - feasible_conns_this_step[step+1]>rem) {
-							extra = rem;
-						} else {
-							extra = szp [step+1] - feasible_conns_this_step[step+1];
-						}
-						feasible_conns_this_step[step+1] = feasible_conns_this_step[step+1] + extra;
-						feasible_conns_this_step[step] = feasible_conns_this_step[step] - extra;
-						rem = rem - extra;
-					}
-				}
-				if (rem>0 && step>0) { // if that still doesn't satisfy all the remainder
+				// check the previous level (closer level) for extras
+				if (step>0) {
 					if (szp [step-1] > feasible_conns_this_step[step-1]) {
 						if (szp [step-1] - feasible_conns_this_step[step-1]>rem) {
 							extra = rem;
@@ -281,6 +269,18 @@ static int fastconn (void* vv) {
 						feasible_conns_this_step[step-1] = feasible_conns_this_step[step-1] + extra;
 						feasible_conns_this_step[step] = feasible_conns_this_step[step] - extra;
 						rem = rem - extra;				
+					}
+				}
+				if (rem>0 && step<steps-1) { // if that still doesn't satisfy all the remainder
+					if (szp [step+1] > feasible_conns_this_step[step+1]) {
+						if (szp [step+1] - feasible_conns_this_step[step+1]>rem) {
+							extra = rem;
+						} else {
+							extra = szp [step+1] - feasible_conns_this_step[step+1];
+						}
+						feasible_conns_this_step[step+1] = feasible_conns_this_step[step+1] + extra;
+						feasible_conns_this_step[step] = feasible_conns_this_step[step] - extra;
+						rem = rem - extra;
 					}
 				}
 			}
