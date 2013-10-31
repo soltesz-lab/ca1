@@ -214,9 +214,6 @@ static int repeatconn (void* vv) {
 	maxidx1 = y[25];
 
 	for (n=0; n<num_post; n++) { // for each post cell
-		if (z[n]==100) {
-		printf("nconv = %f\n", nconv);
-		}
 		int myx = (int)z[n]; // get the gid of the current postsynaptic cell in int form
 		idx1 = y[25]; 	// reset the high index for the next postsynaptic
 						// cell. It should be set to a value that is 
@@ -374,9 +371,6 @@ static int repeatconn (void* vv) {
 					//printf("step=%d, gid=%f, myi=%d\n", step, z[n], myi);
 				//}
 			//}
-		if (z[n]==100) {
-				printf("step=%d\navailable conns = %d\nfeasible conns = %d\ndesired conns = %d\nmade conns = %d\n\n", step, szp [step], feasible_conns_this_step[step], desired_conns_this_step[step],q);
-				}			
 		}
 		if (idx1>maxidx1) { maxidx1=idx1;}
 	}

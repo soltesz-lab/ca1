@@ -65,7 +65,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			params.x[3]= cellType[postcellType].numCells // number of cells of the postsynaptic type (total)
 			params.x[4]= numpost  // number of cells of the postsynaptic type with gids on this computer
 			//print "gonna make ", params.x[2], " conns from ", $s3, "s to ", $s4, "s (", numpost, ")"
-			params.x[5]= 1000 // axonal extent of presynaptic cell // sqrt(LongitudinalLength^2 + TransverseLength^2)
+			params.x[5]= cellType[precellType].dist.x[2]*4 // axonal extent of presynaptic cell // sqrt(LongitudinalLength^2 + TransverseLength^2)
 			//print $s3, "s to ", $s4, "s: distance=", params.x[5], " LongitudinalLength=", LongitudinalLength, ", TransverseLength=", TransverseLength
 			//params.x[5]= sqrt(LongitudinalLength^2 + LayerVector.sum()^2 + TransverseLength^2)
 			//100 //maxd - the distance of the dimension for which the fit equation was designed (should add all three...), in um
@@ -98,9 +98,6 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			params.x[25]= newhighindex
 			params.x[26]= connlength
 
-			if (pc.gid_exists(100) && cellType[postcellType].cellStartGid==73) {
-			print $s3, "s to ", $s4, "s:"
-			}
 			conns2make.repeatconn(params, postcellgids)		
 			//print "host ", pc.id, " makes ", params.x[2], " conns from ", $s3, " to ", params.x[3], " ", $s4, " cells (connlength=", connlength, "), conns2make=", conns2make.x[0]
 			//newhighindex = newhighindex + cellType[precellType].numCells
