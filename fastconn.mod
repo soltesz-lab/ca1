@@ -173,7 +173,8 @@ static int fastconn (void* vv) {
 	int max_fraction_step; max_fraction_step=0;
 	for (step=0; step<steps; step++) {
 		current_distance[step] = axonal_extent*1.0*(step+1)/(steps); /* current_distance[step] = distance step (in terms of max distance)*/
-		connection_distribution[step] = (1.0/a)*exp(-((current_distance[step]-b)*1.0/c)*((current_distance[step]-b)*1.0/c))*axonal_extent;
+		//connection_distribution[step] = (1.0/a)*exp(-((current_distance[step]-b)*1.0/c)*((current_distance[step]-b)*1.0/c))*axonal_extent;
+		connection_distribution[step] = exp(-a*((current_distance[step]-b)*1.0/c)*((current_distance[step]-b)*1.0/c));
 		if (connection_distribution[step]>connection_distribution[max_fraction_step]) {
 			max_fraction_step=step;
 		}

@@ -174,11 +174,12 @@ static int repeatconn (void* vv) {
 	for (step=0; step<steps; step++) {
 		current_distance[step] = axonal_extent*1.0*(step+0.5)/(steps); /* current_distance[step] = distance step (in terms of max distance)*/
 		//current_distance[step] = axonal_extent*1.0*(step+1)/(steps); /* current_distance[step] = distance step (in terms of max distance)*/
-		connection_distribution[step] = (1.0/a)*exp(-((current_distance[step]-b)*1.0/c)*((current_distance[step]-b)*1.0/c))*axonal_extent;
+		//connection_distribution[step] = (1.0/a)*exp(-((current_distance[step]-b)*1.0/c)*((current_distance[step]-b)*1.0/c))*axonal_extent;
+		connection_distribution[step] = exp(-a*((current_distance[step]-b)*1.0/c)*((current_distance[step]-b)*1.0/c));
 		if (connection_distribution[step]>connection_distribution[max_fraction_step]) {
 			max_fraction_step=step;
 		}
-		distribution_denominator = distribution_denominator + connection_distribution[step];
+		distribution_denominator = distribution_denominator + connection_distribution[step]; // this will be used to normalize the distribution
 	}
 
 	// connection_distribution[step]/distribution_denominator is the fraction of connections to make in this step

@@ -65,8 +65,8 @@ begintemplate CellCategoryInfo			// Define a template that describes
 			dist.scanf(f1)				// Read in the values from the file
 		} else {
 			dist.x[0]=1
-			dist.x[1]=1
-			dist.x[2]=1
+			dist.x[1]=0
+			dist.x[2]=250
 		}
 		
 		f1.close()					// Close the file
