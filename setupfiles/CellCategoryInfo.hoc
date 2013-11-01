@@ -155,11 +155,11 @@ begintemplate CellCategoryInfo			// Define a template that describes
 			toohigh=dentateXBins*dentateYBins*dentateZBins-numtomin
 		}
 
-		dentateZBinSize = int($3/dentateZBins)	// Length of each cell's 'personal space' (along Z dimension) in microns
+		dentateZBinSize = $3/dentateZBins	// Length of each cell's 'personal space' (along Z dimension) in microns
 		
-		dentateYBinSize = int($2/dentateYBins)	// Length of each cell's 'personal space' (along Y dimension) in microns
+		dentateYBinSize = $2/dentateYBins	// Length of each cell's 'personal space' (along Y dimension) in microns
 		
-		dentateXBinSize = int($1/dentateXBins)	// Length of each cell's 'personal space' (along X dimension) in microns
+		dentateXBinSize = $1/dentateXBins	// Length of each cell's 'personal space' (along X dimension) in microns
 	}
 
 endtemplate CellCategoryInfo
