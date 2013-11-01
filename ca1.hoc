@@ -256,9 +256,13 @@ celsius=34
 if (PrintConnSummary==1) {printNumConFile()}	// Write "numcons.dat": a QUICK, SMALL summary file of the # of
 										//  connections by pre and post cell types
 										
-if (PrintConnDetails==2) {tracenet()}		// Write "connections.dat": a VERY SLOW, LARGE file of all cell
+if (PrintConnDetails==2) {tracenetfast()}		// Write "connections.dat": a VERY SLOW, LARGE file of all cell
 										//	connections (pre and post gids, synapse type, host on which
 										//  (target?) cell exists)
+	if (PrintConnDetails==1) {tracenetfast()}	// Write the file of all cell connections (pre and post gids, synapse type,
+										//  host on which cell exists), "connections.dat"
+
+	if ((PrintConnDetails==0) && (PrintVoltage==2)) {tracecellsfast()}	// If detailed connections are not being written out, at least write them out for cells that are being traced
 
 connecttime = startsw() - connectstart			// calculate time taken to connect the cells
 if (pc.id == 0) {printf("\nTIME HOST 0: %g seconds (connected cells)\n************\n", connecttime)}
@@ -266,7 +270,7 @@ if (pc.id == 0) {printf("\nTIME HOST 0: %g seconds (connected cells)\n**********
 /***********************************************************************************************
 VI.	INITIALIZE AND RUN NETWORK, OUTPUT RESULT FILES
 ***********************************************************************************************/
-if (PrintVoltage==1) {load_file("./setupfiles/recordvoltageauto.hoc")}	// If we are going to record some voltages, then set up the recordings
+if (PrintVoltage>0) {load_file("./setupfiles/recordvoltageauto.hoc")}	// If we are going to record some voltages, then set up the recordings
 
 proc init() { local dtsav, temp, secsav, secondordersav	// Redefine the proc that initializes the
 														//  simulation (why?)
@@ -363,8 +367,7 @@ proc rrun(){									// Run the network simulation and write out the results
 	
 	highIndexout() // document how much of the random streams this run used
 
-	if (strcmp(Stimulation, "clampthetagamma")==0) {currentout()}	// Write out any voltages that were recorded during simulation
-	if (PrintVoltage==1) {voltageout()}	// Write out any voltages that were recorded during simulation
+	if (PrintVoltage>0) {voltageout()}	// Write out any voltages that were recorded during simulation
 	if (PrintConnDetails==1) {tracenetfast()}	// Write the file of all cell connections (pre and post gids, synapse type,
 										//  host on which cell exists), "connections.dat"
 
@@ -382,12 +385,13 @@ proc midbal() {local wt
 	cvode.event(t+100, "midbal(0)")
 }
 {cvode.cache_efficient(1)} // always double check that this addition does not affect the spikeraster (via pointers in mod files, etc)
-objref spkhist
+/*objref spkhist
 spkhist = new Vector(pc.nhost)
 if (pc.id==0) {
 	pc.max_histogram(spkhist)
-}
+}*/
 rrun()	// Run the network simulation (in proc rrun)
+/*
 objref f4
 strdef cmd
 if (pc.id==0) {
@@ -401,6 +405,7 @@ if (pc.id==0) {
 	}
 	f4.close()
 }
+*/
 {pc.runworker()} 	// Everything after this line is executed only by the host node
 					//  The NEURON website describes this as "The master host returns immediately. Worker hosts
 					//  start an infinite loop of requesting tasks for execution." 
