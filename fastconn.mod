@@ -117,8 +117,8 @@ static double get_z_pos (int gid, int gmin, int BinNumZ, int binSizeZ, int ZHeig
 }
 
 static int fastconn (void* vv) {
-  int finalconn, ny, nz, num_pre, num_post, gmin, gmax, axonal_extent, steps, myflaggy, myi, postgmin, stepover;
-  double *x, *y, *z, a, b, c, nconv, ncell;
+  int finalconn, ny, nz, num_pre, num_post, gmin, gmax, steps, myflaggy, myi, postgmin, stepover;
+  double *x, *y, *z, a, b, c, nconv, ncell, axonal_extent;
 
 	/* Get hoc vectors into c arrays */
 	finalconn = vector_instance_px(vv, &x); // x is an array corresponding
@@ -260,27 +260,31 @@ static int fastconn (void* vv) {
 				rem=feasible_conns_this_step[step]+rem-szr;
 				// check the previous level (closer level) for extras
 				if (step>0) {
-					if (szp [step-1] > feasible_conns_this_step[step-1]) {
-						if (szp [step-1] - feasible_conns_this_step[step-1]>rem) {
-							extra = rem;
-						} else {
-							extra = szp [step-1] - feasible_conns_this_step[step-1];
+					for(i=1; i<=step; i++) {
+						if (szp [step-i] > feasible_conns_this_step[step-i]) {
+							if (szp [step-i] - feasible_conns_this_step[step-i]>rem) {
+								extra = rem;
+							} else {
+								extra = szp [step-i] - feasible_conns_this_step[step-i];
+							}
+							feasible_conns_this_step[step-i] = feasible_conns_this_step[step-i] + extra;
+							feasible_conns_this_step[step] = feasible_conns_this_step[step] - extra;
+							rem = rem - extra;				
 						}
-						feasible_conns_this_step[step-1] = feasible_conns_this_step[step-1] + extra;
-						feasible_conns_this_step[step] = feasible_conns_this_step[step] - extra;
-						rem = rem - extra;				
 					}
 				}
 				if (rem>0 && step<steps-1) { // if that still doesn't satisfy all the remainder
-					if (szp [step+1] > feasible_conns_this_step[step+1]) {
-						if (szp [step+1] - feasible_conns_this_step[step+1]>rem) {
-							extra = rem;
-						} else {
-							extra = szp [step+1] - feasible_conns_this_step[step+1];
+					for(i=step+1; i<steps; i++) {				
+						if (szp [i] > feasible_conns_this_step[i]) {
+							if (szp [i] - feasible_conns_this_step[i]>rem) {
+								extra = rem;
+							} else {
+								extra = szp [i] - feasible_conns_this_step[i];
+							}
+							feasible_conns_this_step[i] = feasible_conns_this_step[i] + extra;
+							feasible_conns_this_step[step] = feasible_conns_this_step[step] - extra;
+							rem = rem - extra;
 						}
-						feasible_conns_this_step[step+1] = feasible_conns_this_step[step+1] + extra;
-						feasible_conns_this_step[step] = feasible_conns_this_step[step] - extra;
-						rem = rem - extra;
 					}
 				}
 			}
