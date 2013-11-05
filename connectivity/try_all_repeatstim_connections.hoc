@@ -116,7 +116,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 							} else { // Don't use the z dimension when computing distances for now - we'll save that for another time
 								xpos=xpos_algorithm(conns2make.x[r+1],cellType[precellType].numCells,cellType[precellType].cellStartGid,cellType[precellType].dentateXBins,cellType[precellType].dentateYBins*cellType[precellType].dentateZBins,cellType[precellType].dentateXBinSize)	// Algorithmically generate cell position
 								ypos=ypos_algorithm(conns2make.x[r+1],cellType[precellType].numCells,cellType[precellType].cellStartGid,cellType[precellType].dentateYBins,cellType[precellType].dentateZBins,cellType[precellType].dentateYBinSize)	// Algorithmically generate cell position
-								conDelay = sqrt((xpos - cell.x)*(xpos - cell.x) + (ypos - cell.y)*(ypos - cell.y))/AxConVel + 0.5 // use 0.5 for the synaptic cleft delay; this also ensures the delay will never be set to 0, which would error the program
+								conDelay = int(10*sqrt((xpos - cell.x)*(xpos - cell.x) + (ypos - cell.y)*(ypos - cell.y))/AxConVel)/10 + 0.5 // use 0.5 for the synaptic cleft delay; this also ensures the delay will never be set to 0, which would error the program
 							}
 							//print $s3, "s to ", $s4, "s: nc_append ", s, "/", numSyns, " syns, ", r, "/", int(conns2make.x[0]/1), " conns, weight: ", synWeight
 							nc_append(conns2make.x[r+1], conns2make.x[r+1+connlength], precellType, randSynNumber, synWeight + (conns2make.x[r+1]+1)*1000, conDelay)	// Make the connection  // the latter part is for tracing the big bug, used by exp2sid mech (it will take away this extra part)
