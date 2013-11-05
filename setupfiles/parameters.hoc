@@ -35,3 +35,4 @@ default_var("CatFlag",1)		// Whether to concatenate and remove trace connection 
 default_var("JobNumber",0)		// Job number assigned by supercomputer
 default_var("RandomSeedsConn",0)		// Starting highIndex used by connectivity streams
 default_var("RandomSeedsStim",0)		// Starting highIndex used by stimulation streams
+default_var("AxConVel",0)		// Axonal conduction delay in um/ms, usually 250-500

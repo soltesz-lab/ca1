@@ -108,7 +108,13 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 						ransynlist.object(cell.randi).r.discunif(0,numSynTypes-1)		// Create a uniform random INTEGER variable over the range specified (0 to # synapse types-1),
 						for s=1,numSyns {
 							randSynNumber = ransynlist.object(cell.randi).repick	// Randomly pick a synapse type from the available synapse types
-							conDelay =  3 //sqrt(conns2make.x[r+2*connlength]/distres)*LongitudinalLength*speed+.1
+							if (AxConVel<=0) { // AxConVel is the axonal conduction velocity in um/ms
+								conDelay =  3 
+							} else { // Don't use the z dimension when computing distances for now - we'll save that for another time
+								xpos=xpos_algorithm(conns2make.x[r+1],cellType[precellType].numCells,cellType[precellType].cellStartGid,cellType[precellType].dentateXBins,cellType[precellType].dentateYBins*cellType[precellType].dentateZBins,cellType[precellType].dentateXBinSize)	// Algorithmically generate cell position
+								ypos=ypos_algorithm(conns2make.x[r+1],cellType[precellType].numCells,cellType[precellType].cellStartGid,cellType[precellType].dentateYBins,cellType[precellType].dentateZBins,cellType[precellType].dentateYBinSize)	// Algorithmically generate cell position
+								conDelay = sqrt((xpos - cell.x)*(xpos - cell.x) + (ypos - cell.y)*(ypos - cell.y))/AxConVel + 0.5 // use 0.5 for the synaptic cleft delay; this also ensures the delay will never be set to 0, which would error the program
+							}
 							nc_append(conns2make.x[r+1], conns2make.x[r+1+connlength], precellType, randSynNumber, synWeight + (conns2make.x[r+1]+1)*1000, conDelay)	// Make the connection  // the latter part is for tracing the big bug, used by exp2sid mech (it will take away this extra part)
 						}
 						//{print "pre ", $s3, ", gid ", conns2make.x[r], ", syn ", randSynNumber, ", wgt ", synWeight*numSyns}
