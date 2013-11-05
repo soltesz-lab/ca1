@@ -415,17 +415,17 @@ proc midbal() {local wt, thisstep
 use_fixed_step_bin_queue = 1 // boolean
 use_self_queue = 0 // boolean - this one may not be helpful for me, i think it's best for large numbers of artificial cells that receive large numbers of inputs
 {mode = cvode.queue_mode(use_fixed_step_bin_queue, use_self_queue)}
-nspike = 0 // compress spiketimes or not
+nspike = 3 // compress spiketimes or not
 gid_compress = 0 //only works if fewer than 256 cells on each proc
 {nspike = pc.spike_compress(nspike, gid_compress)}
-
+/*
 objref spkhist
 spkhist = new Vector(pc.nhost)
 if (pc.id==0) {
 	pc.max_histogram(spkhist)
-}
+}*/
 rrun()	// Run the network simulation (in proc rrun)
-
+/*
 objref f4
 strdef cmd
 if (pc.id==0) {
@@ -438,7 +438,7 @@ if (pc.id==0) {
 		f4.printf("%d\t%d\n", i, spkhist.x[i])	// Print the spike time and spiking cell gid
 	}
 	f4.close()
-}
+}*/
 
 {pc.runworker()} 	// Everything after this line is executed only by the host node
 					//  The NEURON website describes this as "The master host returns immediately. Worker hosts
