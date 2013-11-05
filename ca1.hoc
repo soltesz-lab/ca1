@@ -393,15 +393,16 @@ proc midbal() {local wt, thisstep
 		//print "t=",t,", tstop=",tstop,", simleft=",simleft,", jobtime=",JobHours*3600,", timeused=",startsw() - loadstart,", compleft=", compleft 
 		if ((simleft/StepBy*thisstep+EstWriteTime)>compleft && warningflag==0) {
 			newtstop = int((compleft-EstWriteTime)/thisstep)*StepBy + t
-			print "Not enough time to complete ", tstop,  " ms simulation, simulation will likely stop around ", newtstop, " ms"
+			if (pc.id == 0) { print "Not enough time to complete ", tstop,  " ms simulation, simulation will likely stop around ", newtstop, " ms"}
 			warningflag=1
 		}
 		if (pc.id == 0) { printf("%g ms interval at t=%g ms was %g s\n", StepBy, t, thisstep) }
 		
 		if ((thisstep+EstWriteTime)>compleft && t<tstop) { // not enough time for another step, end now
+			{pc.barrier()}
 			sprint(cmd,"cat results/%s/runreceipt.txt | sed -e 's/^SimDuration = [^ ]*/SimDuration = %g;/' > x ; mv x results/%s/runreceipt.txt", RunName, t, RunName)
-			{system(cmd,cmdo)}
-			print "simulation stopped early at t=", t, " ms"
+			if (pc.id == 0) { {system(cmd,cmdo)} }
+			if (pc.id == 0) { print "simulation stopped early at t=", t, " ms"}
 			tstop = t
 			stoprun=1
 		}
