@@ -413,7 +413,7 @@ proc midbal() {local wt, thisstep
 }
 {cvode.cache_efficient(1)} // always double check that this addition does not affect the spikeraster (via pointers in mod files, etc)
 use_fixed_step_bin_queue = 1 // boolean
-use_self_queue = 0 // boolean - this one may not be helpful for me, i think it's best for large numbers of artificial cells that receive large numbers of inputs
+use_self_queue = 1 // boolean - this one may not be helpful for me, i think it's best for large numbers of artificial cells that receive large numbers of inputs
 {mode = cvode.queue_mode(use_fixed_step_bin_queue, use_self_queue)}
 nspike = 0 // compress spiketimes or not
 gid_compress = 0 //only works if fewer than 256 cells on each proc
