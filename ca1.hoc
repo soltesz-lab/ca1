@@ -349,6 +349,7 @@ proc rrun(){									// Run the network simulation and write out the results
 
 	runtime = startsw() - runstart				// Calculate runtime of simulation
 												// Print a time summary message to screen
+	writestart = startsw()
 	comptime = pc.step_time
 	avgcomp = pc.allreduce(comptime, 1)/pc.nhost
 	maxcomp = pc.allreduce(comptime, 2)
@@ -359,8 +360,6 @@ proc rrun(){									// Run the network simulation and write out the results
 		if (pc.id == 0) { printf("no load balance info available\nno spike exchange info available\n")}
 	}
 	
-	if (pc.id == 0) {printf("****\nTIME SUMMARY for host 0\nset up in %g seconds\ncreated cells in %g seconds\nconnected cells in %g seconds\nran simulation in %g seconds\n************\nThis run is called: %s\n************\n", loadtime, createtime, connecttime, runtime, RunName)}
-		
 	spikeout()	// Write the spike times (in ms) and spiking cells (by gid) into a file called "spikeraster.dat"
 	
 	timeout()	// Write out a file of run times for each code section
@@ -374,15 +373,41 @@ proc rrun(){									// Run the network simulation and write out the results
 	if ((PrintConnDetails==0) && (PrintVoltage==1)) {tracecellsfast()}	// If detailed connections are not being written out, at least write them out for cells that are being traced
 	
 	sumnumout(runtime)	// Write out a file with the total number of cells, spikes, and connections (including contributions from artificial cells)
+	writetime = startsw() - writestart				// Calculate write time of program
+	totaltime = startsw() - loadstart
+	allottedtime = JobHours*3600
+	if (pc.id == 0) {printf("****\nTIME SUMMARY for host 0\nset up in %g seconds\ncreated cells in %g seconds\nconnected cells in %g seconds\nran simulation in %g seconds\nwrote results in %g seconds\nTOTAL TIME   = %g seconds\nALLOTTED TIME = %g seconds\n************\nThis run is called: %s\n************\n", loadtime, createtime, connecttime, runtime, writetime, totaltime, allottedtime, RunName)}
 }
 objref fihw
 fihw = new FInitializeHandler(2, "midbal()")
 walltime = startsw()
-proc midbal() {local wt
+strdef cmd, cmdo
+newtstop = tstop
+warningflag=0
+proc midbal() {local wt, thisstep
 	wt = startsw()
-	if (pc.id == 0) { printf("100ms interval at t=%g was %g s\n", t, wt - walltime) }
+	if (t>0) {
+		thisstep = wt - walltime
+		simleft = tstop - t
+		compleft = JobHours*3600 - (startsw() - loadstart)
+		//print "t=",t,", tstop=",tstop,", simleft=",simleft,", jobtime=",JobHours*3600,", timeused=",startsw() - loadstart,", compleft=", compleft 
+		if ((simleft/StepBy*thisstep+EstWriteTime)>compleft && warningflag==0) {
+			newtstop = int((compleft-EstWriteTime)/thisstep)*StepBy + t
+			print "Not enough time to complete ", tstop,  " ms simulation, simulation will likely stop around ", newtstop, " ms"
+			warningflag=1
+		}
+		if (pc.id == 0) { printf("%g ms interval at t=%g ms was %g s\n", StepBy, t, thisstep) }
+		
+		if ((thisstep+EstWriteTime)>compleft && t<tstop) { // not enough time for another step, end now
+			sprint(cmd,"cat results/%s/runreceipt.txt | sed -e 's/^SimDuration = [^ ]*/SimDuration = %g;/' > x ; mv x results/%s/runreceipt.txt", RunName, t, RunName)
+			{system(cmd,cmdo)}
+			print "simulation stopped early at t=", t, " ms"
+			tstop = t
+			stoprun=1
+		}
+	}
 	walltime = wt
-	cvode.event(t+100, "midbal(0)")
+	cvode.event(t+StepBy, "midbal(0)")
 }
 {cvode.cache_efficient(1)} // always double check that this addition does not affect the spikeraster (via pointers in mod files, etc)
 /*objref spkhist

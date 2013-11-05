@@ -36,3 +36,6 @@ default_var("JobNumber",0)		// Job number assigned by supercomputer
 default_var("RandomSeedsConn",0)		// Starting highIndex used by connectivity streams
 default_var("RandomSeedsStim",0)		// Starting highIndex used by stimulation streams
 default_var("AxConVel",0)		// Axonal conduction delay in um/ms, usually 250-500
+default_var("StepBy",100)		// Number of ms to run at a time
+default_var("JobHours",4)		// Number of hours to let the run go for
+default_var("EstWriteTime",660)		// Number of seconds to save for the run to write out its results
