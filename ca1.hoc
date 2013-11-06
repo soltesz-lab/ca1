@@ -183,7 +183,7 @@ createstart = startsw()					// Record the start time of the cell creation
 /***********************************************************************************************
 IV. CREATE, UNIQUELY ID, AND POSITION CELLS
 ***********************************************************************************************/
-
+/*
 objref pccc
 pccc = new ParallelContext()
 zzz=0
@@ -199,7 +199,7 @@ func mallinfo() {local m
         if (pccc.id == 0) {printf("%s: total memory usage: %ld  Since last call: %ld\n", $s2, m, m - $1)}
         pccc.barrier
         return m
-}
+}*/
 
 objref cells, ransynlist, ranstimlist
 cells = new List()						
@@ -330,15 +330,25 @@ proc init() { local dtsav, temp, secsav, secondordersav	// Redefine the proc tha
 															//  which write out the spikeraster (spikeout)
 															//  and the time taken to run each section of
 															//  the code (timeout)
+use_cache_efficient=1
+get_spike_hist=0
+use_bin_queue=0
+use_spike_compression=0
+if (use_spike_compression==1) {
+	maxstepval = 2.5
+} else {
+	maxstepval = 10
+}														
+															
 proc rrun(){									// Run the network simulation and write out the results
 
 	pnm.want_all_spikes() 						// Record all spikes of all cells on this machine into the
 												//  vectors pnm.spikevec (spiketimes) and pnm.idvec (gids)
 												
-	local_minimum_delay = pc.set_maxstep(2.5)							// Set every machine's max step size to minimum delay of
+	local_minimum_delay = pc.set_maxstep(maxstepval)	// Set every machine's max step size to minimum delay of
 												//  all netcons created on pc using pc.gid_connect, but
 												//  not larger than 10
-	if (pc.id==0) {print "Host ", pc.id, " has local_minimum_delay=", local_minimum_delay}
+	if (pc.id==0 && maxstepval==1) {print "Host ", pc.id, " has local_minimum_delay=", local_minimum_delay}
 
 
 												
@@ -394,9 +404,9 @@ proc midbal() {local wt, thisstep
 		simleft = tstop - t
 		compleft = JobHours*3600 - (startsw() - loadstart)
 		//print "t=",t,", tstop=",tstop,", simleft=",simleft,", jobtime=",JobHours*3600,", timeused=",startsw() - loadstart,", compleft=", compleft 
-		if ((simleft/StepBy*thisstep+EstWriteTime)>compleft && warningflag==0) {
+		if (warningflag==0 && (simleft/StepBy*thisstep+EstWriteTime)>compleft && pc.id == 0) {
 			newtstop = int((compleft-EstWriteTime)/thisstep)*StepBy + t
-			if (pc.id == 0) { print "Not enough time to complete ", tstop,  " ms simulation, simulation will likely stop around ", newtstop, " ms"}
+			print "Not enough time to complete ", tstop,  " ms simulation, simulation will likely stop around ", newtstop, " ms"
 			warningflag=1
 		}
 		if (pc.id == 0) { printf("%g ms interval at t=%g ms was %g s\n", StepBy, t, thisstep) }
@@ -413,25 +423,33 @@ proc midbal() {local wt, thisstep
 	walltime = wt
 	cvode.event(t+StepBy, "midbal(0)")
 }
-{cvode.cache_efficient(1)} // always double check that this addition does not affect the spikeraster (via pointers in mod files, etc)
-use_fixed_step_bin_queue = 1 // boolean
-use_self_queue = 0 // boolean - this one may not be helpful for me, i think it's best for large numbers of artificial cells that receive large numbers of inputs
-{mode = cvode.queue_mode(use_fixed_step_bin_queue, use_self_queue)}
+{cvode.cache_efficient(use_cache_efficient)} // always double check that this addition does not affect the spikeraster (via pointers in mod files, etc)
 
-nspike = 3 // compress spiketimes or not
-gid_compress = 0 //only works if fewer than 256 cells on each proc
-{nspike = pc.spike_compress(nspike, gid_compress)}
-/*
+if (use_bin_queue==1) {
+	use_fixed_step_bin_queue = 1 // boolean
+	use_self_queue = 0 // boolean - this one may not be helpful for me, i think it's best for large numbers of artificial cells that receive large numbers of inputs
+	{mode = cvode.queue_mode(use_fixed_step_bin_queue, use_self_queue)}
+}
+
+if (maxstepval==1) {
+	nspike = 3 // compress spiketimes or not
+	gid_compress = 0 //only works if fewer than 256 cells on each proc
+	{nspike = pc.spike_compress(nspike, gid_compress)}
+}
+
 objref spkhist
-spkhist = new Vector(pc.nhost)
-if (pc.id==0) {
-	pc.max_histogram(spkhist)
-}*/
+if (get_spike_hist==1) {
+	spkhist = new Vector(pc.nhost)
+	if (pc.id==0) {
+		pc.max_histogram(spkhist)
+	}
+}
+
 rrun()	// Run the network simulation (in proc rrun)
-/*
+
 objref f4
 strdef cmd
-if (pc.id==0) {
+if (pc.id==0 && get_spike_hist==1) {
 	sprint(cmd,"./results/%s/spkhist.dat", RunName)
 	f4 = new File(cmd)
 	f4.wopen()
@@ -441,7 +459,7 @@ if (pc.id==0) {
 		f4.printf("%d\t%d\n", i, spkhist.x[i])	// Print the spike time and spiking cell gid
 	}
 	f4.close()
-}*/
+}
 
 {pc.runworker()} 	// Everything after this line is executed only by the host node
 					//  The NEURON website describes this as "The master host returns immediately. Worker hosts
