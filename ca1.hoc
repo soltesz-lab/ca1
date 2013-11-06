@@ -335,14 +335,11 @@ proc rrun(){									// Run the network simulation and write out the results
 	pnm.want_all_spikes() 						// Record all spikes of all cells on this machine into the
 												//  vectors pnm.spikevec (spiketimes) and pnm.idvec (gids)
 												
-	local_minimum_delay = pc.set_maxstep(10)							// Set every machine's max step size to minimum delay of
+	local_minimum_delay = pc.set_maxstep(2.5)							// Set every machine's max step size to minimum delay of
 												//  all netcons created on pc using pc.gid_connect, but
 												//  not larger than 10
 	if (pc.id==0) {print "Host ", pc.id, " has local_minimum_delay=", local_minimum_delay}
-	
-	nspike = 3 // compress spiketimes or not
-	gid_compress = 0 //only works if fewer than 256 cells on each proc
-	{nspike = pc.spike_compress(nspike, gid_compress)}
+
 
 												
 	stdinit()									// Call the init fcn (which is redefined in this code) and
@@ -420,6 +417,10 @@ proc midbal() {local wt, thisstep
 use_fixed_step_bin_queue = 1 // boolean
 use_self_queue = 0 // boolean - this one may not be helpful for me, i think it's best for large numbers of artificial cells that receive large numbers of inputs
 {mode = cvode.queue_mode(use_fixed_step_bin_queue, use_self_queue)}
+
+nspike = 3 // compress spiketimes or not
+gid_compress = 0 //only works if fewer than 256 cells on each proc
+{nspike = pc.spike_compress(nspike, gid_compress)}
 /*
 objref spkhist
 spkhist = new Vector(pc.nhost)
