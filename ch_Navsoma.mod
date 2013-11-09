@@ -52,10 +52,10 @@ INDEPENDENT {t FROM 0 TO 1 WITH 1 (ms)}
  
 PARAMETER {
         v (mV)
-        celsius = 24 (degC)
+        celsius = 34 (degC)
         dt (ms)
         gmax = .0107 (mho/cm2)
-        ena = 90 (mV)
+        ena = 55 (mV)
 }
  
 STATE {
