@@ -185,32 +185,31 @@ IV. CREATE, UNIQUELY ID, AND POSITION CELLS
 ***********************************************************************************************/
 
 objref pccc, memfile
-pccc = new ParallelContext()
-zzz=0
+{pccc = new ParallelContext()}
+{zzz=0}
 
-sprint(cmd,"./results/%s/memory.dat", RunName)
-memfile = new File(cmd)
-memfile.wopen()
+{sprint(cmd,"./results/%s/memory.dat", RunName)}
+{memfile = new File(cmd)}
+{memfile.wopen()}
 
 proc q() {
-        pccc.runworker()
-        system("sleep 10")
-        pccc.done()
-        //quit()
+        {pccc.runworker()}
+        {system("sleep 1")}
+        {pccc.done()}
 }
 func mallinfo() {local m
-        pccc.barrier // in case we want to print for all processes.
-        m = nrn_mallinfo(0)
+        {pccc.barrier} // in case we want to print for all processes.
+        {m = nrn_mallinfo(0)}
         if (pccc.id == 0) {
 			if (PrintTerminal>1) {printf("Memory (host 0) - %s: %ld.  Since last call: %ld\n", $s2, m, m - $1)}
-			memfile.printf("%s\t%ld\t%ld\n", $s2, m, m - $1)	// Print the spike time and spiking cell gid
+			{memfile.printf("%s\t%ld\t%ld\n", $s2, m, m - $1)}	// Print the spike time and spiking cell gid
 		}
-        pccc.barrier
+        {pccc.barrier}
         return m
 }
 
-zzz = mallinfo(zzz, "Prior to creating cells")
-q()
+{zzz = mallinfo(zzz, "Prior to creating cells")}
+{q()}
 
 objref cells, ransynlist, ranstimlist
 cells = new List()						
