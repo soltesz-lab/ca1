@@ -193,9 +193,9 @@ objref pccc, memfile
 {memfile.wopen()}
 
 proc q() {
-/*        {pccc.runworker()}
-        {system("sleep 1")}
-        {pccc.done()} */
+        {pccc.runworker()}
+        {system("sleep 5")}
+        {pccc.done()} 
 }
 
 func mallinfo() {local m
