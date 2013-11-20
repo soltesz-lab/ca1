@@ -193,18 +193,20 @@ objref pccc, memfile
 {memfile.wopen()}
 
 proc q() {
-        {pccc.runworker()}
+/*        {pccc.runworker()}
         {system("sleep 1")}
-        {pccc.done()}
+        {pccc.done()} */
 }
+
 func mallinfo() {local m
-        {pccc.barrier} // in case we want to print for all processes.
+ /*       {pccc.barrier} // in case we want to print for all processes.
         {m = nrn_mallinfo(0)}
         if (pccc.id == 0) {
 			if (PrintTerminal>1) {printf("Memory (host 0) - %s: %ld.  Since last call: %ld\n", $s2, m, m - $1)}
 			{memfile.printf("%s\t%ld\t%ld\n", $s2, m, m - $1)}	// Print the spike time and spiking cell gid
 		}
-        {pccc.barrier}
+        {pccc.barrier}*/
+		m=0
         return m
 }
 
