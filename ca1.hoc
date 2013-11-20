@@ -195,7 +195,7 @@ objref pccc, memfile
 proc q() {
         {pccc.runworker()}
 		z=0
-		for (r=0,20000) {
+		for r=0,20000 {
 			{z=z+1}
 		}
         //{system("sleep 5")}
