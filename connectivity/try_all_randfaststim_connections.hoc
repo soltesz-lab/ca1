@@ -96,9 +96,9 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			params.x[26]= connlength
 
 			conns2make.fastconn(params, postcellgids)		
-			sprint(memstr, "Defined %s to %s conns", $s3, $s4)
-			zzz = mallinfo(zzz, memstr)
-			q()
+			//sprint(memstr, "Defined %s to %s conns", $s3, $s4)
+			//zzz = mallinfo(zzz, memstr)
+			//q()
 
 			newhighindex = newhighindex + int(conns2make.x[1]/1)+1
 			//print "host ", pc.id, " makes ", params.x[2], " conns from ", $s3, " to ", params.x[3], " ", $s4, " cells (connlength=", connlength, "), conns2make=", conns2make.x[0]
