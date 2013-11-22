@@ -102,7 +102,6 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 
 			sprint(memstr, "Defined %s to %s conns", $s3, $s4)
 			zzz = mallinfo(zzz, memstr)
-			q()
 
 			//print "host ", pc.id, " makes ", params.x[2], " conns from ", $s3, " to ", params.x[3], " ", $s4, " cells (connlength=", connlength, "), conns2make=", conns2make.x[0]
 			//newhighindex = newhighindex + cellType[precellType].numCells

@@ -184,37 +184,34 @@ createstart = startsw()					// Record the start time of the cell creation
 IV. CREATE, UNIQUELY ID, AND POSITION CELLS
 ***********************************************************************************************/
 
-objref pccc, memfile
-{pccc = new ParallelContext()}
+objref  memfile, topfile //, pccc
+//{pccc = new ParallelContext()}
 {zzz=0}
 
 {sprint(cmd,"./results/%s/memory.dat", RunName)}
 {memfile = new File(cmd)}
 {memfile.wopen()}
 
-proc q() {
-        pccc.runworker()
-		z=0
-		for r=0,20000 {
-			{z=z+1}
-		}
-        //{system("sleep 5")}
-        pccc.done()
-}
+{sprint(cmd,"./results/%s/topoutput.dat", RunName)}
+{topfile = new File(cmd)}
+{topfile.wopen()}
 
-func mallinfo() {local m
-        pccc.barrier // in case we want to print for all processes.
+func mallinfo() {local m // this function is a wrapper for the system function mallinfo
+        //pc.barrier // in case we want to print for all processes.
         m = nrn_mallinfo(0)
-        if (pccc.id == 0) {
+        if (pc.id == 0) {
 			if (PrintTerminal>1) {printf("Memory (host 0) - %s: %ld.  Since last call: %ld\n", $s2, m, m - $1)}
 			memfile.printf("%s\t%ld\t%ld\n", $s2, m, m - $1)	// Print the spike time and spiking cell gid
+			
+			system("top -p `pgrep nrniv | tr \"\\n\" \",\" | sed 's/,$//'` -n1 -b | tail -n2 | head -n1",direx)
+			//system("top -p `pgrep nrniv | tr "\\n" "," | sed 's/,$//'` -n1 -b | tail -n2 | head -n1",direx)
+			topfile.printf("%s\t%s\n", $s2, direx)	// Print the spike time and spiking cell gid
 		}
-        pccc.barrier
+        //pc.barrier
         return m
 }
 
 {zzz = mallinfo(zzz, "Prior to creating cells")}
-{q()}
 
 objref cells, ransynlist, ranstimlist
 cells = new List()						
@@ -241,8 +238,7 @@ connectstart = startsw()				// Grab start time of cell connection
 
 oldtimeout = pc.timeout(0)
 
-zzz = mallinfo(zzz, "After to creating cells")
-q()
+zzz = mallinfo(zzz, "After creating cells")
 
 /***********************************************************************************************
 V.	CONNECT THE MODEL CELLS AND CONNECT THE STIMULATION CELLS TO SOME MODEL CELLS
@@ -260,7 +256,6 @@ celsius=34
 							//  depending on the value of the Connectivity string
 
 zzz = mallinfo(zzz, "After connecting cells")
-q()
 
 {sprint(cmd,"./stimulation/%s_stimulation.hoc", Stimulation)}
 {load_file(cmd)}			// Loads in a particular stimulation protocol, including the spike
@@ -268,7 +263,6 @@ q()
 							//  'real' cells (where do we define the # of art cells and create them?)
 
 zzz = mallinfo(zzz, "After defining stimulation")
-q()
 
 {load_file("./setupfiles/write_conns_functions.hoc")}	// Defines two funcs (procs?): printNumConFile()
 														//  writes the number of synapses between every
@@ -470,14 +464,13 @@ if (get_spike_hist==1) {
 }
 
 zzz = mallinfo(zzz, "Before running simulation")
-q()
 
 rrun()	// Run the network simulation (in proc rrun)
 
 zzz = mallinfo(zzz, "After running simulation")
-q()
 
 memfile.close()
+topfile.close()
 
 objref f4
 strdef cmd
