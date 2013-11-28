@@ -84,7 +84,7 @@ begintemplate CellCategoryInfo			// Define a template that describes
 		cellStartGid = $1			// Read in the start gid
 		
 		cellEndGid = $1 + numCells -1	// Solve for the end gid given the
-										//  number of cells
+										//  number of cells		
 		if (numCells>0) {
 			objref CellList[numCells]	// Create a new CellList for this celltype,
 		}
