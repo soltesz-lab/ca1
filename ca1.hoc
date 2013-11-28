@@ -391,7 +391,8 @@ proc rrun(){									// Run the network simulation and write out the results
 		if (pc.id == 0) { printf("no load balance info available\nno spike exchange info available\n")}
 	}
 	
-	spikeout()	// Write the spike times (in ms) and spiking cells (by gid) into a file called "spikeraster.dat"
+	spikeoutfast()
+	//spikeout()	// Write the spike times (in ms) and spiking cells (by gid) into a file called "spikeraster.dat"
 	
 	timeout()	// Write out a file of run times for each code section
 	

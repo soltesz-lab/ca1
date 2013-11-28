@@ -19,6 +19,41 @@ proc spikeout() {local i, rank  localobj f				// Write out a spike raster (cell,
 	}
 }
 
+proc spikeoutfast() {local i  localobj f				// Write out a spike raster quickly in parallel (cell, spike time)
+	sprint(cmd,"./results/%s/spikeraster_%g.dat", RunName, pc.id)
+	f = new File(cmd)
+	f.wopen()
+	for i=0, pnm.idvec.size-1 {
+		f.printf("%.3f %d\n", pnm.spikevec.x[i], pnm.idvec.x[i])	// Print the spike time and spiking cell gid
+	}
+	f.close()
+
+	pc.barrier()
+	
+	g=1
+	if (CatFlag==1) {
+		while (pc.nhost>g) {
+			g=g*2
+			if ((pc.id/g - int(pc.id/g))==0.5) {
+				sprint(dircmd,"cat ./results/%s/spikeraster_%g.dat >> ./results/%s/spikeraster_%g.dat", RunName, pc.id, RunName, int(pc.id-g/2))
+				{system(dircmd, direx)}			
+				sprint(dircmd,"rm ./results/%s/spikeraster_%g.dat", RunName, pc.id)
+				{system(dircmd, direx)}			
+			}
+			pc.barrier()
+		}
+	}
+	pc.barrier()
+	if (pc.id==0) {
+		if (CatFlag==1) {		
+			sprint(dircmd,"cat ./results/%s/spikeraster_0.dat >> ./results/%s/spikeraster.dat", RunName, RunName)
+			{system(dircmd, direx)}		
+			sprint(dircmd,"rm ./results/%s/spikeraster_%g.dat", RunName, pc.id)
+			{system(dircmd, direx)}	
+		}	
+	}
+}
+
 
 proc sumnumout() {local alltime, allct, allspk localobj f
 	allct = pc.allreduce(nclist.count,1)
