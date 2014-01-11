@@ -328,7 +328,7 @@ proc init() { local dtsav, temp, secsav, secondordersav	// Redefine the proc tha
 	temp= cvode.active()			// Check whether cvode, a type of solver (?) is on
 	if (temp!=0) {cvode.active(0)}	// If cvode is on, turn it off while running the presimulation
 															
-	while(t<-100) { fadvance() if (PrintTerminal>1) {print t}}	// Run the presimulation from t = -500
+	while(t<-100) { fadvance() if (PrintTerminal>2) {print t}}	// Run the presimulation from t = -500
 															//  to t = -100 (why not 0?) to let the
 															//  network and all its components reach
 															//  steady state. Integrate all section
