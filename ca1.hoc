@@ -196,7 +196,7 @@ objref  memfile, topfile //, pccc
 {topfile = new File(cmd)}
 //{topfile.wopen()}
 
-
+strdef direx1, direx2
 func mallinfo() {local m // this function is a wrapper for the system function mallinfo
         //pc.barrier // in case we want to print for all processes.
         m = nrn_mallinfo(0)
