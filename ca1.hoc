@@ -190,19 +190,19 @@ objref  memfile, topfile //, pccc
 
 {sprint(cmd,"./results/%s/memory.dat", RunName)}
 {memfile = new File(cmd)}
-//{memfile.wopen()}
+{memfile.wopen()}
 
 {sprint(cmd,"./results/%s/topoutput.dat", RunName)}
 {topfile = new File(cmd)}
-//{topfile.wopen()}
+{topfile.wopen()}
 
 strdef direx1, direx2
 func mallinfo() {local m // this function is a wrapper for the system function mallinfo
         //pc.barrier // in case we want to print for all processes.
         m = nrn_mallinfo(0)
         if (pc.id == 0) {
-			{memfile.aopen()}
-			{topfile.aopen()}
+			//{memfile.aopen()}
+			//{topfile.aopen()}
 
 			if (PrintTerminal>1) {printf("Memory (host 0) - %s: %ld.  Since last call: %ld\n", $s2, m, m - $1)}
 			memfile.printf("%s\t%f\t%ld\t%ld\n", $s2, startsw()-loadstart, m, m - $1)	// Print the spike time and spiking cell gid
@@ -214,8 +214,8 @@ func mallinfo() {local m // this function is a wrapper for the system function m
 			} else {
 				topfile.printf("%s\t%s\n", $s2, direx1)	// Print the spike time and spiking cell gid
 			}
-			memfile.close()
-			topfile.close()
+			//memfile.close()
+			//topfile.close()
 		}
         //pc.barrier
         return m
@@ -480,8 +480,8 @@ rrun()	// Run the network simulation (in proc rrun)
 
 zzz = mallinfo(zzz, "After running simulation")
 
-//memfile.close()
-//topfile.close()
+memfile.close()
+topfile.close()
 
 objref f4
 strdef cmd
