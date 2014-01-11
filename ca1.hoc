@@ -201,7 +201,7 @@ func mallinfo() {local m // this function is a wrapper for the system function m
         m = nrn_mallinfo(0)
         if (pc.id == 0) {
 			if (PrintTerminal>1) {printf("Memory (host 0) - %s: %ld.  Since last call: %ld\n", $s2, m, m - $1)}
-			memfile.printf("%s\t%ld\t%ld\n", $s2, startsw()-loadstart, m, m - $1)	// Print the spike time and spiking cell gid
+			memfile.printf("%s\t%f\t%ld\t%ld\n", $s2, startsw()-loadstart, m, m - $1)	// Print the spike time and spiking cell gid
 			
 			system("top -p `pgrep nrniv | head -n20 | tr \"\\n\" \",\" | sed 's/,$//'` -n1 -b | tail -n2 | head -n1",direx)
 			//system("top -p `pgrep nrniv | tr "\\n" "," | sed 's/,$//'` -n1 -b | tail -n2 | head -n1",direx)
