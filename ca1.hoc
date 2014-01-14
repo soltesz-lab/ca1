@@ -187,37 +187,32 @@ IV. CREATE, UNIQUELY ID, AND POSITION CELLS
 objref  memfile, topfile //, pccc
 //{pccc = new ParallelContext()}
 {zzz=0}
+if (pc.id==0) {
+	{sprint(cmd,"./results/%s/memory.dat", RunName)}
+	{memfile = new File(cmd)}
+	{memfile.wopen()}
 
-{sprint(cmd,"./results/%s/memory.dat", RunName)}
-{memfile = new File(cmd)}
-{memfile.wopen()}
-
-{sprint(cmd,"./results/%s/topoutput.dat", RunName)}
-{topfile = new File(cmd)}
-{topfile.wopen()}
+	{sprint(cmd,"./results/%s/topoutput.dat", RunName)}
+	{topfile = new File(cmd)}
+	{topfile.wopen()}
+}
 
 strdef direx1, direx2
 func mallinfo() {local m // this function is a wrapper for the system function mallinfo
-        //pc.barrier // in case we want to print for all processes.
         m = nrn_mallinfo(0)
         if (pc.id == 0) {
-			//{memfile.aopen()}
-			//{topfile.aopen()}
 
-			if (PrintTerminal>1) {printf("Memory (host 0) - %s: %ld.  Since last call: %ld\n", $s2, m, m - $1)}
+			if (PrintTerminal>2) {printf("Memory (host 0) - %s: %ld.  Since last call: %ld\n", $s2, m, m - $1)}
 			memfile.printf("%s\t%f\t%ld\t%ld\n", $s2, startsw()-loadstart, m, m - $1)	// Print the spike time and spiking cell gid
 			
 			system("top -p `pgrep special | head -n20 | tr \"\\n\" \",\" | sed 's/,$//'` -n1 -b | tail -n2 | head -n1",direx1)
-			system("top -p `pgrep nrniv | head -n20 | tr \"\\n\" \",\" | sed 's/,$//'` -n1 -b | tail -n2 | head -n1",direx2)
-			if (strcmp(direx1,direx2)<0) {
-				topfile.printf("%s\t%s\n", $s2, direx2)	// Print the spike time and spiking cell gid
-			} else {
+			//system("top -p `pgrep nrniv | head -n20 | tr \"\\n\" \",\" | sed 's/,$//'` -n1 -b | tail -n2 | head -n1",direx2)
+			//if (strcmp(direx1,direx2)<0) {
+			//	topfile.printf("%s\t%s\n", $s2, direx2)	// Print the spike time and spiking cell gid
+			//} else {
 				topfile.printf("%s\t%s\n", $s2, direx1)	// Print the spike time and spiking cell gid
-			}
-			//memfile.close()
-			//topfile.close()
+			//}
 		}
-        //pc.barrier
         return m
 }
 
@@ -376,7 +371,7 @@ proc rrun(){									// Run the network simulation and write out the results
 	local_minimum_delay = pc.set_maxstep(maxstepval)	// Set every machine's max step size to minimum delay of
 												//  all netcons created on pc using pc.gid_connect, but
 												//  not larger than 10
-	if (pc.id==0 && maxstepval==1) {print "Host ", pc.id, " has local_minimum_delay=", local_minimum_delay}
+	if (pc.id==0 && use_spike_compression==1) {print "Host ", pc.id, " has local_minimum_delay=", local_minimum_delay}
 
 
 												
@@ -460,7 +455,7 @@ if (use_bin_queue==1) {
 	{mode = cvode.queue_mode(use_fixed_step_bin_queue, use_self_queue)}
 }
 
-if (maxstepval==1) {
+if (use_spike_compression==1) {
 	nspike = 3 // compress spiketimes or not
 	gid_compress = 0 //only works if fewer than 256 cells on each proc
 	{nspike = pc.spike_compress(nspike, gid_compress)}
@@ -480,8 +475,10 @@ rrun()	// Run the network simulation (in proc rrun)
 
 zzz = mallinfo(zzz, "After running simulation")
 
-memfile.close()
-topfile.close()
+if (pc.id==0) {
+	{memfile.close()}
+	{topfile.close()}
+}
 
 objref f4
 strdef cmd

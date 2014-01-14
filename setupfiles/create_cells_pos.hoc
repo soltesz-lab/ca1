@@ -45,8 +45,8 @@ proc createCells(){ local i, ij, si, pci, cellind, runresult, gid	// Create cell
 						}
 					}
 
-					if ((ij%int(cellType[cellind].numCells/10+1) == 0) && (PrintTerminal>1)) {
-					print cellType[cellind].cellType_string, ": ", i
+					if ((ij%int(cellType[cellind].numCells/10+1) == 0) && (PrintTerminal>2)) {
+						print cellType[cellind].cellType_string, ": ", i
 					}
 				}				
 				

@@ -56,10 +56,10 @@ proc tracenetfast() {local i, g, rank, srcid localobj tgt, f	// Write out the co
 		f.printf("%d\t%d\t%d\n", srcid, tgt.cid, tgt.sid)	// Print source gid, target gid, synapse id
 	}
 	f.close()
-	pc.barrier()
 	
 	g=1
 	if (CatFlag==1) {
+		pc.barrier()
 		while (pc.nhost>g) {
 			g=g*2
 			if ((pc.id/g - int(pc.id/g))==0.5) {
@@ -140,10 +140,10 @@ proc tracecellsfast() {local i, tr, rank, srcid localobj tgt, f	// Write out the
 		}
 	}
 	f.close()
-	pc.barrier()
 	
 	g=1
 	if (CatFlag==1) {
+		pc.barrier()
 		while (pc.nhost>g) {
 			g=g*2
 			if ((pc.id/g - int(pc.id/g))==0.5) {

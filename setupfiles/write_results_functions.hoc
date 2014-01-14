@@ -28,10 +28,10 @@ proc spikeoutfast() {local i  localobj f				// Write out a spike raster quickly 
 	}
 	f.close()
 
-	pc.barrier()
 	
 	g=1
 	if (CatFlag==1) {
+		pc.barrier()
 		while (pc.nhost>g) {
 			g=g*2
 			if ((pc.id/g - int(pc.id/g))==0.5) {
