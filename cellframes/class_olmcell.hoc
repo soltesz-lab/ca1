@@ -3,12 +3,9 @@ begintemplate olmcell
 // public variables
 public  pre_list, connect_pre, append_sections, is_art, is_connected, gid, randi
 public soma, dend1, dend2, axon
-public all, pdend, ddend, basal_list, apical_list, soma_list, axon_list
+public all, pdend, ddend, basal_list, apical_list, soma_list, axon_list, dendrite_list
 public x, y, z, position, myroot
 
-public pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_list
-public ivycell_list, ngfcell_list, olmcell_list, pvbasketcell_list, scacell_list
-public eccell_list, ca3cell_list, mscell_list
 
 // strings
 strdef myroot
@@ -49,51 +46,32 @@ proc connect_sections() { local i
   	connect axon(0), soma(1)
 }
 
-objref all, basal_list, apical_list, soma_list, axon_list
-objref pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_list
-objref ivycell_list, ngfcell_list, olmcell_list, pvbasketcell_list, scacell_list
-objref eccell_list, ca3cell_list, mscell_list
+objref all, basal_list, apical_list, soma_list, axon_list, dendrite_list
+
+
 proc append_sections() {
-	objref all, basal_list, apical_list, soma_list, axon_list
-	objref pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_list
-	objref ivycell_list, ngfcell_list, olmcell_list, pvbasketcell_list, scacell_list
-	objref eccell_list, ca3cell_list, mscell_list
+	objref all, basal_list, apical_list, soma_list, axon_list, dendrite_list
+
+
 	// Make a list for every section in the cell
 	all = new SectionList()	
   basal_list = new SectionList()
   apical_list = new SectionList()
+  dendrite_list = new SectionList()
   soma_list = new SectionList()
   axon_list = new SectionList()
 
-	pyramidalcell_list = new SectionList()
-	axoaxoniccell_list = new SectionList()
-	bistratifiedcell_list = new SectionList()
-	cckcell_list = new SectionList()
-	ivycell_list = new SectionList()
-	ngfcell_list = new SectionList()
-	olmcell_list = new SectionList()
-	pvbasketcell_list = new SectionList()
-	scacell_list = new SectionList()
-	eccell_list = new SectionList()
-	ca3cell_list = new SectionList()
-	mscell_list = new SectionList()
 
     	soma all.append()
     	soma soma_list.append()
     	dend1 all.append()
     	dend1 basal_list.append()
+    	dend1 dendrite_list.append()
     	dend2 all.append()
-    	dend2 basal_list.append()
+    	dend1 basal_list.append()
+    	dend1 dendrite_list.append()
     	axon all.append()
     	axon axon_list.append()
-
-// precell lists
-	forsec basal_list {pyramidalcell_list.append()}
-	forsec basal_list {bistratifiedcell_list.append()}
-	forsec soma_list {cckcell_list.append()}
-	forsec basal_list {ivycell_list.append()}
-	forsec soma_list {pvbasketcell_list.append()}
-	forsec basal_list {scacell_list.append()}
 }
 
 

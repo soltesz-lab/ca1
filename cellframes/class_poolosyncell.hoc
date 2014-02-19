@@ -6,7 +6,7 @@ public init, topol, basic_shape, subsets, geom, biophys
 public pre_list, connect_pre
 
 public soma, apical, basal, axon
-public all, basal_list, apical_list, soma_list, axon_list, rad_list, lm_list
+public all, basal_list, apical_list, soma_list, axon_list, rad_list, lm_list, dendrite_list
 public x, y, z, position, myroot
 
 public pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_list
@@ -262,7 +262,7 @@ proc connect_sections() {
 }
 
 
-objref all, basal_list, apical_list, soma_list, axon_list, rad_list, lm_list
+objref all, basal_list, apical_list, soma_list, axon_list, rad_list, lm_list, dendrite_list
 objref pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_list
 objref ivycell_list, ngfcell_list, olmcell_list, pvbasketcell_list, scacell_list
 objref eccell_list, ca3cell_list, mscell_list
@@ -273,7 +273,7 @@ proc append_sections() { local i
 	NumBasal=60
 	NumAxon=2
 
-	objref all, basal_list, apical_list, soma_list, axon_list, rad_list, lm_list
+	objref all, basal_list, apical_list, soma_list, axon_list, rad_list, lm_list, dendrite_list
 	objref pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_list
 	objref ivycell_list, ngfcell_list, olmcell_list, pvbasketcell_list, scacell_list
 	objref eccell_list, ca3cell_list, mscell_list
@@ -285,6 +285,7 @@ proc append_sections() { local i
 	axon_list = new SectionList()
 	rad_list = new SectionList()
 	lm_list = new SectionList()
+	dendrite_list = new SectionList()
 
 	pyramidalcell_list = new SectionList()
 	axoaxoniccell_list = new SectionList()
@@ -307,9 +308,11 @@ proc append_sections() { local i
 	for i=0,NumSoma-1 soma[i] { all.append()
 								soma_list.append()}	
 	for i=0,NumBasal-1 basal[i] { all.append()
-								basal_list.append()}			
+								basal_list.append()			
+								dendrite_list.append()}			
 	for i=0,NumApical-1 apical[i] { all.append()
-								apical_list.append()}	
+								apical_list.append()	
+								dendrite_list.append()}	
 
 
 

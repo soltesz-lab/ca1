@@ -1,15 +1,10 @@
 begintemplate axoaxoniccell
-public init, topol, basic_shape, subsets, geom, biophys
-public  pre_list, connect_pre, append_sections, is_art, is_connected, gid, randi
-public soma, radT2, radM2, radt2, lmM2, lmt2, radT1
-public radM1, radt1, lmM1, lmt1, oriT1, oriM1, orit1
-public oriT2, oriM2, orit2
-public all, basal_list, apical_list, soma_list, axon_list, lm_list, rad_list
+public init, connect_sections, size_sections, append_sections
+public mechinit, insert_mechs, set_biophys, get_root
+public  pre_list, connect_pre, is_art, is_connected, gid, randi
+public soma, dend
+public all, basal_list, apical_list, soma_list, axon_list, dendrite_list
 public x, y, z, position, myroot
-
-public pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_list
-public ivycell_list, ngfcell_list, olmcell_list, pvbasketcell_list, scacell_list
-public eccell_list, ca3cell_list, mscell_list
 
 // strings
 strdef myroot
@@ -20,359 +15,223 @@ objref syn, pre_list, templist, rootlist
 // external variables
 external numCellTypes, cellType
 
+create soma[1], dend[16]
+
+
 proc init() {
 	gid = $1
 	randi = $2
-  	topol()
-  	subsets()
-  	geom()
-  	biophys()
-  	geom_nseg()
-	get_root()
-  	pre_list = new List()
-	define_synapses()
+	
+	// morphology
+	connect_sections()	// local fcn: connect soma, dendrites, axon initial segment
+	size_sections()		// local fcn: set the size dimensions of each section
+	define_shape()		// builtin fcn: fill in 3d info for sections defined by only L and diam, translate 3d points for consistency with their connections 
+  	append_sections()	// local fcn: append all sections to the section list
+	set_nseg()			// local fcn: set the number of segments in each section
+	get_root()			// local fcn: perform morphology checks
+
+	// electrophysiology
+	mechinit()			// local fcn: set values for max conductances and reversal potentials of ion channels and other ephys parameters that are subject to fitting
+	insert_mechs()		// local fcn: insert ion channels and actually set values determined in the mechinit fcn
+	set_chanparams()	// local fcn: after all channels have been inserted, then their other parameters can be set	
+	// synapses
+	pre_list = new List() // define a list for the presynaptic connections
+	define_synapses()	// local fcn: define all possible synaptic connections received by this cell
 }
 
-create soma, radT2, radM2, radt2, lmM2, lmt2, radT1
-create radM1, radt1, lmM1, lmt1, oriT1, oriM1, orit1
-create oriT2, oriM2, orit2
+proc connect_sections() { local i
+ 	connect dend[0](0), soma(1)
+	for i=0,3 {
+		connect dend[i+1](0), dend[i](1)
+	}
 
-proc topol() { local i
-  	connect radT2(0), soma(1)
-  	connect radM2(0), radT2(1)
-  	connect radt2(0), radM2(1)
-  	connect lmM2(0), radt2(1)
-  	connect lmt2(0), lmM2(1)
-  	connect radT1(0), soma(0)
-  	connect radM1(0), radT1(1)
-  	connect radt1(0), radM1(1)
-  	connect lmM1(0), radt1(1)
-  	connect lmt1(0), lmM1(1)
-  	connect oriT1(0), soma(0)
-  	connect oriM1(0), oriT1(1)
-  	connect orit1(0), oriM1(1)
-  	connect oriT2(0), soma(1)
-  	connect oriM2(0), oriT2(1)
-  	connect orit2(0), oriM2(1)
-  	//basic_shape()
+  	connect dend[5](0), soma(1)
+	for i=5,8 {
+		connect dend[i+1](0), dend[i](1)
+	}
+	
+  	connect dend[10](0), soma(0)
+	for i=10,11 {
+		connect dend[i+1](0), dend[i](1)
+	}
+
+  	connect dend[13](0), soma(0)
+	for i=13,14 {
+		connect dend[i+1](0), dend[i](1)
+	}
 }
 
-proc basic_shape() {
-  	soma {pt3dclear() pt3dadd(0, 0, 0, 1) pt3dadd(15, 0, 0, 1)}
-  	radT2 {pt3dclear() pt3dadd(15, 0, 0, 1) pt3dadd(45, 30, 0, 1)}
-  	radM2 {pt3dclear() pt3dadd(45, 30, 0, 1) pt3dadd(75, 60, 0, 1)}
-  	radt2 {pt3dclear() pt3dadd(75, 60, 0, 1) pt3dadd(90, 75, 0, 1)}
-  	lmM2 {pt3dclear() pt3dadd(90, 75, 0, 1) pt3dadd(105, 90, 0, 1)}
-  	lmt2 {pt3dclear() pt3dadd(105, 90, 0, 1) pt3dadd(120, 105, 0, 1)}
-  	radT1 {pt3dclear() pt3dadd(0, 0, 0, 1) pt3dadd(-14, 15, 0, 1)}
-  	radM1 {pt3dclear() pt3dadd(-14, 15, 0, 1) pt3dadd(-29, 30, 0, 1)}
-  	radt1 {pt3dclear() pt3dadd(-29, 30, 0, 1) pt3dadd(-44, 45, 0, 1)}
-  	lmM1 {pt3dclear() pt3dadd(-44, 45, 0, 1) pt3dadd(-59, 60, 0, 1)}
-  	lmt1 {pt3dclear() pt3dadd(-59, 60, 0, 1) pt3dadd(-89, 90, 0, 1)}
-  	oriT1 {pt3dclear() pt3dadd(0, 0, 0, 1) pt3dadd(-29, -29, 0, 1)}
-  	oriM1 {pt3dclear() pt3dadd(-29, -29, 0, 1) pt3dadd(-59, -59, 0, 1)}
-  	orit1 {pt3dclear() pt3dadd(-59, -59, 0, 1) pt3dadd(-89, -89, 0, 1)}
-  	oriT2 {pt3dclear() pt3dadd(15, 0, 0, 1) pt3dadd(45, -29, 0, 1)}
-  	oriM2 {pt3dclear() pt3dadd(45, -29, 0, 1) pt3dadd(75, -59, 0, 1)}
-  	orit2 {pt3dclear() pt3dadd(75, -59, 0, 1) pt3dadd(105, -89, 0, 1)}
+proc size_sections() {
+	soma[0] {pt3dclear()
+		pt3dadd(0, 0, 0, 10) // distance from (0,0,0) = 0
+		pt3dadd(0, 10, 0, 10) // distance from (0,0,0) = 10
+		pt3dadd(0, 20, 0, 10) // distance from (0,0,0) = 20
+	}
+	dend[0] {pt3dclear()
+		pt3dadd(0, 20, 0, 4) // distance from (0,0,0) = 20
+		pt3dadd(19.4709, 66.053, 0, 4) // distance from (0,0,0) = 68.8631
+		pt3dadd(38.9418, 112.106, 0, 4) // distance from (0,0,0) = 118.677
+	}
+	dend[1] {pt3dclear()
+		pt3dadd(38.9418, 112.106, 0, 3) // distance from (0,0,0) = 118.677
+		pt3dadd(58.4128, 158.159, 0, 3) // distance from (0,0,0) = 168.601
+		pt3dadd(77.8837, 204.212, 0, 3) // distance from (0,0,0) = 218.56
+	}
+	dend[2] {pt3dclear()
+		pt3dadd(77.8837, 204.212, 0, 2) // distance from (0,0,0) = 218.56
+		pt3dadd(116.826, 296.318, 0, 2) // distance from (0,0,0) = 318.516
+		pt3dadd(155.767, 388.424, 0, 2) // distance from (0,0,0) = 418.494
+	}
+	dend[3] {pt3dclear()
+		pt3dadd(155.767, 388.424, 0, 1.5) // distance from (0,0,0) = 418.494
+		pt3dadd(175.238, 434.477, 0, 1.5) // distance from (0,0,0) = 468.486
+		pt3dadd(194.709, 480.531, 0, 1.5) // distance from (0,0,0) = 518.48
+	}
+	dend[4] {pt3dclear()
+		pt3dadd(194.709, 480.531, 0, 1) // distance from (0,0,0) = 518.48
+		pt3dadd(214.18, 526.584, 0, 1) // distance from (0,0,0) = 568.475
+		pt3dadd(233.651, 572.637, 0, 1) // distance from (0,0,0) = 618.47
+	}
+	dend[5] {pt3dclear()
+		pt3dadd(0, 20, 0, 4) // distance from (0,0,0) = 20
+		pt3dadd(-19.4709, 66.053, 0, 4) // distance from (0,0,0) = 68.8631
+		pt3dadd(-38.9418, 112.106, 0, 4) // distance from (0,0,0) = 118.677
+	}
+	dend[6] {pt3dclear()
+		pt3dadd(-38.9418, 112.106, 0, 3) // distance from (0,0,0) = 118.677
+		pt3dadd(-58.4128, 158.159, 0, 3) // distance from (0,0,0) = 168.601
+		pt3dadd(-77.8837, 204.212, 0, 3) // distance from (0,0,0) = 218.56
+	}
+	dend[7] {pt3dclear()
+		pt3dadd(-77.8837, 204.212, 0, 2) // distance from (0,0,0) = 218.56
+		pt3dadd(-116.826, 296.318, 0, 2) // distance from (0,0,0) = 318.516
+		pt3dadd(-155.767, 388.424, 0, 2) // distance from (0,0,0) = 418.494
+	}
+	dend[8] {pt3dclear()
+		pt3dadd(-155.767, 388.424, 0, 1.5) // distance from (0,0,0) = 418.494
+		pt3dadd(-175.238, 434.477, 0, 1.5) // distance from (0,0,0) = 468.486
+		pt3dadd(-194.709, 480.531, 0, 1.5) // distance from (0,0,0) = 518.48
+	}
+	dend[9] {pt3dclear()
+		pt3dadd(-194.709, 480.531, 0, 1) // distance from (0,0,0) = 518.48
+		pt3dadd(-214.18, 526.584, 0, 1) // distance from (0,0,0) = 568.475
+		pt3dadd(-233.651, 572.637, 0, 1) // distance from (0,0,0) = 618.47
+	}
+	dend[10] {pt3dclear()
+		pt3dadd(0, 0, 0, 2) // distance from (0,0,0) = 0
+		pt3dadd(-19.4709, -46.0531, 0, 2) // distance from (0,0,0) = 50
+		pt3dadd(-38.9418, -92.1061, 0, 2) // distance from (0,0,0) = 100
+	}
+	dend[11] {pt3dclear()
+		pt3dadd(-38.9418, -92.1061, 0, 1.5) // distance from (0,0,0) = 100
+		pt3dadd(-58.4128, -138.159, 0, 1.5) // distance from (0,0,0) = 150
+		pt3dadd(-77.8837, -184.212, 0, 1.5) // distance from (0,0,0) = 200
+	}
+	dend[12] {pt3dclear()
+		pt3dadd(-77.8837, -184.212, 0, 1) // distance from (0,0,0) = 200
+		pt3dadd(-97.3546, -230.265, 0, 1) // distance from (0,0,0) = 250
+		pt3dadd(-116.826, -276.318, 0, 1) // distance from (0,0,0) = 300
+	}
+	dend[13] {pt3dclear()
+		pt3dadd(0, 0, 0, 2) // distance from (0,0,0) = 0
+		pt3dadd(19.4709, -46.053, 0, 2) // distance from (0,0,0) = 50
+		pt3dadd(38.9419, -92.1061, 0, 2) // distance from (0,0,0) = 100
+	}
+	dend[14] {pt3dclear()
+		pt3dadd(38.9419, -92.1061, 0, 1.5) // distance from (0,0,0) = 100
+		pt3dadd(58.4128, -138.159, 0, 1.5) // distance from (0,0,0) = 150
+		pt3dadd(77.8837, -184.212, 0, 1.5) // distance from (0,0,0) = 200
+	}
+	dend[15] {pt3dclear()
+		pt3dadd(77.8837, -184.212, 0, 1) // distance from (0,0,0) = 200
+		pt3dadd(97.3546, -230.265, 0, 1) // distance from (0,0,0) = 250
+		pt3dadd(116.826, -276.318, 0, 1) // distance from (0,0,0) = 300
+	}
 }
 
-objref all, basal_list, apical_list, soma_list, axon_list, lm_list, rad_list
-objref pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_list
-objref ivycell_list, ngfcell_list, olmcell_list, pvbasketcell_list, scacell_list
-objref eccell_list, ca3cell_list, mscell_list
-proc subsets() { local i
-  objref all, basal_list, apical_list, soma_list, axon_list, lm_list, rad_list
-	objref pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_list
-	objref ivycell_list, ngfcell_list, olmcell_list, pvbasketcell_list, scacell_list
-	objref eccell_list, ca3cell_list, mscell_list
-  	all = new SectionList()
-  basal_list = new SectionList()
-  apical_list = new SectionList()
-  soma_list = new SectionList()
-  axon_list = new SectionList()
-  lm_list = new SectionList()
-  rad_list = new SectionList()
+objref all, basal_list, apical_list, dendrite_list, soma_list, axon_list
+proc append_sections() { local i
+	objref all, basal_list, apical_list, dendrite_list, soma_list, axon_list
 
-	pyramidalcell_list = new SectionList()
-	axoaxoniccell_list = new SectionList()
-	bistratifiedcell_list = new SectionList()
-	cckcell_list = new SectionList()
-	ivycell_list = new SectionList()
-	ngfcell_list = new SectionList()
-	olmcell_list = new SectionList()
-	pvbasketcell_list = new SectionList()
-	scacell_list = new SectionList()
-	eccell_list = new SectionList()
-	ca3cell_list = new SectionList()
-	mscell_list = new SectionList()
+	all = new SectionList()
+	basal_list = new SectionList()
+	apical_list = new SectionList()
+	soma_list = new SectionList()
+	axon_list = new SectionList()
+	dendrite_list = new SectionList()
 
-    	soma all.append()
-    soma soma_list.append()
+	soma all.append()
+	soma soma_list.append()
+	for i=0,15 {
+		dend[i] all.append()
+		dend[i] dendrite_list.append()
+	}
 
-    	radT2 all.append()
-    	radT2 apical_list.append()
-    	radT2 rad_list.append()
-    	radM2 all.append()
-    	radM2 apical_list.append()
-    	radM2 rad_list.append()
-    	radt2 all.append()
-    	radt2 apical_list.append()
-    	radt2 rad_list.append()
-    	lmM2 all.append()
-    	lmM2 apical_list.append()
-    	lmM2 lm_list.append()
-    	lmt2 all.append()
-    	lmt2 apical_list.append()
-    	lmt2 lm_list.append()
-    	radT1 all.append()
-    	radT1 apical_list.append()
-    	radT1 rad_list.append()
-    	radM1 all.append()
-    	radM1 apical_list.append()
-    	radM1 rad_list.append()
-    	radt1 all.append()
-    	radt1 apical_list.append()
-    	radt1 rad_list.append()
-    	lmM1 all.append()
-    	lmM1 apical_list.append()
-    	lmM1 lm_list.append()
-    	lmt1 all.append()
-    	lmt1 apical_list.append()
-    	lmt1 lm_list.append()
-    	
-    	
-    	oriT1 all.append()
-    	oriT1 basal_list.append()
-    	oriM1 all.append()
-    	oriM1 basal_list.append()
-    	orit1 all.append()
-    	orit1 basal_list.append()
-    	oriT2 all.append()
-    	oriT2 basal_list.append()
-    	oriM2 all.append()
-    	oriM2 basal_list.append()
-    	orit2 all.append()
-    	orit2 basal_list.append()
+	for i=0,9 {
+		dend[i] apical_list.append()
+	}
 
-// precell lists
-	forsec basal_list {pyramidalcell_list.append()}
-	forsec axon_list {axoaxoniccell_list.append()}
-	forsec basal_list {bistratifiedcell_list.append()}
-	forsec rad_list {bistratifiedcell_list.append()}
-	forsec soma_list {cckcell_list.append()}
-	forsec basal_list {ivycell_list.append()}
-	forsec rad_list {ivycell_list.append()}
-	forsec lm_list {ngfcell_list.append()}
-	forsec lm_list {olmcell_list.append()}
-	forsec soma_list {pvbasketcell_list.append()}
-	forsec basal_list {scacell_list.append()}
-	forsec rad_list {scacell_list.append()}
-	forsec lm_list {eccell_list.append()}
-	forsec rad_list {ca3cell_list.append()}
-	forsec rad_list {mscell_list.append()}
+	for i=10,15 {
+		dend[i] basal_list.append()
+	}
 }
 
-proc geom() {
-  	forsec all {  }
-  	soma {  L = 20  diam = 10  }
-  	radT2 {  L = 100  diam = 4  }
-  	radM2 {  L = 100  diam = 3  }
-  	radt2 {  L = 200  diam = 2  }
-  	lmM2 {  L = 100  diam = 1.5  }
-  	lmt2 {  L = 100  diam = 1  }
-  	radT1 {  L = 100  diam = 4  }
-  	radM1 {  L = 100  diam = 3  }
-  	radt1 {  L = 200  diam = 2  }
-  	lmM1 {  L = 100  diam = 1.5  }
-  	lmt1 {  L = 100  diam = 1  }
-  	oriT1 {  L = 100  diam = 2  }
-  	oriM1 {  L = 100  diam = 1.5  }
-  	orit1 {  L = 100  diam = 1  }
-  	oriT2 {  L = 100  diam = 2  }
-  	oriM2 {  L = 100  diam = 1.5  }
-  	orit2 {  L = 100  diam = 1  }
-}
 
 external lambda_f
-proc geom_nseg() {
+proc set_nseg() {
   	forsec all { nseg = int((L/(0.1*lambda_f(100))+.9)/2)*2 + 1  }
 }
 
-proc biophys() {
 
-	gna = 0.15
 
-	soma {
-		insert ch_Nav	
-		gmax_ch_Nav = gna  		// 0.12 //original 0.030 to .055 
-		insert ch_Kdrfast
-		gmax_ch_Kdrfast = 0.013  		//original 0.015
-		
-		insert ch_leak
-		gmax_ch_leak = 0.00018
-		cm=1.4
-	} 
+proc mechinit() {
 
-	lmt1 {
-		insert ch_Nav	
-		gmax_ch_Nav = gna		//0.5  	//original 0.015
-		insert ch_Kdrfast
-		gmax_ch_Kdrfast = 0.013
-		insert ch_leak
-		gmax_ch_leak = 0.00018
-		cm=1.4
-	}		
-
-	lmt2 {
-		insert ch_Nav	
-		gmax_ch_Nav = gna		//0.5  	//original 0.015
-		insert ch_Kdrfast
-		gmax_ch_Kdrfast = 0.013
-		insert ch_leak
-		gmax_ch_leak = 0.00018
-		cm=1.4
-	}		
-
-	lmM1 {
-		insert ch_Nav	
-		gmax_ch_Nav = gna		//0.45  	//original 0.015
-		insert ch_Kdrfast
-		gmax_ch_Kdrfast = 0.013
-		insert ch_leak
-		gmax_ch_leak = 0.00018
-		cm=1.4
-	}		
-
-	lmM2 {
-		insert ch_Nav	
-		gmax_ch_Nav = gna		//0.45  	//original 0.015
-		insert ch_Kdrfast
-		gmax_ch_Kdrfast = 0.013
-		insert ch_leak
-		gmax_ch_leak = 0.00018
-		cm=1.4
-	}		
+	// resting membrane potential. Must lie between Na+ and K+ reversal potentials
+	Vrest=-65
 	
-	radt1 {
-		insert ch_Nav	
-		gmax_ch_Nav = gna		//0.4  	//original 0.015
-		insert ch_Kdrfast
-		gmax_ch_Kdrfast = 0.013
-		insert ch_leak
-		gmax_ch_leak = 0.00018
-		cm=1.4
-	}		
+	// Temperature of simulation
+	celsius = 34.0  
 
-	radt2 {
-		insert ch_Nav	
-		gmax_ch_Nav = gna		//0.4  	//original 0.015
-		insert ch_Kdrfast
-		gmax_ch_Kdrfast = 0.013
-		insert ch_leak
-		gmax_ch_leak = 0.00018
-		cm=1.4
-	}		
+	// Membrane resistance in ohm*cm2
+	RmDend = 5555 //1/0.00018 
+	RmSoma = 5555 //1/0.00018 
 
-	radM1 {
-		insert ch_Nav	
-		gmax_ch_Nav = gna		//0.3  	//original 0.015
-		insert ch_Kdrfast
-		gmax_ch_Kdrfast = 0.013
-		insert ch_leak
-		gmax_ch_leak = 0.00018
-		cm=1.4
-	}		
+	// Membrane capacitance in uF/cm2
+	CmSoma= 1.4
+	CmDend = 1.4
 
-	radM2 {
-		insert ch_Nav	
-		gmax_ch_Nav = gna		//0.3  	//original 0.015
-		insert ch_Kdrfast
-		gmax_ch_Kdrfast = 0.013
-		insert ch_leak
-		gmax_ch_leak = 0.00018
-		cm=1.4
-	}		
-
-	radT1 {
-		insert ch_Nav	
-		gmax_ch_Nav = gna		//0.2  	//original 0.015
-		insert ch_Kdrfast
-		gmax_ch_Kdrfast = 0.013
-		insert ch_leak
-		gmax_ch_leak = 0.00018
-		cm=1.4
-	}		
-
-	radT2 {
-		insert ch_Nav	
-		gmax_ch_Nav = gna		//0.2  	//original 0.015
-		insert ch_Kdrfast
-		gmax_ch_Kdrfast = 0.013
-		insert ch_leak
-		gmax_ch_leak = 0.00018
-		cm=1.4
-	}			
-
-	oriT1 {
-		insert ch_Nav	
-		gmax_ch_Nav = gna  		//original 0.015
-		insert ch_Kdrfast
-		gmax_ch_Kdrfast = 0.013
-		insert ch_leak
-		gmax_ch_leak = 0.00018
-		cm=1.4
-	}		
-
-	oriT2 {
-		insert ch_Nav	
-		gmax_ch_Nav = gna  		//original 0.015
-		insert ch_Kdrfast
-		gmax_ch_Kdrfast = 0.013
-		insert ch_leak
-		gmax_ch_leak = 0.00018
-		cm=1.4
-	}		
-
-	oriM1 {
-		insert ch_Nav	
-		gmax_ch_Nav = gna  		//original 0.015
-		insert ch_Kdrfast
-		gmax_ch_Kdrfast = 0.013
-		insert ch_leak
-		gmax_ch_leak = 0.00018
-		cm=1.4
-	}		
-
-	oriM2 {
-		insert ch_Nav	
-		gmax_ch_Nav = gna  		//original 0.015
-		insert ch_Kdrfast
-		gmax_ch_Kdrfast = 0.013
-		insert ch_leak
-		gmax_ch_leak = 0.00018
-		cm=1.4
-	}		
+	// Axial resistance in ohm*cm
+	RaDend= 100
+	RaSoma= 100	
 	
-	orit1 {
-		insert ch_Nav	
-		gmax_ch_Nav = gna  		// Sodium conductance (original 0.015)
-		insert ch_Kdrfast
-		gmax_ch_Kdrfast = 0.013		// Delayed K+ rectifier (fast)
-		insert ch_leak
-		gmax_ch_leak = 0.00018		// Leak conductance
-		cm=1.4
-	}		
+	// Calcium concentrations in mM
+	ca_outside = 2
+	ca_inside = 5.e-6 // 50.e-6
+	catau = 10
 
-	orit2 {
-		insert ch_Nav	
-		gmax_ch_Nav = gna  		// Sodium conductance (original 0.015)
-		insert ch_Kdrfast
-		gmax_ch_Kdrfast = 0.013		// Delayed K+ rectifier (fast)
-		insert ch_leak
-		gmax_ch_leak = 0.00018		// Leak conductance
-		cm=1.4
-	}
+	// reversal potentials in mV
+	ekval = -90	
+	enaval = 55
+	eHCNval = -30
+	ecaval = 8.314*(273.15+celsius)/(2*9.649e4)*log(ca_outside/ca_inside)*1000 // about 170, otherwise set to 130
+	
+	if (Vrest<ekval) Vrest=ekval // Cell cannot rest lower than K+ reversal potential
+	if (Vrest>enaval) Vrest=enaval // Cell cannot rest higher than Na+ reversal potential
+	eleakval = Vrest
+
+	// max ion channel conductances in mho/cm2
+	gNav     = 0.15 // soma: // 0.12 //original 0.030 to .055 ; lm: //0.5  	//original 0.015
+	gKdr     = 0.013    // Delayed rectifier potassium
+	gKJonas  = 0 //0.1465/1
+	gKvA 	 = 0.00015 // Proximal A-type potassium
+	gHCN     = 0.00002 // HCN (hyperpolarization-activated cyclic nucleotide-gated channel)
+	gCavN    = 0.0008 //   T-type calcium
+	gCavL    = 0.005 //  L-type calcium
+	gKvCaB	 = 0.0000002 // Big potassium channel: voltage and calcium gated 
+	gKCaS	 = 0.000002 //  Small potassium channel: calcium gated		
+}
+
+proc insert_mechs() {
 
 	forsec all {
 		insert buff_Ca // It doesn't seem to make a difference whether
@@ -383,34 +242,59 @@ proc biophys() {
 						
 		
 		insert ch_KvA
-		gmax_ch_KvA = 0.00015		// A-type K+ conductance
+		gmax_ch_KvA = gKvA		// A-type K+ conductance
 		
 		insert ch_CavNZ  			// N-type Ca2+ conductance
-		gmax_ch_CavNZ = 0.0008*1.0  		// check to modify- original 0.004
+		gmax_ch_CavNZ = gCavN
 		
 		insert ch_CavLZ 
-		gmax_ch_CavLZ = 0.005*1.0		// L-type Ca2+ conductance
+		gmax_ch_CavLZ = gCavL
 		
 		insert ch_KCaS
-		gmax_ch_KCaS = 0.000002		// Ca2+-dependent K (SK) conductance
+		gmax_ch_KCaS = gKCaS
 		
 		insert ch_KvCaB
-		gmax_ch_KvCaB = 0.0002*.001			// Ca2+ and Voltage-dependent K+ (BK) conductance
+		gmax_ch_KvCaB = gKvCaB
 
-		Ra = 100			// 31.3 +/- 10.9
-		ena = 55
-		ek = -90
-		eca = 130
-		e_ch_leak = -60			//-60.06
-		cao_iconc_CaZ = 2
-	} 					// make catau slower70e-3 	cao=2 cai=50.e-6
+		Ra = RaSoma
+	} 
 
+	soma {
+		insert ch_Nav	
+		gmax_ch_Nav = gNav
+		insert ch_Kdrfast
+		gmax_ch_Kdrfast = gKdr
+		
+		insert ch_leak
+		gmax_ch_leak = 1/RmSoma
+		cm=CmSoma
+	} 
+
+	forsec dendrite_list {
+		insert ch_Nav	
+		gmax_ch_Nav = gNav		
+		insert ch_Kdrfast
+		gmax_ch_Kdrfast = gKdr
+		insert ch_leak
+		gmax_ch_leak = 1/RmDend
+		cm=CmDend
+	}	
+}
+
+proc set_chanparams() {
+	forsec all {
+		ena = enaval
+		ek = ekval
+		eca = ecaval
+		e_ch_leak = eleakval
+		cao_iconc_CaZ = ca_outside
+	}
 }
 
 
 	proc connect_pre() {  // $o1 target point process, $o2 returned NetCon
 	soma $o2 = new NetCon (&v(1), $o1)
-			$o2.threshold = -10 //except for bcell to bcell, which is -10???
+			$o2.threshold = -10
 
 	}
 
@@ -435,6 +319,11 @@ proc get_root() {local i localobj sref
 			myroot = secname()
 			i=i+1
 		}
+		for(x,0) {
+			if (diam(x) <=0.01) print "WARNING: tiny diameter of ",  diam(x), " um at ", secname(), ", point ", x, "!"
+			if (diam3d(x) <=0.01) print "WARNING: tiny 3d diameter of ", diam3d(x), " um at ", secname(), ", point ", x, "!"
+		}
+		if (L <=0.001) print "WARNING: tiny length of ", L, " um at ", secname(), "!"
 	}
 	if (i>1) {
 		print "WARNING: cell ", gid, " has ", i, " root sections!"
@@ -444,5 +333,7 @@ proc get_root() {local i localobj sref
 objref syn  
 proc define_synapses() {local i localobj f2, f3
 
+
 }
+
 endtemplate axoaxoniccell
