@@ -193,8 +193,8 @@ proc mechinit() {
 	celsius = 34.0  
 
 	// Membrane resistance in ohm*cm2
-	RmDend = 5555 //1/0.00018 
-	RmSoma = 5555 //1/0.00018 
+	RmDend = 20000 //1/0.00018 
+	RmSoma = 20000 //1/0.00018 
 
 	// Membrane capacitance in uF/cm2
 	CmSoma= 1.8
@@ -220,15 +220,15 @@ proc mechinit() {
 	eleakval = Vrest
 
 	// max ion channel conductances in mho/cm2
-	gNav     = 0.10 // soma: // 0.12 //original 0.030 to .055 ; lm: //0.5  	//original 0.015
-	gKdr     = 0.00065    // Delayed rectifier potassium
-	gKJonas  = 0 //0.1465/1
-	gKvA 	 = 0.00005 // Proximal A-type potassium
+	gNav     = 0.075 // soma: // 0.12 //original 0.030 to .055 ; lm: //0.5  	//original 0.015
+	gKdr     = 0.010    // Delayed rectifier potassium
+	gKJonas  = 0.005 //0.1465/1
+	gKvA 	 = 0.0005 // Proximal A-type potassium
 	gHCN     = 0.0015 // HCN (hyperpolarization-activated cyclic nucleotide-gated channel)
 	gCavN    = 0.0008 //   T-type calcium
-	gCavL    = 0.005 //  L-type calcium
+	gCavL    = 0.005*20 //  L-type calcium
 	gKvCaB	 = 0.00001 // Big potassium channel: voltage and calcium gated 
-	gKCaS	 = 0.000145 //  Small potassium channel: calcium gated		
+	gKCaS	 = 0.000001 //  Small potassium channel: calcium gated		
 }
 
 proc insert_mechs() {
@@ -264,6 +264,8 @@ proc insert_mechs() {
 		ena = enaval
 		insert ch_Kdrfast
 		gmax_ch_Kdrfast = gKdr
+		insert ch_Kv3p1bJonas
+		gmax_ch_Kv3p1bJonas = gKJonas
 		
 		insert ch_leak
 		gmax_ch_leak = 1/RmSoma
@@ -284,6 +286,8 @@ proc insert_mechs() {
 				ena = enaval
 				insert ch_Kdrfast
 				gmax_ch_Kdrfast=gKdr*10
+				insert ch_Kv3p1bJonas
+				gmax_ch_Kv3p1bJonas = gKJonas
 			}
 		}
 	}	
