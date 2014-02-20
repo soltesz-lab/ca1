@@ -17,6 +17,7 @@ external numCellTypes, cellType
 
 create soma[1], dend[16]
 
+	//objref syn  
 
 proc init() {
 	gid = $1
@@ -34,9 +35,11 @@ proc init() {
 	mechinit()			// local fcn: set values for max conductances and reversal potentials of ion channels and other ephys parameters that are subject to fitting
 	insert_mechs()		// local fcn: insert ion channels and actually set values determined in the mechinit fcn
 	set_chanparams()	// local fcn: after all channels have been inserted, then their other parameters can be set	
+
 	// synapses
-	pre_list = new List() // define a list for the presynaptic connections
-	define_synapses()	// local fcn: define all possible synaptic connections received by this cell
+	pre_list = new List() // define a list for the presynaptic connections	
+	define_synapses()
+	//xopen("./cells/synapses_axoaxoniccell.hoc")
 }
 
 proc connect_sections() { local i
@@ -330,7 +333,8 @@ proc get_root() {local i localobj sref
 	}
 }
 
-objref syn  
+
+
 proc define_synapses() {local i localobj f2, f3
 
 
