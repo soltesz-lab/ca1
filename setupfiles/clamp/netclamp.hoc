@@ -325,7 +325,6 @@ f2 = new File()
 sprint(cmdstr, "../../networkclamp_results/%s/conns2make.dat", resultsfolder)
 f2.ropen(cmdstr)		// Open the celltype
 
-
 counter=0
 numConns = f2.scanvar			// Scan the first line, which contains a number giving the
 for n=0, numConns-1 {

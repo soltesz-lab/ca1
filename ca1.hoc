@@ -499,6 +499,9 @@ if (pc.id==0 && get_spike_hist==1) {
 if (pc.id==0) { print "after spike hist file close: ", startsw()-test2}
 test3 = startsw()
 
+pc.barrier
+quit()
+
 {pc.runworker()} 	// Everything after this line is executed only by the host node
 					//  The NEURON website describes this as "The master host returns immediately. Worker hosts
 					//  start an infinite loop of requesting tasks for execution." 
