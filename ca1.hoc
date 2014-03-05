@@ -497,7 +497,7 @@ if (pc.id==0 && get_spike_hist==1) {
 if (pc.id==0) { print "after spike hist file close: ", startsw()-test2}
 
 {pc.barrier}
-execerror("trying to quit")
+//execerror("trying to quit")
 {quit()}
 
 {pc.runworker()} 	// Everything after this line is executed only by the host node
