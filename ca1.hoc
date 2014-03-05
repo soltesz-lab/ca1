@@ -471,18 +471,16 @@ if (get_spike_hist==1) {
 
 zzz = mallinfo(zzz, "Before running simulation")
 
-rrun()	// Run the network simulation (in proc rrun)
-test0 = startsw()
+{rrun()}	// Run the network simulation (in proc rrun)
 
 zzz = mallinfo(zzz, "After running simulation")
-if (pc.id==0) { print "after getting last mem: ", startsw()-test0}
-test1 = startsw()
+
 if (pc.id==0) {
 	{memfile.close()}
 	{topfile.close()}
 }
 if (pc.id==0) { print "after mem file close: ", startsw()-test1}
-test2 = startsw()
+
 objref f4
 strdef cmd
 if (pc.id==0 && get_spike_hist==1) {
@@ -497,16 +495,15 @@ if (pc.id==0 && get_spike_hist==1) {
 	f4.close()
 }
 if (pc.id==0) { print "after spike hist file close: ", startsw()-test2}
-test3 = startsw()
 
-pc.barrier
-quit()
+{pc.barrier}
+execerror("trying to quit")
+{quit()}
 
 {pc.runworker()} 	// Everything after this line is executed only by the host node
 					//  The NEURON website describes this as "The master host returns immediately. Worker hosts
 					//  start an infinite loop of requesting tasks for execution." 
-if (pc.id==0) { print "after runworker: ", startsw()-test3}
-test4 = startsw()				
+if (pc.id==0) { print "after runworker"}
 {pc.done()}			// Sends the quit message to the worker processors, which then quit NEURON
-print "after done: ", startsw()-test4
+if (pc.id==0) { print "after done"}
 quit()	// Sends the quit message to the host processor, which then quits NEURON
