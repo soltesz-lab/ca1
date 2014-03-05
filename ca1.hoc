@@ -479,7 +479,6 @@ if (pc.id==0) {
 	{memfile.close()}
 	{topfile.close()}
 }
-if (pc.id==0) { print "after mem file close: ", startsw()-test1}
 
 objref f4
 strdef cmd
@@ -494,7 +493,6 @@ if (pc.id==0 && get_spike_hist==1) {
 	}
 	f4.close()
 }
-if (pc.id==0) { print "after spike hist file close: ", startsw()-test2}
 
 {pc.barrier}
 //execerror("trying to quit")
