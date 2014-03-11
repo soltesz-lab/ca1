@@ -581,6 +581,7 @@ proc init() { local dtsav, temp, secsav, secondordersav	// initialize the simula
 		fcurrent()					// If cvode is not active, make all assigned variables (currents, conductances, etc)
 									//	consistent with the values of the states
 	}
+	frecord_init() // see email from ted - fadvance() increments the recorder, so we need to fix the index it ends up at
 }
 proc rrun(){												// Run the network simulation
 	//pnm.want_all_spikes()

@@ -346,6 +346,7 @@ proc init() { local dtsav, temp, secsav, secondordersav	// Redefine the proc tha
 									//	 (currents, conductances, etc) consistent with the
 									//   values of the states
 	}
+	frecord_init() // see email from ted - fadvance() increments the recorder, so we need to fix the index it ends up at
 }
 
 
