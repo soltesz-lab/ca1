@@ -26,7 +26,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			cellType[j].LastHighIndex = newhighindex
 		}
 	}
-	if ((PrintTerminal>0)) {print "Host ", pc.id, " connected cells."}
+	if ((PrintTerminal>1)) {print "Host ", pc.id, " connected cells."}
 }
 
 	objref params, conns2make

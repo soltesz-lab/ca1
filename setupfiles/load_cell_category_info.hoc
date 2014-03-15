@@ -19,7 +19,7 @@ proc loadCellCategoryInfo() {local i, startpos, tmpct	// Load celltype info into
 	// Define variables to temporarily hold data scanned from file
 	objref celltypestring[numCellTypes], techstring[numCellTypes], cellType[numCellTypes]
 	double cellnumvar[numCellTypes], cellLayerflag[numCellTypes], cellArtflag[numCellTypes]
-print "numCellTypes=", numCellTypes
+
 // LEFT OFF HERE WITH FIXING THE DOCUMENTATION!!!
 tmpct=0 //## added for now
 	for i=0, numCellTypes-1 {

@@ -60,6 +60,6 @@ proc createCells(){ local i, ij, si, pci, cellind, runresult, gid	// Create cell
 	}
 
 	nc = nil // Then clear the reference to the netcon object, which should destroy the netcon (because all refs would have been removed)
-	if  (PrintTerminal>0) {print "Host ", pc.id, " created cells."}
+	if  (PrintTerminal>1) {print "Host ", pc.id, " created cells."}
 }
 createCells()

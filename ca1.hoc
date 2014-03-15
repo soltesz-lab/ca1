@@ -391,8 +391,8 @@ proc rrun(){									// Run the network simulation and write out the results
 	avgcomp = pc.allreduce(comptime, 1)/pc.nhost
 	maxcomp = pc.allreduce(comptime, 2)
 	if (maxcomp>0) {
-		if (pc.id == 0) { printf("load_balance = %g\n", avgcomp/maxcomp)}
-		if (pc.id == 0) { printf("exchange_time = %g\n",  runtime - maxcomp) }
+		if (pc.id == 0) { printf("load_balance = %.3f\n", avgcomp/maxcomp)}
+		if (pc.id == 0) { printf("exchange_time = %.2f ms\n",  runtime - maxcomp) }
 	} else {
 		if (pc.id == 0) { printf("no load balance info available\nno spike exchange info available\n")}
 	}
@@ -496,13 +496,13 @@ if (pc.id==0 && get_spike_hist==1) {
 }
 
 {pc.barrier}
-//execerror("trying to quit")
 {quit()}
 
+/*
+// Old quit method
 {pc.runworker()} 	// Everything after this line is executed only by the host node
 					//  The NEURON website describes this as "The master host returns immediately. Worker hosts
 					//  start an infinite loop of requesting tasks for execution." 
-if (pc.id==0) { print "after runworker"}
 {pc.done()}			// Sends the quit message to the worker processors, which then quit NEURON
-if (pc.id==0) { print "after done"}
 quit()	// Sends the quit message to the host processor, which then quits NEURON
+*/
