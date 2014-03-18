@@ -42,7 +42,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 		numConns = cellType[$1].numConns.x[$2]				
 		// numConns = int(numConns/(Scale) + .5) // higher connectivity in smaller scale models
 
-		if (PrintTerminal>1) {print "Host ", pc.id, " is connecting: ", $s3, "s to ", $s4, "s."}
+		if (PrintTerminal>2) {print "Host ", pc.id, " is connecting: ", $s3, "s to ", $s4, "s."}
 		
 		//print "Host ", pc.id, " is connecting: ", $s3, "s to ", $s4, "s: numpost = ", numpost, ", numConns=", numConns
 
