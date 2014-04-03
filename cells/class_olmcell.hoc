@@ -1,0 +1,192 @@
+begintemplate olmcell
+
+// public variables
+public  pre_list, connect_pre, append_sections, is_art, is_connected, gid, randi
+public soma, dend1, dend2, axon
+public all, pdend, ddend, basal_list, apical_list, soma_list, axon_list, dendrite_list
+public x, y, z, position, myroot
+
+
+// strings
+strdef myroot
+
+// objects
+objref syn, pre_list, templist, rootlist
+
+// external variables
+external numCellTypes, cellType
+
+// create the sections[segments]
+create soma[1], dend1[1], dend2[1], axon[1]
+
+// set the initialization code, which is run whenever a new object
+// of this class is instantiated
+proc init() {
+	gid = $1
+	randi = $2
+	// cell sections: soma, dendrites, axon
+	append_sections() // append all sections to the section list
+	connect_sections()// connect soma, dendrites, axon
+	size_sections()	// set the size dimensions of each section
+	set_nseg()		// set the number of segments in each section
+	
+	// subcellular mechanisms: channels, pumps, transporters
+	insert_mechs()
+	set_biophys()
+	define_shape()
+	get_root()
+
+	pre_list = new List() // define a list for the presynaptic connections
+	define_synapses()
+}
+
+proc connect_sections() { local i
+  	connect dend1(0), soma(1)
+  	connect dend2(0), soma(0)
+  	connect axon(0), soma(1)
+}
+
+objref all, basal_list, apical_list, soma_list, axon_list, dendrite_list
+
+
+proc append_sections() {
+	objref all, basal_list, apical_list, soma_list, axon_list, dendrite_list
+
+
+	// Make a list for every section in the cell
+	all = new SectionList()	
+  basal_list = new SectionList()
+  apical_list = new SectionList()
+  dendrite_list = new SectionList()
+  soma_list = new SectionList()
+  axon_list = new SectionList()
+
+
+    	soma all.append()
+    	soma soma_list.append()
+    	dend1 all.append()
+    	dend1 basal_list.append()
+    	dend1 dendrite_list.append()
+    	dend2 all.append()
+    	dend1 basal_list.append()
+    	dend1 dendrite_list.append()
+    	axon all.append()
+    	axon axon_list.append()
+}
+
+
+proc size_sections() {
+  	soma {  L = 20  diam = 10  }
+  	dend1 {  L = 250  diam = 3  }
+  	dend2 {  L = 250  diam = 3  }
+  	axon {  L = 150  diam = 1.5  }
+}
+
+external lambda_f
+proc set_nseg() {
+  forsec all { nseg = int((L/(0.1*lambda_f(100))+.9)/2)*2 + 1  }
+}
+
+proc insert_mechs() {
+	Rm = 20000
+  	soma {
+		insert ch_KvAolm
+    		gmax_ch_KvAolm = 0.0165
+		insert ch_Holm
+			gmax_ch_Holm = 0.0005
+		insert ch_Kvsoma
+			gmax_ch_Kvsoma = 0.0319*2.3 // *2.3 gives 2x frequency & no depol. block
+		insert ch_Navsoma
+			gmax_ch_Navsoma = 0.0107
+		insert ch_leak
+			gmax_ch_leak = 1/Rm
+			e_ch_leak = -70  	
+	}
+
+  	dend1 {
+		insert ch_KvAolm
+    		gmax_ch_KvAolm = 0.004
+		insert ch_Kvdend
+			gmax_ch_Kvdend = 2*0.023*2.3 // *2.3 gives 2x frequency & no depol. block
+		insert ch_Navdend
+			gmax_ch_Navdend = 2*0.0117
+		insert ch_leak
+			gmax_ch_leak = 1/Rm
+			e_ch_leak = -70  	
+  	}
+
+  	dend2 {
+		insert ch_KvAolm
+    		gmax_ch_KvAolm = 0.004
+		insert ch_Kvdend
+			gmax_ch_Kvdend = 2*0.023*2.3 // *2.3 gives 2x frequency & no depol. block
+		insert ch_Navdend
+			gmax_ch_Navdend = 2*0.0117
+		insert ch_leak
+			gmax_ch_leak = 1/Rm
+			e_ch_leak = -70  	
+  	}
+  
+  	axon {
+		insert ch_Kvsoma //ch_Kvaxon
+			gmax_ch_Kvsoma = 0.05104*2.3 // *2.3 gives 2x frequency & no depol. block
+		insert ch_Navsoma //ch_Navaxon
+			gmax_ch_Navsoma = 0.01712
+		insert ch_leak
+			gmax_ch_leak = 1/Rm
+			e_ch_leak = -70  	
+  	}
+}
+
+proc set_biophys() {
+	forsec all {
+		Ra = 150	// Ra = Axial resistivity in ohm-cm. Ra is a
+					//  section variable that must be set for each
+					//  section. Default is 35.4.
+
+		cm = 1.3	// capacitance in uF/cm^2. default = 1.0
+		//ena = 55
+		//ek = -90
+	}  // make catau slower70e-3 	cao=2 cai=50.e-6 
+}
+
+	proc connect_pre() {  // $o1 target point process, $o2 returned NetCon
+	soma $o2 = new NetCon (&v(1), $o1)
+			$o2.threshold = -10
+	}
+
+	func is_art()  { return 0 }
+
+proc position(){ local i
+	forall {
+		for i = 0, n3d()-1 {
+			pt3dchange(i, $1-x+x3d(i), $2-y+y3d(i), $3-z+z3d(i), diam3d(i))
+		}
+	}
+	x = $1  y = $2  z = $3	
+}
+
+proc get_root() {local i localobj sref
+	rootlist = new SectionList()
+	rootlist.allroots()
+	i=0
+	forsec all {
+		sref = new SectionRef()
+		if (sref.has_parent==0) {
+			myroot = secname()
+			i=i+1
+		}
+	}
+	if (i>1) {
+		print "WARNING: cell ", gid, " has ", i, " root sections!"
+	}
+}
+
+objref syn
+proc define_synapses() {
+	{celltype = 0}
+	{i = 0}
+	{findme = 0}
+	{xopen("../synapses/syn_olmcell.hoc")}
+}
+endtemplate olmcell

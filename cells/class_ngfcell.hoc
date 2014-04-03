@@ -1,4 +1,4 @@
-begintemplate scacell
+begintemplate ngfcell
 public init, connect_sections, size_sections, append_sections
 public mechinit, insert_mechs, set_biophys, get_root
 public  pre_list, connect_pre, is_art, is_connected, gid, randi
@@ -187,22 +187,22 @@ proc set_nseg() {
 proc mechinit() {
 
 	// resting membrane potential. Must lie between Na+ and K+ reversal potentials
-	Vrest=-60
+	Vrest=-65
 	
 	// Temperature of simulation
 	celsius = 34.0  
 
 	// Membrane resistance in ohm*cm2
-	RmDend = 20000 //1/0.00018 
-	RmSoma = 20000 //1/0.00018 
+	RmDend = 5555 //1/0.00018 
+	RmSoma = 5555 //1/0.00018 
 
 	// Membrane capacitance in uF/cm2
-	CmSoma= 1.8
-	CmDend = 1.8
+	CmSoma= 1.4
+	CmDend = 1.4
 
 	// Axial resistance in ohm*cm
-	RaDend= 75
-	RaSoma= 75	
+	RaDend= 100
+	RaSoma= 100	
 	
 	// Calcium concentrations in mM
 	ca_outside = 2
@@ -212,7 +212,7 @@ proc mechinit() {
 	// reversal potentials in mV
 	ekval = -90	
 	enaval = 55
-	eHCNval = -40
+	eHCNval = -30
 	ecaval = 8.314*(273.15+celsius)/(2*9.649e4)*log(ca_outside/ca_inside)*1000 // about 170, otherwise set to 130
 	
 	if (Vrest<ekval) Vrest=ekval // Cell cannot rest lower than K+ reversal potential
@@ -220,92 +220,131 @@ proc mechinit() {
 	eleakval = Vrest
 
 	// max ion channel conductances in mho/cm2
-	gNav     = 0.075 // soma: // 0.12 //original 0.030 to .055 ; lm: //0.5  	//original 0.015
-	gKdr     = 0.010    // Delayed rectifier potassium
-	gKJonas  = 0.005 //0.1465/1
-	gKvA 	 = 0.0005 // Proximal A-type potassium
-	gHCN     = 0.0015 // HCN (hyperpolarization-activated cyclic nucleotide-gated channel)
+	gNav     = 0.15 // soma: // 0.12 //original 0.030 to .055 ; lm: //0.5  	//original 0.015
+	gKdr     = 0.013    // Delayed rectifier potassium
+	gKJonas  = 0 //0.1465/1
+	gKvA 	 = 0.00015 // Proximal A-type potassium
+	gHCN     = 0.00002 // HCN (hyperpolarization-activated cyclic nucleotide-gated channel)
 	gCavN    = 0.0008 //   T-type calcium
-	gCavL    = 0.005*20 //  L-type calcium
-	gKvCaB	 = 0.00001 // Big potassium channel: voltage and calcium gated 
-	gKCaS	 = 0.000001 //  Small potassium channel: calcium gated		
+	gCavL    = 0.005 //  L-type calcium
+	gKvCaB	 = 0.0000002 // Big potassium channel: voltage and calcium gated 
+	gKCaS	 = 0.000002 //  Small potassium channel: calcium gated		
+
+	gNasoma=3.7860265 
+	gNadend=0.25918894  
+	gKvA=5.2203905e-06
+	kdrf=0.15514516
+	kdrfdend = 0.0021817289
+	gleak=8.470825e-05
+	gCavL=0.056108352
+	gCavN=0.00058169587
+	gKvCaB=1.0235317e-06 
+	gKCaS=4.5152237e-07  
+	myRa = 14 //75
+	CM = 1.8 //1.8
+	offset1=20
+	offset2=20
+	offset3=13.5816 
+	offset4=13.35371
+	slope1=0.68266
+	slope2=0.56966
+	slope3=1.18592
+	slope4=49.4896
+	offset5=9
+	offset6=9
+	slope5=.07
+	slope6=.264
 }
 
 proc insert_mechs() {
 
 	forsec all {
 		insert iconc_CaZ
-						
-		
-		insert ch_KvA
-		gmax_ch_KvA = gKvA		// A-type K+ conductance
-		
-		insert ch_CavNZ  			// N-type Ca2+ conductance
-		gmax_ch_CavNZ = gCavN
-		
-		insert ch_CavLZ 
-		gmax_ch_CavLZ = gCavL
-		
+			catau_iconc_CaZ = 10
+			caiinf_iconc_CaZ = 5.e-6
+		insert ch_KvAngf
+	gmax_ch_KvAngf = gKvA
+		insert ch_CavN  // HAV-N- Ca channel
+	gmax_ch_CavN =   gCavN
+		insert ch_CavL 
+	gmax_ch_CavL=gCavL
 		insert ch_KCaS
-		gmax_ch_KCaS = gKCaS
-		
+	gmax_ch_KCaS=gKCaS
 		insert ch_KvCaB
-		gmax_ch_KvCaB = gKvCaB
-
-		insert ch_HCN
-		gmax_ch_HCN=gHCN
-		
-		Ra = RaSoma
+	gmax_ch_KvCaB =gKvCaB
+	cm=CM
 	} 
 
 	soma {
-		insert ch_Nav	
-		gmax_ch_Nav = gNav
-		ena = enaval
-		insert ch_Kdrfast
-		gmax_ch_Kdrfast = gKdr
-		insert ch_Kv3p1bJonas
-		gmax_ch_Kv3p1bJonas = gKJonas
-		
-		insert ch_leak
-		gmax_ch_leak = 1/RmSoma
-		cm=CmSoma
+	insert ch_Navngf
+	gmax_ch_Navngf=gNasoma //0.10*gna_scale
+	offset1_ch_Navngf=offset1
+	offset2_ch_Navngf=offset2
+	offset3_ch_Navngf=offset3
+	offset4_ch_Navngf=offset4
+	slope1_ch_Navngf=slope1
+	slope2_ch_Navngf=slope2
+	slope3_ch_Navngf=slope3
+	slope4_ch_Navngf=slope4
+	ena = 55 
+		insert ch_Kdrfastngf
+	gmax_ch_Kdrfastngf=kdrf 
+	offset5_ch_Kdrfastngf=offset5 
+	offset6_ch_Kdrfastngf=offset6 
+	slope6_ch_Kdrfastngf=slope6 
+	slope5_ch_Kdrfastngf=slope5	
+//		insert ch_Kdrslow
+//	gmax_ch_Kdrslow=kdrf 
+	
+	insert ch_leak
+	gmax_ch_leak = gleak
 	} 
 
 	access soma
 	distance()
 	forsec dendrite_list {
-		insert ch_leak
-		gmax_ch_leak = 1/RmDend
-		cm=CmDend
-		
 		for (x,0) {
 			if (distance(x)<100) {
-				insert ch_Nav
-				gmax_ch_Nav=gNav*.8
-				ena = enaval
-				insert ch_Kdrfast
-				gmax_ch_Kdrfast=gKdr*10
-				insert ch_Kv3p1bJonas
-				gmax_ch_Kv3p1bJonas = gKJonas
+			insert ch_Navngf
+			gmax_ch_Navngf=gNadend //0.08*gna_scale
+			offset1_ch_Navngf=offset1
+			offset2_ch_Navngf=offset2
+			offset3_ch_Navngf=offset3
+			offset4_ch_Navngf=offset4
+			slope1_ch_Navngf=slope1
+			slope2_ch_Navngf=slope2
+			slope3_ch_Navngf=slope3
+			slope4_ch_Navngf=slope4
+			ena = 55 
+				insert ch_Kdrfastngf
+			gmax_ch_Kdrfastngf=kdrfdend //.007
+			offset5_ch_Kdrfastngf=offset5 
+			offset6_ch_Kdrfastngf=offset6 
+			slope6_ch_Kdrfastngf=slope6 
+			slope5_ch_Kdrfastngf=slope5	
 			}
 		}
 	}	
+
+	forsec dendrite_list {
+	insert ch_leak
+	gmax_ch_leak = gleak
+	}
 }
 
 proc set_chanparams() {
-	forsec all {
-		ek = ekval
-		eca = ecaval
-		e_ch_leak = eleakval
-		cao_iconc_CaZ = ca_outside
-	}
+	forsec all {Ra=myRa}
+	forsec all {ek=-90  eca=130
+		 e_ch_leak =-60
+	cao_iconc_CaZ=2 
+		//cao_ccanl=2 
+		}  // make catau slower70e-3 	cao=2 cai=50.e-6 
 }
 
 
 	proc connect_pre() {  // $o1 target point process, $o2 returned NetCon
 	soma $o2 = new NetCon (&v(1), $o1)
-			$o2.threshold = -10
+			$o2.threshold = -15
 
 	}
 
@@ -342,9 +381,10 @@ proc get_root() {local i localobj sref
 }
 
 objref syn  
-proc define_synapses() {local i localobj f2, f3
-
-
+proc define_synapses() {
+	{celltype = 0}
+	{i = 0}
+	{findme = 0}
+	{xopen("../synapses/syn_ngfcell.hoc")}
 }
-
-endtemplate scacell
+endtemplate ngfcell

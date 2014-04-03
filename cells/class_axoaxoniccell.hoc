@@ -1,16 +1,20 @@
-begintemplate cckcell
-public init, connect_sections, size_sections, append_sections
+begintemplate axoaxoniccell
+public init, connect_sections, size_sections, append_sections, define_synapses
 public mechinit, insert_mechs, set_biophys, get_root
 public  pre_list, connect_pre, is_art, is_connected, gid, randi
 public soma, dend
 public all, basal_list, apical_list, soma_list, axon_list, dendrite_list
-public x, y, z, position, myroot
+public x, y, z, position, myroot, myrootsec
 
 // strings
 strdef myroot
 
+public mystring
+strdef mystring
+
+
 // objects
-objref syn, pre_list, templist, rootlist
+objref syn, pre_list, templist, rootlist, myrootsec
 
 // external variables
 external numCellTypes, cellType
@@ -21,6 +25,7 @@ create soma[1], dend[16]
 proc init() {
 	gid = $1
 	randi = $2
+	mystring="hello word"
 	
 	// morphology
 	connect_sections()	// local fcn: connect soma, dendrites, axon initial segment
@@ -34,10 +39,12 @@ proc init() {
 	mechinit()			// local fcn: set values for max conductances and reversal potentials of ion channels and other ephys parameters that are subject to fitting
 	insert_mechs()		// local fcn: insert ion channels and actually set values determined in the mechinit fcn
 	set_chanparams()	// local fcn: after all channels have been inserted, then their other parameters can be set	
+
 	// synapses
-	pre_list = new List() // define a list for the presynaptic connections
-	define_synapses()	// local fcn: define all possible synaptic connections received by this cell
+	pre_list = new List() // define a list for the presynaptic connections	
+	define_synapses()
 }
+
 
 proc connect_sections() { local i
  	connect dend[0](0), soma(1)
@@ -187,22 +194,22 @@ proc set_nseg() {
 proc mechinit() {
 
 	// resting membrane potential. Must lie between Na+ and K+ reversal potentials
-	Vrest=-60
+	Vrest=-65
 	
 	// Temperature of simulation
 	celsius = 34.0  
 
 	// Membrane resistance in ohm*cm2
-	RmDend = 20000 //1/0.00018 
-	RmSoma = 20000 //1/0.00018 
+	RmDend = 5555 //1/0.00018 
+	RmSoma = 5555 //1/0.00018 
 
 	// Membrane capacitance in uF/cm2
-	CmSoma= 1.8
-	CmDend = 1.8
+	CmSoma= 1.4
+	CmDend = 1.4
 
 	// Axial resistance in ohm*cm
-	RaDend= 75
-	RaSoma= 75	
+	RaDend= 100
+	RaSoma= 100	
 	
 	// Calcium concentrations in mM
 	ca_outside = 2
@@ -212,7 +219,7 @@ proc mechinit() {
 	// reversal potentials in mV
 	ekval = -90	
 	enaval = 55
-	eHCNval = -40
+	eHCNval = -30
 	ecaval = 8.314*(273.15+celsius)/(2*9.649e4)*log(ca_outside/ca_inside)*1000 // about 170, otherwise set to 130
 	
 	if (Vrest<ekval) Vrest=ekval // Cell cannot rest lower than K+ reversal potential
@@ -220,21 +227,25 @@ proc mechinit() {
 	eleakval = Vrest
 
 	// max ion channel conductances in mho/cm2
-	gNav     = 0.075 // soma: // 0.12 //original 0.030 to .055 ; lm: //0.5  	//original 0.015
-	gKdr     = 0.010    // Delayed rectifier potassium
-	gKJonas  = 0.005 //0.1465/1
-	gKvA 	 = 0.0005 // Proximal A-type potassium
-	gHCN     = 0.0015 // HCN (hyperpolarization-activated cyclic nucleotide-gated channel)
+	gNav     = 0.15 // soma: // 0.12 //original 0.030 to .055 ; lm: //0.5  	//original 0.015
+	gKdr     = 0.013    // Delayed rectifier potassium
+	gKJonas  = 0 //0.1465/1
+	gKvA 	 = 0.00015 // Proximal A-type potassium
+	gHCN     = 0.00002 // HCN (hyperpolarization-activated cyclic nucleotide-gated channel)
 	gCavN    = 0.0008 //   T-type calcium
-	gCavL    = 0.005*20 //  L-type calcium
-	gKvCaB	 = 0.00001 // Big potassium channel: voltage and calcium gated 
-	gKCaS	 = 0.000001 //  Small potassium channel: calcium gated		
+	gCavL    = 0.005 //  L-type calcium
+	gKvCaB	 = 0.0000002 // Big potassium channel: voltage and calcium gated 
+	gKCaS	 = 0.000002 //  Small potassium channel: calcium gated		
 }
 
 proc insert_mechs() {
 
 	forsec all {
-		insert iconc_CaZ
+		insert buff_Ca // It doesn't seem to make a difference whether
+						// this buffering mechanism is present or absent
+						// not sure why - maybe i am missing some parameter
+						// Also, I set the Ca channels ions to Ca2+ only,
+						// and somehow the cell still looks the same as before
 						
 		
 		insert ch_KvA
@@ -252,49 +263,34 @@ proc insert_mechs() {
 		insert ch_KvCaB
 		gmax_ch_KvCaB = gKvCaB
 
-		insert ch_HCN
-		gmax_ch_HCN=gHCN
-		
 		Ra = RaSoma
 	} 
 
 	soma {
 		insert ch_Nav	
 		gmax_ch_Nav = gNav
-		ena = enaval
 		insert ch_Kdrfast
 		gmax_ch_Kdrfast = gKdr
-		insert ch_Kv3p1bJonas
-		gmax_ch_Kv3p1bJonas = gKJonas
 		
 		insert ch_leak
 		gmax_ch_leak = 1/RmSoma
 		cm=CmSoma
 	} 
 
-	access soma
-	distance()
 	forsec dendrite_list {
+		insert ch_Nav	
+		gmax_ch_Nav = gNav		
+		insert ch_Kdrfast
+		gmax_ch_Kdrfast = gKdr
 		insert ch_leak
 		gmax_ch_leak = 1/RmDend
 		cm=CmDend
-		
-		for (x,0) {
-			if (distance(x)<100) {
-				insert ch_Nav
-				gmax_ch_Nav=gNav*.8
-				ena = enaval
-				insert ch_Kdrfast
-				gmax_ch_Kdrfast=gKdr*10
-				insert ch_Kv3p1bJonas
-				gmax_ch_Kv3p1bJonas = gKJonas
-			}
-		}
 	}	
 }
 
 proc set_chanparams() {
 	forsec all {
+		ena = enaval
 		ek = ekval
 		eca = ecaval
 		e_ch_leak = eleakval
@@ -340,11 +336,10 @@ proc get_root() {local i localobj sref
 		print "WARNING: cell ", gid, " has ", i, " root sections!"
 	}
 }
-
-objref syn  
-proc define_synapses() {local i localobj f2, f3
-
-
+proc define_synapses() {
+	{celltype = 0}
+	{i = 0}
+	{findme = 0}
+	{xopen("../synapses/syn_axoaxoniccell.hoc")}
 }
-
-endtemplate cckcell
+endtemplate axoaxoniccell

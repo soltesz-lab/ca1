@@ -98,9 +98,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			conns2make.fastconn(params, postcellgids)		
 			sprint(memstr, "Defined %s to %s conns", $s3, $s4)
 			zzz = mallinfo(zzz, memstr)
-
 			newhighindex = newhighindex + int(conns2make.x[1]/1)+1
-			//print "host ", pc.id, " makes ", params.x[2], " conns from ", $s3, " to ", params.x[3], " ", $s4, " cells (connlength=", connlength, "), conns2make=", conns2make.x[0]
 			
 			for r=1, int(conns2make.x[0]/1) {
 				if (pc.gid_exists(conns2make.x[r+1+connlength])) {
@@ -119,7 +117,6 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 							}
 							nc_append(conns2make.x[r+1], conns2make.x[r+1+connlength], precellType, randSynNumber, synWeight + (conns2make.x[r+1]+1)*1000, conDelay)	// Make the connection  // the latter part is for tracing the big bug, used by exp2sid mech (it will take away this extra part)
 						}
-						//{print "pre ", $s3, ", gid ", conns2make.x[r], ", syn ", randSynNumber, ", wgt ", synWeight*numSyns}
 						counter +=1
 					}
 				} else {

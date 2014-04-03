@@ -9,6 +9,10 @@ public x, y, z, position, myroot
 // strings
 strdef myroot
 
+public mystring
+strdef mystring
+
+
 // objects
 objref syn, pre_list, templist, rootlist
 
@@ -22,7 +26,8 @@ create soma[1], dend[16]
 proc init() {
 	gid = $1
 	randi = $2
-	
+	mystring="hello word"
+
 	// morphology
 	connect_sections()	// local fcn: connect soma, dendrites, axon initial segment
 	size_sections()		// local fcn: set the size dimensions of each section
@@ -39,7 +44,6 @@ proc init() {
 	// synapses
 	pre_list = new List() // define a list for the presynaptic connections	
 	define_synapses()
-	//xopen("./cells/synapses_axoaxoniccell.hoc")
 }
 
 proc connect_sections() { local i
@@ -333,11 +337,10 @@ proc get_root() {local i localobj sref
 	}
 }
 
-
-
-proc define_synapses() {local i localobj f2, f3
-
-
+proc define_synapses() {
+//strdef mystr
+	print mystring
+	xopen("../cells/tmp_axoaxoniccell.hoc")
 }
 
 endtemplate axoaxoniccell

@@ -331,8 +331,11 @@ proc get_root() {local i localobj sref
 	}
 }
 
-objref syn  
-proc define_synapses() {local i localobj f2, f3
-
+objref syn
+proc define_synapses() {
+	{celltype = 0}
+	{i = 0}
+	{findme = 0}
+	{xopen("../synapses/syn_mousePVBcell.hoc")}
 }
 endtemplate mousePVBcell
