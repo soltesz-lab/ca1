@@ -335,6 +335,6 @@ proc define_synapses() {
 	{celltype = 0}
 	{i = 0}
 	{findme = 0}
-	{xopen("../synapses/syn_pvbasketcell.hoc")}
+	{xopen("../cells/synapses/syn_pvbasketcell.hoc")}
 }
 endtemplate pvbasketcell

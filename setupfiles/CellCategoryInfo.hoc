@@ -57,7 +57,7 @@ begintemplate CellCategoryInfo			// Define a template that describes
 		dist = new Vector(3)		// Define a new vector, dist, which holds
 									//  the constants
 		
-		sprint(tempString,"../cells/dist_%s.hoc",cellType_string)	//Specify file
+		sprint(tempString,"../cells/axondists/dist_%s.hoc",cellType_string)	//Specify file
 		
 		f1.ropen(tempString)		// Open the file
 		

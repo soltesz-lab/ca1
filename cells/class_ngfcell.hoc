@@ -385,6 +385,6 @@ proc define_synapses() {
 	{celltype = 0}
 	{i = 0}
 	{findme = 0}
-	{xopen("../synapses/syn_ngfcell.hoc")}
+	{xopen("../cells/synapses/syn_ngfcell.hoc")}
 }
 endtemplate ngfcell

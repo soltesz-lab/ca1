@@ -707,6 +707,6 @@ proc define_synapses() {
 	{celltype = 0}
 	{i = 0}
 	{findme = 0}
-	{xopen("../synapses/syn_pyramidalcell.hoc")}
+	{xopen("../cells/synapses/syn_pyramidalcell.hoc")}
 }
 endtemplate poolosyncell
