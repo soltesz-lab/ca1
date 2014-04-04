@@ -40,6 +40,7 @@ celsius=34
 
 {load_file("./setupfiles/load_cell_conns.hoc")}	// Load in the cell connectivity info
 
+objref fAll, fSyn
 
 strdef tempFileStr						// Define a string reference to store the name of the
 										//  current cell template file

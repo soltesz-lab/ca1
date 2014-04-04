@@ -9,17 +9,13 @@ public x, y, z, position, myroot, myrootsec
 // strings
 strdef myroot
 
-public mystring
-strdef mystring
-
 // objects
 objref syn, pre_list, templist, rootlist, myrootsec
 
 // external variables
-external numCellTypes, cellType
+external numCellTypes, cellType, fAll, fSyn
 
 create soma[1], dend[16]
-
 
 proc init() {
 	gid = $1
@@ -187,8 +183,6 @@ proc set_nseg() {
   	forsec all { nseg = int((L/(0.1*lambda_f(100))+.9)/2)*2 + 1  }
 }
 
-
-/**/
 proc mechinit() {
 
 	// resting membrane potential. Must lie between Na+ and K+ reversal potentials
@@ -337,6 +331,8 @@ proc get_root() {local i localobj sref
 proc define_synapses() {
 	{celltype = 0}
 	{i = 0}
+	{i_st = 0}
+	{i_en = 0}
 	{findme = 0}
 	{xopen("../cells/synapses/syn_axoaxoniccell.hoc")}
 }

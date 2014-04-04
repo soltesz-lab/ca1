@@ -17,7 +17,7 @@ strdef myroot
 objref syn, pre_list, templist, rootlist
 
 // external variables
-external numCellTypes, cellType
+external numCellTypes, cellType, fAll, fSyn
 
 // create the sections[segments]
 create soma[8], dendrite[52], axon[5]
@@ -1539,6 +1539,8 @@ objref syn
 proc define_synapses() {
 	{celltype = 0}
 	{i = 0}
+	{i_st = 0}
+	{i_en = 0}
 	{findme = 0}
 	{xopen("../cells/synapses/syn_olmcell.hoc")}
 }

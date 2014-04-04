@@ -17,7 +17,7 @@ strdef mystring
 objref syn, pre_list, templist, rootlist
 
 // external variables
-external numCellTypes, cellType
+external numCellTypes, cellType, fAll, fSyn
 
 create soma[1], dend[16]
 
