@@ -12,7 +12,6 @@ strdef myroot
 public mystring
 strdef mystring
 
-
 // objects
 objref syn, pre_list, templist, rootlist, myrootsec
 
@@ -25,7 +24,6 @@ create soma[1], dend[16]
 proc init() {
 	gid = $1
 	randi = $2
-	mystring="hello word"
 	
 	// morphology
 	connect_sections()	// local fcn: connect soma, dendrites, axon initial segment
@@ -190,7 +188,7 @@ proc set_nseg() {
 }
 
 
-
+/**/
 proc mechinit() {
 
 	// resting membrane potential. Must lie between Na+ and K+ reversal potentials
@@ -297,7 +295,7 @@ proc set_chanparams() {
 		cao_iconc_CaZ = ca_outside
 	}
 }
-
+/**/
 
 	proc connect_pre() {  // $o1 target point process, $o2 returned NetCon
 	soma $o2 = new NetCon (&v(1), $o1)

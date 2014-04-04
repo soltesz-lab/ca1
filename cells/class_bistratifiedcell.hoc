@@ -335,7 +335,7 @@ proc define_synapses() {
 	{celltype = 0}
 	{i = 0}
 	{findme = 0}
-	{xopen("../synapses/syn_bistratifiedcell.hoc")}
+	{xopen("../cells/synapses/syn_bistratifiedcell.hoc")}
 }
 
 endtemplate bistratifiedcell
