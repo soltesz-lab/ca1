@@ -200,7 +200,6 @@ if (pc.id==0) {
 
 strdef direx1, direx2, TopProc, TopCommand
 
-TopProc = ""
 func mallinfo() {local m // this function is a wrapper for the system function mallinfo
         m = nrn_mallinfo(0)
         if (pc.id == 0) {

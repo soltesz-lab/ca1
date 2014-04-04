@@ -39,3 +39,10 @@ default_var("AxConVel",0)		// Axonal conduction delay in um/ms, usually 250-500
 default_var("StepBy",100)		// Number of ms to run at a time
 default_var("JobHours",4)		// Number of hours to let the run go for
 default_var("EstWriteTime",660)		// Number of seconds to save for the run to write out its results
+default_var("somaK",1)		// Amount of Kdrfast current to apply to soma and prox dend
+default_var("axonK",1)		// Amount of Kdrfast current to apply to axon
+default_var("gKJ",0.0732)		// Max conductance of Jonas channel
+default_var("primetime",10)		// How many ms ahead of the ripple stim the prepulse occurs
+default_var("Jitter",.2)		// Fraction of noise associated with jitterburst stimulation.
+default_var("myConDelay",1.2)		// Axonal conduction delay
+default_var("TopProc","")		// NEURON process name in the top command
