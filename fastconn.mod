@@ -89,36 +89,9 @@ extern void* vector_arg();
 ENDVERBATIM
 
 VERBATIM
-
-static double get_x_pos (int gid, int gmin, int BinNumX, int BinNumYZ, int binSizeX) {
-	double pos;
-	int CellNum, tmp;
-	CellNum=gid - gmin+1;
-	tmp = floor((CellNum-1)/BinNumYZ);
-	pos =  (tmp%BinNumX)*binSizeX+binSizeX/2.0;
-	return pos;
-}
-
-static double get_y_pos (int gid, int gmin, int BinNumY, int BinNumZ, int binSizeY) {
-	double pos;
-	int CellNum, tmp;
-	CellNum=gid - gmin+1;
-	tmp = floor((CellNum-1)/BinNumZ);
-	pos =  (tmp%BinNumY)*binSizeY+binSizeY/2.0;
-	return pos;
-}
-
-static double get_z_pos (int gid, int gmin, int BinNumZ, int binSizeZ, int ZHeight) {
-	double pos;
-	int CellNum;
-	CellNum=gid - gmin+1;
-	pos = ((CellNum-1)%BinNumZ)*binSizeZ+binSizeZ/2+ZHeight;
-	return pos;
-}
-
 static int fastconn (void* vv) {
-  int finalconn, ny, nz, num_pre, num_post, gmin, gmax, steps, myflaggy, myi, postgmin, stepover;
-  double *x, *y, *z, a, b, c, nconv, ncell, axonal_extent;
+  int finalconn, num_pre, num_post, gmin, gmax, steps, myflaggy, myi, postgmin, stepover;
+  double *x, *y, ny, nz, *z, a, b, c, nconv, ncell, axonal_extent;
 
 	/* Get hoc vectors into c arrays */
 	finalconn = vector_instance_px(vv, &x); // x is an array corresponding
@@ -143,6 +116,12 @@ static int fastconn (void* vv) {
 	c = y[9];		// distribution fit coefficient c
 	postgmin = y[24];	// postsynaptic start gid
 	stepover = y[26];	// postsynaptic start gid
+	
+	/*int myc;
+	for (myc=0; myc<ncell; myc++) {
+		printf("***z[cell]=%f\n",z[myc]);
+	}*/
+	
 
 	myi=2;	// myi will give the next index into finalconn
 			// 0 is reserved for # conns to make
@@ -151,18 +130,23 @@ static int fastconn (void* vv) {
 	/* Get positions of the presynaptic and postsynaptic cells*/
 	double prepos [num_pre][3];
 	double postpos [num_post][3];
-	int cell;
-
+	int cell, gid;
+	//printf("PRESYNAPTIC\n");
 	for (cell=0; cell<num_pre; cell++) {
 		prepos [cell] [0] = get_x_pos(cell+gmin, gmin, y[10], y[11]*y[12], y[13]);
 		prepos [cell] [1] = get_y_pos(cell+gmin, gmin, y[11], y[12], y[14]);
 		prepos [cell] [2] = get_z_pos(cell+gmin, gmin, y[12], y[15], y[16]);
 	}
+	//printf("POSTSYNAPTIC\n");
 
 	for (cell=0; cell<num_post; cell++) {
-		postpos [cell] [0] = get_x_pos(z[cell], postgmin, y[17], y[18]*y[19], y[20]);
-		postpos [cell] [1] = get_y_pos(z[cell], postgmin, y[18], y[19], y[21]);
-		postpos [cell] [2] = get_z_pos(z[cell], postgmin, y[19], y[22], y[23]);
+		//gid = z[cell];
+		postpos [cell] [0] = get_x_pos(z[cell], y[24], y[17], y[18]*y[19], y[20]);
+		postpos [cell] [1] = get_y_pos(z[cell], y[24], y[18], y[19], y[21]);
+		postpos [cell] [2] = get_z_pos(z[cell], y[24], y[19], y[22], y[23]);
+		//printf("postpos [cell=?] [0] = get_x_pos(z[cell]=?, postgmin=?, y[17]=%f, y[18]=%f*y[19]=%f)\n", y[17], y[18], y[19]); //, y[18]=%f*y[19]=%f, y[20]=%f // , y[20]
+		//printf("postpos [cell=%d] [0] = get_x_pos(z[cell]=%f)\n", cell, z[cell]); //, y[18]=%f*y[19]=%f, y[20]=%f // , y[20]
+		//printf("gid: %d, x=%f, y=%f, z=%f\n", postgmin+cell, postpos [cell] [0], postpos [cell] [1], postpos [cell] [2]);
 	}
 
 	/* calculate the distribution of desired connections*/   

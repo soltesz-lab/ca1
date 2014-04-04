@@ -14,7 +14,8 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			postcellgids = new Vector(numpost)
 			
 			for r=0, numpost-1 {
-				postcellgids.x[r] = cellType[j].CellList[r].gid
+				postcellgids.x[r] = cellType[j].CellList[r].gid*1.0
+				//print "*gid = ", postcellgids.x[r]
 			}
 			newhighindex = 1+RandomSeedsConn	
 			for i = 0, numCellTypes-1 {	
@@ -72,19 +73,22 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			params.x[7]= cellType[precellType].dist.x[0] //a in the Gaussian fit // 5, .001, 30
 			params.x[8]= cellType[precellType].dist.x[1] //b in the Gaussian fit
 			params.x[9]= cellType[precellType].dist.x[2] //c in the Gaussian fit
-			params.x[10]= cellType[precellType].dentateXBins
-			params.x[11]= cellType[precellType].dentateYBins
-			params.x[12]= cellType[precellType].dentateZBins
+			params.x[10]= cellType[precellType].dentateXBins*1.0
+			params.x[11]= cellType[precellType].dentateYBins*1.0
+			params.x[12]= cellType[precellType].dentateZBins*1.0
 			params.x[13]= cellType[precellType].dentateXBinSize
 			params.x[14]= cellType[precellType].dentateYBinSize
 			params.x[15]= cellType[precellType].dentateZBinSize
 			addheight = 0
 			if (cellType[precellType].layerflag>0) {addheight=LayerVector.sum(0,cellType[precellType].layerflag-1)}
 			params.x[16]= addheight
-
-			params.x[17]= cellType[postcellType].dentateXBins
-			params.x[18]= cellType[postcellType].dentateYBins
-			params.x[19]= cellType[postcellType].dentateZBins
+			//print "cellType[postcellType].dentateXBins*1.0 = ", cellType[postcellType].dentateXBins*1.0
+			//print "cellType[postcellType].dentateYBins*1.0 = ", cellType[postcellType].dentateYBins*1.0
+			//print "cellType[postcellType].dentateZBins*1.0 = ", cellType[postcellType].dentateZBins*1.0
+			//print "cellType[postcellType].dentateXBinSize = ", cellType[postcellType].dentateXBinSize
+			params.x[17]= cellType[postcellType].dentateXBins*1.0
+			params.x[18]= cellType[postcellType].dentateYBins*1.0
+			params.x[19]= cellType[postcellType].dentateZBins*1.0
 			params.x[20]= cellType[postcellType].dentateXBinSize
 			params.x[21]= cellType[postcellType].dentateYBinSize
 			params.x[22]= cellType[postcellType].dentateZBinSize

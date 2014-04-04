@@ -4,10 +4,11 @@ NEURON {
 
 
 FUNCTION get_x_pos(gid, gmin, BinNumX, BinNumYZ, binSizeX) {
-	LOCAL CellNum, tmp, pos
+	LOCAL CellNum, tmp
 	CellNum=gid - gmin+1
 	tmp = floor((CellNum-1)/BinNumYZ)
 	get_x_pos =  fmod(tmp,BinNumX)*binSizeX+binSizeX/2.0
+	:printf("---get_x_pos=%f\n", get_x_pos)
 }
 
 FUNCTION get_y_pos(gid, gmin, BinNumY, BinNumZ, binSizeY) {
