@@ -224,7 +224,7 @@ cells = new List()
 ransynlist = new List()
 ranstimlist = new List()
 
-{load_file("./setupfiles/position_functions.hoc")}	// Defines the algorithm used to set the
+//{load_file("./setupfiles/position_functions.hoc")}	// Defines the algorithm used to set the
 													//  positions of the cells
 													
 {load_file("./setupfiles/create_cells_pos.hoc")}	// Creates each cell on its assigned host
