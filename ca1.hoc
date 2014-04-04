@@ -198,7 +198,9 @@ if (pc.id==0) {
 	{topfile.wopen()}
 }
 
-strdef direx1, direx2
+strdef direx1, direx2, TopProc, TopCommand
+
+TopProc = ""
 func mallinfo() {local m // this function is a wrapper for the system function mallinfo
         m = nrn_mallinfo(0)
         if (pc.id == 0) {
@@ -206,7 +208,11 @@ func mallinfo() {local m // this function is a wrapper for the system function m
 			if (PrintTerminal>2) {printf("Memory (host 0) - %s: %ld.  Since last call: %ld\n", $s2, m, m - $1)}
 			memfile.printf("%s\t%f\t%ld\t%ld\n", $s2, startsw()-loadstart, m, m - $1)	// Print the spike time and spiking cell gid
 			
-			system("top -p `pgrep special | head -n20 | tr \"\\n\" \",\" | sed 's/,$//'` -n1 -b | tail -n2 | head -n1",direx1)
+			
+			sprint(TopCommand,"top -p `pgrep %s | head -n20 | tr \"\\n\" \",\" | sed 's/,$//'` -n1 -b | tail -n2 | head -n1", TopProc)
+			//print "TopCommand = ", TopCommand
+			if (strcmp(TopProc,"")!=0) { system(TopCommand)}
+			//system("top -p `pgrep special | head -n20 | tr \"\\n\" \",\" | sed 's/,$//'` -n1 -b | tail -n2 | head -n1",direx1)
 			//system("top -p `pgrep nrniv | head -n20 | tr \"\\n\" \",\" | sed 's/,$//'` -n1 -b | tail -n2 | head -n1",direx2)
 			//if (strcmp(direx1,direx2)<0) {
 			//	topfile.printf("%s\t%s\n", $s2, direx2)	// Print the spike time and spiking cell gid

@@ -2,10 +2,9 @@ proc createCells(){ local i, ij, si, pci, cellind, runresult, gid	// Create cell
 	for cellind=0, numCellTypes-1 {																		//	number stream have already been used
 		for pcitr(&i, &ij, &gid, cellType[cellind].cellStartGid, cellType[cellind].cellEndGid) {// use the pciter over all cells of this type
 			if (pc.gid_exists(gid)) {
-				sprint(cmd, "cellType[%g].CellList[%g]=new %s(%g,%g)", cellind, ij, cellType[cellind].technicalType, gid, i) //+cellType[cellind].cellStartGid) // why add the startgid to the gid? 
-				{runresult=execute1(cmd)} 		// This command was written as a string so
+				sprint(cmd, "{cellType[%g].CellList[%g]=new %s(%g,%g)}", cellind, ij, cellType[cellind].technicalType, gid, i) //+cellType[cellind].cellStartGid) // why add the startgid to the gid? 
+				{runresult=execute(cmd)} //prints a zero!		// This command was written as a string so
 												//	the cell object doesn't have to be hard coded
-												
 				cells.append(cellType[cellind].CellList[ij])	// Append each cell to cells list
 				cellType[cellind].numThisHost = ij+1 // set number of cells of this type on this host (but add 1 b/c ij is zero based)
 
