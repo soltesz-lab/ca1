@@ -8,20 +8,20 @@ I.  LOAD LIBRARIES
 {load_file("netparmpi.hoc")}			// Contains the template that defines the properties of
 										//  the ParallelNetManager class, which is used to set
 										//   up a network that runs on parallel processors
-										
-{load_file("../../setupfiles/ranstream.hoc")}	// Contains the template that defines a RandomStream
+chdir("../")										
+{load_file("../setupfiles/ranstream.hoc")}	// Contains the template that defines a RandomStream
 											//  class used to produce random numbers
 											// 	for the cell noise (what type of noise?)
 											
-{load_file("../../setupfiles/CellCategoryInfo.hoc")}	// Contains the template that defines a 
+{load_file("../setupfiles/CellCategoryInfo.hoc")}	// Contains the template that defines a 
 													//  CellCategoryInfo class used to store
 													// 	celltype-specific parameters
 													
-{load_file("../../setupfiles/defaultvar.hoc")}	// Contains the proc definition for default_var proc
+{load_file("../setupfiles/defaultvar.hoc")}	// Contains the proc definition for default_var proc
 
-{load_file("../../setupfiles/parameters.hoc")}	// Loads in operational and model parameters that can
+{load_file("../setupfiles/parameters.hoc")}	// Loads in operational and model parameters that can
 											//  be changed at command line											
-{load_file("../../setupfiles/set_other_parameters.hoc")}// Loads in operational and model parameters
+{load_file("../setupfiles/set_other_parameters.hoc")}// Loads in operational and model parameters
 													//  that can't be changed at command line
 default_var("gidOI", 0) // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
 default_var("cellindOI", 0) // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
@@ -33,23 +33,24 @@ II. SET MODEL SIZE, CELL DEFINITIONS
 ***********************************************************************************************/
 celsius=34
 
-{load_file("../../setupfiles/load_cell_category_info.hoc")}	// Reads the 'cells2include.hoc' file and
+{load_file("../setupfiles/load_cell_category_info.hoc")}	// Reads the 'cells2include.hoc' file and
 														//  loads the information into one
 														//  'CellCategoryInfo' object for each cell
 														//  type (bio or art cells?). Info includes
 														//  number of cells, gid ranges, type name 
 
-{load_file("../../setupfiles/load_cell_conns.hoc")}	// Load in the cell connectivity info
+{load_file("../setupfiles/load_cell_conns.hoc")}	// Load in the cell connectivity info
 
 
 strdef tempFileStr						// Define a string reference to store the name of the
 										//  current cell template file
+objref fAll, fSyn
 
 proc loadCellTemplates(){local i		// Proc to load the template that defines (each) cell class
 
 	for i=0, numCellTypes-1 {			// Iterate over each cell type in cells2include (and art cells?)
 	
-		sprint(tempFileStr,"../../cells/class_%s.hoc",cellType[i].technicalType)	// Concatenate the
+		sprint(tempFileStr,"../cells/class_%s.hoc",cellType[i].technicalType)	// Concatenate the
 																				//  path and file
 																				
 		load_file(tempFileStr)			// Load the file with the template that defines the class
@@ -176,7 +177,7 @@ if (strcmp(UID,"0")==0 && pc.id==0) {
 	UID = direx
 }
 
-//{load_file("../../setupfiles/save_run_info.hoc")}
+//{load_file("../setupfiles/save_run_info.hoc")}
 objref frec
 strdef cmd, dircmd, direx, comper, version, vercomment, vercomment2, mypath, userstr, machname, machnick, outfile, edate, comver
 
@@ -193,7 +194,7 @@ cells = new List()
 ransynlist = new List()
 ranstimlist = new List()
 
-{load_file("../../setupfiles/position_functions.hoc")}	// Defines the algorithm used to set the
+//{load_file("../setupfiles/position_functions.hoc")}	// Defines the algorithm used to set the
 													//  positions of the cells
 i=0
 ij=0
@@ -215,7 +216,7 @@ objref nc
 //2. make as many ppsponts as there are gidvector files													
 //proc createCells(){ local i, ij, si, pci, cellind, runresult, gid, mygid	// Create cells and assign a GID to each cell
 	f2 = new File()
-	sprint(cmdstr, "../../networkclamp_results/%s/gids2make.dat", resultsfolder)
+	sprint(cmdstr, "../networkclamp_results/%s/gids2make.dat", resultsfolder)
 	f2.ropen(cmdstr)		// Open the celltype
 	numGids = f2.scanvar			// Scan the first line, which contains a number giving the
 
@@ -279,9 +280,9 @@ objref nc
 					}
 				}				
 				
-				xpos=xpos_algorithm(gid,cellType[cellind].numCells,cellType[cellind].cellStartGid,cellType[cellind].dentateXBins,cellType[cellind].dentateYBins*cellType[cellind].dentateZBins,cellType[cellind].dentateXBinSize)	// Algorithmically generate cell position
-				ypos=ypos_algorithm(gid,cellType[cellind].numCells,cellType[cellind].cellStartGid,cellType[cellind].dentateYBins,cellType[cellind].dentateZBins,cellType[cellind].dentateYBinSize)	// Algorithmically generate cell position
-				zpos=zpos_algorithm(gid,cellType[cellind].numCells,cellType[cellind].cellStartGid,cellType[cellind].dentateZBins,cellType[cellind].dentateZBinSize,cellType[cellind].layerflag)	// Algorithmically generate cell position
+				xpos=get_x_pos(gid,cellType[cellind].numCells,cellType[cellind].cellStartGid,cellType[cellind].dentateXBins,cellType[cellind].dentateYBins*cellType[cellind].dentateZBins,cellType[cellind].dentateXBinSize)	// Algorithmically generate cell position
+				ypos=get_y_pos(gid,cellType[cellind].numCells,cellType[cellind].cellStartGid,cellType[cellind].dentateYBins,cellType[cellind].dentateZBins,cellType[cellind].dentateYBinSize)	// Algorithmically generate cell position
+				zpos=get_z_pos(gid,cellType[cellind].numCells,cellType[cellind].cellStartGid,cellType[cellind].dentateZBins,cellType[cellind].dentateZBinSize,cellType[cellind].layerflag)	// Algorithmically generate cell position
 				cellType[cellind].CellList[ij].position(xpos,ypos,zpos)									// Record cell position in cell object
 								
 			}
@@ -298,7 +299,7 @@ objref nc
 objref pattern_, tvec_, idvec_
 if (spkflag==1) {
 	f2 = new File()
-	sprint(cmdstr, "../../networkclamp_results/%s/spiketimes2use.dat", resultsfolder)
+	sprint(cmdstr, "../networkclamp_results/%s/spiketimes2use.dat", resultsfolder)
 	f2.ropen(cmdstr)		// Open the celltype
 	numSpikes = f2.scanvar			// Scan the first line, which contains a number giving the
 	tvec_ = new Vector(numSpikes)
@@ -319,10 +320,10 @@ if (spkflag==1) {
 
 //4. Connect them to the cell
 
-{load_file("../../setupfiles/nc_append_functions.hoc")}	// Defines nc_append and nc_appendo, which 
+{load_file("../setupfiles/nc_append_functions.hoc")}	// Defines nc_append and nc_appendo, which 
 
 f2 = new File()
-sprint(cmdstr, "../../networkclamp_results/%s/conns2make.dat", resultsfolder)
+sprint(cmdstr, "../networkclamp_results/%s/conns2make.dat", resultsfolder)
 f2.ropen(cmdstr)		// Open the celltype
 
 counter=0
@@ -479,7 +480,7 @@ print "ran"
 strdef outfile
 objref f
 if (pc.gid_exists(gidOI)) {	// If cell exists on this machine
-	sprint(outfile, "../../networkclamp_results/%s/mytrace_%d_soma.dat", resultsfolder, gidOI)
+	sprint(outfile, "../networkclamp_results/%s/mytrace_%d_soma.dat", resultsfolder, gidOI)
 	f = new File(outfile)
 	f.wopen()
 	f.printf("t\tv\n")
@@ -491,7 +492,7 @@ if (pc.gid_exists(gidOI)) {	// If cell exists on this machine
 print "gonna print spikes"
 proc spikeout() {local i, rank  localobj f				// Write out a spike raster (cell, spike time)
 	pc.barrier()									// Wait for all ranks to get to this point
-	sprint(cmd,"../../networkclamp_results/%s/spikeraster.dat", resultsfolder)
+	sprint(cmd,"../networkclamp_results/%s/spikeraster.dat", resultsfolder)
 	f = new File(cmd)
 	if (pc.id == 0) { 								// Write header to file 1 time only
 		f.wopen()
