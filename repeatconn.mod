@@ -89,6 +89,33 @@ extern void* vector_arg();
 ENDVERBATIM
 
 VERBATIM
+
+static double get_x_pos (int gid, int gmin, int BinNumX, int BinNumYZ, int binSizeX) {
+	double pos;
+	int CellNum, tmp;
+	CellNum=gid - gmin+1;
+	tmp = floor((CellNum-1)/BinNumYZ);
+	pos =  (tmp%BinNumX)*binSizeX+binSizeX/2.0;
+	return pos;
+}
+
+static double get_y_pos (int gid, int gmin, int BinNumY, int BinNumZ, int binSizeY) {
+	double pos;
+	int CellNum, tmp;
+	CellNum=gid - gmin+1;
+	tmp = floor((CellNum-1)/BinNumZ);
+	pos =  (tmp%BinNumY)*binSizeY+binSizeY/2.0;
+	return pos;
+}
+
+static double get_z_pos (int gid, int gmin, int BinNumZ, int binSizeZ, int ZHeight) {
+	double pos;
+	int CellNum;
+	CellNum=gid - gmin+1;
+	pos = ((CellNum-1)%BinNumZ)*binSizeZ+binSizeZ/2+ZHeight;
+	return pos;
+}
+
 static int repeatconn (void* vv) {
   int repeatfinal, ny, nz, num_pre, num_post, gmin, gmax, steps, myflaggy, myi, postgmin, stepover, reuse_conns_from_prev_step;
   double *x, *y, *z, a, b, c, nconv, ncell, axonal_extent;
