@@ -85,11 +85,14 @@ VERBATIM
 extern double* vector_vec();
 extern int vector_capacity();
 extern void* vector_arg();
+extern double get_x_pos(double gid, double gmin, double BinNumX, double BinNumYZ, double binSizeX);
+extern double get_y_pos(double gid, double gmin, double BinNumY, double BinNumZ, double binSizeY);
+extern double get_z_pos(double gid, double gmin, double BinNumZ, double binSizeZ, double ZHeight);
 //void srand(unsigned seed);
 ENDVERBATIM
 
 VERBATIM
-
+/*
 static double get_x_pos (int gid, int gmin, int BinNumX, int BinNumYZ, int binSizeX) {
 	double pos;
 	int CellNum, tmp;
@@ -115,7 +118,7 @@ static double get_z_pos (int gid, int gmin, int BinNumZ, int binSizeZ, int ZHeig
 	pos = ((CellNum-1)%BinNumZ)*binSizeZ+binSizeZ/2+ZHeight;
 	return pos;
 }
-
+*/
 static int repeatconn (void* vv) {
   int repeatfinal, ny, nz, num_pre, num_post, gmin, gmax, steps, myflaggy, myi, postgmin, stepover, reuse_conns_from_prev_step;
   double *x, *y, *z, a, b, c, nconv, ncell, axonal_extent;
