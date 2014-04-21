@@ -22,7 +22,7 @@ default_var("toolpath","/home/casem/matlab/work/RunOrganizer/tools")
 default_var("resultspath","cellclamp_results")
 default_var("sl","/ ")
 
-objref strobj
+objref strobj, fAll, fSyn
 strobj = new StringFunctions()
 sllength = strobj.len(sl)
 strobj.left(sl,sllength-1)
@@ -466,7 +466,8 @@ objref precell
 cells.append(precell)
 {precell.connect_pre(nil, nc)}	// Create an empty connection for use by the spike detector
 {pc.cell(0, nc)}									// Associate the cell with its gid and its spike generation location
-
+chdir("cells/")
+//print "current dir: ", getcwd()
 proc createCells(){ local i, ij, gotil, startat, reli, si, pci, cellind, cnum, runresult, gid	// Create cells and assign a GID to each cell
 	for cellind=0, numCellTypes-1 {
 		if ($1==1) {
@@ -508,6 +509,7 @@ proc createCells(){ local i, ij, gotil, startat, reli, si, pci, cellind, cnum, r
 	if  (PrintTerminal>0) {print "Host ", pc.id, " created cells."}
 }
 createCells(2)
+chdir("../")
 
 objref cell
 if (pc.gid_exists(1)) {
@@ -655,7 +657,58 @@ if (cellmechs==1) {
 	}
 }
 
+objref zz, fcell
+tmp1unused=0
+tmp2unused=1
+
+strdef cmdstr
+
 if (onecell==1) {
+	// single cell props
+	sprint(cmdstr,"%s%s%s%scellproperties.dat", relpath, sl, resultspath, sl)
+	fcell = new File(cmdstr)
+	fcell.wopen()
+	fcell.printf("CellType\tInputResistance\n")
+	for idxes=0, numCellidxes-1 {
+		cellind = mycellvecs.x[idxes]
+		gid=cellType[cellind].cellStartGid
+		if (pc.gid_exists(gid)) {
+			// add recording locations to cell:
+			strdef sname, cmdstr, outfile
+			cell = pc.gid2cell(gid)
+							
+			if (cell.is_art==0) {
+				stdinit()
+				zz = new Impedance() // this little chunk of code modified from Ted & Michael's MRF tutorial
+				sprint(cmdstr,"%s zz.loc(0.5) ", cell.myroot)
+				execute(cmdstr)
+				zz.compute(0)  // DC input R
+				sprint(cmdstr,"%s { rn = zz.input(0.5) }", cell.myroot) // Input resistance in MegaOhms
+				execute(cmdstr)
+				fcell.printf("%s\t%f\n",cellType[cellind].cellType_string, rn)
+			}
+		}
+	}
+	// what else would we like to see? area of cell (and possibly cell parts)
+	// somatic conductance
+	// somatic capacitance: print out the specific cap (cm) at the soma, as well as its area, then compute cap
+	// area: secname for (x,0) print x, area(x)
+	// also take into account the "well-clamped" computed capacitance: http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3273682/ (taylor 2012, J comput neurosci)
+	// axial resistance:
+	// dendritic conductance:
+	// dendritic capacitance: print out the specific cap (cm) at various locations along the dendrite, as well as its area, then compute cap
+	// time constant: after reaching RMP, 0.15 nA negative current pulse of 100 ms duration. How long does it take to reach 63% of total steady state hyperpolarization? (Isokawa, 1997) http://www.sciencedirect.com/science/article/pii/S1385299X96000165
+	// .15 nA may be too large if Ih is involved, try <40 pA (http://www.jneurosci.org/content/27/46/12440.long) 
+	// specific membrane resistance
+	// keep in mind space clamp issues: http://www.ncbi.nlm.nih.gov/pubmed/18184885
+	// issues to be aware of in measuring tau and cap: http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2775376/
+	
+	// how are these different properties related?
+	
+	fcell.close()
+
+
+
 	// iClamp stuff
 	strdef tempString
 	f2 = new File()
