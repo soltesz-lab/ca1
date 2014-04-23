@@ -98,7 +98,7 @@ proc timeout() {local i, rank, gid, srcid localobj tgt, f, cell// Write out runt
 	}
 }
 
-proc highIndexout() {local i, ij, gid localobj cell
+proc highIndexout() {local i, ij, gid localobj cell, f
 	pc.barrier()					// Wait for all ranks to get to this point
 	sprint(cmd,"./results/%s/MaxHighIndex.txt", RunName)
 	f = new File(cmd)
