@@ -31,7 +31,7 @@ default_var("Offint",0)		// Duration of rest interval between bursts (in ms) whe
 default_var("PercentCellDeath",0)		// Percent of cells that are killed (removed), for cell types flagged for cell death
 default_var("PercentAxonSprouting",0)		// Probability of connection between granule cells, given as a percent of connections to make out of all possible granule cell connections
 default_var("RipStim",200)		// Degree of ripple CA3 stimulation; Higher=more
-default_var("CatFlag",1)		// Whether to concatenate and remove trace connection files
+default_var("CatFlag",0)		// Whether to concatenate and remove trace connection files
 default_var("JobNumber",0)		// Job number assigned by supercomputer
 default_var("RandomSeedsConn",0)		// Starting highIndex used by connectivity streams
 default_var("RandomSeedsStim",0)		// Starting highIndex used by stimulation streams
