@@ -198,7 +198,7 @@ if (pc.id==0) {
 	{topfile.wopen()}
 }
 
-strdef direx1, direx2, TopProc, TopCommand
+strdef direx1, direx2, TopCommand
 
 func mallinfo() {local m // this function is a wrapper for the system function mallinfo
         m = nrn_mallinfo(0)
@@ -210,7 +210,7 @@ func mallinfo() {local m // this function is a wrapper for the system function m
 			
 			sprint(TopCommand,"top -p `pgrep %s | head -n20 | tr \"\\n\" \",\" | sed 's/,$//'` -n1 -b | tail -n2 | head -n1", TopProc)
 			//print "TopCommand = ", TopCommand
-			if (strcmp(TopProc,"")!=0) { system(TopCommand)}
+			if (strcmp(TopProc,"")!=0) { system(TopCommand, direx1)}
 			//system("top -p `pgrep special | head -n20 | tr \"\\n\" \",\" | sed 's/,$//'` -n1 -b | tail -n2 | head -n1",direx1)
 			//system("top -p `pgrep nrniv | head -n20 | tr \"\\n\" \",\" | sed 's/,$//'` -n1 -b | tail -n2 | head -n1",direx2)
 			//if (strcmp(direx1,direx2)<0) {
