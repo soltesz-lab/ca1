@@ -119,7 +119,7 @@ static double get_z_pos (int gid, int gmin, int BinNumZ, int binSizeZ, int ZHeig
 	return pos;
 }
 */
-static int repeatconn (void* vv) {
+static double repeatconn (void* vv) {
   int repeatfinal, ny, nz, num_pre, num_post, gmin, gmax, steps, myflaggy, myi, postgmin, stepover, reuse_conns_from_prev_step;
   double *x, *y, *z, a, b, c, nconv, ncell, axonal_extent;
 
