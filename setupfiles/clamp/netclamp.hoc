@@ -395,7 +395,7 @@ proc init() { local dtsav, temp, secsav, secondordersav	// Redefine the proc tha
 									//  temporarily changing secondorder to run a quick presimulation
 									//  to allow the network to reach steady state before we start
 									//  'recording' its results
-	print "before fini"
+
 	finitialize(v_init)	// Call finitialize from within the custom init proc, just as the default
 						//  init proc does. Note that finitialize will call the INITIAL block for
 						//  all mechanisms and point processes inserted in the sections and set the
@@ -411,7 +411,7 @@ proc init() { local dtsav, temp, secsav, secondordersav	// Redefine the proc tha
 		
 	temp= cvode.active()			// Check whether cvode, a type of solver (?) is on
 	if (temp!=0) {cvode.active(0)}	// If cvode is on, turn it off while running the presimulation
-	print "before fadvanve"														
+
 	while(t<-100) { fadvance() if (PrintTerminal>2) {print t}}	// Run the presimulation from t = -500
 															//  to t = -100 (why not 0?) to let the
 															//  network and all its components reach
@@ -436,7 +436,6 @@ proc init() { local dtsav, temp, secsav, secondordersav	// Redefine the proc tha
 									//   values of the states
 	}
 	frecord_init() // see email from ted - fadvance() increments the recorder, so we need to fix the index it ends up at
-	vrec = fieldrec()
 }
 use_cache_efficient=1
 get_spike_hist=0
@@ -447,11 +446,7 @@ if (use_spike_compression==1) {
 } else {
 	maxstepval = 10
 }														
-
-proc advance() {
-        fadvance()
-		vrec = fieldrec()
-}															
+														
 proc rrun(){									// Run the network simulation and write out the results
 	//pnm.spike_record(gid)
 	//pnm.want_all_spikes() 						// Record all spikes of all cells on this machine into the

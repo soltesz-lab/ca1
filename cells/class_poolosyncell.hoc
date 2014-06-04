@@ -40,6 +40,7 @@ proc init() {
 	connect_sections()// connect soma, dendrites, axon
 	size_sections1()	// set the size dimensions of each section
 	size_sections2()	// set the size dimensions of each section
+	define_shape()
 	
 	// subcellular mechanisms: channels, pumps, transporters
 	insert_mechs() // also contains set_biophys()
@@ -691,6 +692,8 @@ proc get_root() {local i localobj sref
 	rootlist.allroots()
 	i=0
 	forsec all {
+		for(x,0) { if (diam(x) <=0.01) print "small diameter at ", secname(), diam(x) }
+		if (L<=0.001) print "small length at: ", secname(), L
 		sref = new SectionRef()
 		if (sref.has_parent==0) {
 			myroot = secname()
