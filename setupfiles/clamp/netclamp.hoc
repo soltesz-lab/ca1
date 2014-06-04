@@ -343,17 +343,46 @@ for n=0, numConns-1 {
 f2.close()
 
 //5. Add the recorders
-objref mytrace, cell
-print "gonna add recorder"
+vrec = 0  // extracellularly recorded potential
+
+objref mytrace, myvrec, cell
+
 if (pc.gid_exists(gidOI)) {
 	cell = pc.gid2cell(gidOI)
+	print "cell is located at: ", cell.x, ", ", cell.y, ", ", cell.z
 	mytrace = new Vector((tstop-tstart)/dt)
 	mytrace.record(&cell.soma.v(0.5))
+	
+	forsec cell.all {
+		insert extracellular
+		insert xtra
+	}
+
+	myvrec = new Vector((tstop-tstart)/dt)
+	myvrec.record(&lfp_xtra)
 }
-print "added the recorder"
+
+load_file("clamp/interpxyz.hoc")	// only interpolates sections that have extracellular
+load_file("clamp/setpointers.hoc")	// automatically calls grindaway() in interpxyz.hoc
+
 //6. Run the simulation
+
 celsius=34
 
+// https://www.neuron.yale.edu/phpBB/viewtopic.php?f=8&t=3103 goes into how I implemented the LFP recording with psolve
+/*func fieldrec() { local sum, i localobj cell
+	sum = 0
+	cell = pc.gid2cell(gidOI)
+	forsec cell.all {
+		if (ismembrane("xtra")) {
+			// avoid nodes at 0 and 1 ends, which shouldn't make any contribution
+			for (x,0) sum += er_xtra(x)
+		}
+	}
+	return sum
+}*/
+
+load_file("clamp/calcrxc.hoc")	// computes transfer r between segments and recording electrodes
 
 proc init() { local dtsav, temp, secsav, secondordersav	// Redefine the proc that initializes the
 														//  simulation (why?)
@@ -366,7 +395,7 @@ proc init() { local dtsav, temp, secsav, secondordersav	// Redefine the proc tha
 									//  temporarily changing secondorder to run a quick presimulation
 									//  to allow the network to reach steady state before we start
 									//  'recording' its results
-
+	print "before fini"
 	finitialize(v_init)	// Call finitialize from within the custom init proc, just as the default
 						//  init proc does. Note that finitialize will call the INITIAL block for
 						//  all mechanisms and point processes inserted in the sections and set the
@@ -382,7 +411,7 @@ proc init() { local dtsav, temp, secsav, secondordersav	// Redefine the proc tha
 		
 	temp= cvode.active()			// Check whether cvode, a type of solver (?) is on
 	if (temp!=0) {cvode.active(0)}	// If cvode is on, turn it off while running the presimulation
-															
+	print "before fadvanve"														
 	while(t<-100) { fadvance() if (PrintTerminal>2) {print t}}	// Run the presimulation from t = -500
 															//  to t = -100 (why not 0?) to let the
 															//  network and all its components reach
@@ -407,6 +436,7 @@ proc init() { local dtsav, temp, secsav, secondordersav	// Redefine the proc tha
 									//   values of the states
 	}
 	frecord_init() // see email from ted - fadvance() increments the recorder, so we need to fix the index it ends up at
+	vrec = fieldrec()
 }
 use_cache_efficient=1
 get_spike_hist=0
@@ -417,7 +447,11 @@ if (use_spike_compression==1) {
 } else {
 	maxstepval = 10
 }														
-print "set some run options"															
+
+proc advance() {
+        fadvance()
+		vrec = fieldrec()
+}															
 proc rrun(){									// Run the network simulation and write out the results
 	//pnm.spike_record(gid)
 	//pnm.want_all_spikes() 						// Record all spikes of all cells on this machine into the
@@ -429,11 +463,11 @@ proc rrun(){									// Run the network simulation and write out the results
 	if (pc.id==0 && use_spike_compression==1) {print "Host ", pc.id, " has local_minimum_delay=", local_minimum_delay}
 
 
-												
 	stdinit()									// Call the init fcn (which is redefined in this code) and
 												//  then make other standard calls (to stop watch, etc)
 
 	runstart = startsw()							// grab start time of the simulation
+
 	pc.psolve(tstop)							// Equivalent to calling cvode.solve(tstop) but for parallel NEURON;
 												//  solve will be broken into steps determined by the result of
 												//  set_maxstep
@@ -451,7 +485,7 @@ proc rrun(){									// Run the network simulation and write out the results
 		if (pc.id == 0) { printf("no load balance info available\nno spike exchange info available\n")}
 	}
 }
-print "defined run fcn"
+
 {cvode.cache_efficient(use_cache_efficient)} // always double check that this addition does not affect the spikeraster (via pointers in mod files, etc)
 
 if (use_bin_queue==1) {
@@ -473,9 +507,10 @@ if (get_spike_hist==1) {
 		pc.max_histogram(spkhist)
 	}
 }
-print "gonna run"
+
+
 rrun()	// Run the network simulation (in proc rrun)
-print "ran"
+
 //7. Write out the spike times and voltage records
 strdef outfile
 objref f
@@ -488,8 +523,18 @@ if (pc.gid_exists(gidOI)) {	// If cell exists on this machine
 		f.printf("%g\t%g\n", i*dt, mytrace.x[i])
 	}
 	f.close()
+
+	sprint(outfile, "../networkclamp_results/%s/myvrec_%d_soma.dat", resultsfolder, gidOI)
+	f = new File(outfile)
+	f.wopen()
+	f.printf("t\tv\n")
+	for i=0, (tstop-tstart)/dt-1 {
+		f.printf("%g\t%f\n", i*dt, myvrec.x[i])
+	}
+	f.close()
+
 }
-print "gonna print spikes"
+
 proc spikeout() {local i, rank  localobj f				// Write out a spike raster (cell, spike time)
 	pc.barrier()									// Wait for all ranks to get to this point
 	sprint(cmd,"../networkclamp_results/%s/spikeraster.dat", resultsfolder)
