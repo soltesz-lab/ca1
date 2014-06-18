@@ -23,7 +23,7 @@ I.  LOAD LIBRARIES
 {load_file("./setupfiles/defaultvar.hoc")}	// Contains the proc definition for default_var proc
 
 {load_file("./setupfiles/parameters.hoc")}	// Loads in operational and model parameters that can
-											//  be changed at command line							
+											//  be changed at command line											
 
 NumData = 0				
 {load_file("./setupfiles/set_other_parameters.hoc")}// Loads in operational and model parameters
