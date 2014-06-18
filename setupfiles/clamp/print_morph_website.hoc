@@ -492,7 +492,14 @@ for celltype=0, numCellTypes-1 {
 						if (anywhereflag==1) {
 							channame = mname
 							sf.right(channame,3)
-
+							sprint(cmdstr, "grep \"TITLE\" ./%s.mod", mname)
+							{system(cmdstr, description)}
+							if (sf.len(description)>7) {
+								sf.right(description, 6)
+								sf.left(description, sf.len(description)-1)
+							} else {
+							description = "not available"
+							}
 							f.printf("%s,%.0f,%s,%f,%s\n", channame, erev, description, peakvalue, location) // Channel Gmax Erev Location Description
 							
 							g = new PlotShape(cell.all)  // new PlotShape(cell.all)
