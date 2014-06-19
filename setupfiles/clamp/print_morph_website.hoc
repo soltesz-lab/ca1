@@ -176,8 +176,9 @@ ranstimlist = new List()
 V. WRITE OUT MORPH DATA AND IMAGES
 ***********************************************************************************************/
 
-strdef websitepath
+strdef websitepath, websitepathchan
 websitepath="/cygdrive/c/Users/maria_000/Documents/Websites/modelgraphic/cells"
+websitepathchan="/cygdrive/c/Users/maria_000/Documents/Websites/modelgraphic/channels"
 
 numlists=6
 objref mysecs[numlists]
@@ -218,12 +219,13 @@ mysecs[6].s = "proximal_list"
 mysecs[7] = new String()
 mysecs[7].s = "distal_list"
 */
-objref cell, f, ss
+objref cell, f, f2, ss
 reli=0
 typei=0
 jgid=0
 objref g, mt
 strdef mname, tmpstr, cmderevstr, cmdstr, location, description, myname, channame
+
 								
 objref sf
 sf = new StringFunctions()
@@ -447,7 +449,9 @@ for celltype=0, numCellTypes-1 {
 				f = new File()
 				sprint(myfile,"%s/%s/channeltable.txt",websitepath ,cellType[celltype].cellType_string)
 				f.wopen(myfile)
+				
 
+				cell.position(2000,-2000,0)
 				access cell.soma {
 					mt = new MechanismType(0)
 				}
@@ -457,11 +461,26 @@ for celltype=0, numCellTypes-1 {
 					mt.select( i )
 					mt.selected(mname)
 					if (strobj.substr(mname,"ch_")==0) {
+						channame = mname
+						sf.right(channame,3)
+						if (celltype==0) {
+							f2 = new File()
+							sprint(myfile,"%s/%s/celltable.txt",websitepathchan , channame)
+							f2.wopen(myfile)
+						} else {
+							sprint(myfile,"%s/%s/celltable.txt",websitepathchan , channame)
+							f2.aopen(myfile)
+						}
+
 						sprint(tmpstr, "gmax_%s", mname) // "cell.soma.%s(0.5)", tmpstr
 												
 						peakvalue = 0
 						location = ""
 						erev = 0
+						leftmost = 2000
+						rightmost = 2000
+						topmost = -2000
+						bottommost = -2000
 						
 						sprint(cmdstr, "testvalue = gmax_%s(x)", mname)
 						forsec cell.all {
@@ -471,9 +490,15 @@ for celltype=0, numCellTypes-1 {
 							grr = sf.substr(myname, "[")
 							sf.left(myname, grr)
 							
-							if (ismembrane(mname)) {
-								anywhereflag = 1
-								for (x,0) {
+							for (x,0) {
+								if (x3d(x)<leftmost) {leftmost=x3d(x)}
+								if (x3d(x)>rightmost) {rightmost=x3d(x)}
+								if (y3d(x)<bottommost) {bottommost=y3d(x)}
+								if (y3d(x)>topmost) {topmost=y3d(x)}
+								
+								if (ismembrane(mname)) {
+									anywhereflag = 1
+
 									execute(cmdstr)
 									if (testvalue>peakvalue) {
 										peakvalue = testvalue
@@ -490,8 +515,6 @@ for celltype=0, numCellTypes-1 {
 						}
 						
 						if (anywhereflag==1) {
-							channame = mname
-							sf.right(channame,3)
 							sprint(cmdstr, "grep \"TITLE\" ./%s.mod", mname)
 							{system(cmdstr, description)}
 							if (sf.len(description)>7) {
@@ -501,20 +524,20 @@ for celltype=0, numCellTypes-1 {
 							description = "not available"
 							}
 							f.printf("%s,%.0f,%s,%f,%s\n", channame, erev, description, peakvalue, location) // Channel Gmax Erev Location Description
+							f2.printf("%s,%.0f,%s,%f,%s\n", cellType[celltype].cellType_string, erev, description, peakvalue, location) // Cell Gmax Erev Location Description
 							
 							g = new PlotShape(cell.all)  // new PlotShape(cell.all)
 							g.variable(tmpstr)
-							mleft = -200
-							mbottom = -200
-							mwidth = 400
-							mheight = 400
-							sleft = 100
-							top = 100
-							swidth = 200
-							sheight = 200
+							mleft = leftmost
+							mbottom = bottommost
+							mwidth = rightmost - leftmost
+							mheight = topmost - bottommost
+							sleft = 49
+							top = 151
+							swidth = 467
+							sheight = 345
 							//g.size(-199.999,199.999,-147.615,147.615)
-							g.view(-199.999, -147.615, 399.998, 295.23, 49, 151, 467.1, 344.8)
-							//g.view(mleft, mbottom, mwidth, mheight, sleft, top, swidth, sheight)
+							//g.view(-199.999, -147.615, 399.998, 295.23, 49, 151, 467.1, 344.8)
 							// see documentation of Shape.view
 							// to discover the values for your particular cell,
 							// use the GUI to create a Shape plot,
@@ -545,6 +568,8 @@ for celltype=0, numCellTypes-1 {
 							g.colormap(9, 128,  0, 0)
 */
 							g.scale(0,peakvalue)
+							g.size(mleft, mleft+mwidth, mbottom, mbottom+mheight)
+							g.view(mleft, mbottom, mwidth, mheight, sleft, top, swidth, sheight)
 							
 							sprint(cmdstr, "g.printfile(\"%s/%s/%s.ps\")", websitepath, cellType[celltype].cellType_string, channame) // later converted to channame.png
 							execute(cmdstr)
@@ -552,6 +577,7 @@ for celltype=0, numCellTypes-1 {
 						}
 
 						{k = k+1}
+						{f2.close}			
 					} 							
 				}
 				{f.close}			
