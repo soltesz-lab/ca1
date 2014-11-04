@@ -63,29 +63,29 @@ proc connect_sections() { local i
 
 proc size_sections() {
 	soma[0] {pt3dclear()
-		pt3dadd(0, 0, 0, 10) // distance from (0,0,0) = 0
-		pt3dadd(0, 10, 0, 10) // distance from (0,0,0) = 10
+		pt3dadd(0, 10, 0, 10) // distance from (0,0,0) = 0
+		pt3dadd(0, 15, 0, 10) // distance from (0,0,0) = 10
 		pt3dadd(0, 20, 0, 10) // distance from (0,0,0) = 20
 	}
 	dend[0] {pt3dclear()
-		pt3dadd(0, 20, 0, 4) // distance from (0,0,0) = 20
-		pt3dadd(19.4709, 66.053, 0, 4) // distance from (0,0,0) = 68.8631
-		pt3dadd(38.9418, 112.106, 0, 4) // distance from (0,0,0) = 118.677
+		pt3dadd(0, 20, 0, 3.5) // distance from (0,0,0) = 20
+		pt3dadd(19.4709, 66.053, 0, 3.5) // distance from (0,0,0) = 68.8631
+		pt3dadd(38.9418, 112.106, 0, 3.5) // distance from (0,0,0) = 118.677
 	}
 	dend[1] {pt3dclear()
-		pt3dadd(38.9418, 112.106, 0, 3) // distance from (0,0,0) = 118.677
-		pt3dadd(58.4128, 158.159, 0, 3) // distance from (0,0,0) = 168.601
-		pt3dadd(77.8837, 204.212, 0, 3) // distance from (0,0,0) = 218.56
+		pt3dadd(38.9418, 112.106, 0, 2.5) // distance from (0,0,0) = 118.677
+		pt3dadd(58.4128, 158.159, 0, 2.5) // distance from (0,0,0) = 168.601
+		pt3dadd(77.8837, 204.212, 0, 2.5) // distance from (0,0,0) = 218.56
 	}
 	dend[2] {pt3dclear()
-		pt3dadd(77.8837, 204.212, 0, 2) // distance from (0,0,0) = 218.56
-		pt3dadd(116.826, 296.318, 0, 2) // distance from (0,0,0) = 318.516
-		pt3dadd(155.767, 388.424, 0, 2) // distance from (0,0,0) = 418.494
+		pt3dadd(77.8837, 204.212, 0, 1.5) // distance from (0,0,0) = 218.56
+		pt3dadd(116.826, 296.318, 0, 1.5) // distance from (0,0,0) = 318.516
+		pt3dadd(155.767, 388.424, 0, 1.5) // distance from (0,0,0) = 418.494
 	}
 	dend[3] {pt3dclear()
-		pt3dadd(155.767, 388.424, 0, 1.5) // distance from (0,0,0) = 418.494
-		pt3dadd(175.238, 434.477, 0, 1.5) // distance from (0,0,0) = 468.486
-		pt3dadd(194.709, 480.531, 0, 1.5) // distance from (0,0,0) = 518.48
+		pt3dadd(155.767, 388.424, 0, 1.2) // distance from (0,0,0) = 418.494
+		pt3dadd(175.238, 434.477, 0, 1.2) // distance from (0,0,0) = 468.486
+		pt3dadd(194.709, 480.531, 0, 1.2) // distance from (0,0,0) = 518.48
 	}
 	dend[4] {pt3dclear()
 		pt3dadd(194.709, 480.531, 0, 1) // distance from (0,0,0) = 518.48
@@ -94,23 +94,23 @@ proc size_sections() {
 	}
 	dend[5] {pt3dclear()
 		pt3dadd(0, 20, 0, 4) // distance from (0,0,0) = 20
-		pt3dadd(-19.4709, 66.053, 0, 4) // distance from (0,0,0) = 68.8631
-		pt3dadd(-38.9418, 112.106, 0, 4) // distance from (0,0,0) = 118.677
+		pt3dadd(-19.4709, 66.053, 0, 3.5) // distance from (0,0,0) = 68.8631
+		pt3dadd(-38.9418, 112.106, 0, 3.5) // distance from (0,0,0) = 118.677
 	}
 	dend[6] {pt3dclear()
-		pt3dadd(-38.9418, 112.106, 0, 3) // distance from (0,0,0) = 118.677
-		pt3dadd(-58.4128, 158.159, 0, 3) // distance from (0,0,0) = 168.601
-		pt3dadd(-77.8837, 204.212, 0, 3) // distance from (0,0,0) = 218.56
+		pt3dadd(-38.9418, 112.106, 0, 2.5) // distance from (0,0,0) = 118.677
+		pt3dadd(-58.4128, 158.159, 0, 2.5) // distance from (0,0,0) = 168.601
+		pt3dadd(-77.8837, 204.212, 0, 2.5) // distance from (0,0,0) = 218.56
 	}
 	dend[7] {pt3dclear()
-		pt3dadd(-77.8837, 204.212, 0, 2) // distance from (0,0,0) = 218.56
-		pt3dadd(-116.826, 296.318, 0, 2) // distance from (0,0,0) = 318.516
-		pt3dadd(-155.767, 388.424, 0, 2) // distance from (0,0,0) = 418.494
+		pt3dadd(-77.8837, 204.212, 0, 1.5) // distance from (0,0,0) = 218.56
+		pt3dadd(-116.826, 296.318, 0, 1.5) // distance from (0,0,0) = 318.516
+		pt3dadd(-155.767, 388.424, 0, 1.5) // distance from (0,0,0) = 418.494
 	}
 	dend[8] {pt3dclear()
-		pt3dadd(-155.767, 388.424, 0, 1.5) // distance from (0,0,0) = 418.494
-		pt3dadd(-175.238, 434.477, 0, 1.5) // distance from (0,0,0) = 468.486
-		pt3dadd(-194.709, 480.531, 0, 1.5) // distance from (0,0,0) = 518.48
+		pt3dadd(-155.767, 388.424, 0, 1.2) // distance from (0,0,0) = 418.494
+		pt3dadd(-175.238, 434.477, 0, 1.2) // distance from (0,0,0) = 468.486
+		pt3dadd(-194.709, 480.531, 0, 1.2) // distance from (0,0,0) = 518.48
 	}
 	dend[9] {pt3dclear()
 		pt3dadd(-194.709, 480.531, 0, 1) // distance from (0,0,0) = 518.48
@@ -119,13 +119,13 @@ proc size_sections() {
 	}
 	dend[10] {pt3dclear()
 		pt3dadd(0, 0, 0, 2) // distance from (0,0,0) = 0
-		pt3dadd(-19.4709, -46.0531, 0, 2) // distance from (0,0,0) = 50
-		pt3dadd(-38.9418, -92.1061, 0, 2) // distance from (0,0,0) = 100
+		pt3dadd(-19.4709, -46.0531, 0, 1.5) // distance from (0,0,0) = 50
+		pt3dadd(-38.9418, -92.1061, 0, 1.5) // distance from (0,0,0) = 100
 	}
 	dend[11] {pt3dclear()
-		pt3dadd(-38.9418, -92.1061, 0, 1.5) // distance from (0,0,0) = 100
-		pt3dadd(-58.4128, -138.159, 0, 1.5) // distance from (0,0,0) = 150
-		pt3dadd(-77.8837, -184.212, 0, 1.5) // distance from (0,0,0) = 200
+		pt3dadd(-38.9418, -92.1061, 0, 1.2) // distance from (0,0,0) = 100
+		pt3dadd(-58.4128, -138.159, 0, 1.2) // distance from (0,0,0) = 150
+		pt3dadd(-77.8837, -184.212, 0, 1.2) // distance from (0,0,0) = 200
 	}
 	dend[12] {pt3dclear()
 		pt3dadd(-77.8837, -184.212, 0, 1) // distance from (0,0,0) = 200
@@ -134,13 +134,13 @@ proc size_sections() {
 	}
 	dend[13] {pt3dclear()
 		pt3dadd(0, 0, 0, 2) // distance from (0,0,0) = 0
-		pt3dadd(19.4709, -46.053, 0, 2) // distance from (0,0,0) = 50
-		pt3dadd(38.9419, -92.1061, 0, 2) // distance from (0,0,0) = 100
+		pt3dadd(19.4709, -46.053, 0, 1.5) // distance from (0,0,0) = 50
+		pt3dadd(38.9419, -92.1061, 0, 1.5) // distance from (0,0,0) = 100
 	}
 	dend[14] {pt3dclear()
-		pt3dadd(38.9419, -92.1061, 0, 1.5) // distance from (0,0,0) = 100
-		pt3dadd(58.4128, -138.159, 0, 1.5) // distance from (0,0,0) = 150
-		pt3dadd(77.8837, -184.212, 0, 1.5) // distance from (0,0,0) = 200
+		pt3dadd(38.9419, -92.1061, 0, 1.2) // distance from (0,0,0) = 100
+		pt3dadd(58.4128, -138.159, 0, 1.2) // distance from (0,0,0) = 150
+		pt3dadd(77.8837, -184.212, 0, 1.2) // distance from (0,0,0) = 200
 	}
 	dend[15] {pt3dclear()
 		pt3dadd(77.8837, -184.212, 0, 1) // distance from (0,0,0) = 200
@@ -187,22 +187,22 @@ proc set_nseg() {
 proc mechinit() {
 
 	// resting membrane potential. Must lie between Na+ and K+ reversal potentials
-	Vrest=-60
+	Vrest=-55
 	
 	// Temperature of simulation
 	celsius = 34.0  
 
 	// Membrane resistance in ohm*cm2
-	RmDend = 20000 //1/0.00018 
-	RmSoma = 20000 //1/0.00018 
+	RmDend = 100000 // 60000
+	RmSoma = 100000 // 60000 
 
 	// Membrane capacitance in uF/cm2
-	CmSoma= 1.8
-	CmDend = 1.8
+	CmSoma= 1.2 // 1.8
+	CmDend = 1.2 // 1.8
 
 	// Axial resistance in ohm*cm
-	RaDend= 75
-	RaSoma= 75	
+	RaDend= 150 //75*3
+	RaSoma= 150 //75*3	
 	
 	// Calcium concentrations in mM
 	ca_outside = 2
@@ -220,12 +220,12 @@ proc mechinit() {
 	eleakval = Vrest
 
 	// max ion channel conductances in mho/cm2
-	gNav     = 0.075 // soma: // 0.12 //original 0.030 to .055 ; lm: //0.5  	//original 0.015
-	gKdr     = 0.010    // Delayed rectifier potassium
-	gKJonas  = 0.005 //0.1465/1
-	gKvA 	 = 0.0005 // Proximal A-type potassium
-	gHCN     = 0.0015 // HCN (hyperpolarization-activated cyclic nucleotide-gated channel)
-	gCavN    = 0.0008 //   T-type calcium
+	gNav     = 0.060 // soma: // 0.12 //original 0.030 to .055 ; lm: //0.5  	//original 0.015
+	gKdr     = 0.000    // Delayed rectifier potassium
+	gKJonas  = 0.004 //0.1465/1
+	gKvA 	 = 0.0002 // Proximal A-type potassium
+	gHCN     = 0.0010 // HCN (hyperpolarization-activated cyclic nucleotide-gated channel)
+	gCavN    = 0.0008*2 //   T-type calcium
 	gCavL    = 0.005*20 //  L-type calcium
 	gKvCaB	 = 0.00001 // Big potassium channel: voltage and calcium gated 
 	gKCaS	 = 0.000001 //  Small potassium channel: calcium gated		
@@ -344,7 +344,9 @@ proc get_root() {local i localobj sref
 objref syn  
 proc define_synapses() {
 	{celltype = 0}
-	{i = 0}
+    i = 0
+    strdef rootcmdstr
+    sprint(rootcmdstr,"access %s", myroot)
 	{i_st = 0}
 	{i_en = 0}
 	{findme = 0}
