@@ -48,8 +48,10 @@ proc typeout() {local i, myline, rn, rank, gid, srcid localobj tgt, f, cell, f2c
 				
 			f2c = new File()		
 			f2c.ropen("../vercomment.txt")		// Open the celltype
-			myline=f2c.gets(vercomment)		
-			strobj.left(vercomment, myline-1)			
+			myline=f2c.gets(vercomment)	
+			if (myline>1) {
+				strobj.left(vercomment, myline-1)	
+			}		
 			f2c.close
 			
 			f2c.ropen("../version.txt")		// Open the celltype
