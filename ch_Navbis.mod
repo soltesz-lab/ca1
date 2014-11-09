@@ -90,15 +90,15 @@ PROCEDURE rates(v) {  :Computes rate and other constants at current v.
 	q10 = 3^((celsius - 34)/10) : but were the parameters obtained in the paper gotten at 6.3 celsius, or did they just choose this b/c of the NEURON default?
 
 	:"m" sodium activation system - act and inact cross at -40
-	alpha = -0.3*vtrap((v+60-17-14),-5)
-	beta = 0.3*vtrap((v+60-45+4),5)
+	alpha = -0.2*vtrap((v+60-17-5),-5)
+	beta = 0.5*vtrap((v+60-45-5),5)
 	sum = alpha+beta        
 	mtau = 1/sum 
 	minf = alpha/sum
 	
 	:"h" sodium inactivation system
-	alpha = 0.23/exp((v+60+5-0)/20)
-	beta = 3.33/(1+exp((v+60-47.5-8)/-10))
+	alpha = 1*0.23/exp((v+60+5-3)/20)
+	beta = 2/(1+exp((v+60-47.5-3)/-10))
 	sum = alpha+beta
 	htau = 1/sum 
 	hinf = alpha/sum 	
