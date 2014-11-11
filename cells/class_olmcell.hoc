@@ -88,53 +88,70 @@ proc set_nseg() {
 }
 
 proc insert_mechs() {
-	Rm = 20000
+	Rm = 20000*5
+	
+	gH = 0.0005
+	
+	gKvAsoma = 0.0165*.3
+	gKvAdend = 0.004*.7
+	
+	// *2.3 gives 2x frequency & no depol. block
+	gKvEaxon =  0.05104*2.3
+	gKvEsoma =  0.0319*2.3
+	gKvEdend =  2*0.023*2.3
+	
+	gNasoma = 0.0107
+	gNadend = 2*0.0117
+	gNaaxon = 0.01712
+	
+	eleak = -67
+	
   	soma {
 		insert ch_KvAolm
-    		gmax_ch_KvAolm = 0.0165
+    		gmax_ch_KvAolm = gKvAsoma
 		insert ch_Holm
-			gmax_ch_Holm = 0.0005
-		insert ch_Kvsoma
-			gmax_ch_Kvsoma = 0.0319*2.3 // *2.3 gives 2x frequency & no depol. block
-		insert ch_Navsoma
-			gmax_ch_Navsoma = 0.0107
+			gmax_ch_Holm = gH 
+		insert ch_Kdrfast  // ch_Kvsoma
+			gmax_ch_Kdrfast = gKvEsoma 
+		insert ch_Nav // ch_Navsoma
+			gmax_ch_Nav = gNasoma
 		insert ch_leak
 			gmax_ch_leak = 1/Rm
-			e_ch_leak = -70  	
+			e_ch_leak = eleak  	
 	}
 
   	dend1 {
 		insert ch_KvAolm
-    		gmax_ch_KvAolm = 0.004
-		insert ch_Kvdend
-			gmax_ch_Kvdend = 2*0.023*2.3 // *2.3 gives 2x frequency & no depol. block
-		insert ch_Navdend
-			gmax_ch_Navdend = 2*0.0117
+    		gmax_ch_KvAolm = gKvAdend
+		insert ch_Kdrfast // ch_Kvdend
+			gmax_ch_Kdrfast = gKvEdend
+		insert ch_Nav // ch_Navdend
+			gmax_ch_Nav = gNadend
 		insert ch_leak
 			gmax_ch_leak = 1/Rm
-			e_ch_leak = -70  	
+			e_ch_leak = eleak  	
   	}
 
   	dend2 {
 		insert ch_KvAolm
-    		gmax_ch_KvAolm = 0.004
-		insert ch_Kvdend
-			gmax_ch_Kvdend = 2*0.023*2.3 // *2.3 gives 2x frequency & no depol. block
-		insert ch_Navdend
-			gmax_ch_Navdend = 2*0.0117
+    		gmax_ch_KvAolm = gKvAdend
+		insert ch_Kdrfast // ch_Kvdend
+			gmax_ch_Kdrfast = gKvEdend
+		insert ch_Nav // ch_Navdend
+			gmax_ch_Nav = gNadend
 		insert ch_leak
 			gmax_ch_leak = 1/Rm
-			e_ch_leak = -70  	
+			e_ch_leak = eleak  	
   	}
   
   	axon {
-		insert ch_Kvsoma //ch_Kvaxon
-			gmax_ch_Kvsoma = 0.05104*2.3 // *2.3 gives 2x frequency & no depol. block
-		insert ch_Navsoma //ch_Navaxon
-			gmax_ch_Navsoma = 0.01712
+		insert ch_Kdrfast // ch_Kvsoma //ch_Kvaxon
+			gmax_ch_Kdrfast = gKvEaxon
+		insert ch_Nav // ch_Navsoma //ch_Navaxon
+			gmax_ch_Nav = gNaaxon
 		insert ch_leak
 			gmax_ch_leak = 1/Rm
-			e_ch_leak = -70  	
+			e_ch_leak = eleak  	
   	}
 }
 

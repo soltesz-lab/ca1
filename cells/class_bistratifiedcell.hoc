@@ -187,14 +187,14 @@ proc set_nseg() {
 proc mechinit() {
 
 	// resting membrane potential. Must lie between Na+ and K+ reversal potentials
-	Vrest=-65
+	Vrest=-67
 	
 	// Temperature of simulation
 	celsius = 34.0  
 
 	// Membrane resistance in ohm*cm2
-	RmDend = 5555*2 //1/0.00018 
-	RmSoma = 5555*2 //1/0.00018 
+	RmDend = 5555*2.0 //1/0.00018 
+	RmSoma = 5555*2.0 //1/0.00018 
 
 	// Membrane capacitance in uF/cm2
 	CmSoma= 1.4
