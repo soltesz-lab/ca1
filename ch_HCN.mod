@@ -80,7 +80,7 @@ INITIAL { : called from hoc to calculate hinf at resting potential
 
 DERIVATIVE states {	:computes h at current v and dt 
 	trates(v)
-	h' = (hinf-h)/slow_tau + (hinf-h)/fast_tau
+	h' = (hinf-h)/slow_tau :  + (hinf-h)/fast_tau
 }
  
 LOCAL q10
@@ -98,7 +98,7 @@ PROCEDURE trates(v) {  :Computes rate and other constants at current v.
 	fast_tau = (14.9 + 14.1 / (1+exp(-(v+95.2)/0.5)))/q10
 
 	:"hys" SLOW CONTROL Hype activation system
-	slow_tau = (80 + 172.7 / (1+exp(-(v+59.3)/-0.83)))/q10
+	slow_tau = (80*1.5 + .75*172.7 / (1+exp(-(v+59.3)/-0.83)))/q10
 
 }
 
