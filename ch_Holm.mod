@@ -55,7 +55,7 @@ ENDCOMMENT
 NEURON {
         SUFFIX ch_Holm
         USEION h READ eh WRITE ih VALENCE 1
-        RANGE gmax,ih
+        RANGE gmax,ih, g
         GLOBAL rinf, rexp, tau_r
         RANGE myi
 }
@@ -66,7 +66,8 @@ PARAMETER {
         v (mV)
         p = 5 (degC)
         dt (ms)
-        gmax = 0.001385 (mho/cm2)			
+        gmax = 0.001385 (mho/cm2)
+		g (mho/cm2)
         eh = -32.9 (mV)
 }
  
@@ -83,7 +84,8 @@ ASSIGNED {
  
 BREAKPOINT {
 	SOLVE deriv METHOD derivimplicit
-	ih = gmax*r*(v - eh)
+	g = gmax*r
+	ih = g*(v - eh)
 	myi = ih
 }
  

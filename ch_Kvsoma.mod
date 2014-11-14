@@ -10,7 +10,7 @@ UNITS {
 NEURON {
         SUFFIX ch_Kvsoma
         USEION k READ ek WRITE ik
-        RANGE gmax, ik
+        RANGE gmax, ik, g
         GLOBAL ninf, nexp, ntau
         RANGE myi
 }
@@ -30,8 +30,9 @@ STATE {
 }
  
 ASSIGNED {
-        ik (mA/cm2)
-        ninf 
+	g (mho/cm2)
+	ik (mA/cm2)
+	ninf 
 	nexp 
 	ntau (ms)
 	myi (mA/cm2)
@@ -42,8 +43,9 @@ INITIAL {
 }
 
 BREAKPOINT {
-        SOLVE states
-	ik = gmax*n*n*n*n*(v - ek)    
+    SOLVE states
+	g = gmax*n*n*n*n
+	ik = g*(v - ek)    
 	myi = ik
 }
 

@@ -27,7 +27,7 @@ PARAMETER {
 NEURON {
 	SUFFIX ch_Kdrp
 	USEION k READ ek WRITE ik
-    RANGE gmax, myi, e
+    RANGE gmax, myi, e, g
 	GLOBAL ninf,taun
 }
 

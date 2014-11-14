@@ -9,8 +9,6 @@ loadstart = startsw()					// record the start time of the set up
 I.  LOAD LIBRARIES
 ***********************************************************************************************/
 
-print "BEFORE: *********sl: ", sl, ", relpath: ", relpath
-
 {load_file("nrngui.hoc")}		// Standard definitions - NEURON library file
 
 
@@ -26,7 +24,6 @@ objref strobj, fAll, fSyn
 strobj = new StringFunctions()
 sllength = strobj.len(sl)
 strobj.left(sl,sllength-1)
-print "AFTER: *********sl: ", sl, ", relpath: ", relpath
 
 strdef pathstr
 {load_file("netparmpi.hoc")}	// Contains the template that defines the properties of the
@@ -160,9 +157,7 @@ if (mech==1) {
 			{execute1(cmdstr)}
 			//finitialize(v_init)
 			stdinit()
-			print "before eca: ", eca, ", cai: ", cai, ", caiinf_iconc_CaZ: ", caiinf_iconc_CaZ
 			run()
-			print "after eca: ", eca, " cai: ", cai, ", caiinf_iconc_CaZ: ", caiinf_iconc_CaZ
 			// print
 			f = new File()
 			sprint(myfile,"%s%s%sstepto_%g.dat", clamppath, chan, sl, cl.amp2)

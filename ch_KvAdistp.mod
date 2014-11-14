@@ -34,7 +34,7 @@ PARAMETER {
 NEURON {
         SUFFIX ch_KvAdistp :kad
         USEION k READ ek WRITE ik
-        RANGE gmax, myi, e
+        RANGE gmax, myi, e, g
         GLOBAL ninf,linf,taul,taun,lmin
 }
 

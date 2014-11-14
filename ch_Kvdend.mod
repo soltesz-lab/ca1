@@ -12,7 +12,7 @@ NEURON {
         USEION k READ ek WRITE ik
         RANGE gmax, ik
         GLOBAL ninf, nexp, ntau
-        RANGE myi
+        RANGE myi, g
 }
  
 INDEPENDENT {t FROM 0 TO 1 WITH 1 (ms)}
@@ -35,6 +35,7 @@ ASSIGNED {
 	nexp 
 	ntau (ms)
 	myi (mA/cm2)
+	g (mho/cm2)
 }
  
 INITIAL {
@@ -43,7 +44,8 @@ INITIAL {
 
 BREAKPOINT {
         SOLVE states
-	ik = gmax*n*n*n*n*(v - ek)    
+		g = gmax*n*n*n*n
+	ik = g*(v - ek)    
 	myi = ik
 }
 

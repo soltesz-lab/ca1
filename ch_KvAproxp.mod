@@ -35,7 +35,7 @@ PARAMETER {
 NEURON {
 	SUFFIX ch_KvAproxp
 	USEION k READ ek WRITE ik
-	RANGE gmax, myi, e
+	RANGE gmax, myi, e, g
 	GLOBAL ninf,linf,taul,taun,lmin
 }
 
@@ -107,17 +107,3 @@ PROCEDURE rates(v (mV)) { :callable from hoc
 	taul = 0.26*(v+50)/qtl
 	if (taul<lmin/qtl) {taul=lmin/qtl}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

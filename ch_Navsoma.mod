@@ -45,7 +45,7 @@ NEURON {
         USEION na READ ena WRITE ina
         RANGE gmax, ina
         GLOBAL minf, hinf, hexp, mtau, htau
-        RANGE myi
+        RANGE myi, g
 }
  
 INDEPENDENT {t FROM 0 TO 1 WITH 1 (ms)}
@@ -71,6 +71,7 @@ ASSIGNED {
 	mtau (ms)
 	htau (ms)
 	myi (mA/cm2)
+	g (mho/cm2)
 }
  
 INITIAL {
@@ -80,7 +81,8 @@ INITIAL {
 
 BREAKPOINT {
         SOLVE states
-	ina = gmax*minf*minf*minf*h*(v - ena)    
+	g = gmax*minf*minf*minf*h
+	ina = g*(v - ena)    
 	myi = ina
 }
 

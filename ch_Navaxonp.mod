@@ -6,7 +6,7 @@ TITLE ch_Navaxonp
 NEURON {
 	SUFFIX ch_Navaxonp
 	USEION na READ ena WRITE ina
-	RANGE  gmax, myi, e
+	RANGE  gmax, myi, e, g
 	GLOBAL minf, hinf, mtau, htau,thinf, qinf
 }
 

@@ -21,7 +21,7 @@ NEURON {
 	SUFFIX ch_leak 
 	NONSPECIFIC_CURRENT i
 	RANGE gmax, e, i
-	RANGE myi
+	RANGE myi, g
     THREADSAFE
 }
  

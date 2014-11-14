@@ -47,7 +47,7 @@ NEURON {
         USEION k READ ek WRITE ik
         RANGE gmax,ik
         GLOBAL ainf, binf, aexp, bexp, tau_b
-        RANGE myi
+        RANGE myi, g
 }
  
 INDEPENDENT {t FROM 0 TO 1 WITH 1 (ms)}
@@ -70,11 +70,13 @@ ASSIGNED {
 	ainf binf aexp bexp
 	tau_b
 	myi (mA/cm2)
+	g (mho/cm2)
 }
  
 BREAKPOINT {
         SOLVE deriv METHOD derivimplicit
-        ik = gmax*a*b*(v - ek)
+		g = gmax*a*b
+        ik = g*(v - ek)
 	myi = ik
 }
  

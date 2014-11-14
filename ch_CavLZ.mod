@@ -40,7 +40,7 @@ NEURON {
 	SUFFIX ch_CavLZ
 	USEION ca READ cai, cao, eca WRITE ica VALENCE 2 
     RANGE gmax, cai, ica, eca
- 	RANGE myi
+ 	RANGE myi, g
     GLOBAL minf,mtau	: neither of these are thread safe
     THREADSAFE
 }

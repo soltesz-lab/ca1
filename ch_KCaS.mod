@@ -51,7 +51,11 @@ PARAMETER {
 STATE { q }
 
 ASSIGNED {
-	ik (mA/cm2) g(mho/cm2) qinf qtau (ms) qexp
+	ik (mA/cm2) 
+	g (mho/cm2) 
+	qinf 
+	qtau (ms) 
+	qexp
 	myi (mA/cm2)
 }
 
