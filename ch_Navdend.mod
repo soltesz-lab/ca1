@@ -98,20 +98,24 @@ UNITSOFF
 PROCEDURE evaluate_fct(v(mV)) {  :Computes rate and other constants at 
 		      :current v.
                       :Call once from HOC to initialize inf at resting v.
-        LOCAL q10, tinc, alpha, beta
-        TABLE minf, hinf, hexp, mtau, htau DEPEND dt, celsius FROM -200 TO 
-100 WITH 300
-:		q10 = 3^((celsius - 24)/10)
-		q10 = 1	: BPG
-		tinc = -dt*q10
+        LOCAL q10, tinc, alpha, beta, sum
+        TABLE minf, hinf, hexp, mtau, htau DEPEND dt, celsius FROM -200 TO 100 WITH 300
+		
+		q10 = 3^((celsius - 34)/10)
+		
 		alpha = 0.1*vtrap(-(v+45),10)
 		beta = 4*exp(-(v+70)/18)
-		mtau = 1/(alpha + beta)
-		minf = alpha*mtau
+		sum = alpha+beta        
+		mtau = 1/sum 
+		minf = alpha/sum		
+		
 		alpha = 0.07*Exp(-(v+70)/20)
 		beta = 1/(1+Exp(-(v+40)/10))
-		htau = 1/(alpha + beta)
-		hinf = alpha*htau
+		sum = alpha+beta
+		htau = 1/sum 
+		hinf = alpha/sum 		
+
+		tinc = -dt*q10
 		hexp = 1-Exp(tinc/htau)
 }
 FUNCTION vtrap(x,y) {	:Traps for 0 in denominator of rate eqns.

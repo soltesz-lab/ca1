@@ -32,22 +32,24 @@ UNITS {
 NEURON { 
 	SUFFIX ch_Navngf 
 	USEION na READ ena WRITE ina VALENCE 1
-	RANGE g, gmax, minf, mtau, hinf, htau, ina
-	RANGE myi, offset1, offset2, offset3, offset4, slope1, slope2, slope3, slope4
-:	THREADSAFE
+	RANGE g, gmax, minf, mtau, hinf, htau, ina, m, h
+	RANGE myi
+	THREADSAFE
 }
 
 PARAMETER {
-:	ena  (mV)
-	gmax = 7.49968  (mho/cm2)   
-	offset1 = 19 (mV)
-	offset2 = 19 (mV)
-	offset3 = 0.5816 (mV)
-	offset4 = 0.35371 (mV)
-	slope1 = 0.34133 (1)
-	slope2 = 0.28483 (1)
-	slope3 = 0.29648 (1)
-	slope4 = 3.0931  (1)
+	ena  (mV)
+	gmax (mho/cm2)   
+	
+	mAlphC = -0.34133 (1)
+	mAlphV = 24 (mV)
+	mBetaC = 0.28483 (1)
+	mBetaV = -4 (mV)
+
+	hAlphC = 0.29648 (1)
+	hAlphV = 64.4184 (mV)
+	hBetaC = 3.0931  (1)
+	hBetaV = 12.1463 (mV)
 }
 
 STATE {
@@ -55,15 +57,6 @@ STATE {
 }
 
 ASSIGNED {
-:	offset1 (mV)
-:	offset2 (mV)
-:	offset3 (mV)
-:	offset4 (mV)
-:	slope1 (1)
-:	slope2 (1)
-:	slope3 (1)
-:	slope4 (1)
-	ena  (mV)
 	v (mV) 
 	celsius (degC) : temperature - set in hoc; default is 6.3
 	dt (ms) 
@@ -103,48 +96,40 @@ PROCEDURE states() {	:Computes state variables m, h, and n
 LOCAL q10	: declare outside a block so available to whole mechanism
 PROCEDURE rates(v) {  :Computes rate and other constants at current v.
                       :Call once from HOC to initialize inf at resting v.
-:	LOCAL  alpha, beta, sum	: only available to block; must be first line in block
-	LOCAL  alpha, beta, sum, tinc	: only available to block; must be first line in block
+	LOCAL  alpha, beta, sum	: only available to block; must be first line in block
 
-	:q10 = 3^((celsius - 6.3)/10)
 	q10 = 3^((celsius - 34)/10)
 
 	:"m" sodium activation system - act and inact cross at -40
-	alpha = -1*slope1*vtrap((v+43-offset1),-5) : -0.3*vtrap((v+60-27),-5) 
-	beta = slope2*vtrap((v+15-offset2),5) : 0.3*vtrap((v+60-45),5)
+	alpha = mAlphC*vtrap((v+mAlphV),-5)
+	beta = mBetaC*vtrap((v+mBetaV),5)
 	sum = alpha+beta        
 	mtau = 1/sum 
 	minf = alpha/sum
 	
 	:"h" sodium inactivation system
-	alpha = slope3/exp((v+65-offset3)/20)
-	beta = slope4/(1+exp((v+12.5-offset4)/-10))
+	alpha = hAlphC/exp((v+hAlphV)/20)
+	beta = hBetaC/(1+exp((v+hBetaV)/-10))
 	sum = alpha+beta
 	htau = 1/sum 
-	hinf = alpha/sum 	
-
-	tinc = -dt * q10
-
-	mexp = 1 - exp(tinc/mtau)
-	hexp = 1 - exp(tinc/htau)
+	hinf = alpha/sum 		
 }
  
 PROCEDURE trates(v) {  :Computes rate and other constants at current v.
                       :Call once from HOC to initialize inf at resting v.
 	LOCAL tinc	: only available to block; must be first line in block
 	TABLE minf, mexp, hinf, hexp, mtau, htau
-:	DEPEND dt, celsius
-	DEPEND dt, celsius, slope1, slope2, slope3, slope4, offset1, offset2, offset3, offset4
-  FROM -100 TO 100 WITH 200
+	DEPEND dt, celsius, mAlphV, mAlphC, mBetaV, mBetaC, hAlphV, hAlphC, hBetaV, hBetaC
+	FROM -100 TO 100 WITH 200
 
 	rates(v)	: not consistently executed from here if usetable_hh == 1
 				: so don't expect the tau values to be tracking along with
 				: the inf values in hoc
 
-:	tinc = -dt * q10
+	tinc = -dt * q10
 
-:	mexp = 1 - exp(tinc/mtau)
-:	hexp = 1 - exp(tinc/htau)
+	mexp = 1 - exp(tinc/mtau)
+	hexp = 1 - exp(tinc/htau)
 }
  
 FUNCTION vtrap(x,y) {  :Traps for 0 in denominator of rate eqns.

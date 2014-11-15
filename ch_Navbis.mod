@@ -39,6 +39,16 @@ NEURON {
 PARAMETER {
 	ena  (mV)
 	gmax (mho/cm2)   
+
+	mAlphC = -0.2 (1)
+	mAlphV = 38 (mV)
+	mBetaC = 0.5 (1)
+	mBetaV = 10 (mV)
+
+	hAlphC = 0.23 (1)
+	hAlphV = 62 (mV)
+	hBetaC = 2 (1)
+	hBetaV = 9.5 (mV)
 }
  
 STATE {
@@ -87,18 +97,18 @@ PROCEDURE rates(v) {  :Computes rate and other constants at current v.
                       :Call once from HOC to initialize inf at resting v.
 	LOCAL  alpha, beta, sum	: only available to block; must be first line in block
 
-	q10 = 3^((celsius - 34)/10) : but were the parameters obtained in the paper gotten at 6.3 celsius, or did they just choose this b/c of the NEURON default?
+	q10 = 3^((celsius - 34)/10)
 
 	:"m" sodium activation system - act and inact cross at -40
-	alpha = -0.2*vtrap((v+60-17-5),-5)
-	beta = 0.5*vtrap((v+60-45-5),5)
+	alpha = mAlphC*vtrap((v+mAlphV),-5)
+	beta = mBetaC*vtrap((v+mBetaV),5)
 	sum = alpha+beta        
 	mtau = 1/sum 
 	minf = alpha/sum
 	
 	:"h" sodium inactivation system
-	alpha = 1*0.23/exp((v+60+5-3)/20)
-	beta = 2/(1+exp((v+60-47.5-3)/-10))
+	alpha = hAlphC/exp((v+hAlphV)/20)
+	beta = hBetaC/(1+exp((v+hBetaV)/-10))
 	sum = alpha+beta
 	htau = 1/sum 
 	hinf = alpha/sum 	
@@ -108,7 +118,8 @@ PROCEDURE trates(v) {  :Computes rate and other constants at current v.
                       :Call once from HOC to initialize inf at resting v.
 	LOCAL tinc	: only available to block; must be first line in block
 	TABLE minf, mexp, hinf, hexp, mtau, htau
-	DEPEND dt, celsius FROM -100 TO 100 WITH 200
+	DEPEND dt, celsius, mAlphV, mAlphC, mBetaV, mBetaC, hAlphV, hAlphC, hBetaV, hBetaC
+	FROM -100 TO 100 WITH 200
                                    
 	rates(v)	: not consistently executed from here if usetable_hh == 1
 				: so don't expect the tau values to be tracking along with
