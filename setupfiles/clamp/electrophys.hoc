@@ -943,7 +943,11 @@ if ((pair==2) || (pair==4)) {
 						synvec.x[q] =  ransynlist.object(cell.randi).repick
 						
 						if (pairrevflag==1) {  //(strcmp(prestr,"ivycell")==0 || strcmp(prestr,"ngfcell")==0) {
-							cell.pre_list.o(precellType).o(synvec.x[q]).e = pairrevpot
+							if (strcmp(prestr,"ngfcell")==0) {
+								cell.pre_list.o(precellType).o(synvec.x[q]).ea = pairrevpot
+							} else {
+								cell.pre_list.o(precellType).o(synvec.x[q]).e = pairrevpot
+							}
 						//	cell.pre_list.o(precellType).o(synvec.x[q]).ea = pairrevpot
 						//	cell.pre_list.o(precellType).o(synvec.x[q]).eb = -91 //pairrevpot
 						//} else {

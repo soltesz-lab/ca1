@@ -229,8 +229,11 @@ strdef mname, tmpstr, cmderevstr, cmdstr, location, description, myname, channam
 								
 objref sf
 sf = new StringFunctions()
+objref fprop
+strdef myfile
 
 description = "Description"
+strdef mystr
 
 for celltype=0, numCellTypes-1 {
 	if (cellType[celltype].is_art==0) {
@@ -238,6 +241,14 @@ for celltype=0, numCellTypes-1 {
 			if (pc.gid_exists(jgid)) {
 				cell = pc.gid2cell(jgid)
 				
+				fprop = new File()
+				sprint(myfile,"%s/%s/cellproptable.txt",websitepath ,cellType[celltype].cellType_string)
+				print "gonna write out to ", myfile
+				fprop.wopen(myfile)
+				fprop.printf("Ra,%.1f,ohm*cm,Axial resistance\ncm,%.1f,uF/cm2,Membrane capacitance\ncelsius,%.1f,o C, Temperature\n", cell.soma.Ra, cell.soma.cm, celsius)
+				{fprop.close}
+
+
 				soma_list_area=0
 				soma_list_length=0
 				soma_list_totdiam=0
@@ -306,6 +317,7 @@ for celltype=0, numCellTypes-1 {
 				distal_list_totdiam=0
 				distal_list_totsec=0
 
+				
 				access cell.soma
 				distance()
 				forsec cell.dendrite_list {
@@ -523,8 +535,26 @@ for celltype=0, numCellTypes-1 {
 							} else {
 							description = "not available"
 							}
-							f.printf("%s,%.0f,%s,%f,%s\n", channame, erev, description, peakvalue, location) // Channel Gmax Erev Location Description
-							f2.printf("%s,%.0f,%s,%f,%s\n", cellType[celltype].cellType_string, erev, description, peakvalue, location) // Cell Gmax Erev Location Description
+							strdef tailstr, headstr
+
+							sprint(cmdstr, "grep \"USEION\" ./%s.mod", mname)
+							{system(cmdstr, mystr)}
+							if (sf.len(mystr)>0) {
+								sf.tail(mystr, "USEION ", tailstr)
+								sf.head(tailstr, " ", headstr)
+							} else {
+								sprint(headstr, "_%s", mname)
+							}
+							if (sf.len(headstr)>0) {
+								sprint(cmdstr, "erev = e%s", headstr)
+								{execute(cmdstr)}
+								f.printf("%s,%.0f,%s,%f,%s\n", channame, erev, description, peakvalue, location) // Channel Gmax Erev Location Description
+								f2.printf("%s,%.0f,%s,%f,%s\n", cellType[celltype].cellType_string, erev, description, peakvalue, location) // Cell Gmax Erev Location Description
+							} else {
+								f.printf("%s,unk,%s,%f,%s\n", channame, description, peakvalue, location) // Channel Gmax Erev Location Description
+								f2.printf("%s,unk,%s,%f,%s\n", cellType[celltype].cellType_string, description, peakvalue, location) // Cell Gmax Erev Location Description
+							}
+							
 							
 							g = new PlotShape(cell.all)  // new PlotShape(cell.all)
 							g.variable(tmpstr)

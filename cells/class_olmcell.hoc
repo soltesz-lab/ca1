@@ -87,6 +87,7 @@ proc set_nseg() {
   forsec all { nseg = int((L/(0.1*lambda_f(100))+.9)/2)*2 + 1  }
 }
 
+
 proc insert_mechs() {
 	Rm = 20000*5
 	
