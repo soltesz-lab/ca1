@@ -1,5 +1,6 @@
 {load_file("nrngui.hoc")}				// Standard definitions - NEURON library file
 
+chdir("setupfiles")
 {load_file("../setupfiles/defaultvar.hoc")}	// Contains the proc definition for default_var proc
 {default_var("NumData",100)}		// for paired recording, use these synapse weights
 strdef cmdstr
