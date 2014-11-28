@@ -29,7 +29,7 @@ UNITS {
 }
  
 NEURON { 
-	SUFFIX ch_Kv3p1bJonas
+	SUFFIX ch_KvGroup
 	USEION k READ ek WRITE ik VALENCE 1
 	RANGE g, gmax, ninf, ntau, ik
 	RANGE myi

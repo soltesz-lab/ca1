@@ -222,7 +222,6 @@ proc mechinit() {
 	// max ion channel conductances in mho/cm2
 	gNav     = 0.15 // soma: // 0.12 //original 0.030 to .055 ; lm: //0.5  	//original 0.015
 	gKdr     = 0.013    // Delayed rectifier potassium
-	gKJonas  = 0 //0.1465/1
 	gKvA 	 = 0.00015 // Proximal A-type potassium
 	gHCN     = 0.00002 // HCN (hyperpolarization-activated cyclic nucleotide-gated channel)
 	gCavN    = 0.0008 //   T-type calcium
@@ -259,9 +258,9 @@ proc mechinit() {
 proc insert_mechs() {
 
 	forsec all {
-		insert iconc_CaZ
-			catau_iconc_CaZ = 10
-			caiinf_iconc_CaZ = 5.e-6
+		insert iconc_Ca
+			catau_iconc_Ca = 10
+			caiinf_iconc_Ca = 5.e-6
 		insert ch_KvAngf
 	gmax_ch_KvAngf = gKvA
 		insert ch_CavN  // HAV-N- Ca channel

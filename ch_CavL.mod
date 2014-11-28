@@ -22,25 +22,27 @@ UNITS {
 	(mM) = (millimolar)
 	FARADAY = 96520 (coul)
 	R = 8.3134 (joule/degC)
-}
-
-NEURON {
-	SUFFIX ch_CavL
-	USEION ca READ cai, cao, eca WRITE ica VALENCE 2 
-    RANGE gmax, g, cai, ica, eca
- 	RANGE myi
-    RANGE minf, mtau
-    THREADSAFE
+	KTOMV = .0853 (mV/degC)
 }
 
 PARAMETER {
 	v (mV)
-    celsius (degC) : temperature - set in hoc; default is 6.3
+      celsius (degC) : temperature - set in hoc; default is 6.3
 	gmax		 (mho/cm2)
 	ki=.001 (mM)
 	cai (mM)
 	cao (mM)
-	tfa=1
+        tfa=1
+}
+
+
+NEURON {
+	SUFFIX ch_CavLZ
+	USEION ca READ cai, cao, eca WRITE ica VALENCE 2 
+    RANGE gmax, cai, ica, eca
+ 	RANGE myi, g
+    GLOBAL minf,mtau	: neither of these are thread safe
+    THREADSAFE
 }
 
 STATE {
@@ -48,17 +50,21 @@ STATE {
 }
 
 ASSIGNED {
-	g (mho/cm2)
-	minf
-	mtau   (ms)
-	myi (mA/cm2)
 	ica (mA/cm2)
+        g (mho/cm2)
+        minf
+        mtau   (ms)
 	eca (mV)   
+	myi (mA/cm2)
+
 }
 
 INITIAL {
 	rate(v)
 	m = minf
+	VERBATIM
+	cai=_ion_cai;
+	ENDVERBATIM
 }
 
 BREAKPOINT {
@@ -73,9 +79,11 @@ FUNCTION h2(cai(mM)) {
 }
 
 FUNCTION ghk(v(mV), ci(mM), co(mM)) (mV) {
-	LOCAL f
-	f = KTF(celsius)/2
-	ghk=-f*(1. - (ci/co)*exp(v/f))*vtrap(v,f)/f
+        LOCAL nu,f
+
+        f = KTF(celsius)/2
+        nu = v/f
+        ghk=-f*(1. - (ci/co)*exp(nu))*efun(nu)
 }
 
 FUNCTION KTF(celsius (DegC)) (mV) {
@@ -83,19 +91,21 @@ FUNCTION KTF(celsius (DegC)) (mV) {
 }
 
 
-FUNCTION vtrap(x,y) {  :Traps for 0 in denominator of rate eqns.
-	if (fabs(x/y) < 1e-6) {
-			vtrap = y*(1 - x/y/2)
-	}else{  
-			vtrap = x/(exp(x/y) - 1)
+FUNCTION efun(z) {
+	if (fabs(z) < 1e-4) {
+		efun = 1 - z/2
+	}else{
+		efun = z/(exp(z) - 1)
 	}
 }
 
 FUNCTION alp(v(mV)) (1/ms) {
-	alp = 15.69*vtrap((-1.0*v+81.5),10.0)
+	TABLE FROM -150 TO 150 WITH 200
+	alp = 15.69*(-1.0*v+81.5)/(exp((-1.0*v+81.5)/10.0)-1.0)
 }
 
 FUNCTION bet(v(mV)) (1/ms) {
+	TABLE FROM -150 TO 150 WITH 200
 	bet = 0.29*exp(-v/10.86)
 }
 
@@ -110,6 +120,3 @@ PROCEDURE rate(v (mV)) { :callable from hoc
         mtau = 1/(tfa*(a + bet(v)))
         minf = tfa*a*mtau
 }
- 
-
-

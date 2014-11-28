@@ -222,7 +222,7 @@ proc mechinit() {
 	// max ion channel conductances in mho/cm2
 	gNav     = 0.060 // soma: // 0.12 //original 0.030 to .055 ; lm: //0.5  	//original 0.015
 	gKdr     = 0.000    // Delayed rectifier potassium
-	gKJonas  = 0.004 //0.1465/1
+	gKGroup  = 0.004 //0.1465/1
 	gKvA 	 = 0.0002 // Proximal A-type potassium
 	gHCN     = 0.0010 // HCN (hyperpolarization-activated cyclic nucleotide-gated channel)
 	gCavN    = 0.0008*1 //   T-type calcium
@@ -243,8 +243,8 @@ proc insert_mechs() {
 		insert ch_CavN  			// N-type Ca2+ conductance
 		gmax_ch_CavN = gCavN
 		
-		insert ch_CavLZ 
-		gmax_ch_CavLZ = gCavL
+		insert ch_CavL 
+		gmax_ch_CavL = gCavL
 		
 		insert ch_KCaS
 		gmax_ch_KCaS = gKCaS
@@ -264,8 +264,8 @@ proc insert_mechs() {
 		ena = enaval
 		insert ch_Kdrfast
 		gmax_ch_Kdrfast = gKdr
-		insert ch_Kv3p1bJonas
-		gmax_ch_Kv3p1bJonas = gKJonas
+		insert ch_KvGroup
+		gmax_ch_KvGroup = gKGroup
 		
 		insert ch_leak
 		gmax_ch_leak = 1/RmSoma
@@ -286,8 +286,8 @@ proc insert_mechs() {
 				ena = enaval
 				insert ch_Kdrfast
 				gmax_ch_Kdrfast=gKdr*10
-				insert ch_Kv3p1bJonas
-				gmax_ch_Kv3p1bJonas = gKJonas
+				insert ch_KvGroup
+				gmax_ch_KvGroup = gKGroup
 			}
 		}
 	}	

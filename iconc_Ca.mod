@@ -22,7 +22,7 @@ VERBATIM
 ENDVERBATIM
 
 NEURON {
-SUFFIX iconc_CaZ
+SUFFIX iconc_Ca
 USEION ca READ cai, ica, eca WRITE eca, cai VALENCE 2
 RANGE caiinf, catau, cai, eca
 THREADSAFE
