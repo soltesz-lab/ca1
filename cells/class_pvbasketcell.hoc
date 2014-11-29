@@ -220,7 +220,7 @@ proc mechinit() {
 	eleakval = Vrest
 
 	// max ion channel conductances in mho/cm2
-	gNav     = 0 // 0.15 // soma: // 0.12 //original 0.030 to .055 ; lm: //0.5  	//original 0.015
+	gNav     = 0.15 // soma: // 0.12 //original 0.030 to .055 ; lm: //0.5  	//original 0.015
 	gKdr     = 0.013    // Delayed rectifier potassium
 	gKvA 	 = 0.00015 // Proximal A-type potassium
 	gHCN     = 0.00002 // HCN (hyperpolarization-activated cyclic nucleotide-gated channel)
