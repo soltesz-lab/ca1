@@ -37,7 +37,7 @@ PARAMETER {
 
 
 NEURON {
-	SUFFIX ch_CavLZ
+	SUFFIX ch_CavL
 	USEION ca READ cai, cao, eca WRITE ica VALENCE 2 
     RANGE gmax, cai, ica, eca
  	RANGE myi, g

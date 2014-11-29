@@ -98,9 +98,9 @@ if (mech==1) {
 	
 	
 	/*** New Calcium Stuff ***/
-		insert iconc_CaZ
-			catau_iconc_CaZ = 10
-			caiinf_iconc_CaZ = Catmp //5.e-6
+		insert iconc_Ca
+			catau_iconc_Ca = 10
+			caiinf_iconc_Ca = Catmp //5.e-6
 	/*** End New Calcium Stuff ***/
 			
 				

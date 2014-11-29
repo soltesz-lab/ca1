@@ -234,7 +234,7 @@ proc mechinit() {
 proc insert_mechs() {
 
 	forsec all {
-		insert iconc_CaZ
+		insert iconc_Ca
 						
 		
 		insert ch_KvA
@@ -298,7 +298,7 @@ proc set_chanparams() {
 		ek = ekval
 		eca = ecaval
 		e_ch_leak = eleakval
-		cao_iconc_CaZ = ca_outside
+		cao_iconc_Ca = ca_outside
 	}
 }
 

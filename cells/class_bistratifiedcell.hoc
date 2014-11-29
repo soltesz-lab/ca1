@@ -234,13 +234,6 @@ proc mechinit() {
 proc insert_mechs() {
 
 	forsec all {
-		insert buff_Ca // It doesn't seem to make a difference whether
-						// this buffering mechanism is present or absent
-						// not sure why - maybe i am missing some parameter
-						// Also, I set the Ca channels ions to Ca2+ only,
-						// and somehow the cell still looks the same as before
-						
-		
 		insert ch_KvA
 		gmax_ch_KvA = gKvA		// A-type K+ conductance
 		
