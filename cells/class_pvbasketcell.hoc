@@ -252,8 +252,8 @@ proc insert_mechs() {
 	} 
 
 	soma {
-		insert ch_Nav	
-		gmax_ch_Nav = gNav
+		insert ch_Navaxonp	
+		gmax_ch_Navaxonp = gNav
 		insert ch_Kdrfast
 		gmax_ch_Kdrfast = gKdr
 		
@@ -263,8 +263,8 @@ proc insert_mechs() {
 	} 
 
 	forsec dendrite_list {
-		insert ch_Nav	
-		gmax_ch_Nav = gNav		
+		insert ch_Navaxonp	
+		gmax_ch_Navaxonp = gNav		
 		insert ch_Kdrfast
 		gmax_ch_Kdrfast = gKdr
 		insert ch_leak
