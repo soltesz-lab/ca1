@@ -110,8 +110,8 @@ proc insert_mechs() {
   	soma {
 		insert ch_KvAolm
     		gmax_ch_KvAolm = gKvAsoma
-		insert ch_Holm
-			gmax_ch_Holm = gH 
+		insert ch_HCNolm
+			gmax_ch_HCNolm = gH 
 		insert ch_Kdrfast  // ch_Kvsoma
 			gmax_ch_Kdrfast = gKvEsoma 
 		insert ch_Nav // ch_Navsoma

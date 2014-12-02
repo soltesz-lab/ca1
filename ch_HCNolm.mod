@@ -53,7 +53,7 @@ ENDCOMMENT
 }
  
 NEURON {
-        SUFFIX ch_Holm
+        SUFFIX ch_HCNolm
         USEION h READ eh WRITE ih VALENCE 1
         RANGE gmax,ih, g
         GLOBAL rinf, rexp, tau_r
