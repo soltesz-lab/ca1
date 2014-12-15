@@ -27,6 +27,7 @@ default_var("gidOI", 0) // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo
 default_var("cellindOI", 0) // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
 default_var("spkflag", 0) // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
 default_var("resultsfolder", "00001") // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
+default_var("runname", "None") // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
 
 /***********************************************************************************************
 II. SET MODEL SIZE, CELL DEFINITIONS
@@ -216,7 +217,7 @@ objref nc
 //2. make as many ppsponts as there are gidvector files													
 //proc createCells(){ local i, ij, si, pci, cellind, runresult, gid, mygid	// Create cells and assign a GID to each cell
 	f2 = new File()
-	sprint(cmdstr, "../networkclamp_results/%s/gids2make.dat", resultsfolder)
+	sprint(cmdstr, "../networkclamp_results/%s/%s/gids2make.dat", runname, resultsfolder)
 	f2.ropen(cmdstr)		// Open the celltype
 	numGids = f2.scanvar			// Scan the first line, which contains a number giving the
 
@@ -299,7 +300,7 @@ objref nc
 objref pattern_, tvec_, idvec_
 if (spkflag==1) {
 	f2 = new File()
-	sprint(cmdstr, "../networkclamp_results/%s/spiketimes2use.dat", resultsfolder)
+	sprint(cmdstr, "../networkclamp_results/%s/%s/spiketimes2use.dat", runname, resultsfolder)
 	f2.ropen(cmdstr)		// Open the celltype
 	numSpikes = f2.scanvar			// Scan the first line, which contains a number giving the
 	tvec_ = new Vector(numSpikes)
@@ -323,11 +324,15 @@ if (spkflag==1) {
 {load_file("../setupfiles/nc_append_functions.hoc")}	// Defines nc_append and nc_appendo, which 
 
 f2 = new File()
-sprint(cmdstr, "../networkclamp_results/%s/conns2make.dat", resultsfolder)
+sprint(cmdstr, "../networkclamp_results/%s/%s/conns2make.dat", runname, resultsfolder)
 f2.ropen(cmdstr)		// Open the celltype
+
+print "gonna make conns!"													
+
 
 counter=0
 numConns = f2.scanvar			// Scan the first line, which contains a number giving the
+print "numConns = ", numConns
 for n=0, numConns-1 {
 	pregid = f2.scanvar // precell, postcell, precelltype, syn, weight, delay
 	postgid = f2.scanvar
@@ -335,15 +340,20 @@ for n=0, numConns-1 {
 	syn = f2.scanvar
 	weight = f2.scanvar
 	delay = f2.scanvar
-	if (pc.gid_exists(postgid)) {
+	print "postgid: ", postgid, ", = ", pc.gid_exists(postgid), ". pregid: ", pregid, ", = ", pc.gid_exists(pregid)
+	if (pc.gid_exists(postgid) && pc.gid_exists(pregid)) {
 		nc_append(pregid, postgid, precelltype, syn, weight + (pregid+1)*1000, delay)	// Make the connection  // the latter part is for tracing the big bug, used by exp2sid mech (it will take away this extra part)
 		counter +=1
+	} else {
+		print "could not make connection"
 	}
 }
 f2.close()
 
 //5. Add the recorders
 vrec = 0  // extracellularly recorded potential
+
+print "made conns!"													
 
 objref mytrace, myvrec, cell
 
@@ -445,7 +455,10 @@ if (use_spike_compression==1) {
 	maxstepval = 2.5
 } else {
 	maxstepval = 10
-}														
+}	
+
+
+print "Before the run!"													
 														
 proc rrun(){									// Run the network simulation and write out the results
 	//pnm.spike_record(gid)
@@ -510,7 +523,7 @@ rrun()	// Run the network simulation (in proc rrun)
 strdef outfile
 objref f
 if (pc.gid_exists(gidOI)) {	// If cell exists on this machine
-	sprint(outfile, "../networkclamp_results/%s/mytrace_%d_soma.dat", resultsfolder, gidOI)
+	sprint(outfile, "../networkclamp_results/%s/%s/mytrace_%d_soma.dat", runname, resultsfolder, gidOI)
 	f = new File(outfile)
 	f.wopen()
 	f.printf("t\tv\n")
@@ -519,7 +532,7 @@ if (pc.gid_exists(gidOI)) {	// If cell exists on this machine
 	}
 	f.close()
 
-	sprint(outfile, "../networkclamp_results/%s/myvrec_%d_soma.dat", resultsfolder, gidOI)
+	sprint(outfile, "../networkclamp_results/%s/%s/myvrec_%d_soma.dat", runname, resultsfolder, gidOI)
 	f = new File(outfile)
 	f.wopen()
 	f.printf("t\tv\n")
@@ -532,7 +545,7 @@ if (pc.gid_exists(gidOI)) {	// If cell exists on this machine
 
 proc spikeout() {local i, rank  localobj f				// Write out a spike raster (cell, spike time)
 	pc.barrier()									// Wait for all ranks to get to this point
-	sprint(cmd,"../networkclamp_results/%s/spikeraster.dat", resultsfolder)
+	sprint(cmd,"../networkclamp_results/%s/%s/spikeraster.dat", runname, resultsfolder)
 	f = new File(cmd)
 	if (pc.id == 0) { 								// Write header to file 1 time only
 		f.wopen()
