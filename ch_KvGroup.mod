@@ -1,12 +1,20 @@
-TITLE Kdrfast.mod  
- 
+TITLE Slower potassium channels (voltage dependent)
+
 COMMENT
-	Fast delayed rectifier K+ currents: Yuen and Durand, 1991:
-	They couldn't quite fit the fast delayed rectifier (of the squid axon??),
-	 so they called it just the fast potassium conductance. Not sure what all it represents anymore.
-	Aradi shifted the voltage dependence by 16 mV - don't know why.
-	Someone else shifted it by 65 as compared to the Aradi & Holmes paper. don't know why...
+Slower potassium channels (voltage dependent)
+
+Ions: k
+
+Style: quasi-ohmic
+
+From: Modified from Yuen and Durand, 1991 (squid axon) by Aradi and Holmes (2002)
+
+Updates:
+2014 December (Marianne Bezaire): documented
+2014 February (Marianne Bezaire): modified to fit the experimental data from Lu and Jonas
+? ? ?: shifted by 65 mV as compared to the Aradi & Holmes paper, unsure why
 ENDCOMMENT
+
 
 VERBATIM
 #include <stdlib.h> /* 	Include this library so that the following

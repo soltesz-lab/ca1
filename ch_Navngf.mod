@@ -1,11 +1,17 @@
-TITLE Voltage-gated sodium channel
- 
+TITLE sodium channel (voltage dependent, higher threshold)
+
 COMMENT
-Voltage-gated Na+ channel
-From: 
-Notes: none
+sodium channel (voltage dependent, higher threshold)
+
+Ions: na
+
+Style: quasi-ohmic
+
+From: modified from ch_Nav to have a higher threshold, 
+	  suitable for neurogliaform and ivy cells
+
 Updates:
-	20100916 - documented and cleaned - marianne.case@uci.edu
+2014 December (Marianne Bezaire): documented
 ENDCOMMENT
 
 COMMENT

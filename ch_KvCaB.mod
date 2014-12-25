@@ -2,10 +2,17 @@ TITLE Calcium activated potassium channel (voltage dependent)
 
 COMMENT
 Ca2+-activated K+ channel (voltage dependent)
+
+Ions: k
+
+Style: quasi-ohmic
+
 From: Modified from Moczydlowski and Latorre (1983) J. Gen. Physiol. 82
+
 Updates:
-20100910-MJCASE-documented
+2014 December (Marianne Bezaire): documented
 ENDCOMMENT
+
 
 VERBATIM
 #include <stdlib.h> /* 	Include this library so that the following

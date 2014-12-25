@@ -1,7 +1,20 @@
-TITLE ch_Navaxonp
-: Na current for axon. No slow inact.
-: M.Migliore Jul. 1997
-: added sh to account for higher threshold M.Migliore, Apr.2002
+TITLE sodium channel (voltage dependent, for axons)
+
+COMMENT
+sodium channel (voltage dependent, for axons)
+Meant for axons, no slow inactivation.
+
+Ions: na
+
+Style: quasi-ohmic
+
+From: M.Migliore Jul. 1997
+
+Updates:
+2002 April (Michele Migliore): added sh to account for higher threshold
+2014 December (Marianne Bezaire): documented
+ENDCOMMENT
+
 
 NEURON {
 	SUFFIX ch_Navaxonp

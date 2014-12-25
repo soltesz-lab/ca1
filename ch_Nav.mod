@@ -1,12 +1,17 @@
-TITLE Voltage-gated sodium channel
- 
+TITLE sodium channel (voltage dependent)
+
 COMMENT
-Voltage-gated Na+ channel
-From: 
-Notes: none
+sodium channel (voltage dependent)
+
+Ions: na
+
+Style: quasi-ohmic
+
+From: not sure where from
+
 Updates:
-	20100916 - documented and cleaned - marianne.case@uci.edu
- ENDCOMMENT
+2014 December (Marianne Bezaire): documented
+ENDCOMMENT
 
 
 VERBATIM

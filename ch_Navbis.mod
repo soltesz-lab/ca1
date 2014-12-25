@@ -1,13 +1,18 @@
-TITLE Voltage-gated sodium channel
- 
-COMMENT
-Voltage-gated Na+ channel
-From: 
-Notes: none
-Updates:
-	20100916 - documented and cleaned - marianne.case@uci.edu
- ENDCOMMENT
+TITLE sodium channel (voltage dependent, slightly higher threshold)
 
+COMMENT
+sodium channel (voltage dependent, slightly higher threshold)
+
+Ions: na
+
+Style: quasi-ohmic
+
+From: modified from ch_Nav to have a slightly higher threshold, 
+	  suitable for bistratified cells
+
+Updates:
+2014 December (Marianne Bezaire): documented
+ENDCOMMENT
 
 VERBATIM
 #include <stdlib.h> 

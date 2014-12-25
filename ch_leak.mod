@@ -1,8 +1,18 @@
-TITLE leak.mod: the leak conductance
+TITLE leak conductance (voltage independent)
 
 COMMENT
+leak conductance (voltage independent)
 
+Ions: non-specific
+
+Style: quasi-ohmic
+
+From: unknown
+
+Updates:
+2014 December (Marianne Bezaire): documented
 ENDCOMMENT
+
 
 VERBATIM
 #include <stdlib.h> /* 	Include this library so that the following

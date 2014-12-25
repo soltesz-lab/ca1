@@ -1,6 +1,21 @@
-TITLE K-A channel from Klee Ficker and Heinemann
-: modified to account for Dax A Current --- M.Migliore Jun 1997
-: modified to be used with cvode  M.Migliore 2001
+TITLE A-type potassium channel (voltage dependent)
+
+COMMENT
+A-type K+ channel (voltage dependent)
+
+Ions: k
+
+Style: quasi-ohmic
+
+From: Modified from Klee Ficker and Heinemann
+
+Updates:
+2014 December (Marianne Bezaire): documented
+2001      (Michele Migliore): modified to be used with cvode 
+1997 June (Michele Migliore): modified to account for Dax A Current
+ENDCOMMENT
+
+
 
 UNITS {
 	(mA) = (milliamp)
