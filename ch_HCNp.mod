@@ -1,5 +1,18 @@
-TITLE I-h channel from Magee 1998 for distal dendrites
-: default values are for dendrites and low Na
+TITLE Hyperpolarization-activated, CN-gated channel (voltage dependent)
+
+COMMENT
+Hyperpolarization-activated, CN-gated channel (voltage dependent)
+
+Ions: non-specific
+
+Style: quasi-ohmic
+
+From: Magee 1998 for distal dendrites, default values are for dendrites and low Na
+
+Updates:
+2014 December (Marianne Bezaire): documented
+ENDCOMMENT
+
 
 UNITS {
 	(mA) = (milliamp)

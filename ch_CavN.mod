@@ -1,10 +1,16 @@
-TITLE N-type calcium channel
+TITLE N-type calcium channel (voltage dependent)
  
 COMMENT
-N-Type Ca2+ channel
+N-Type Ca2+ channel (voltage dependent)
+
+Ions: ca
+
+Style: quasi-ohmic
+
 From: Aradi and Holmes, 1999
+
 Updates:
-20100910-MJCASE-documentation in progress
+2014 December (Marianne Bezaire): documented
 ENDCOMMENT
 
 VERBATIM

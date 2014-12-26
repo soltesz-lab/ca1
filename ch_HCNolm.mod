@@ -1,11 +1,13 @@
+TITLE Hyperpolarization-activated, CN-gated channel (voltage dependent, for O-LM cells)
+
 COMMENT
+Hyperpolarization-activated, CN-gated channel (voltage dependent, for O-LM cells)
 
-Ih current	 - hyperpolarization-activated nonspecific Na and K channel
-		 - contributes to the resting membrane potential
-		 - controls the afterhyperpolarization
-Reference:
+Ions: non-specific
 
-1.	Maccaferri, G. and McBain, C.J. The hyperpolarization-activated current
+Style: quasi-ohmic
+
+From: 1.	Maccaferri, G. and McBain, C.J. The hyperpolarization-activated current
 	(Ih) and its contribution to pacemaker activity in rat CA1 hippocampal
 	stratum oriens-alveus interneurons, J. Physiol. 497.1:119-130,
 	1996.
@@ -45,7 +47,11 @@ soma g = 0.0013846 mho/cm2
 dendrite g (300-350 um away) = 0.0125 mho/cm2
 see Table 1 in th paper
 
+Updates:
+2014 December (Marianne Bezaire): documented
 ENDCOMMENT
+
+
 
  UNITS {
         (mA) = (milliamp)

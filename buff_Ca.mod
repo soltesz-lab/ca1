@@ -1,10 +1,19 @@
+TITLE Calcium buffering
+ 
 COMMENT
-This example is taken from the NEURON book, 1st ed.
+Calcium buffering
+ models the calcium ion accumulation with radial
+and longitudinal diffusion
+
+Ions: ca
+
+From: the NEURON book, 1st ed.
 Ex. 9.8: Calcium diffusion with buffering, p. 247
 
-It models the calcium ion accumulation with radial
-and longitudinal diffusion
+Updates:
+2014 December (Marianne Bezaire): documented
 ENDCOMMENT
+
 
 NEURON {
 SUFFIX buff_Ca : calcium buffer and diffusion mechanism

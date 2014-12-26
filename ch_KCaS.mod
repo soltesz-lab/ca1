@@ -2,11 +2,13 @@ TITLE calcium-activated potassium channel (non-voltage-dependent)
 
 COMMENT
 Ca2+ activated K+ channel (not voltage dependent)
-From: 
-- original said for granule cells, but used in all the cell types
+
+From:  original said for granule cells, but used in all the cell types
+
 Updates:
-20100910-MJCASE-documented
+2014 December (Marianne Bezaire): documented
 ENDCOMMENT
+
 
 VERBATIM
 #include <stdlib.h> /* 	Include this library so that the following

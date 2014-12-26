@@ -1,14 +1,21 @@
-TITLE ch_HCN.mod  
- 
+TITLE Hyperpolarization-activated, CN-gated channel (voltage dependent)
+
 COMMENT
-Chen K, Aradi I, Thon N, Eghbal-Ahmadi M, Baram TZ, Soltesz I: Persistently
-modified
-h-channels after complex febrile seizures convert the seizure-induced
-enhancement of
-inhibition to hyperexcitability. Nature Medicine, 7(3) pp. 331-337, 2001.
+Hyperpolarization-activated, CN-gated channel (voltage dependent)
+
+Ions: non-specific
+
+Style: quasi-ohmic
+
+From: Chen K, Aradi I, Thon N, Eghbal-Ahmadi M, Baram TZ, Soltesz I: Persistently
+modified h-channels after complex febrile seizures convert the seizure-induced
+enhancement of inhibition to hyperexcitability. Nature Medicine, 7(3) pp. 331-337, 2001.
 (modeling by Ildiko Aradi, iaradi@uci.edu)
-distal dendritic Ih channel kinetics for both HT and Control anlimals
+
+Updates:
+2014 December (Marianne Bezaire): documented
 ENDCOMMENT
+
 
 VERBATIM
 #include <stdlib.h> /* 	Include this library so that the following

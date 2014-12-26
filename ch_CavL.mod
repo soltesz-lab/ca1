@@ -1,11 +1,18 @@
-TITLE L-type calcium channel
-
+TITLE L-type calcium channel (voltage dependent)
+ 
 COMMENT
-L-Type Ca2+ channel
+L-Type Ca2+ channel (voltage dependent)
+
+Ions: ca
+
+Style: ghk
+
 From: Migliore et al, 1995; based on Jaffe et al, 1994
+
 Updates:
-20100910-MJCASE-documented
+2014 December (Marianne Bezaire): documented
 ENDCOMMENT
+
 
 VERBATIM
 #include <stdlib.h> /* 	Include this library so that the following
