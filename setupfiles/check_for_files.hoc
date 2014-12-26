@@ -1,27 +1,25 @@
-print "Currently in directory: ", getcwd()
-
 strdef cmdstr, outstr
-sprint(cmdstr,"dir ../datasets/conndata_%g.dat", ConnData)
-exitcode1 = system(cmdstr, outstr)
+{sprint(cmdstr,"dir ../datasets/conndata_%g.dat", ConnData)}
+{exitcode1 = system(cmdstr, outstr)}
 //if (exitcode1>0) {print "datasets/conndata_", ConnData, ".dat does not exist."}
 
-sprint(cmdstr,"dir ../datasets/syndata_%g.dat", SynData)
-exitcode2 = system(cmdstr, outstr)
+{sprint(cmdstr,"dir ../datasets/syndata_%g.dat", SynData)}
+{exitcode2 = system(cmdstr, outstr)}
 //if (exitcode2>0) {print "datasets/syndata_", SynData, ".dat does not exist."}
 
-sprint(cmdstr,"dir ../datasets/cellnumbers_%g.dat", NumData)
-exitcode3 = system(cmdstr, outstr)
+{sprint(cmdstr,"dir ../datasets/cellnumbers_%g.dat", NumData)}
+{exitcode3 = system(cmdstr, outstr)}
 //if (exitcode3>0) {print "datasets/cellnumbers_", NumData, ".dat does not exist."}
 
-sprint(cmdstr,"dir ../connectivity/%s_connections.hoc", Connectivity)
-exitcode4 = system(cmdstr, outstr)
+{sprint(cmdstr,"dir ../connectivity/%s_connections.hoc", Connectivity)}
+{exitcode4 = system(cmdstr, outstr)}
 //if (exitcode4>0) {print "connectivity/", Connectivity, "_connections.hoc does not exist."}
 
-sprint(cmdstr,"dir ../stimulation/%s_stimulation.hoc", Stimulation)
-exitcode5 = system(cmdstr, outstr)
+{sprint(cmdstr,"dir ../stimulation/%s_stimulation.hoc", Stimulation)}
+{exitcode5 = system(cmdstr, outstr)}
 //if (exitcode5>0) {print "stimulation/", Stimulation, "_stimulation.hoc does not exist."}
 
 if ((exitcode1+exitcode2+exitcode3+exitcode4+exitcode5)>0) {
-	print "One or more necessary files are missing, quitting the job now."
+	{print "One or more necessary files are missing, quitting the job now."}
 	{quit()}
 }
