@@ -1,9 +1,13 @@
+TITLE A-type potassium channel (voltage dependent, for O-LM cell)
+
 COMMENT
-IA channel
+A-type potassium channel (voltage dependent, for O-LM cell)
 
-Reference:
+Ions: k
 
-1.	Zhang, L. and McBain, J. Voltage-gated potassium currents in
+Style: quasi-ohmic
+
+From: 1.	Zhang, L. and McBain, J. Voltage-gated potassium currents in
 	stratum oriens-alveus inhibitory neurons of the rat CA1
 	hippocampus, J. Physiol. 488.3:647-660, 1995.
 
@@ -35,7 +39,10 @@ Reference:
 		(number taken from the work by Numann et al. in guinea pig
 		CA1 neurons)
 
+Updates:
+2014 December (Marianne Bezaire): documented
 ENDCOMMENT
+
 
 UNITS {
         (mA) = (milliamp)

@@ -1,17 +1,21 @@
-TITLE Kdrslow.mod  
- 
+TITLE Slow delayed rectifier potassium channel (voltage dependent)
+
 COMMENT
-	Slow delayed rectifier K+ currents: Storm, 1990:
+Slow delayed rectifier potassium channel (voltage dependent)
+
+Ions: k
+
+Style: quasi-ohmic
+
+From: Slow delayed rectifier K+ currents: Storm, 1990:
 	(3) IK activates slowly (time constant, 20–60 ms) in response to depolarizations positive to -40 mV and inactivates (about 5s) at -80 to -40 mV; it probably participates in spike repolarization.
 	(4) IM activates slowly (about 50 ms) positive to -60 mV and does not inactivate; it tends to attenuate excitatory inputs, it reduces the firing rate during maintained depolarization (adaptation) and contributes to the medium after-hyperpolarization (mAHP).
-	Aradi shifted the voltage dependence by -12 mV - don't know why
 
-Note: there is some type of warning during compilation of this mechanism:
-ichan2.c: In function 'initmodel':
-ichan2.c:488: warning: 'return' with a value, in function returning void
-Probably due to the VERBATIM blocks setting it to return 0. I have removed them.
-Not sure what their purpose was.
+Updates:
+2014 December (Marianne Bezaire): documented
+? ? (Aradi): shifted the voltage dependence by -12 mV - don't know why
 ENDCOMMENT
+
 
 VERBATIM
 #include <stdlib.h> /* 	Include this library so that the following

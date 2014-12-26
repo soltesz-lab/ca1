@@ -1,11 +1,18 @@
-TITLE A-type potassium channel
+TITLE A-type potassium channel (voltage dependent)
 
 COMMENT
-A-type K+ channel
-From: 
+A-type potassium channel (voltage dependent)
+
+Ions: k
+
+Style: quasi-ohmic
+
+From: unknown
+
 Updates:
-20100910-MJCASE-documented
+2014 December (Marianne Bezaire): documented
 ENDCOMMENT
+
 
 VERBATIM
 #include <stdlib.h> /* 	Include this library so that the following

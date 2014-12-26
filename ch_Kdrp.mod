@@ -1,7 +1,19 @@
-TITLE K-DR channel
-: from Klee Ficker and Heinemann
-: modified to account for Dax et al.
-: M.Migliore 1997
+TITLE Delayed rectifier potassium channel (voltage dependent)
+
+COMMENT
+Delayed rectifier potassium channel (voltage dependent)
+
+Ions: k
+
+Style: quasi-ohmic
+
+From: Klee Ficker and Heinemann
+
+Updates:
+2014 December (Marianne Bezaire): documented
+1997 (Michele Migliore): modified to account for Dax et al.
+ENDCOMMENT
+
 
 UNITS {
 	(mA) = (milliamp)
