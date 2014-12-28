@@ -193,8 +193,8 @@ proc mechinit() {
 	celsius = 34.0  
 
 	// Membrane resistance in ohm*cm2
-	RmDend = 60000 // 60000
-	RmSoma = 60000 // 60000 
+	RmDend = 27000 // 60000
+	RmSoma = 27000 // 60000 
 
 	// Membrane capacitance in uF/cm2
 	CmSoma= 1.4 // 1.8
@@ -217,18 +217,18 @@ proc mechinit() {
 	
 	if (Vrest<ekval) Vrest=ekval // Cell cannot rest lower than K+ reversal potential
 	if (Vrest>enaval) Vrest=enaval // Cell cannot rest higher than Na+ reversal potential
-	eleakval = Vrest
+	eleakval = -72 //Vrest
 
 	// max ion channel conductances in mho/cm2
-	gNav     = 0.022 // soma: // 0.12 //original 0.030 to .055 ; lm: //0.5  	//original 0.015
-	gKdr     = 0.000    // Delayed rectifier potassium
-	gKGroup  = 0.0035 //0.1465/1
-	gKvA 	 = 0.0002 // Proximal A-type potassium
-	gHCN     = 0.0003 // HCN (hyperpolarization-activated cyclic nucleotide-gated channel)
-	gCavN    = 0.0003 //   T-type calcium
-	gCavL    = 0.005*2 //  L-type calcium
-	gKvCaB	 = 0.000010 // Big potassium channel: voltage and calcium gated 
-	gKCaS	 = 0.000001 //  Small potassium channel: calcium gated		
+	gNav     = 0.018 // soma: // 0.12 //original 0.030 to .055 ; lm: //0.5  	//original 0.015
+	gKdr     = 0.000008    // Delayed rectifier potassium
+	gKGroup  = 0.0013 //0.1465/1
+	gKvA 	 = 0.00040 // Proximal A-type potassium
+	gHCN     = 0.0001 // HCN (hyperpolarization-activated cyclic nucleotide-gated channel)
+	gCavN    = 0.00002 //   T-type calcium
+	gCavL    = 0.0027 //  L-type calcium
+	gKvCaB	 = 0.00004 // Big potassium channel: voltage and calcium gated 
+	gKCaS	 = 0.000004 //  Small potassium channel: calcium gated		
 }
 
 proc insert_mechs() {
@@ -259,8 +259,8 @@ proc insert_mechs() {
 	} 
 
 	soma {
-		insert ch_Nav	
-		gmax_ch_Nav = gNav
+		insert ch_Navcck	
+		gmax_ch_Navcck = gNav
 		ena = enaval
 		insert ch_Kdrfast
 		gmax_ch_Kdrfast = gKdr
@@ -281,13 +281,13 @@ proc insert_mechs() {
 		
 		for (x,0) {
 			if (distance(x)<100) {
-				insert ch_Nav
-				gmax_ch_Nav=gNav*.8
+				insert ch_Navcck
+				gmax_ch_Navcck=gNav*.5
 				ena = enaval
 				insert ch_Kdrfast
 				gmax_ch_Kdrfast=gKdr*10
 				insert ch_KvGroup
-				gmax_ch_KvGroup = gKGroup
+				gmax_ch_KvGroup = gKGroup*2
 			}
 		}
 	}	

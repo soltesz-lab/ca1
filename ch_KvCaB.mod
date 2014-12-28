@@ -35,9 +35,10 @@ UNITS {
 NEURON {
 	SUFFIX ch_KvCaB
 	USEION k READ ek WRITE ik
-	USEION nca READ ncai VALENCE 2
-	USEION lca READ lcai VALENCE 2
-	USEION tca READ tcai VALENCE 2
+	USEION ca READ cai VALENCE 2
+	:USEION nca READ ncai VALENCE 2
+	:USEION lca READ lcai VALENCE 2
+	:USEION tca READ tcai VALENCE 2
 	RANGE gmax, g, ik
 	RANGE myi
 	GLOBAL oinf, otau	: these two are not thread safe
@@ -56,7 +57,8 @@ PARAMETER {	: clean up the PARAMETER and ASSIGNED blocks
 	d2 = 1.	
 	k1 = .48e-3	(mM)
 	k2 = .13e-6	(mM)
-	cai = 5.e-5	(mM)
+	:cai = 5.e-5	(mM)
+	cai (mM)
 	
 	abar = .28	(/ms)
 	bbar = .48	(/ms)
@@ -68,9 +70,9 @@ ASSIGNED {	: clean up the PARAMETER and ASSIGNED blocks
       celsius (degC) : temperature - set in hoc; default is 6.3
 	v			(mV)
 
-	lcai		(mV)
-	ncai		(mV)
-	tcai		(mV)
+	:lcai		(mV)
+	:ncai		(mV)
+	:tcai		(mV)
 
 	ek			(mV)
 	ik			(mA/cm2)
@@ -82,7 +84,7 @@ ASSIGNED {	: clean up the PARAMETER and ASSIGNED blocks
 }
 
 INITIAL {
-	cai= ncai + lcai : + tcai
+	:cai= ncai + lcai : + tcai
         rate(v,cai)
         o=oinf
 }
@@ -97,7 +99,7 @@ BREAKPOINT {
 }
 
 DERIVATIVE state {	: exact when v held constant; integrates over dt step
-	cai= ncai + lcai : + tcai
+	:cai= ncai + lcai : + tcai
 	rate(v, cai)
 	o' = (oinf - o)/otau
 }

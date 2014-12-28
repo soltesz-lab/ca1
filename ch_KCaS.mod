@@ -28,9 +28,10 @@ UNITS {
 NEURON {
 	SUFFIX ch_KCaS
 	USEION k READ ek WRITE ik VALENCE 1
-	USEION nca READ ncai VALENCE 2
-	USEION lca READ lcai VALENCE 2
-	USEION tca READ tcai VALENCE 2
+	USEION ca READ cai VALENCE 2
+	:USEION nca READ ncai VALENCE 2
+	:USEION lca READ lcai VALENCE 2
+	:USEION tca READ tcai VALENCE 2
 	RANGE g, gmax, qinf, qtau, ik
 	RANGE myi
     THREADSAFE
@@ -45,9 +46,9 @@ PARAMETER {
 	gmax  (mho/cm2)
 	ek	(mV)
 	cai (mM)
-	ncai (mM)
-	lcai (mM)
-	tcai (mM)
+	:ncai (mM)
+	:lcai (mM)
+	:tcai (mM)
 }
 
 STATE { q }
@@ -64,7 +65,7 @@ ASSIGNED {
 
 BREAKPOINT {          :Computes i=g*q^2*(v-ek)
 	SOLVE state
-        g = gmax * q*q
+    g = gmax * q*q
 	ik = g * (v-ek)
 	myi = ik
 }
@@ -72,18 +73,18 @@ BREAKPOINT {          :Computes i=g*q^2*(v-ek)
 UNITSOFF
 : verbatim blocks are not thread safe (perhaps related, this mechanism cannot be used with cvode)
 INITIAL {
-	cai = ncai + lcai + tcai	
+	:cai = ncai + lcai + tcai	
 	q=qinf
 	rate(cai)
-	VERBATIM	
-	ncai = _ion_ncai;
-	lcai = _ion_lcai;
-	tcai = _ion_tcai;
-	ENDVERBATIM
+	:VERBATIM	
+	:ncai = _ion_ncai;
+	:lcai = _ion_lcai;
+	:tcai = _ion_tcai;
+	:ENDVERBATIM
 }
 
 PROCEDURE state() {  :Computes state variable q at current v and dt.
-	cai = ncai + lcai + tcai
+	:cai = ncai + lcai + tcai
 	rate(cai)
 	q = q + (qinf-q) * qexp
 }
