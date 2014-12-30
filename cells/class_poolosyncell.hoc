@@ -43,7 +43,8 @@ proc init() {
 	define_shape()
 	
 	// subcellular mechanisms: channels, pumps, transporters
-	insert_mechs() // also contains set_biophys()
+	mechinit()			// local fcn: set values for max conductances and reversal potentials of ion channels and other ephys parameters that are subject to fitting
+	insert_mechs()		// local fcn: insert ion channels and actually set values determined in the mechinit fcn
 	
 	set_nseg()		// set the number of segments in each section
 					// if this is driven by an error-minimization rule,
@@ -564,7 +565,7 @@ proc set_nseg() {
   forsec all { nseg = int((L/(0.1*lambda_f(100))+.9)/2)*2 + 1  }
 }
 
-proc insert_mechs() {
+proc mechinit() {
 	NumSoma=13
 	NumApical=127
 	NumBasal=60
@@ -598,7 +599,9 @@ proc insert_mechs() {
 	gKvAdist = 0.008 // distal KvA conductance in mho/cm2
 	gKvAprox = 0.008 // proximal KvA conductance in mho/cm2
 	gHCN     = 0.0006 // hcurrent conductance in mho/cm2 --> 6 pS/um2
-
+}
+	
+proc insert_mechs() {
 	access soma[5]
 	distance() // calculates the distance between location 0 of the currently accessed section (as the origin) to a second point (but with this usage, it just sets the origin point) 
 
