@@ -7,13 +7,12 @@ Ions: non-specific
 
 Style: quasi-ohmic
 
-From: Chen K, Aradi I, Thon N, Eghbal-Ahmadi M, Baram TZ, Soltesz I: Persistently
-modified h-channels after complex febrile seizures convert the seizure-induced
-enhancement of inhibition to hyperexcitability. Nature Medicine, 7(3) pp. 331-337, 2001.
+From: Chen et al (2001), distal dendrite, control h channel
 (modeling by Ildiko Aradi, iaradi@uci.edu)
 
 Updates:
-2014 December (Marianne Bezaire): documented
+2014 December (Marianne Bezaire): documented, only slow tau used, fake
+ion switched to a non-specific current
 ENDCOMMENT
 
 
@@ -39,17 +38,17 @@ UNITS {
  
 NEURON { 
 	SUFFIX ch_HCN 
-	USEION h READ eh WRITE ih VALENCE 1
-	RANGE gmax, g, ih
+	NONSPECIFIC_CURRENT i
+	RANGE gmax, g, i, e
 	RANGE hinf
-	RANGE fast_tau, slow_tau
+	RANGE slow_tau :, fast_tau
 	RANGE myi
 }
  
  
 PARAMETER {
 	gmax  (mho/cm2)
-	eh (mV)
+	e (mV)
 }
  
 STATE {
@@ -62,10 +61,10 @@ ASSIGNED {
 	dt (ms)    
   
 	g (mho/cm2)
- 	ih (mA/cm2)
+ 	i (mA/cm2)
 	
 	hinf 
- 	fast_tau (ms)
+ 	:fast_tau (ms)
  	slow_tau (ms) 
  	myi (mA/cm2)
 } 
@@ -74,8 +73,8 @@ BREAKPOINT {
 	SOLVE states METHOD cnexp
 		
 	g = gmax*h*h
-	ih = g*(v - eh)
-	myi = ih
+	i = g*(v - e)
+	myi = i
 }
  
 UNITSOFF
@@ -92,7 +91,7 @@ DERIVATIVE states {	:computes h at current v and dt
  
 LOCAL q10
 PROCEDURE trates(v) {  :Computes rate and other constants at current v.
-	TABLE hinf, fast_tau, slow_tau	
+	TABLE hinf, slow_tau : , fast_tau
 	DEPEND celsius 
 	FROM -120 TO 100 WITH 220
                            
@@ -102,7 +101,7 @@ PROCEDURE trates(v) {  :Computes rate and other constants at current v.
 	hinf =  1 / (1 + exp( (v+91)/10 ))
 
 	:"hyf" FAST CONTROL Hype activation system
-	fast_tau = (14.9 + 14.1 / (1+exp(-(v+95.2)/0.5)))/q10
+	:fast_tau = (14.9 + 14.1 / (1+exp(-(v+95.2)/0.5)))/q10
 
 	:"hys" SLOW CONTROL Hype activation system
 	slow_tau = (80*1.5 + .75*172.7 / (1+exp(-(v+59.3)/-0.83)))/q10

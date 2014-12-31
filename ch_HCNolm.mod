@@ -70,7 +70,6 @@ INDEPENDENT {t FROM 0 TO 1 WITH 1 (ms)}
  
 PARAMETER {
         v (mV)
-        p = 5 (degC)
         dt (ms)
         gmax = 0.001385 (mho/cm2)
 		g (mho/cm2)
@@ -108,7 +107,7 @@ DERIVATIVE deriv { :Computes state variable h at current v and dt.
 
 PROCEDURE rates(v) {  :Computes rate and other constants at current v.
                       :Call once from HOC to initialize inf at resting v.
-        TABLE rinf, tau_r, rexp DEPEND dt, p FROM -200
+        TABLE rinf, tau_r, rexp DEPEND dt FROM -200
 TO 100 WITH 300
 	rinf = 1/(1 + exp((v+84.1)/10.2))
 	tau_r = 100 + 1/(exp(-17.9-0.116*v)+exp(-1.84+0.09*v))

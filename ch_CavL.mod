@@ -7,7 +7,8 @@ Ions: ca
 
 Style: ghk
 
-From: Migliore et al, 1995; based on Jaffe et al, 1994
+From: Jaffe et al, 1994
+
 
 Updates:
 2014 December (Marianne Bezaire): documented
@@ -117,13 +118,13 @@ FUNCTION bet(v(mV)) (1/ms) {
 }
 
 DERIVATIVE state {  
-        rate(v)
-        m' = (minf - m)/mtau
+	rate(v)
+	m' = (minf - m)/mtau
 }
 
 PROCEDURE rate(v (mV)) { :callable from hoc
-        LOCAL a
-        a = alp(v)
-        mtau = 1/(tfa*(a + bet(v)))
-        minf = tfa*a*mtau
+	LOCAL a
+	a = alp(v)
+	mtau = 1/(tfa*(a + bet(v)))
+	minf = tfa*a*mtau
 }
