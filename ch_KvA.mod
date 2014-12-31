@@ -7,7 +7,7 @@ Ions: k
 
 Style: quasi-ohmic
 
-From: unknown
+From: Migliore et al, 1995.
 
 Updates:
 2014 December (Marianne Bezaire): documented
