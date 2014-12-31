@@ -221,8 +221,8 @@ proc mechinit() {
 	eHCNval = -30
 	eleakval = 	Vrest // not lower than ekval
 
-	gNav     = 0 // 0.032 // Nav conductance in mho/cm2
-	gNavaxon = 0 // 0.064 // axon multiplier for Nav conductance
+	gNav     = 0.032 // Nav conductance in mho/cm2
+	gNavaxon = 0.064 // axon multiplier for Nav conductance
 	gKdr     = 0.003 // Kdr conductance in mho/cm2
 	gKvAdist = 0.008 // distal KvA conductance in mho/cm2
 	gKvAprox = 0.008 // proximal KvA conductance in mho/cm2
