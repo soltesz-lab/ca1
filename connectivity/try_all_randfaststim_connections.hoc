@@ -104,18 +104,18 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			if (cellType[postcellType].layerflag>0) {addheight=LayerVector.sum(0,cellType[postcellType].layerflag-1)}
 			params.x[23]= addheight
 			params.x[24]= cellType[postcellType].cellStartGid
-			params.x[25]= newhighindex
+			params.x[25]= 1+RandomSeedsConn //newhighindex
 			params.x[26]= connlength
 
 			conns2make.fastconn(params, postcellgids, highIndices)			
 			sprint(memstr, "Defined %s to %s conns", $s3, $s4)
 			zzz = mallinfo(zzz, memstr)
-			newhighindex = newhighindex + int(conns2make.x[1]/1)+1
+
 			for r=0, numpost-1 {
 				highIndices.x[r] = int(conns2make.x[2+r]/1)
 			}
 			
-			for r=1, int(conns2make.x[0]/1) {
+			for r=1+numpost, int(conns2make.x[0]/1)+numpost {
 				if (pc.gid_exists(conns2make.x[r+1+connlength])) {
 					cell = pc.gid2cell(conns2make.x[r+1+connlength])
 					numSynTypes = cell.pre_list.o(precellType).count()

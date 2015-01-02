@@ -345,7 +345,7 @@ static int fastconn (void* vv) {
 		x [2+n] = idx1 + 1;
 		//if (idx1>maxidx1) { maxidx1=idx1;}
 	}
-	x [0] = myi-2;	// fill the first element of the array (vector)
+	x [0] = myi-2-num_post;	// fill the first element of the array (vector)
 					// with the total number of connections to make,
 					// which may be less than the desired number (and
 					// hence the size of the array)

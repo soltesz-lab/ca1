@@ -23,11 +23,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			highIndices = new Vector(numpost)
 			postcellgids.x[0] = gidOI
 			highIndices.x[0] = 1+RandomSeedsConn
-			//for r=0, numpost-1 {
-			//	postcellgids.x[r] = cellType[j].CellList[r].gid*1.0
-			//	highIndices.x[r] = 1+RandomSeedsConn
-			//}
-			//newhighindex = 1+RandomSeedsConn	
+
 			for i = 0, numCellTypes-1 {	
 				//if (cellType[i].is_art()==0) {
 				precellType_string =  cellType[i].cellType_string	// Load cell type string used to grab connection-specific properties later
@@ -57,20 +53,15 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 		synWeight = cellType[$1].wgtConns.x[$2]
 		numSyns = cellType[$1].numSyns.x[$2]
 		numConns = cellType[$1].numConns.x[$2]				
-		// numConns = int(numConns/(Scale) + .5) // higher connectivity in smaller scale models
 
 		if (PrintTerminal>2) {print "Host ", pc.id, " is connecting: ", $s3, "s to ", $s4, "s."}
-		
-		//print "Host ", pc.id, " is connecting: ", $s3, "s to ", $s4, "s: numpost = ", numpost, ", numConns=", numConns
 
 		if (numConns != 0 && numpost !=0) {
 			params = new Vector(27)
 			if (cellType[postcellType].numCells>=pc.nhost) {
 				connlength = numConns*int(cellType[postcellType].numCells/pc.nhost+1.5)+cellType[postcellType].numCells
-				// connlength = int((numConns)/cellType[postcellType].numCells+.5)*int(cellType[postcellType].numCells/pc.nhost+1.5)+cellType[postcellType].numCells
 			} else {
 				connlength = numConns+cellType[postcellType].numCells
-				// connlength = int((numConns)/cellType[postcellType].numCells+.5)+cellType[postcellType].numCells
 			}
 			
 			conns2make = new Vector(1+connlength*6+numpost)
@@ -112,13 +103,16 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			params.x[26]= connlength
 
 			conns2make.fastconn(params, postcellgids, highIndices)	
-			//if (pc.gid_exists(gidOI)) {pc.broadcast("conns2make", pc.id)}
+
+			for r=0, postcellgids.size()-1 {
+				print "postcellgids.x[", r, "] = ", postcellgids.x[r]
+			}
+
 			{pc.barrier()}
 			sprint(memstr, "Defined %s to %s conns", $s3, $s4)
 			zzz = mallinfo(zzz, memstr)
 			for r=0, numpost-1 {
 				highIndices.x[r] = int(conns2make.x[2+r]/1)
-			//newhighindex = newhighindex + int(conns2make.x[1]/1)+1
 			}
 			
 			for r=1+numpost, int(conns2make.x[0]/1)+numpost {		
@@ -126,8 +120,6 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 				cellind = precellType
 				for pcitr(&i, &ij, &gid, cellType[cellind].cellStartGid, conns2make.x[r+1]) {// use the pciter on this one cell to find owner rank for it: conns2make.x[r+1]
 					if (pc.gid_exists(gid) && cells2make.x[gid]==-1) {
-						// print "cellType[", cellind, "]=", cellType[cellind]
-						// print "CellList[", ij, "]=", cellType[cellind].CellList[ij]
 						sprint(cmd, "{cellType[%g].CellList[%g]=new ppvec(%g,%g)}", cellind, ij, gid, i) //+cellType[cellind].cellStartGid) // why add the startgid to the gid? 
 						{runresult=execute(cmd)} //prints a zero!		// This command was written as a string so
 														//	the cell object doesn't have to be hard coded

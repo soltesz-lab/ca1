@@ -35,7 +35,7 @@ i=0
 ij=0
 gid=0
 strdef origRunName
-origRunName = "CutSma_040_04"
+origRunName = "CutSma_040_11"
 PrintConnDetails=2
 /***********************************************************************************************
 II. SET MODEL SIZE, CELL DEFINITIONS
