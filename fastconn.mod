@@ -120,8 +120,8 @@ static double get_z_pos (int gid, int gmin, int BinNumZ, int binSizeZ, int ZHeig
 }
 */
 static int fastconn (void* vv) {
-  int finalconn, ny, nz, num_pre, num_post, gmin, gmax, steps, myflaggy, myi, postgmin, stepover;
-  double *x, *y, *z, a, b, c, nconv, ncell, axonal_extent;
+  int finalconn, ny, nz, nhigh, num_pre, num_post, gmin, gmax, steps, myflaggy, myi, postgmin, stepover;
+  double *x, *y, *z, *high, a, b, c, nconv, ncell, axonal_extent;
 
 	/* Get hoc vectors into c arrays */
 	finalconn = vector_instance_px(vv, &x); // x is an array corresponding
@@ -130,6 +130,7 @@ static int fastconn (void* vv) {
 
 	ny = vector_arg_px(1, &y); // y is an array of parameters
 	nz = vector_arg_px(2, &z); // z is an array of the postsynaptic gids
+	nhigh = vector_arg_px(3, &high); // high is an array of the starting high indices to use
 	
 	/* Load the parameters from the param array */
 	gmin = y[0];	// presynaptic start gid
@@ -147,9 +148,9 @@ static int fastconn (void* vv) {
 	postgmin = y[24];	// postsynaptic start gid
 	stepover = y[26];	// postsynaptic start gid
 
-	myi=2;	// myi will give the next index into finalconn
+	myi=2+num_post;	// myi will give the next index into finalconn
 			// 0 is reserved for # conns to make
-			// 1 is reserved for the last high index used by nrnRan4int
+			// 1 is reserved for # cells (each having an entry for their last high index used by nrnRan4int)
 
 	/* Get positions of the presynaptic and postsynaptic cells*/
 	double prepos [num_pre][3];
@@ -207,7 +208,7 @@ static int fastconn (void* vv) {
 
 	for (n=0; n<num_post; n++) { // for each post cell
 		int myx = (int)z[n]; // get the gid of the current postsynaptic cell in int form
-		idx1 = y[25]; 	// reset the high index for the next postsynaptic
+		idx1 = high[n];	// reset the high index for the next postsynaptic
 						// cell. It should be set to a value that is 
 						// certainly higher than what would have been
 						// used during previous calls for this low index/gid
@@ -341,13 +342,14 @@ static int fastconn (void* vv) {
 				}
 			} 
 		}
-		if (idx1>maxidx1) { maxidx1=idx1;}
+		x [2+n] = idx1 + 1;
+		//if (idx1>maxidx1) { maxidx1=idx1;}
 	}
 	x [0] = myi-2;	// fill the first element of the array (vector)
 					// with the total number of connections to make,
 					// which may be less than the desired number (and
 					// hence the size of the array)
-	x [1] = (double)maxidx1;
+	x [1] = num_post; // (double)maxidx1;
 	return finalconn;
 }
 ENDVERBATIM

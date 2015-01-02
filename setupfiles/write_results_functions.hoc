@@ -23,7 +23,7 @@ proc spikeoutfast() {local i  localobj f				// Write out a spike raster quickly 
 	sprint(cmd,"./results/%s/spikeraster_%g.dat", RunName, pc.id)
 	f = new File(cmd)
 	f.wopen()
-	for i=0, pnm.idvec.size-1 {
+	for i=0, pnm.spikevec.size-1 {
 		f.printf("%.3f %d\n", pnm.spikevec.x[i], pnm.idvec.x[i])	// Print the spike time and spiking cell gid
 	}
 	f.close()

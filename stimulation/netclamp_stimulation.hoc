@@ -1,0 +1,33 @@
+f2 = new File()
+sprint(cmdstr, "../results/%s/spikeraster.dat", origRunName)
+f2.ropen(cmdstr)		// Open the celltype
+numSpikes = 29 //211894 //f2.scanvar			// Scan the first line, which contains a number giving the
+objref tvec_, idvec_, pattern_
+tvec_ = new Vector(numSpikes)
+idvec_ = new Vector(numSpikes)
+nidx=0
+for n=0,numSpikes-1 {
+	tmptime = f2.scanvar
+	tmpgid = f2.scanvar
+	if (tmpgid!=gidOI && cells2make.indwhere("==", tmpgid)>-1) {
+		idvec_.x[nidx] = tmpgid // gid of NetStim to make fire
+		tvec_.x[nidx] = tmptime // spike time in ms
+		//print "include spike for ", tmpgid, " at ", tmptime
+		nidx +=1
+	//} else {
+	//	print "dont include spike for ", tmpgid
+	}
+//print "id: ", 
+}
+
+f2.close()
+
+if (nidx>0) {
+	idvec_.resize(nidx)
+	tvec_.resize(nidx)
+
+	pattern_ = new PatternStim()
+
+	pattern_.fake_output = 1
+	pattern_.play(tvec_, idvec_)	
+}
