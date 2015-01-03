@@ -29,14 +29,23 @@ I.  LOAD LIBRARIES
 
 {load_file("./setupfiles/check_for_files.hoc")}	// Checks that the necessary chosen files exist
 												//  (datasets, connectivity, and stimulation)
-celltypeOI=0
-gidOI=0
+												
+default_var("gidOI", 0) // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
+default_var("cellindOI", 0) // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
+default_var("spkflag", 0) // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
+default_var("resultsfolder", "00001") // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
+default_var("runname", "None") // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
+default_var("origRunName", "CutSma_040_11") // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
+default_var("celltype2use", "axoaxoniccell") // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
+												
+celltypeOI=cellindOI
+//gidOI=0
 i=0
 ij=0
 gid=0
-strdef origRunName
+/*strdef origRunName
 origRunName = "CutSma_040_11"
-PrintConnDetails=2
+PrintConnDetails=2*/
 /***********************************************************************************************
 II. SET MODEL SIZE, CELL DEFINITIONS
 ***********************************************************************************************/
@@ -59,7 +68,8 @@ proc loadCellTemplates(){local i		// Proc to load the template that defines (eac
 
 	//for i=0, numCellTypes-1 {			// Iterate over each cell type in cells2include (and art cells?)
 	i = celltypeOI
-		sprint(tempFileStr,"./cells/class_%s.hoc",cellType[i].technicalType)	// Concatenate the
+		sprint(tempFileStr,"./cells/class_%s.hoc",celltype2use)	// Concatenate the
+		//sprint(tempFileStr,"./cells/class_%s.hoc",cellType[i].technicalType)	// Concatenate the
 																				//  path and file
 																				
 		load_file(tempFileStr)			// Load the file with the template that defines the class
@@ -187,7 +197,8 @@ if (strcmp(UID,"0")==0 && pc.id==0) {
 	UID = direx
 }
 
-{load_file("./setupfiles/save_run_info.hoc")}
+strdef cmdstr, cmd
+//{load_file("./setupfiles/save_run_info.hoc")}
 
 loadtime = startsw() - loadstart		// Calculate the set up time (now - recorded start time) in seconds
 if (pc.id == 0) {printf("\nTIME HOST 0: %g seconds (set up)\n************\n", loadtime)}
@@ -246,9 +257,8 @@ ranstimlist = new List()
 {load_file("./setupfiles/netclamp_create_cells_pos.hoc")}	// Creates each cell on its assigned host
 													//  and sets its position using the algorithm
 													//  defined above
-	pnm.spike_record(gidOI)						// Record all spikes of all cells on this machine into the
-												//  vectors pnm.spikevec (spiketimes) and pnm.idvec (gids)
-												
+													
+													
 
 strdef cmd
 {load_file("./setupfiles/write_positions.hoc")}		// Defines the proc to write the position
@@ -282,6 +292,11 @@ celsius=34
 
 zzz = mallinfo(zzz, "After connecting cells")
 {pc.barrier()}
+
+if (pc.gid_exists(gidOI)) {
+	pnm.spike_record(gidOI)						// Record all spikes of all cells on this machine into the
+												//  vectors pnm.spikevec (spiketimes) and pnm.idvec (gids)
+}
 
 {sprint(cmd,"./stimulation/%s_stimulation.hoc", "netclamp")}
 {load_file(cmd)}			// Loads in a particular stimulation protocol, including the spike
@@ -437,12 +452,11 @@ proc rrun(){									// Run the network simulation and write out the results
 		if (pc.id == 0) { printf("no load balance info available\nno spike exchange info available\n")}
 	}
 	
+	/*
 	spikeoutfast()
 	
 	timeout()	// Write out a file of run times for each code section
 	
-	//highIndexout() // document how much of the random streams this run used
-
 	if (PrintVoltage>0) {voltageout()}	// Write out any voltages that were recorded during simulation
 	if (PrintConnDetails==1) {tracenetfast()}	// Write the file of all cell connections (pre and post gids, synapse type,
 										//  host on which cell exists), "connections.dat"
@@ -450,6 +464,8 @@ proc rrun(){									// Run the network simulation and write out the results
 	if ((PrintConnDetails==0) && (PrintVoltage==1)) {tracecellsfast()}	// If detailed connections are not being written out, at least write them out for cells that are being traced
 	
 	sumnumout(runtime)	// Write out a file with the total number of cells, spikes, and connections (including contributions from artificial cells)
+	*/
+	
 	writetime = startsw() - writestart				// Calculate write time of program
 	totaltime = startsw() - loadstart
 	allottedtime = JobHours*3600
@@ -537,8 +553,8 @@ if (pc.id==0 && get_spike_hist==1) {
 strdef outfile
 objref f
 if (pc.gid_exists(gidOI)) {	// If cell exists on this machine
-	// sprint(outfile, "../networkclamp_results/%s/%s/mytrace_%d_soma.dat", RunName, resultsfolder, gidOI)
-	sprint(outfile, "./results/%s/mytrace_%d_soma.dat", RunName, gidOI)
+	sprint(outfile, "./networkclamp_results/%s/%s/mytrace_%d_soma.dat", runname, resultsfolder, gidOI)
+	//ssprint(outfile, "./results/%s/mytrace_%d_soma.dat", RunName, gidOI)
 	f = new File(outfile)
 	f.wopen()
 	f.printf("t\tv\n")
@@ -557,6 +573,52 @@ if (pc.gid_exists(gidOI)) {	// If cell exists on this machine
 	f.close()*/
 
 }
+
+proc spikeout() {local i, rank  localobj f				// Write out a spike raster (cell, spike time)
+	pc.barrier()									// Wait for all ranks to get to this point
+	sprint(cmd,"./networkclamp_results/%s/%s/spikeraster.dat", runname, resultsfolder)
+	f = new File(cmd)
+	if (pc.id == 0) { 								// Write header to file 1 time only
+		f.wopen()
+		f.close()
+	}
+	
+	for rank = 0, pc.nhost-1 {				// For each processor, allow processor to append to file the spike times of its cells
+		if (rank == pc.id) {				// Ensure that each processor runs once
+			f.aopen() 						// Open for appending to file
+			for i=0, pnm.idvec.size-1 {
+				f.printf("%.3f %d\n", pnm.spikevec.x[i], pnm.idvec.x[i])	// Print the spike time and spiking cell gid
+			}
+			f.close()
+		}
+		pc.barrier()
+	}
+}
+spikeout()
+
+proc tracenet() {local i, rank, srcid localobj tgt, f	// Write out the connections list, including synapse type
+	pc.barrier()									// Wait for all ranks to get to this point
+	sprint(cmd,"./networkclamp_results/%s/%s/connections.dat", runname, resultsfolder)
+	f = new File(cmd)
+	if (pc.id == 0) { 								// Write header to file 1 time only
+		f.wopen()
+		f.printf("source\ttarget\tsynapse\n")
+		f.close()
+	}
+	for rank = 0, pc.nhost-1 {				// For each processor, allow processor to append to file its connection info
+		if (rank == pc.id) {				// Ensure that each processor runs once
+			f.aopen() 						// Open for appending to file
+			for i=0, nclist.count -1 {		// For each connection in the list
+				srcid = nclist.o(i).srcgid()	// Get the gid of the source cell
+				tgt = nclist.o(i).syn			// Get a reference to the target cell
+				f.printf("%d\t%d\t%d\n", srcid, tgt.cid, tgt.sid)	// Print source gid, target gid, synapse id
+			}
+			f.close()
+		}		
+		pc.barrier()
+	}
+}
+tracenet()
 
 {pc.barrier}
 {quit()}

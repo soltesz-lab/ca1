@@ -104,10 +104,6 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 
 			conns2make.fastconn(params, postcellgids, highIndices)	
 
-			for r=0, postcellgids.size()-1 {
-				print "postcellgids.x[", r, "] = ", postcellgids.x[r]
-			}
-
 			{pc.barrier()}
 			sprint(memstr, "Defined %s to %s conns", $s3, $s4)
 			zzz = mallinfo(zzz, memstr)
@@ -131,7 +127,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 						cellType[cellind].CellList[ij].connect_pre(nil, nc)	// Create an empty connection for use by the spike detector
 						pc.cell(gid, nc)									// Associate the cell with its gid and its spike generation location
 
-						pnm.spike_record(gid)						// Record all spikes of all cells on this machine into the
+						// pnm.spike_record(gid)						// Record all spikes of all cells on this machine into the
 																	//  vectors pnm.spikevec (spiketimes) and pnm.idvec (gids)
 						addheight=0
 						if (cellType[cellind].layerflag>0) {addheight=LayerVector.sum(0,cellType[cellind].layerflag-1)}
@@ -145,8 +141,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			}
 			{pc.barrier}
 			for r=1+numpost, int(conns2make.x[0]/1)+numpost {		
-				if (conns2make.x[r+1+connlength]!=gidOI) {continue}
-				
+				if (conns2make.x[r+1+connlength]!=gidOI) {continue}				
 				if (pc.gid_exists(conns2make.x[r+1+connlength])) {
 					cell = pc.gid2cell(conns2make.x[r+1+connlength])
 					numSynTypes = cell.pre_list.o(precellType).count()

@@ -1,6 +1,10 @@
 f2 = new File()
-sprint(cmdstr, "../results/%s/spikeraster_0.dat", origRunName)
+sprint(cmdstr, "./results/%s/spikeraster.dat", origRunName)
 f2.ropen(cmdstr)		// Open the celltype
+if (!f2.isopen()) { 
+	sprint(cmdstr, "../results/%s/spikeraster.dat", origRunName)
+	f2.ropen(cmdstr)		// Open the celltype
+}
 numSpikes = 29 //211894 //f2.scanvar			// Scan the first line, which contains a number giving the
 objref tvec_, idvec_, pattern_
 tvec_ = new Vector(numSpikes)
