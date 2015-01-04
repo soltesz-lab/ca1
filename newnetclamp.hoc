@@ -175,8 +175,8 @@ iterator pcitr() {local i2, startgid	// Create iterator for use as a standard 'f
 				$&1 = i1
 				$&2 = i2
 				$&3 = i3
-				if (i3 == $5) {iterator_statement}
-				
+				// if (i3 == $5) {iterator_statement}
+				iterator_statement
 				i1 += 1
 				i2 += 1
 		}
@@ -253,7 +253,8 @@ ransynlist = new List()
 ranstimlist = new List()
 
 //{load_file("./setupfiles/position_functions.hoc")}	// Defines the algorithm used to set the
-													//  positions of the cells
+													//  positions of the cells													
+													
 {load_file("./setupfiles/netclamp_create_cells_pos.hoc")}	// Creates each cell on its assigned host
 													//  and sets its position using the algorithm
 													//  defined above
@@ -285,6 +286,7 @@ celsius=34
 													//  are procs (?) needed to create the netcon
 													//  object associated with each connection
 													//  (synapse)
+
 {pc.barrier()}
 {sprint(cmd,"./connectivity/%s_connections.hoc", "list_randfaststim")}
 {load_file(cmd)}			// Loads in a particular definition of the connectCells function,
@@ -292,11 +294,6 @@ celsius=34
 
 zzz = mallinfo(zzz, "After connecting cells")
 {pc.barrier()}
-
-if (pc.gid_exists(gidOI)) {
-	pnm.spike_record(gidOI)						// Record all spikes of all cells on this machine into the
-												//  vectors pnm.spikevec (spiketimes) and pnm.idvec (gids)
-}
 
 {sprint(cmd,"./stimulation/%s_stimulation.hoc", "netclamp")}
 {load_file(cmd)}			// Loads in a particular stimulation protocol, including the spike
@@ -331,8 +328,8 @@ VI.	INITIALIZE AND RUN NETWORK, OUTPUT RESULT FILES
 ***********************************************************************************************/
 objref mytrace, myvrec, cell
 
-if (pc.gid_exists(gidOI)) {
-	cell = pc.gid2cell(gidOI)
+if (pc.gid_exists(0)) {
+	cell = pc.gid2cell(0)
 	print "cell is located at: ", cell.x, ", ", cell.y, ", ", cell.z
 	mytrace = new Vector((tstop-tstart)/dt)
 	mytrace.record(&cell.soma.v(0.5))
@@ -552,7 +549,7 @@ if (pc.id==0 && get_spike_hist==1) {
 
 strdef outfile
 objref f
-if (pc.gid_exists(gidOI)) {	// If cell exists on this machine
+if (pc.gid_exists(0)) {	// If cell exists on this machine
 	sprint(outfile, "./networkclamp_results/%s/%s/mytrace_%d_soma.dat", runname, resultsfolder, gidOI)
 	//ssprint(outfile, "./results/%s/mytrace_%d_soma.dat", RunName, gidOI)
 	f = new File(outfile)
@@ -619,6 +616,21 @@ proc tracenet() {local i, rank, srcid localobj tgt, f	// Write out the connectio
 	}
 }
 tracenet()
+
+proc writeCells() {
+	pc.barrier()					// Wait for all ranks to get to this point
+	sprint(cmd,"./networkclamp_results/%s/%s/celltype.dat", runname, resultsfolder)
+	f = new File(cmd)
+	if (pc.id == 0) { 				// Write header to file 1 time only
+		f.wopen()
+		f.printf("celltype\ttypeIndex\trangeStart\trangeEnd\n")
+		for i=0, numCellTypes-1 {
+			f.printf("%s\t%s\t%d\t%d\t%d\n", newcellType[i].cellType_string, newcellType[i].technicalType, i, newcellType[i].cellStartGid, newcellType[i].cellEndGid)
+		}
+		f.close()
+	}
+}
+writeCells()
 
 {pc.barrier}
 {quit()}

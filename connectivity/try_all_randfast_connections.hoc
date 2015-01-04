@@ -101,8 +101,13 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			newhighindex = newhighindex + int(conns2make.x[1]/1)+1
 
 			for r=1, int(conns2make.x[0]/1) {
-				if (pc.gid_exists(conns2make.x[r+1+connlength])) {
-					cell = pc.gid2cell(conns2make.x[r+1+connlength])
+				if (numpost>1) {
+					postgid = conns2make.x[r+1+connlength]
+				} else {
+					postgid = postcellgids.x[0]
+				}
+				if (pc.gid_exists(postgid)) {
+					cell = pc.gid2cell(postgid)
 					numSynTypes = cell.pre_list.o(precellType).count()
 					if (numSynTypes > 0) {
 						ransynlist.object(cell.randi).r.discunif(0,numSynTypes-1)		// Create a uniform random INTEGER variable over the range specified (0 to # synapse types-1),
@@ -115,12 +120,12 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 								ypos=ypos_algorithm(conns2make.x[r+1],cellType[precellType].numCells,cellType[precellType].cellStartGid,cellType[precellType].dentateYBins,cellType[precellType].dentateZBins,cellType[precellType].dentateYBinSize)	// Algorithmically generate cell position
 								conDelay = int(10*sqrt((xpos - cell.x)*(xpos - cell.x) + (ypos - cell.y)*(ypos - cell.y))/AxConVel)/10 + 0.5 // use 0.5 for the synaptic cleft delay; this also ensures the delay will never be set to 0, which would error the program
 							}
-							nc_append(conns2make.x[r+1], conns2make.x[r+1+connlength], precellType, randSynNumber, synWeight + (conns2make.x[r+1]+1)*1000, conDelay)	// Make the connection  // the latter part is for tracing the big bug, used by exp2sid mech (it will take away this extra part)
+							nc_append(conns2make.x[r+1], postgid, precellType, randSynNumber, synWeight + (conns2make.x[r+1]+1)*1000, conDelay)	// Make the connection  // the latter part is for tracing the big bug, used by exp2sid mech (it will take away this extra part)
 						}
 						counter +=1
 					}
 				} else {
-					print $s3, "s to ", $s4, "s:", " can't make gid ", conns2make.x[r+1+connlength], " which is r = ", r, " +  connlength = ", connlength, " = ", r+1+connlength, " from x[r+1] = ", conns2make.x[r+1], " total conns = ", int(conns2make.x[0]/1)
+					print $s3, "s to ", $s4, "s:", " can't make gid ", postgid, " which is r = ", r, " +  connlength = ", connlength, " = ", r+1+connlength, " from x[r+1] = ", conns2make.x[r+1], " total conns = ", int(conns2make.x[0]/1)
 				}
 			}
 		}

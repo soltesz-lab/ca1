@@ -1,3 +1,4 @@
+
 f2 = new File()
 sprint(cmdstr, "./results/%s/spikeraster.dat", origRunName)
 f2.ropen(cmdstr)		// Open the celltype
@@ -5,24 +6,30 @@ if (!f2.isopen()) {
 	sprint(cmdstr, "../results/%s/spikeraster.dat", origRunName)
 	f2.ropen(cmdstr)		// Open the celltype
 }
-numSpikes = 29 //211894 //f2.scanvar			// Scan the first line, which contains a number giving the
-objref tvec_, idvec_, pattern_
-tvec_ = new Vector(numSpikes)
-idvec_ = new Vector(numSpikes)
-nidx=0
 
-for n=0,numSpikes-1 {
+objref tvec_, idvec_, pattern_
+tvec_ = new Vector()
+idvec_ = new Vector()
+nidx=0
+								
+
+while (f2.eof()==0) {
 	tmptime = f2.scanvar
 	tmpgid = f2.scanvar
-	if (tmpgid!=gidOI && cells2make.indwhere("==", tmpgid)>-1) {
-		idvec_.x[nidx] = tmpgid // gid of NetStim to make fire
-		tvec_.x[nidx] = tmptime // spike time in ms
-		nidx +=1
+	if (tmpgid!=gidOI && gidmap.getval(tmpgid,0)>0) { //  && cells2make.indwhere("==", tmpgid)>-1
+		for dd=1, gidmap.getval(tmpgid,0) {			
+			idvec_.append(gidmap.getval(tmpgid,dd)) // gid of NetStim to make fire
+			tvec_.append(tmptime) // spike time in ms
+			print gidmap.getval(tmpgid,dd), ", ", tmptime, " - ", tmpgid, ", dd=", dd
+			nidx +=1
+		}
+		
+		//if (gidmap.getval(tmpgid,0)>0) {print "tmpgid = ", tmpgid, " @ ", tmptime, " starting with: ", gidmap.getval(tmpgid,1), ", extends by ", gidmap.getval(tmpgid,0)}
 	}
 }
-
+//print "last gidmap at ", ncell-1, " is size ", gidmap.getval(ncell-1,0)
 f2.close()
-
+//print "nidx = ", nidx
 if (nidx>0) {
 	idvec_.resize(nidx)
 	tvec_.resize(nidx)

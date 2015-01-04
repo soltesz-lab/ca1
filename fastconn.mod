@@ -153,20 +153,44 @@ static int fastconn (void* vv) {
 			// 1 is reserved for # cells (each having an entry for their last high index used by nrnRan4int)
 
 	/* Get positions of the presynaptic and postsynaptic cells*/
-	double prepos [num_pre][3];
-	double postpos [num_post][3];
+
+	// (1) a single NxM malloc: really this is a large 1-dim array of int values
+	//     onto which we will map 2D accesses 
+	// 
+
+	// declaration and allocation:
+
+	double *prepos;    // the type is a pointer to a double (the bucket type)
+	prepos = (double *)malloc(sizeof(double)*num_pre*3);
+
+	double *postpos;    // the type is a pointer to a double (the bucket type)
+	postpos = (double *)malloc(sizeof(double)*num_post*3);
+
+	// in memory: 
+	//                   row 0       row 1     row 2 ...
+	// 2d_array -----> [ 0, 0, ... , 0, 0, ... 0, 0, ... ] 
+
+	// access using [] notation: 
+	//    cannot use [i][j] syntax because the compiler has no idea where the 
+	//    next row starts within this chunk of heap space, so must use single 
+	//    index value that is calculated using row and column index values and 
+	//    the column dimension
+
+	
+	//double prepos [num_pre][3];
+	//double postpos [num_post][3];
 	int cell;
 
 	for (cell=0; cell<num_pre; cell++) {
-		prepos [cell] [0] = get_x_pos(cell+gmin, gmin, y[10], y[11]*y[12], y[13]);
-		prepos [cell] [1] = get_y_pos(cell+gmin, gmin, y[11], y[12], y[14]);
-		prepos [cell] [2] = get_z_pos(cell+gmin, gmin, y[12], y[15], y[16]);
+		prepos[cell*3 + 0] = get_x_pos(cell+gmin, gmin, y[10], y[11]*y[12], y[13]);
+		prepos[cell*3 + 1] = get_y_pos(cell+gmin, gmin, y[11], y[12], y[14]);
+		prepos[cell*3 + 2] = get_z_pos(cell+gmin, gmin, y[12], y[15], y[16]);
 	}
 
 	for (cell=0; cell<num_post; cell++) {
-		postpos [cell] [0] = get_x_pos(z[cell], postgmin, y[17], y[18]*y[19], y[20]);
-		postpos [cell] [1] = get_y_pos(z[cell], postgmin, y[18], y[19], y[21]);
-		postpos [cell] [2] = get_z_pos(z[cell], postgmin, y[19], y[22], y[23]);
+		postpos[cell*3 + 0] = get_x_pos(z[cell], postgmin, y[17], y[18]*y[19], y[20]);
+		postpos[cell*3 + 1] = get_y_pos(z[cell], postgmin, y[18], y[19], y[21]);
+		postpos[cell*3 + 2] = get_z_pos(z[cell], postgmin, y[19], y[22], y[23]);
 	}
 
 	/* calculate the distribution of desired connections*/   
@@ -217,7 +241,11 @@ static int fastconn (void* vv) {
 						// post cell type, with the previous pre cell types)?
 		idx2 = myx;		// set the low index equal to the gid
 
-		double sortedpos [num_pre][steps];
+
+		double *sortedpos;    // the type is a pointer to a double (the bucket type)
+		sortedpos = (double *)malloc(sizeof(double)*num_pre*steps);
+		
+		//double sortedpos [num_pre][steps];
 		for (step=0; step< steps; step++) {
 			szp [step]=0; 	// initialize the szp array to 0
 							// (it holds a number per bin, telling which
@@ -230,7 +258,7 @@ static int fastconn (void* vv) {
 		double dist;
 		for(m=0; m<num_pre; m++) { // for each pre cell
 			// calculate the distance between the pre and post cells
-			distance_between = sqrt((1.0*prepos[m][0] - postpos[n][0])*(prepos[m][0] - postpos[n][0])+(prepos[m][1] - postpos[n][1])*(prepos[m][1] - postpos[n][1])+(prepos[m][2] - postpos[n][2])*(prepos[m][2] - postpos[n][2]));
+			distance_between = sqrt((1.0*prepos[m*3 +0] - postpos[n*3 +0])*(prepos[m*3 +0] - postpos[n*3 +0])+(prepos[m*3 +1] - postpos[n*3 +1])*(prepos[m*3 +1] - postpos[n*3 +1])+(prepos[m*3 +2] - postpos[n*3 +2])*(prepos[m*3 +2] - postpos[n*3 +2]));
 			for (step=0; step< steps; step++) {
 				/*if (ncell==2 && num_pre==3) {
 					printf("distance=%f step=%d stepmax=%f gmin=%d postg=%d\n", distance_between, step, current_distance[step], gmin, postgmin);
@@ -238,7 +266,8 @@ static int fastconn (void* vv) {
 
 				if (distance_between<= current_distance[step]) // if the distance is less than the max distance for that step
 				{
-					sortedpos [szp [step]] [step] = m;	// add this pre cell to this particular bin's column (the next row, which szp keeps track of)
+					sortedpos[szp [step]*steps + step] = m;
+					//sortedpos [szp [step]] [step] = m;	// add this pre cell to this particular bin's column (the next row, which szp keeps track of)
 					szp [step]++;
 					break;
 				}
@@ -312,7 +341,8 @@ static int fastconn (void* vv) {
 				szr = szp [step]; // Get the number of available connections for this step
 				int r[szr]; // Define an array the length of the number of available connections
 				for (i=0; i< szr; i++) { 
-					r[i] =  sortedpos [i] [step]; // Fill the array with the available connections (in terms of the pre cell)
+					r[i] =  sortedpos[i*steps + step];
+					//r[i] =  sortedpos [i] [step]; // Fill the array with the available connections (in terms of the pre cell)
 				}
 
 				/* this random routine allows a pre-cell to make multiple connections on the post cell*/
@@ -336,20 +366,26 @@ static int fastconn (void* vv) {
 											// the gid range is continuous from gmin to gmax arguments to this mechanism.
 											// n is the post-cell here. 
 					x [myi] = (r[q]+gmin)*1.0;				// presynaptic gid	
-					x [myi+1*stepover] = (z[n])*1.0;	// postsynaptic gid
-					x [myi+2*stepover] = (step+1)*1.0;	// distance step
+					if (num_post>1) {
+						x [myi+1*stepover] = (z[n])*1.0;	// postsynaptic gid
+						//x [myi+2*stepover] = (step+1)*1.0;	// distance step
+					}
 					myi++;
 				}
 			} 
 		}
 		x [2+n] = idx1 + 1;
 		//if (idx1>maxidx1) { maxidx1=idx1;}
+		free(sortedpos);
 	}
 	x [0] = myi-2-num_post;	// fill the first element of the array (vector)
 					// with the total number of connections to make,
 					// which may be less than the desired number (and
 					// hence the size of the array)
 	x [1] = num_post; // (double)maxidx1;
+	
+	free(prepos);
+	free(postpos);
 	return finalconn;
 }
 ENDVERBATIM
