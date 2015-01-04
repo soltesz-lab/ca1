@@ -175,8 +175,8 @@ iterator pcitr() {local i2, startgid	// Create iterator for use as a standard 'f
 				$&1 = i1
 				$&2 = i2
 				$&3 = i3
-				// if (i3 == $5) {iterator_statement}
-				iterator_statement
+				if (i3 == $5) {iterator_statement}
+				// iterator_statement
 				i1 += 1
 				i2 += 1
 		}
@@ -311,7 +311,7 @@ zzz = mallinfo(zzz, "After defining stimulation")
 														
 if (PrintConnSummary==1) {printNumConFile()}	// Write "numcons.dat": a QUICK, SMALL summary file of the # of
 										//  connections by pre and post cell types
-										
+/*										
 if (PrintConnDetails==2) {tracenetfast()}		// Write "connections.dat": a VERY SLOW, LARGE file of all cell
 										//	connections (pre and post gids, synapse type, host on which
 										//  (target?) cell exists)
@@ -319,7 +319,7 @@ if (PrintConnDetails==2) {tracenetfast()}		// Write "connections.dat": a VERY SL
 										//  host on which cell exists), "connections.dat"
 
 	if ((PrintConnDetails==0) && (PrintVoltage==2)) {tracecellsfast()}	// If detailed connections are not being written out, at least write them out for cells that are being traced
-
+*/
 connecttime = startsw() - connectstart			// calculate time taken to connect the cells
 if (pc.id == 0) {printf("\nTIME HOST 0: %g seconds (connected cells)\n************\n", connecttime)}
 
@@ -328,8 +328,8 @@ VI.	INITIALIZE AND RUN NETWORK, OUTPUT RESULT FILES
 ***********************************************************************************************/
 objref mytrace, myvrec, cell
 
-if (pc.gid_exists(0)) {
-	cell = pc.gid2cell(0)
+if (pc.gid_exists(gidOI)) {
+	cell = pc.gid2cell(gidOI)
 	print "cell is located at: ", cell.x, ", ", cell.y, ", ", cell.z
 	mytrace = new Vector((tstop-tstart)/dt)
 	mytrace.record(&cell.soma.v(0.5))
@@ -427,11 +427,11 @@ proc rrun(){									// Run the network simulation and write out the results
 	if (pc.id==0 && use_spike_compression==1) {print "Host ", pc.id, " has local_minimum_delay=", local_minimum_delay}
 
 
-												
 	stdinit()									// Call the init fcn (which is redefined in this code) and
 												//  then make other standard calls (to stop watch, etc)
 
 	runstart = startsw()							// grab start time of the simulation
+
 	pc.psolve(tstop)							// Equivalent to calling cvode.solve(tstop) but for parallel NEURON;
 												//  solve will be broken into steps determined by the result of
 												//  set_maxstep
@@ -625,7 +625,7 @@ proc writeCells() {
 		f.wopen()
 		f.printf("celltype\ttypeIndex\trangeStart\trangeEnd\n")
 		for i=0, numCellTypes-1 {
-			f.printf("%s\t%s\t%d\t%d\t%d\n", newcellType[i].cellType_string, newcellType[i].technicalType, i, newcellType[i].cellStartGid, newcellType[i].cellEndGid)
+			f.printf("%s\t%s\t%d\t%d\t%d\n", cellType[i].cellType_string, cellType[i].technicalType, i, cellType[i].cellStartGid, cellType[i].cellEndGid)
 		}
 		f.close()
 	}

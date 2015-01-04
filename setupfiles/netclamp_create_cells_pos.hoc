@@ -4,7 +4,7 @@ objref tmpcell
 
 proc createCells(){ local i, ij, si, pci, cellind, runresult, gid	// Create cells and assign a GID to each cell
 	cellind=celltypeOI			
-	for pcitr(&i, &ij, &gid, 0, 0) { // use the pciter over all cells of this type
+	for pcitr(&i, &ij, &gid, cellType[cellind].cellStartGid, gidOI) { // use the pciter over all cells of this type
 		if (pc.gid_exists(gid)) { 
 			// sprint(cmd, "{cellType[%g].CellList[%g]=new %s(%g,%g)}", cellind, ij, cellType[cellind].technicalType, gid, i) //+cellType[cellind].cellStartGid) // why add the startgid to the gid? 
 			sprint(cmd, "{cellType[%g].CellList[%g]=new %s(%g,%g)}", cellind, ij, celltype2use, gid, i) //+cellType[cellind].cellStartGid) // why add the startgid to the gid? 
@@ -30,7 +30,7 @@ proc createCells(){ local i, ij, si, pci, cellind, runresult, gid	// Create cell
 				}
 			}
 			
-			pnm.spike_record(0)
+			pnm.spike_record(gidOI)
 			
 			for xidx=0,cellType[cellind].CellList[ij].pre_list.count()-1 {
 				numSynTypesVec.append(cellType[cellind].CellList[ij].pre_list.o(xidx).count())
