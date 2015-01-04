@@ -40,7 +40,8 @@ celsius=34
 														//  'CellCategoryInfo' object for each cell
 														//  type (bio or art cells?). Info includes
 														//  number of cells, gid ranges, type name 
-
+strdef path2ConnData
+path2ConnData = "../datasets/conndata_%g.dat"
 {load_file("./setupfiles/load_cell_conns.hoc")}	// Load in the cell connectivity info
 
 objref fAll, fSyn

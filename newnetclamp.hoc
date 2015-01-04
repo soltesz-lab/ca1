@@ -56,7 +56,8 @@ celsius=34
 														//  'CellCategoryInfo' object for each cell
 														//  type (bio or art cells?). Info includes
 														//  number of cells, gid ranges, type name 
-
+strdef path2ConnData
+sprint(path2ConnData, "../networkclamp_results/%s/%s/conndata.dat", origRunName, resultsfolder)
 {load_file("./setupfiles/load_cell_conns.hoc")}	// Load in the cell connectivity info
 
 objref fAll, fSyn
@@ -466,7 +467,7 @@ proc rrun(){									// Run the network simulation and write out the results
 	writetime = startsw() - writestart				// Calculate write time of program
 	totaltime = startsw() - loadstart
 	allottedtime = JobHours*3600
-	if (pc.id == 0) {printf("****\nTIME SUMMARY for host 0\nset up in %g seconds\ncreated cells in %g seconds\nconnected cells in %g seconds\nran simulation in %g seconds\nwrote results in %g seconds\nTOTAL TIME   = %g seconds\nALLOTTED TIME = %g seconds\n************\nThis run is called: %s\n************\n", loadtime, createtime, connecttime, runtime, writetime, totaltime, allottedtime, RunName)}
+	if (pc.id == 0) {printf("****\nTIME SUMMARY for host 0\nset up in %g seconds\ncreated cells in %g seconds\nconnected cells in %g seconds\nran simulation in %g seconds\nwrote results in %g seconds\nTOTAL TIME   = %g seconds\nALLOTTED TIME = %g seconds\n************\nThis run is called: %s %s\n************\n", loadtime, createtime, connecttime, runtime, writetime, totaltime, allottedtime, RunName, resultsfolder)}
 }
 objref fihw
 fihw = new FInitializeHandler(2, "midbal()")

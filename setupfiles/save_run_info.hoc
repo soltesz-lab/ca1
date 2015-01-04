@@ -25,8 +25,8 @@ proc typeout() {local i, myline, rn, rank, gid, srcid localobj tgt, f, cell, f2c
 		//sprint(dircmd, "cp ../setupfiles/lowindex.hoc ../results/%s", RunName)
 		//{system(dircmd, direx)}
 
-		sprint(dircmd, "cp ../stimulation/sintrainparams.hoc ../results/%s", RunName)
-		{system(dircmd, direx)}
+		//sprint(dircmd, "cp ../stimulation/sintrainparams.hoc ../results/%s", RunName)
+		//{system(dircmd, direx)}
 
 		sprint(dircmd, "cp ../cells/allsyns.dat ../results/%s", RunName)
 		{system(dircmd, direx)}
