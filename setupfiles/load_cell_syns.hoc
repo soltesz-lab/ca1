@@ -1,0 +1,71 @@
+strdef cmdstr, cmdstr1, pre_type, post_type, SecRefStr, SynType, CheckCond1, CheckCond2, Scaling
+objref f2c
+
+proc syn_cells() {localobj mySynStore
+
+	for i=0, numCellTypes-1 {
+		sprint(cmdstr, "%s_idx = %g", cellType[i].cellType_string, i)
+		{execute1(cmdstr)}
+		
+		cellType[i].setSynList(numCellTypes)
+
+		for celltype = 0, numCellTypes-1 {
+			cellType[i].SynList[celltype] = new List()
+		}
+	}
+
+	// load file
+	f2c = new File()
+	sprint(cmdstr, path2SynData, SynData)  // path2ConnData
+	f2c.ropen(cmdstr)		// Open the celltype
+	synDataLines = f2c.scanvar
+	for r=0,synDataLines-1 {
+		f2c.scanstr(post_type)
+		f2c.scanstr(pre_type)
+		f2c.scanstr(SynType)
+		f2c.scanstr(SecRefStr)
+		f2c.scanstr(CheckCond1)
+		f2c.scanstr(CheckCond2)
+		if (strcmp(SynType,"MyExp2Sidnw")==0) {
+			f2c.scanstr(Scaling)
+		}
+
+		if (strcmp(SynType,"ExpGABAab")==0) {
+			tau1a = f2c.scanvar
+			tau2a = f2c.scanvar
+			ea = f2c.scanvar
+			tau1b = f2c.scanvar
+			tau2b = f2c.scanvar
+			eb = f2c.scanvar
+		} else {
+			tau1 = f2c.scanvar
+			tau2 = f2c.scanvar
+			efirst = f2c.scanvar
+		}
+	
+		sprint(cmdstr, "%s_idx", pre_type)
+		sprint(cmdstr1, "%s_idx", post_type)
+		if ((name_declared(cmdstr) > 0) && (name_declared(cmdstr1) > 0)) {
+
+			if (strcmp(SynType,"ExpGABAab")==0) {
+				mySynStore = new SynStore(SecRefStr,SynType,CheckCond1,CheckCond2,tau1a,tau2a,ea,tau1b,tau2b,eb)
+			} else {
+				if (strcmp(SynType,"MyExp2Sidnw")==0) {
+					mySynStore = new SynStore(SecRefStr,SynType,CheckCond1,CheckCond2,tau1,tau2,efirst,Scaling)
+				} else {			
+					mySynStore = new SynStore(SecRefStr,SynType,CheckCond1,CheckCond2,tau1,tau2,efirst)
+				}
+			}
+
+			sprint(cmdstr,"prevar = %s_idx", pre_type)
+			{execute1(cmdstr)}
+			sprint(cmdstr,"postvar = %s_idx", post_type)
+			{execute1(cmdstr)}
+			cellType[postvar].SynList[prevar].append(mySynStore)
+		} else {
+			print "!!CANNOT make ", pre_type, " to ", post_type, " because ", name_declared(cmdstr), " or ", name_declared(cmdstr1)
+		}
+	}
+	f2c.close()
+}
+syn_cells()

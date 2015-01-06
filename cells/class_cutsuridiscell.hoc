@@ -351,7 +351,9 @@ proc define_synapses() {
 							syn.tau1 = cellType[ind].SynList[celltype].object(r).tau1
 							syn.tau2 = cellType[ind].SynList[celltype].object(r).tau2
 							syn.e = cellType[ind].SynList[celltype].object(r).efirst
-							syn.sid = i
+							if (strcmp(cellType[ind].SynList[celltype].object(r).SynType,"MyExp2Sidnw")==0) {
+								execute(cellType[ind].SynList[celltype].object(r).Scaling, this)
+							}
 						} else {
 							syn.tau1a = cellType[ind].SynList[celltype].object(r).tau1a
 							syn.tau2a = cellType[ind].SynList[celltype].object(r).tau2a
@@ -359,8 +361,8 @@ proc define_synapses() {
 							syn.tau1b = cellType[ind].SynList[celltype].object(r).tau1b
 							syn.tau2b = cellType[ind].SynList[celltype].object(r).tau2b
 							syn.eb = cellType[ind].SynList[celltype].object(r).eb
-							syn.sid = i
 						}
+						syn.sid = i
 						templist.append(syn)
 						i = i + 1
 					}

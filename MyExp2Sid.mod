@@ -22,7 +22,6 @@ by the more efficient cnexp method.
 ENDCOMMENT
 
 NEURON {
-	POINT_PROCESS MyExp2Syn
 	POINT_PROCESS MyExp2Sid
 	RANGE tau1, tau2, e, i, sid, cid
 	NONSPECIFIC_CURRENT i
