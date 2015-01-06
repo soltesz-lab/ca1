@@ -19,13 +19,14 @@ I.  LOAD LIBRARIES
 {load_file("./setupfiles/CellCategoryInfo.hoc")}	// Contains the template that defines a 
 													//  CellCategoryInfo class used to store
 													// 	celltype-specific parameters
+
+{load_file("./setupfiles/SynStore.hoc")}	// Contains the template that defines a 
 													
 {load_file("./setupfiles/defaultvar.hoc")}	// Contains the proc definition for default_var proc
 
 {load_file("./setupfiles/parameters.hoc")}	// Loads in operational and model parameters that can
 											//  be changed at command line											
 
-NumData = 0				
 {load_file("./setupfiles/set_other_parameters.hoc")}// Loads in operational and model parameters
 													//  that can't be changed at command line
 
@@ -41,6 +42,7 @@ celsius=34
 														//  number of cells, gid ranges, type name 
 
 {load_file("./setupfiles/load_cell_conns.hoc")}	// Load in the cell connectivity info
+{load_file("./setupfiles/load_cell_syns.hoc")}	// Load in the cell connectivity info
 
 objref fAll, fSyn
 
@@ -177,6 +179,16 @@ ranstimlist = new List()
 {load_file("./setupfiles/create_cells_pos.hoc")}	// Creates each cell on its assigned host
 													//  and sets its position using the algorithm
 													//  defined above
+i=0
+ij=0
+gid=0
+objref cell
+for pcitr(&i, &ij, &gid, 0, ncell-1) {
+	if (pc.gid_exists(gid)) {
+		cell = pc.gid2cell(gid)
+		cell.position(gid*1000,0,0)
+	}
+}
 
 strdef cmd
 
