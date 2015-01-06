@@ -1,0 +1,39 @@
+begintemplate SynStore			// Define a template that describes	
+										
+	public init, SecRefStr,CheckCond1,CheckCond2,tau1,tau2,efirst,tau1a,tau2a,ea,tau1b,tau2b,eb
+	public NewSynStr, SynStr, CondStr, GABAabFlag, SynType
+	
+	strdef NewSynStr, SynStr, CondStr, SecRefStr,CheckCond1,CheckCond2, SynType			// Define strings
+
+	proc init(){			// Define a proc to set the parameters
+										
+		SecRefStr = $s1		// 
+		
+		SynType = $s2		// 
+		
+		CheckCond1 = $s3
+		
+		CheckCond2 = $s4 			//
+									
+		if (strcmp(SynType,"ExpGABAab")==0) {
+			GABAabFlag=1
+			tau1a = $5				// 
+			tau2a = $6				// 
+			ea = $7				// 
+			tau1b = $8				// 
+			tau2b = $9				// 
+			eb = $10				// 
+		} else {
+			GABAabFlag=0
+			tau1 = $5				// 
+			tau2 = $6				// 
+			efirst = $7				// 
+		}
+		
+		sprint(NewSynStr,"newSecRef = %s", SecRefStr)
+		sprint(SynStr,"syn = new %s(x)", SynType) // ExpGABAab, MyExp2Sidnw, MyExp2Sid
+		sprint(CondStr,"y=(%s && %s)", CheckCond1, CheckCond2)
+
+	}
+
+endtemplate SynStore

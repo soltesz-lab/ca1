@@ -10,7 +10,7 @@ public x, y, z, position, myroot
 strdef myroot
 
 // objects
-objref syn, pre_list, templist, rootlist
+objref syn, pre_list, templist, rootlist, this
 
 // external variables
 external numCellTypes, cellType, fAll, fSyn
@@ -36,7 +36,7 @@ proc init() {
 	set_chanparams()	// local fcn: after all channels have been inserted, then their other parameters can be set	
 	// synapses
 	pre_list = new List() // define a list for the presynaptic connections
-	define_synapses()	// local fcn: define all possible synaptic connections received by this cell
+	define_synapses($3)	// local fcn: define all possible synaptic connections received by this cell
 }
 
 proc connect_sections() { local i
@@ -323,13 +323,47 @@ proc get_root() {local i localobj sref
 	}
 }
 
-objref syn  
+strdef myStr
+
+objref newSecRef, syn
 proc define_synapses() {
-	{celltype = 0}
-	{i = 0}
-	{i_st = 0}
-	{i_en = 0}
-	{findme = 0}
-	{xopen("../cells/synapses/syn_bistratifiedcell.hoc")}
+	ind = $1
+
+	access soma[0]
+	{distance()}
+
+	for celltype = 0, numCellTypes-1 {
+		templist = new List ()
+		for r=0, cellType[ind].SynList[celltype].count()-1 {
+			execute(cellType[ind].SynList[celltype].object(r).NewSynStr, this) // sets newSecRef
+						
+			forsec newSecRef {		
+				for (x,0) {
+					execute(cellType[ind].SynList[celltype].object(r).CondStr, this)
+					 if (y==1) {
+						execute(cellType[ind].SynList[celltype].object(r).SynStr, this)
+						if (cellType[ind].SynList[celltype].object(r).GABAabFlag==0) {
+							syn.tau1 = cellType[ind].SynList[celltype].object(r).tau1
+							syn.tau2 = cellType[ind].SynList[celltype].object(r).tau2
+							syn.e = cellType[ind].SynList[celltype].object(r).efirst
+							syn.sid = i
+						} else {
+							syn.tau1a = cellType[ind].SynList[celltype].object(r).tau1a
+							syn.tau2a = cellType[ind].SynList[celltype].object(r).tau2a
+							syn.ea = cellType[ind].SynList[celltype].object(r).ea
+							syn.tau1b = cellType[ind].SynList[celltype].object(r).tau1b
+							syn.tau2b = cellType[ind].SynList[celltype].object(r).tau2b
+							syn.eb = cellType[ind].SynList[celltype].object(r).eb
+							syn.sid = i
+						}
+						templist.append(syn)
+						i = i + 1
+					}
+				}
+			}
+		}
+		pre_list.append(templist)
+		findme = 1
+	}
 }
 endtemplate bistratifiedcell

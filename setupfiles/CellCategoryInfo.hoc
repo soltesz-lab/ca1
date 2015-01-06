@@ -4,14 +4,14 @@ begintemplate CellCategoryInfo			// Define a template that describes
 										//  holds type-specific parameters
 										//  used in creating the network model
 										
-	public setCellTypeParams, setCellTypeDist			// Define variables and funcs that are
+	public setCellTypeParams, setCellTypeDist, SynList, setSynList	// Define variables and funcs that are
 	public cellType_string, technicalType, cellStartGid, cellEndGid	//  accessible from outside the class
 	public updateGidRange, addPosVec, layerflag, LastHighIndex			//  object
 	public dist, numCells, CellList, addCell, numCons, numConns, numSyns, wgtConns, numThisHost
 	public setBins, dentateYBins, dentateXBins, dentateZBins
 	public dentateYBinSize, dentateXBinSize, dentateZBinSize, is_art
 
-	objref dist, cellpos, f1, CellList, numCons, numConns, numSyns, wgtConns, ctype, this	// Define objects, including
+	objref dist, cellpos, f1, CellList, numCons, numConns, numSyns, wgtConns, ctype, SynList, this	// Define objects, including
 																//  'this', which is this
 																//  instance of the class
 																
@@ -47,7 +47,12 @@ begintemplate CellCategoryInfo			// Define a template that describes
 		objref CellList[numCells]	// Create a new CellList for this celltype,
 									//  the length of which equals the number
 									//  of cells
+									
 		numThisHost = 0
+	}
+	
+	proc setSynList(){			// From a file, read in the constants
+		objref SynList[$1]
 	}
 
 	proc setCellTypeDist(){			// From a file, read in the constants

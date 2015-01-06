@@ -1,5 +1,5 @@
 objref LayerVector, strobj
-strdef cmdstr, layers, tmpstr
+strdef cmdstr, layers, tmpstr, path2ConnData, path2SynData
 
 proc SetOtherParameters() {local ind, i, layernum, tempheight
 	strobj = new StringFunctions()
@@ -51,5 +51,7 @@ proc SetOtherParameters() {local ind, i, layernum, tempheight
 	//if (Scale>=20) {connectionFactor = 1} //5}
 	//if (Scale>=2000) {connectionFactor = 1} //500}
 	
+	path2ConnData = "../datasets/conndata_%g.dat"
+	path2SynData = "../datasets/syndata_%g.dat"
 }	
 SetOtherParameters()
