@@ -19,6 +19,8 @@ I.  LOAD LIBRARIES
 {load_file("./setupfiles/CellCategoryInfo.hoc")}	// Contains the template that defines a 
 													//  CellCategoryInfo class used to store
 													// 	celltype-specific parameters
+
+{load_file("./setupfiles/SynStore.hoc")}	// Contains the template that defines a 
 													
 {load_file("./setupfiles/defaultvar.hoc")}	// Contains the proc definition for default_var proc
 
@@ -58,7 +60,12 @@ celsius=34
 														//  number of cells, gid ranges, type name 
 strdef path2ConnData
 sprint(path2ConnData, "../networkclamp_results/%s/%s/conndata.dat", origRunName, resultsfolder)
+
+strdef path2SynData
+sprint(path2SynData, "../networkclamp_results/%s/%s/syndata.dat", origRunName, resultsfolder)
+
 {load_file("./setupfiles/load_cell_conns.hoc")}	// Load in the cell connectivity info
+{load_file("./setupfiles/load_cell_syns.hoc")}	// Load in the cell connectivity info
 
 objref fAll, fSyn
 
