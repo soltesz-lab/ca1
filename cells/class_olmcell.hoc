@@ -4,7 +4,7 @@ begintemplate olmcell
 public  pre_list, connect_pre, append_sections, is_art, is_connected, gid, randi
 public soma, dend1, dend2, axon
 public all, pdend, ddend, basal_list, apical_list, soma_list, axon_list, dendrite_list
-public x, y, z, position, myroot
+public x, y, z, position, myroot, Vrest
 
 
 // strings
@@ -89,6 +89,8 @@ proc set_nseg() {
 
 
 proc insert_mechs() {
+	Vrest = -67
+	
 	Rm = 20000*5
 	
 	gH = 0.0005

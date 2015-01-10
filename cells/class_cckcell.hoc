@@ -4,7 +4,7 @@ public mechinit, insert_mechs, set_biophys, get_root
 public  pre_list, connect_pre, is_art, is_connected, gid, randi
 public soma, dend
 public all, basal_list, apical_list, soma_list, axon_list, dendrite_list
-public x, y, z, position, myroot
+public x, y, z, position, myroot, Vrest
 
 // strings
 strdef myroot

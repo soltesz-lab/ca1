@@ -7,7 +7,7 @@ public pre_list, connect_pre
 
 public soma, apical, basal, axon
 public all, basal_list, apical_list, soma_list, axon_list, rad_list, lm_list, dendrite_list
-public x, y, z, position, myroot
+public x, y, z, position, myroot, Vrest
 
 public pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_list
 public ivycell_list, ngfcell_list, olmcell_list, pvbasketcell_list, scacell_list

@@ -308,60 +308,85 @@ if (pc.id == 0) {printf("\nTIME HOST 0: %g seconds (connected cells)\n**********
 /***********************************************************************************************
 VI.	INITIALIZE AND RUN NETWORK, OUTPUT RESULT FILES
 ***********************************************************************************************/
+
+{load_file("./setupfiles/randomVinit.hoc")}	// Random voltage initialization
+
 if (PrintVoltage>0) {load_file("./setupfiles/recordvoltageauto.hoc")}	// If we are going to record some voltages, then set up the recordings
 
-proc init() { local dtsav, temp, secsav, secondordersav	// Redefine the proc that initializes the
-														//  simulation (why?)
 
-	dtsav = dt						// Save the desired dt value to reset it after temporarily
-									//  changing dt to run a quick presimulation to allow the
-									//  network to reach steady state before we start 'recording'
+proc presimulation() { local prelength, maindt, temp
+    
+    prelength = $1
+    
+    // Save the desired dt value to reset it after temporarily
+    //  changing dt to run a quick presimulation to allow the
+    //  network to reach steady state before we start 'recording'
+    maindt = dt
+                                                                        
+    t = -prelength 	// Set the start time for (pre) simulation; ex: -500 ms to allow the
+					//  network to reach steady state before t=0, when real simulation begins
+    
+    dt = 10 // Set dt to a large value so that the presimulation runs quickly
+    
 									
 	secondordersav = secondorder	// Save the desired secondorder value to reset it after
 									//  temporarily changing secondorder to run a quick presimulation
 									//  to allow the network to reach steady state before we start
 									//  'recording' its results
+  
 
-	finitialize(v_init)	// Call finitialize from within the custom init proc, just as the default
-						//  init proc does. Note that finitialize will call the INITIAL block for
-						//  all mechanisms and point processes inserted in the sections and set the
-						//	initial voltage to v_init for all sections
-
-	t = -200			// Set the start time for (pre) simulation; -500 ms to allow the network to
-						// reach steady state before t = 0, when the real simulation begins
-						
-	dt= 10				// Set dt to a large value so that the presimulation runs quickly
-	
-	secondorder = 0		// Set secondorder to 0 to set the solver to the default fully implicit backward
-						//  euler for numerical integration (see NEURON ref)
-		
-	temp= cvode.active()			// Check whether cvode, a type of solver (?) is on
-	if (temp!=0) {cvode.active(0)}	// If cvode is on, turn it off while running the presimulation
-															
-	while(t<-100) { fadvance() if (PrintTerminal>2) {print t}}	// Run the presimulation from t = -500
-															//  to t = -100 (why not 0?) to let the
-															//  network and all its components reach
-															//  steady state. Integrate all section
-															//  equations over the interval dt,
-															//  increment t by dt, and repeat until
-															//  t at -100
-															
-	if (temp!=0) {cvode.active(1)}	// If cvode was on and then turned off, turn it back on now
-	
-	t = tstart 						// Set t to the start time of the simulation
-	
-	dt = dtsav						// Reset dt to the specified value for the simulation
-	
+	secondorder = 0 // Set secondorder to 0 to set the solver to the default fully implicit backward
+					//  euler for numerical integration (see NEURON ref)
+    
+    temp = cvode.active() // Check whether cvode, a type of solver (?) is on
+    if (temp!=0) {cvode.active(0)} // If cvode is on, turn it off while running the presimulation
+    
+    // Run the presimulation from t = -prelength
+    //  to t = -100 (why not 0?) to let the
+    //  network and all its components reach
+    //  steady state. Integrate all section
+    //  equations over the interval dt,
+    //  increment t by dt, and repeat until
+    //  t at -100
+    
+    while(t<-100) { fadvance() if (PrintTerminal>2) {print t}}	
+    
+    if (temp!=0) {cvode.active(1)}	// If cvode was on and then turned off, turn it back on now
+    
+    dt = maindt
 	secondorder = secondordersav	// Reset secondorder to the specified value for the simulation
-	
-	if (cvode.active()){
-		cvode.re_init()				// If cvode is active, initialize the integrator
-	} else {
-		fcurrent()					// If cvode is not active, make all assigned variables
-									//	 (currents, conductances, etc) consistent with the
-									//   values of the states
-	}
-	frecord_init() // see email from ted - fadvance() increments the recorder, so we need to fix the index it ends up at
+}
+
+
+proc init() { 
+    // Call finitialize from within the custom init proc, just as the default
+    //  init proc does. Note that finitialize will call the INITIAL block for
+    //  all mechanisms and point processes inserted in the sections and set the
+    //  initial voltage to v_init for all sections
+    finitialize(v_init)	
+    
+    // if randomly initializing the voltage, call randomVinit, otherwise call 
+    // presimulation, which brings the network to a steady state
+    if (RandomVinit > 0) {
+        // initialize all cells to random voltage centered on their Vrest with stdev of 1.0
+        randomVinit(1.0)
+    } else {
+        presimulation (200)
+    }
+    
+    t = tstart // Set t to the start time of the simulation
+    
+    if (cvode.active()){
+        // If cvode is active, initialize the integrator
+		cvode.re_init()				
+    } else {
+        // If cvode is not active, make all assigned variables
+		// (currents, conductances, etc) consistent with the
+		// values of the states
+		fcurrent()					
+    }
+    
+    frecord_init() // see email from ted - fadvance() increments the recorder, so we need to fix the index it ends up at
 }
 
 
