@@ -15,6 +15,7 @@ proc createCells(){ local i, ij, si, pci, cellind, runresult, gid	// Create cell
 				//		gid				n/a				Used in the fastconn/repeatconn mechanisms to determine which cells are connected
 				//		gid + 1*ncell	ransynlist		Used in the connectivity hoc file to determine which synapses are used in each connection formed
 				//		gid + 2*ncell	ranstimlist		Used in the stimulation hoc file (only by NetStims) to randomize the stimulation of the network
+				//		gid + 3*ncell	raninitlist		Used in the  hoc file to randomize the initial voltages of the network
 				//
 				// Running independent simulations:
 				//	Set the highIndex starting values using the RandomSeeds variable
@@ -27,11 +28,12 @@ proc createCells(){ local i, ij, si, pci, cellind, runresult, gid	// Create cell
 				//
 				// To run the same network under different conditions (under different stimulation), only change RandomSeedsStim (the highIndex for ranstimlist)
 				// To run different networks under the same conditions (using different connectivity), only change RandomSeedsConn (the highIndex for ransynlist and the connectivity stream)
-				ransynlist.append(new RandomStream(1+RandomSeedsConn, gid + 1*ncell)) // Create a new random number generator for each cell,
-															//	with a unique stream. This will be used to determine
-															//	what type of synapse is used in connections
-															// lowindex = gid is used in the connection algorithm in the mod file
+				ransynlist.append(new RandomStream(1+RandomSeedsConn, gid + 1*ncell)) 	// Create a new random number generator for each cell,
+																						//	with a unique stream. This will be used to determine
+																						//	what type of synapse is used in connections
+																						// lowindex = gid is used in the connection algorithm in the mod file
 				ranstimlist.append(new RandomStream(1+RandomSeedsStim, gid + 2*ncell)) // Create a new random number generator for each cell, used by netstims for setting spont stim.
+				raninitlist.append(new RandomStream(1+RandomSeedsStim, gid + 3*ncell)) // Create a new random number generator for each cell, used by netstims for setting spont stim.
 
 				cellType[cellind].CellList[ij].connect_pre(nil, nc)	// Create an empty connection for use by the spike detector
 				pc.cell(gid, nc)									// Associate the cell with its gid and its spike generation location

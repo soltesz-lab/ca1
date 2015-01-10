@@ -232,10 +232,11 @@ func mallinfo() {local m // this function is a wrapper for the system function m
 
 {zzz = mallinfo(zzz, "Prior to creating cells")}
 
-objref cells, ransynlist, ranstimlist
+objref cells, ransynlist, ranstimlist, raninitlist
 cells = new List()						
 ransynlist = new List()
 ranstimlist = new List()
+raninitlist = new List()
 
 //{load_file("./setupfiles/position_functions.hoc")}	// Defines the algorithm used to set the
 													//  positions of the cells

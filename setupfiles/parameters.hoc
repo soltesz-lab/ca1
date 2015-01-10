@@ -46,3 +46,4 @@ default_var("primetime",10)		// How many ms ahead of the ripple stim the prepuls
 default_var("Jitter",.2)		// Fraction of noise associated with jitterburst stimulation.
 default_var("myConDelay",1.2)		// Axonal conduction delay
 default_var("TopProc","")		// NEURON process name in the top command
+default_var("RandomVinit",0)		// Positive value indicates that initial voltages should be randomized

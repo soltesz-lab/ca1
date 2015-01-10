@@ -1,0 +1,33 @@
+// Initializes all cells to a random voltage from a normal
+// distribution centered on x with standard deviation of stdev.
+
+proc randomVinit() { local x, stdev, celltype, pci, gid, i, typei localobj cell, r
+    
+    x = $1
+    stdev = $2
+    
+    for celltype=0, numCellTypes-1 {
+        
+	if (cellType[celltype].is_art == 0) {
+            
+	    for pcitr(&i, &typei, &gid, cellType[celltype].cellStartGid, cellType[celltype].cellEndGid) {
+                
+		cell = pc.gid2cell(gid)
+		r = raninitlist.object(i).r
+                r.normal(x, stdev) 
+                
+                forsec cell.all { // iterate over all sections of this cell
+                    
+                    for (x,0) { // iterate over internal nodes
+                        v = r.repick() 
+                    }
+                    
+                }
+            }
+        }
+        
+    }
+    
+    finitialize()
+
+}

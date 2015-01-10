@@ -15,4 +15,6 @@ cells/synlist.dat
 *.o
 *.c
 *.dll
+*.~
+*.dat
 x86_64/*

@@ -263,7 +263,7 @@ ranstimlist = new List()
 //{load_file("./setupfiles/position_functions.hoc")}	// Defines the algorithm used to set the
 													//  positions of the cells													
 													
-{load_file("./setupfiles/netclamp_create_cells_pos.hoc")}	// Creates each cell on its assigned host
+{load_file("./setupfiles/clamp/netclamp_create_cells_pos.hoc")}	// Creates each cell on its assigned host
 													//  and sets its position using the algorithm
 													//  defined above
 													
@@ -296,15 +296,14 @@ celsius=34
 													//  (synapse)
 
 {pc.barrier()}
-{sprint(cmd,"./connectivity/%s_connections.hoc", "list_randfaststim")}
-{load_file(cmd)}			// Loads in a particular definition of the connectCells function,
+
+{load_file("./setupfiles/clamp/list_randfaststim_connections.hoc")}			// Loads in a particular definition of the connectCells function,
 							//  depending on the value of the Connectivity string
 
 zzz = mallinfo(zzz, "After connecting cells")
 {pc.barrier()}
 
-{sprint(cmd,"./stimulation/%s_stimulation.hoc", "netclamp")}
-{load_file(cmd)}			// Loads in a particular stimulation protocol, including the spike
+{load_file("./setupfiles/clamp/netclamp_stimulation.hoc")}			// Loads in a particular stimulation protocol, including the spike
 							//  vectors for the artificial cells and their connections to the
 							//  'real' cells (where do we define the # of art cells and create them?)
 

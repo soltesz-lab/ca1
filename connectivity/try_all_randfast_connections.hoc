@@ -29,9 +29,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 	if ((PrintTerminal>1)) {print "Host ", pc.id, " connected cells."}
 }
 
-	objref params, conns2make
-	objref randnum, synRand
-	func connectCells () {local r, syn, distance, counter, precellType, postcellType, j, randSynNumber, pre_zpos, post_zpos , pre_xpos, post_xpos, pre_ypos, post_ypos, numSynTypes localobj cell
+	func connectCells () {local r, syn, distance, counter, precellType, postcellType, j, randSynNumber, pre_zpos, post_zpos , pre_xpos, post_xpos, pre_ypos, post_ypos, numSynTypes localobj cell, params, conns2make
 		// Args: precellType, postcellType, precellType_string, postcellType_string
 		 precellType = $1
 		 postcellType = $2
@@ -131,6 +129,4 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 		}
 		return counter
 	}
-		objref  f2
 makeConnections()								// Try making connections between every type of cell
-objref conns2make
