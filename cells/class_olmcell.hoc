@@ -14,7 +14,7 @@ strdef myroot
 objref syn, pre_list, templist, rootlist, this
 
 // external variables
-external numCellTypes, cellType, fAll, fSyn
+external numCellTypes, cellType
 
 // create the sections[segments]
 create soma[1], dend1[1], dend2[1], axon[1]

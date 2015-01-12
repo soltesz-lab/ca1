@@ -1,14 +1,13 @@
 syntax: glob
 results/*
-jobscripts/*
 cellclamp_results/*
 networkclamp_results/*
+jobscripts/*
 datasets/*
 setupfiles/*.dat
 setupfiles/clamp/*.dat
 setupfiles/clamp/*.mat
 setupfiles/clamp/*.txt
-setupfiles/iclamp.dat
 stimulation/sintrainparams.hoc
 cells/allsyns.dat
 cells/synlist.dat

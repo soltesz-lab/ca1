@@ -97,7 +97,7 @@ proc calcBinSize(){local NumGCells
 									// just changed this so even the stim cells will be allotted, as now we have some
 									// stimulation protocols that incorporate stim cell position
 	
-		cellType[i].setBins(LongitudinalLength,TransverseLength,LayerVector.x[cellType[i].layerflag])  
+		cellType[i].setBins(scLongitudinalLength,scTransverseLength,LayerVector.x[cellType[i].layerflag])  
 									// For the z length, use the height of the layer in which the
 									// cell somata are found for this cell type
 	}

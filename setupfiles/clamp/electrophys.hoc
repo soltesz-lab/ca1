@@ -35,6 +35,11 @@ strdef pathstr
 {sprint(pathstr,"%s%s%s%s%s", relpath, sl, "setupfiles", sl, "CellCategoryInfo.hoc")}								
 {load_file(pathstr)}// Defines a CellCategoryInfo class used to store
 												// 	celltype-specific parameters
+												
+{sprint(pathstr,"%s%s%s%s%s", relpath, sl, "setupfiles", sl, "SynStore.hoc")}								
+{load_file(pathstr)}	// Contains the template that defines a holder of
+											//  synapse type info
+
 {sprint(pathstr,"%s%s%s%s%s", relpath, sl, "setupfiles", sl, "parameters.hoc")}								
 {load_file(pathstr)}	// Loads in operational and model parameters
 
@@ -59,6 +64,7 @@ V?	SINGLE CHANNEL RECORDINGS
 	{default_var("pair",0)}		// controls whether to perform paired cell recordings
 	{default_var("mech",0)}		// controls whether to perform ion channel recordings
 	{default_var("conn",100)}		// for paired recording, use these synapse weights
+	{default_var("mysyn",100)}		// for paired recording, use these synapse weights
 	{default_var("cellnum",100)}		// ?
 	{default_var("cellmechs",0)}		// ?
 	{default_var("numeapair",1)}		// for paired recording, run this number of pairs and average them
@@ -300,6 +306,16 @@ objref f2, f2c								// Define object reference for the cells2include file
 {load_file(pathstr)}
 //loadCellCategoryInfo()
 
+strdef outfile
+
+ConnData = conn
+sprint(outfile, "%s%ssetupfiles%sload_cell_conns.hoc", relpath, sl, sl)
+{load_file(outfile)}	// Load in the cell connectivity info (weight)
+
+SynData = mysyn
+sprint(outfile, "%s%ssetupfiles%sload_cell_syns.hoc", relpath, sl, sl)
+{load_file(outfile)}	// Load in the cell connectivity info (weight)
+
 strdef cmdstr
 f2 = new File()
 sprint(pathstr,"%s%ssetupfiles%sclamp%sicell.dat", relpath, sl, sl, sl)
@@ -476,7 +492,7 @@ proc createCells(){ local i, ij, gotil, startat, reli, si, pci, cellind, cnum, r
 		for pcitr(&i, &ij, &gid, startat, gotil) {// use the pciter over all cells of this type
 			print "type: ", cellType[cellind].technicalType, " ", startat, " ", gotil
 			if (pc.gid_exists(gid)) {
-				sprint(cmd, "cellType[%g].CellList[%g]=new %s(%g,%g)", cellind, ij, cellType[cellind].technicalType, gid, i) //+cellType[cellind].cellStartGid) // why add the startgid to the gid? 
+				sprint(cmd, "cellType[%g].CellList[%g]=new %s(%g,%g,%g)", cellind, ij, cellType[cellind].technicalType, gid, i, cellind) //+cellType[cellind].cellStartGid) // why add the startgid to the gid? 
 				//print cmd
 				{runresult=execute1(cmd)} 		// This command was written as a string so
 												//	the cell object doesn't have to be hard coded
@@ -845,10 +861,6 @@ if ((pair==2) || (pair==4)) {
 	pairrevflag = f2.scanvar
 	tstop = posttime // pretime + duration + posttime
 	f2.close
-
-	ConnData = conn
-	sprint(outfile, "%s%ssetupfiles%sload_cell_conns.hoc", relpath, sl, sl)
-	{load_file(outfile)}	// Load in the cell connectivity info (weight)
 
 	for i=0, numCellTypes-1 {
 		sprint(cmdstr, "%s_idx = %g", cellType[i].cellType_string, i)

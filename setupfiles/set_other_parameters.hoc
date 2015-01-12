@@ -20,8 +20,8 @@ proc SetOtherParameters() {local ind, i, layernum, tempheight
 		LayerVector.x[i] = tempheight
 	}
 	
-	TransverseLength = TransverseLength / sqrt(Scale)
-	LongitudinalLength = LongitudinalLength / sqrt(Scale)
+	scTransverseLength = TransverseLength / sqrt(Scale)
+	scLongitudinalLength = LongitudinalLength / sqrt(Scale)
 
 	axconvel = 250	// axonal conduction velocity in microns/ms (Bartos et al. 2002)
 

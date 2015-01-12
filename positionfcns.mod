@@ -2,7 +2,7 @@ NEURON {
   SUFFIX nothing
 }
 
-
+: gmin - the starting gid for this type of cell
 FUNCTION get_x_pos(gid, gmin, BinNumX, BinNumYZ, binSizeX) {
 	LOCAL CellNum, tmp
 	CellNum=gid - gmin+1

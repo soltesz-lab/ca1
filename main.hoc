@@ -13,20 +13,20 @@ I.  LOAD LIBRARIES
 										//   up a network that runs on parallel processors
 										
 {load_file("./setupfiles/ranstream.hoc")}	// Contains the template that defines a RandomStream
-											//  class used to produce random numbers
-											// 	for the cell noise (what type of noise?)
+											//  class used to produce random numbers for variability
 											
 {load_file("./setupfiles/CellCategoryInfo.hoc")}	// Contains the template that defines a 
 													//  CellCategoryInfo class used to store
 													// 	celltype-specific parameters
 
-{load_file("./setupfiles/SynStore.hoc")}	// Contains the template that defines a 
-
+{load_file("./setupfiles/SynStore.hoc")}	// Contains the template that defines a holder of
+											//  synapse type info
 													
 {load_file("./setupfiles/defaultvar.hoc")}	// Contains the proc definition for default_var proc
 
 {load_file("./setupfiles/parameters.hoc")}	// Loads in operational and model parameters that can
-											//  be changed at command line											
+											//  be changed at command line	
+										
 {load_file("./setupfiles/set_other_parameters.hoc")}// Loads in operational and model parameters
 													//  that can't be changed at command line
 
@@ -41,14 +41,13 @@ celsius=34
 {load_file("./setupfiles/load_cell_category_info.hoc")}	// Reads the 'cells2include.hoc' file and
 														//  loads the information into one
 														//  'CellCategoryInfo' object for each cell
-														//  type (bio or art cells?). Info includes
-														//  number of cells, gid ranges, type name 
+														//  type (realistic and artificial cells).
+														//  Info includes number of cells, gid
+														//  ranges, type name 
 
 
 {load_file("./setupfiles/load_cell_conns.hoc")}	// Load in the cell connectivity info
-{load_file("./setupfiles/load_cell_syns.hoc")}	// Load in the cell connectivity info
-
-objref fAll, fSyn
+{load_file("./setupfiles/load_cell_syns.hoc")}	// Load in the synapse info
 
 strdef tempFileStr						// Define a string reference to store the name of the
 										//  current cell template file
@@ -67,18 +66,18 @@ proc loadCellTemplates(){local i		// Proc to load the template that defines (eac
 loadCellTemplates()						// Run the newly defined proc
 
 proc calcNetSize(){local i				// Calculate the final network size (after any cell death)
-	//cellType[0].numCells = cellType[numCellTypes-1].cellEndGid - cellType[0].cellEndGid + 4*2 // just added now for spontburst
-	//cellType[0].updateGidRange(0)
 
 	totalCells = 0						// Initialize totalCells (which counts the number of 'real'
 										//  cells) so we can add to it iteratively in the 'for' loop
-										
-	ncell = cellType[0].numCells		// Initialize ncell (which counts all 'real' and 'artificial'
+
+	ncell = 0							// Initialize ncell (which counts all 'real' and 'artificial'
 										//  cells) so we can add to it iteratively in the 'for' loop
-										
-	for i=1,numCellTypes-1 {			// Run the following code for 'real' cell types only - need a different way of singling out real cells?
 	
-		if (cellType[i].layerflag==0) {	// For cell types in layer 0, which are susceptible to death
+	prevgid = -1						// Initialize gid setter
+	
+	for i=0,numCellTypes-1 {
+	
+		if (cellType[i].layerflag==0 && cellType[i].is_art==0) {	// For cell types in layer 0, which are susceptible to death
 		
 			cellType[i].numCells = int(cellType[i].numCells * ((100-PercentCellDeath)/100))
 										// Calculate the number of cells surviving after cell loss
@@ -86,25 +85,21 @@ proc calcNetSize(){local i				// Calculate the final network size (after any cel
 			if (cellType[i].numCells == 0) {cellType[i].numCells = 1}	// If all cells of one type
 																		//  are killed, let 1 live
 		}
-		cellType[i].updateGidRange(cellType[i-1].cellEndGid+1)	// Update the gid range for each
-																//  cell type
 		
-		totalCells = totalCells + cellType[i].numCells			// Update the total number of cells
+		cellType[i].updateGidRange(prevgid+1)	// Update the gid range for each
+												//  cell type
+
+		if (cellType[i].is_art==0) {
+			totalCells = totalCells + cellType[i].numCells		// Update the total number of cells
 																//   after sclerosis, not including
 																//   artificial cells
+		}
 		
 		ncell = ncell + cellType[i].numCells 					// Update the total number of cells
 																//   after sclerosis, including
 																//   artificial cells
+		prevgid = cellType[i].cellEndGid
 	}
-	random_stream_offset_= 62086*2+2
-						//(totalCells*2+2)	// How far down the random 'stream' to start the next
-											//  stream section -the difference between the next
-											//  starting point and the previous one must be higher
-											//  than the length of each stream section, where each
-											//  section's length is equal to the # of times this 
-											//  generator will be called per cell x random type (what is x random type?)
-
 }
 calcNetSize()
 
@@ -117,7 +112,7 @@ proc calcBinSize(){local NumGCells
 									// just changed this so even the stim cells will be allotted, as now we have some
 									// stimulation protocols that incorporate stim cell position
 	
-		cellType[i].setBins(LongitudinalLength,TransverseLength,LayerVector.x[cellType[i].layerflag])  
+		cellType[i].setBins(scLongitudinalLength,scTransverseLength,LayerVector.x[cellType[i].layerflag])  
 									// For the z length, use the height of the layer in which the
 									// cell somata are found for this cell type
 	}
@@ -193,8 +188,7 @@ createstart = startsw()					// Record the start time of the cell creation
 IV. CREATE, UNIQUELY ID, AND POSITION CELLS
 ***********************************************************************************************/
 
-objref  memfile, topfile //, pccc
-//{pccc = new ParallelContext()}
+objref  memfile, topfile
 {zzz=0}
 if (pc.id==0) {
 	{sprint(cmd,"./results/%s/memory.dat", RunName)}
@@ -217,15 +211,9 @@ func mallinfo() {local m // this function is a wrapper for the system function m
 			
 			
 			sprint(TopCommand,"top -p `pgrep %s | head -n20 | tr \"\\n\" \",\" | sed 's/,$//'` -n1 -b | tail -n2 | head -n1", TopProc)
-			//print "TopCommand = ", TopCommand
+
 			if (strcmp(TopProc,"")!=0) { system(TopCommand, direx1)}
-			//system("top -p `pgrep special | head -n20 | tr \"\\n\" \",\" | sed 's/,$//'` -n1 -b | tail -n2 | head -n1",direx1)
-			//system("top -p `pgrep nrniv | head -n20 | tr \"\\n\" \",\" | sed 's/,$//'` -n1 -b | tail -n2 | head -n1",direx2)
-			//if (strcmp(direx1,direx2)<0) {
-			//	topfile.printf("%s\t%s\n", $s2, direx2)	// Print the spike time and spiking cell gid
-			//} else {
 				topfile.printf("%s\t%s\n", $s2, direx1)	// Print the spike time and spiking cell gid
-			//}
 		}
         return m
 }
@@ -237,9 +225,6 @@ cells = new List()
 ransynlist = new List()
 ranstimlist = new List()
 raninitlist = new List()
-
-//{load_file("./setupfiles/position_functions.hoc")}	// Defines the algorithm used to set the
-													//  positions of the cells
 													
 {load_file("./setupfiles/create_cells_pos.hoc")}	// Creates each cell on its assigned host
 													//  and sets its position using the algorithm
@@ -250,13 +235,13 @@ strdef cmd
 													//  of each cell to file
 													
 if (PrintCellPositions>0) {posout()}	// Calls the proc that writes the position of each cell to the
-								//  file "position.dat" in the format: gid, x, y, z
+										//  file "position.dat" in the format: gid, x, y, z
 
 createtime = startsw() - createstart	// Calculate time taken to create the cells
 if (pc.id == 0) {printf("\nTIME HOST 0: %g seconds (created cells)\n************\n", createtime)}
 connectstart = startsw()				// Grab start time of cell connection
 
-oldtimeout = pc.timeout(0)
+oldtimeout = pc.timeout(0)	// Addresses timeout error that was occuring on some computers
 
 zzz = mallinfo(zzz, "After creating cells")
 
@@ -267,9 +252,8 @@ V.	CONNECT THE MODEL CELLS AND CONNECT THE STIMULATION CELLS TO SOME MODEL CELLS
 celsius=34
 
 {load_file("./setupfiles/nc_append_functions.hoc")}	// Defines nc_append and nc_appendo, which 
-													//  are procs (?) needed to create the netcon
-													//  object associated with each connection
-													//  (synapse)
+													//  are procs needed to create the netcon
+													//  object associated with each synapse
 
 {sprint(cmd,"./connectivity/%s_connections.hoc", Connectivity)}
 {load_file(cmd)}			// Loads in a particular definition of the connectCells function,
@@ -280,11 +264,11 @@ zzz = mallinfo(zzz, "After connecting cells")
 {sprint(cmd,"./stimulation/%s_stimulation.hoc", Stimulation)}
 {load_file(cmd)}			// Loads in a particular stimulation protocol, including the spike
 							//  vectors for the artificial cells and their connections to the
-							//  'real' cells (where do we define the # of art cells and create them?)
+							//  'real' cells if not using 'try_all_randfaststim'
 
 zzz = mallinfo(zzz, "After defining stimulation")
 
-{load_file("./setupfiles/write_conns_functions.hoc")}	// Defines two funcs (procs?): printNumConFile()
+{load_file("./setupfiles/write_conns_functions.hoc")}	// Defines two procs: printNumConFile()
 														//  writes the number of synapses between every
 														//  combination of pre- and post-synaptic cell type
 														//  and tracenet() lists the presynaptic cell type,
@@ -292,15 +276,13 @@ zzz = mallinfo(zzz, "After defining stimulation")
 														//  every connection
 														
 if (PrintConnSummary==1) {printNumConFile()}	// Write "numcons.dat": a QUICK, SMALL summary file of the # of
-										//  connections by pre and post cell types
+												//  connections by pre and post cell types
 										
 if (PrintConnDetails==2) {tracenetfast()}		// Write "connections.dat": a VERY SLOW, LARGE file of all cell
-										//	connections (pre and post gids, synapse type, host on which
-										//  (target?) cell exists)
-	if (PrintConnDetails==1) {tracenetfast()}	// Write the file of all cell connections (pre and post gids, synapse type,
-										//  host on which cell exists), "connections.dat"
+												//	connections (pre and post gids, synapse type, host on which
+												//  target cell exists)
 
-	if ((PrintConnDetails==0) && (PrintVoltage==2)) {tracecellsfast()}	// If detailed connections are not being written out, at least write them out for cells that are being traced
+if ((PrintConnDetails==0) && (PrintVoltage==2)) {tracecellsfast()}	// If detailed connections are not being written out, at least write them out for cells that are being traced
 
 connecttime = startsw() - connectstart			// calculate time taken to connect the cells
 if (pc.id == 0) {printf("\nTIME HOST 0: %g seconds (connected cells)\n************\n", connecttime)}
@@ -309,10 +291,9 @@ if (pc.id == 0) {printf("\nTIME HOST 0: %g seconds (connected cells)\n**********
 VI.	INITIALIZE AND RUN NETWORK, OUTPUT RESULT FILES
 ***********************************************************************************************/
 
-{load_file("./setupfiles/randomVinit.hoc")}	// Random voltage initialization
-
 if (PrintVoltage>0) {load_file("./setupfiles/recordvoltageauto.hoc")}	// If we are going to record some voltages, then set up the recordings
 
+{load_file("./setupfiles/randomVinit.hoc")}	// Random voltage initialization
 
 proc presimulation() { local prelength, maindt, temp
     
@@ -410,11 +391,10 @@ proc rrun(){									// Run the network simulation and write out the results
 												//  vectors pnm.spikevec (spiketimes) and pnm.idvec (gids)
 												
 	local_minimum_delay = pc.set_maxstep(maxstepval)	// Set every machine's max step size to minimum delay of
-												//  all netcons created on pc using pc.gid_connect, but
-												//  not larger than 10
+														//  all netcons created on pc using pc.gid_connect, but
+														//  not larger than 10
+
 	if (pc.id==0 && use_spike_compression==1) {print "Host ", pc.id, " has local_minimum_delay=", local_minimum_delay}
-
-
 												
 	stdinit()									// Call the init fcn (which is redefined in this code) and
 												//  then make other standard calls (to stop watch, etc)
@@ -437,8 +417,7 @@ proc rrun(){									// Run the network simulation and write out the results
 		if (pc.id == 0) { printf("no load balance info available\nno spike exchange info available\n")}
 	}
 	
-	spikeoutfast()
-	//spikeout()	// Write the spike times (in ms) and spiking cells (by gid) into a file called "spikeraster.dat"
+	spikeoutfast()	// Write the spike times (in ms) and spiking cells (by gid) into a file called "spikeraster.dat"
 	
 	timeout()	// Write out a file of run times for each code section
 	

@@ -118,14 +118,6 @@ proc calcNetSize(){local i				// Calculate the final network size (after any cel
 																//   after sclerosis, including
 																//   artificial cells
 	}
-	random_stream_offset_= 62086*2+2
-						//(totalCells*2+2)	// How far down the random 'stream' to start the next
-											//  stream section -the difference between the next
-											//  starting point and the previous one must be higher
-											//  than the length of each stream section, where each
-											//  section's length is equal to the # of times this 
-											//  generator will be called per cell x random type (what is x random type?)
-
 }
 calcNetSize()
 
@@ -138,7 +130,7 @@ proc calcBinSize(){local NumGCells
 									// just changed this so even the stim cells will be allotted, as now we have some
 									// stimulation protocols that incorporate stim cell position
 	
-		cellType[i].setBins(LongitudinalLength,TransverseLength,LayerVector.x[cellType[i].layerflag])  
+		cellType[i].setBins(scLongitudinalLength,scTransverseLength,LayerVector.x[cellType[i].layerflag])  
 									// For the z length, use the height of the layer in which the
 									// cell somata are found for this cell type
 	}

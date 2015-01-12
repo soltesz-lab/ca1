@@ -23,7 +23,7 @@ strdef myroot
 objref syn, pre_list, templist, rootlist, this
 
 //external variables
-external numCellTypes, cellType, fAll, fSyn
+external numCellTypes, cellType
 
 NumSoma=1
 NumApical=9
