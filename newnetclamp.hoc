@@ -212,11 +212,11 @@ objref  memfile, topfile //, pccc
 //{pccc = new ParallelContext()}
 {zzz=0}
 if (pc.id==0) {
-	{sprint(cmd,"./results/%s/memory.dat", RunName)}
+	{sprint(cmd,"./networkclamp_results/%s/%s/memory.dat", runname, resultsfolder)}
 	{memfile = new File(cmd)}
 	{memfile.wopen()}
 
-	{sprint(cmd,"./results/%s/topoutput.dat", RunName)}
+	{sprint(cmd,"./networkclamp_results/%s/%s/topoutput.dat", runname, resultsfolder)}
 	{topfile = new File(cmd)}
 	{topfile.wopen()}
 }
