@@ -27,7 +27,7 @@ ENDCOMMENT
 NEURON  { 
   ARTIFICIAL_CELL SGate : "Stochastic Gate"
   RANGE period, number, start, phase
-  RANGE depth
+  RANGE depth, gid, randi
   THREADSAFE : only true if every instance has its own distinct Random
   POINTER donotuse
 }
@@ -42,6 +42,8 @@ PARAMETER {
   start = 50 (ms) : start of first cycle
   depth = 0 <0,1> : modulation depth
   phase = 0 (ms): peak of first cycle
+	gid = 0
+	randi = 0
 }
 
 ASSIGNED {

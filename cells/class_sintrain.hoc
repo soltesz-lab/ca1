@@ -49,6 +49,9 @@ begintemplate sintrain
 	
 	ns.gid = $1
 	ns.randi = $2
+	
+	pp.gid = $1
+	pp.randi = $2
   }
 
   // the following are to be used for setting/getting param values
