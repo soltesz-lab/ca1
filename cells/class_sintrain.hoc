@@ -18,17 +18,21 @@ NTC 5/2/2012
 */
 
 begintemplate sintrain
-  public pp // this is the thing that should be the spike source for NetCons
-    // associate this with a Random.uniform(0,1) instance for statistical independence
-  public ns // to make it easy to associate the NetStim with its own Random.negexp(1)
-  public fmax // arg is in Hz!
-  public noise, start, period, number, depth, phase
-  public connect_pre, setnoiseFromRandomPP, setnoiseFromRandomNS
+	public pp // this is the thing that should be the spike source for NetCons
+	// associate this with a Random.uniform(0,1) instance for statistical independence
+	public ns // to make it easy to associate the NetStim with its own Random.negexp(1)
+	public fmax // arg is in Hz!
+	public noise, start, period, number, depth, phase
+	public connect_pre, is_art, randi, gid, noiseFromRandomPP, noiseFromRandomNS, setnoiseFromRandomPP, setnoiseFromRandomNS
+	public x, y, z, position, xpos, ypos, zpos
 
   objref ns, pp, nc
 
   proc init() {
-    ns = new NetStim()
+ 		gid = $1
+		randi = $2
+
+	ns = new MyNetStim(.5)
     pp = new SGate()
     nc = new NetCon(ns, pp)
     nc.delay = 0
@@ -42,6 +46,9 @@ begintemplate sintrain
     number(1)
     depth(0.75)
     phase(0)
+	
+	ns.gid = $1
+	ns.randi = $2
   }
 
   // the following are to be used for setting/getting param values
@@ -155,7 +162,6 @@ begintemplate sintrain
   // these last three are cribbed from Network Builder hoc code--
   // they'd be part of any template based on an artificial spiking cell
 
-  func is_art() { return 1 }
 
   obfunc connect_pre() { localobj nc
     nc = new NetCon(pp, $o1)
@@ -163,8 +169,15 @@ begintemplate sintrain
     return nc
   }
 
-  proc position(){x=$1  y=$2  z=$3}
-  
+	func is_art() {return 1}
+	
+
+	proc position(){
+		x = $1  y = $2  z = $3	
+		xpos = $1  ypos = $2  zpos = $3	
+		ns.position(xpos, ypos, zpos)
+	}
+ 
   proc setnoiseFromRandomPP() {
   	pp.noiseFromRandom($o1) // pass an instance of the Random class that is set to the Random.uniform(0,1) distribution for the gate
   }
