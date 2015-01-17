@@ -1,5 +1,5 @@
 f2 = new File()
-f2.ropen("../phasicprotocols/phasic_100.dat")		// Open the celltype
+f2.ropen("../phasicprotocols/phasic_101.dat")		// Open the celltype
 
 numppTypes = f2.scanvar			// Scan the first line, which contains a number giving the
 
@@ -36,7 +36,7 @@ proc ppSin() { local ppi, i, wgt, reli, typei, jgid, celltype, counter, jstart, 
 						cellType[idx].CellList[typei].period(period)
 						cellType[idx].CellList[typei].number(1e9) // number of periods - last to the end of the simulation
 						cellType[idx].CellList[typei].depth(depth[ppi]) // this should be argument 7 instead of noise, since we know diff inrns modulated diff'ly
-						cellType[idx].CellList[typei].phase(phase[ppi]*period)
+						cellType[idx].CellList[typei].phase(phase[ppi]*period/360)
 						
 						{ranstimlist.object(reli).r.negexp(1)}// Set up the generator to pick a uniform dist of numbers between 0 and 1
 						{cellType[idx].CellList[typei].setnoiseFromRandomNS(ranstimlist.object(reli).r)}
