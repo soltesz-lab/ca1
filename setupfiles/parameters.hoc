@@ -47,3 +47,4 @@ default_var("Jitter",.2)		// Fraction of noise associated with jitterburst stimu
 default_var("myConDelay",1.2)		// Axonal conduction delay
 default_var("TopProc","")		// NEURON process name in the top command
 default_var("RandomVinit",0)		// Positive value indicates that initial voltages should be randomized
+default_var("PhasicData",100)		// Which phasic dataset to use for oscillation/phasic stimulation

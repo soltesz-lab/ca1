@@ -1,5 +1,6 @@
 f2 = new File()
-f2.ropen("../phasicprotocols/phasic_102.dat")		// Open the celltype
+sprint(cmdstr,"../datasets/phasic_%g.dat", PhasicData)
+f2.ropen(cmdstr)		// Open the celltype
 
 numppTypes = f2.scanvar			// Scan the first line, which contains a number giving the
 
