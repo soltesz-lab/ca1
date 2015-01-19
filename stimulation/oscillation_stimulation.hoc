@@ -14,13 +14,11 @@ for i=0, numppTypes-1 {
 	noise[i] = f2.scanvar
 	depth[i] = f2.scanvar
 	phase[i] = f2.scanvar
-	print pptype[i].s, ": ", fmax[i], ", ", noise[i], ", ", depth[i] , ", ", phase[i]
 }
 f2.close()
 
 
 period = Onint + Offint		// Oscillation period in ms
-//print "period = ", period
 
 proc ppSin() { local ppi, i, wgt, reli, typei, jgid, celltype, counter, jstart, jend, jtot localobj mycell		// Connect the perforant path cells to the model cells
 	// find ppecsin index
@@ -28,7 +26,6 @@ proc ppSin() { local ppi, i, wgt, reli, typei, jgid, celltype, counter, jstart, 
 		for celltype=0, numCellTypes-1 {
 			if (strcmp(cellType[celltype].cellType_string, pptype[ppi].s)==0 &&  strcmp(cellType[celltype].technicalType, "sintrain")==0 ) {
 				idx = celltype 
-				//print "idx = ", idx, ", celltype = ", cellType[celltype].cellType_string
 				for pcitr(&reli, &typei, &jgid, cellType[idx].cellStartGid, cellType[idx].cellEndGid) {
 					if (pc.gid_exists(jgid)) {
 
