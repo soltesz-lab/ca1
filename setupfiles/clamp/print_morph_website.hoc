@@ -13,20 +13,29 @@ I.  LOAD LIBRARIES
 										//   up a network that runs on parallel processors
 										
 {load_file("./setupfiles/ranstream.hoc")}	// Contains the template that defines a RandomStream
-											//  class used to produce random numbers
-											// 	for the cell noise (what type of noise?)
+											//  class used to produce random numbers for variability
 											
 {load_file("./setupfiles/CellCategoryInfo.hoc")}	// Contains the template that defines a 
 													//  CellCategoryInfo class used to store
 													// 	celltype-specific parameters
+
+{load_file("./setupfiles/SynStore.hoc")}	// Contains the template that defines a holder of
+											//  synapse type info
 													
 {load_file("./setupfiles/defaultvar.hoc")}	// Contains the proc definition for default_var proc
 
 {load_file("./setupfiles/parameters.hoc")}	// Loads in operational and model parameters that can
-											//  be changed at command line											
+											//  be changed at command line	
+										
 {load_file("./setupfiles/set_other_parameters.hoc")}// Loads in operational and model parameters
 													//  that can't be changed at command line
 
+{load_file("./setupfiles/check_for_files.hoc")}	// Checks that the necessary chosen files exist
+												//  (datasets, connectivity, and stimulation)
+
+SynData=120
+ConnData=330
+NumData=106
 /***********************************************************************************************
 II. SET MODEL SIZE, CELL DEFINITIONS
 ***********************************************************************************************/
@@ -39,8 +48,8 @@ celsius=34
 														//  number of cells, gid ranges, type name 
 
 {load_file("./setupfiles/load_cell_conns.hoc")}	// Load in the cell connectivity info
+{load_file("./setupfiles/load_cell_syns.hoc")}	// Load in the synapse info
 
-objref fAll, fSyn
 
 strdef tempFileStr						// Define a string reference to store the name of the
 										//  current cell template file
@@ -162,10 +171,11 @@ IV. CREATE, UNIQUELY ID, AND POSITION CELLS
 
 strdef direx1, direx2, TopProc, TopCommand
 
-objref cells, ransynlist, ranstimlist
+objref cells, ransynlist, ranstimlist, raninitlist
 cells = new List()						
 ransynlist = new List()
 ranstimlist = new List()
+raninitlist = new List()
 
 {load_file("./setupfiles/create_cells_pos.hoc")}	// Creates each cell on its assigned host
 													//  and sets its position using the algorithm
@@ -420,8 +430,6 @@ for celltype=0, numCellTypes-1 {
 				print cellType[celltype].cellType_string, " length checks:"
 				forsec cell.all { if (L<=0.001) print secname(), L }
 
-				print "done with ", cellType[celltype].cellType_string
-
 				/*
 				0 white
 				1 black
@@ -435,7 +443,8 @@ for celltype=0, numCellTypes-1 {
 				9 gray
 				*/
 				
-				
+				cell.position(0,0,0)
+
 				strdef mypart, mystr
 				objref ss
 				ss = new Shape(cell.all)
@@ -444,15 +453,18 @@ for celltype=0, numCellTypes-1 {
 					mypart = mysecs[k].s
 					if (strcmp(mypart,"all")!=0) {
 						strobj.left(mypart, strobj.len(mypart)-5)
+						ss.color_all(1)
+						sprint(cmdstr, "ss.color_list(cell.%s, 2)", mysecs[k].s)
+						execute(cmdstr)
+					} else {
+						ss.color_all(1)
 					}
-					ss.color_all(1)
-					sprint(cmdstr, "ss.color_list(cell.%s, 2)", mysecs[k].s)
-					execute(cmdstr)
 					ss.rotate()
 					ss.show(0) //show diameters
 					sprint(cmdstr, "ss.printfile(\"%s/%s/%s.ps\")", websitepath, cellType[celltype].cellType_string, mypart) // later converted to mypart.png
 					execute(cmdstr)
 				}
+				
 				objref ss
 				
 				////////////////////////////////
@@ -462,8 +474,9 @@ for celltype=0, numCellTypes-1 {
 				sprint(myfile,"%s/%s/channeltable.txt",websitepath ,cellType[celltype].cellType_string)
 				f.wopen(myfile)
 				
-
-				cell.position(2000,-2000,0)
+				poshorz = 2000
+				posvert = -2000
+				cell.position(poshorz,posvert,0)
 				access cell.soma {
 					mt = new MechanismType(0)
 				}
@@ -489,10 +502,10 @@ for celltype=0, numCellTypes-1 {
 						peakvalue = 0
 						location = ""
 						erev = 0
-						leftmost = 2000
-						rightmost = 2000
-						topmost = -2000
-						bottommost = -2000
+						leftmost = poshorz
+						rightmost = poshorz
+						topmost = posvert
+						bottommost = posvert
 						
 						sprint(cmdstr, "testvalue = gmax_%s(x)", mname)
 						forsec cell.all {
@@ -502,12 +515,14 @@ for celltype=0, numCellTypes-1 {
 							grr = sf.substr(myname, "[")
 							sf.left(myname, grr)
 							
-							for (x,0) {
-								if (x3d(x)<leftmost) {leftmost=x3d(x)}
-								if (x3d(x)>rightmost) {rightmost=x3d(x)}
-								if (y3d(x)<bottommost) {bottommost=y3d(x)}
-								if (y3d(x)>topmost) {topmost=y3d(x)}
-								
+							for tt=0,n3d()-1 {
+								if (x3d(tt)<leftmost) {leftmost=x3d(tt)}
+								if (x3d(tt)>rightmost) {rightmost=x3d(tt)}
+								if (y3d(tt)<bottommost) {bottommost=y3d(tt)}
+								if (y3d(tt)>topmost) {topmost=y3d(tt)}
+							}
+
+							for (x,0) {								
 								if (ismembrane(mname)) {
 									anywhereflag = 1
 
@@ -515,8 +530,6 @@ for celltype=0, numCellTypes-1 {
 									if (testvalue>peakvalue) {
 										peakvalue = testvalue
 										sprint(location,"%s", myname)
-										//sprint(cmderevstr, "erev = %s.e_%s(%f)", secname(), mname, x)
-										//execute(cmderevstr)
 									} else {
 										if ((testvalue==peakvalue) && (sf.substr(location,myname)==-1)) {
 											sprint(location,"%s; %s", location, myname)
@@ -566,6 +579,9 @@ for celltype=0, numCellTypes-1 {
 							top = 151
 							swidth = 467
 							sheight = 345
+							
+							print cellType[celltype].cellType_string, ": ", mwidth, " x ", mheight
+							
 							//g.size(-199.999,199.999,-147.615,147.615)
 							//g.view(-199.999, -147.615, 399.998, 295.23, 49, 151, 467.1, 344.8)
 							// see documentation of Shape.view

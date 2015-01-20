@@ -1,11 +1,10 @@
 begintemplate olmcell
-
-// public variables
-public  pre_list, connect_pre, append_sections, is_art, is_connected, gid, randi
-public soma, dend1, dend2, axon
-public all, pdend, ddend, basal_list, apical_list, soma_list, axon_list, dendrite_list
+public init, connect_sections, size_sections, append_sections
+public mechinit, insert_mechs, set_biophys, get_root
+public  pre_list, connect_pre, is_art, is_connected, gid, randi
+public soma, dend
+public all, basal_list, apical_list, soma_list, axon_list, dendrite_list
 public x, y, z, position, myroot, Vrest
-
 
 // strings
 strdef myroot
@@ -16,79 +15,99 @@ objref syn, pre_list, templist, rootlist, this
 // external variables
 external numCellTypes, cellType
 
-// create the sections[segments]
-create soma[1], dend1[1], dend2[1], axon[1]
+create soma[1], dend[2], axon[1]
 
-// set the initialization code, which is run whenever a new object
-// of this class is instantiated
+
 proc init() {
 	gid = $1
 	randi = $2
-	// cell sections: soma, dendrites, axon
-	append_sections() // append all sections to the section list
-	connect_sections()// connect soma, dendrites, axon
-	size_sections()	// set the size dimensions of each section
-	set_nseg()		// set the number of segments in each section
 	
-	// subcellular mechanisms: channels, pumps, transporters
-	insert_mechs()
-	set_biophys()
-	define_shape()
-	get_root()
+	// morphology
+	connect_sections()	// local fcn: connect soma, dendrites, axon initial segment
+	size_sections()		// local fcn: set the size dimensions of each section
+	define_shape()		// builtin fcn: fill in 3d info for sections defined by only L and diam, translate 3d points for consistency with their connections 
+  	append_sections()	// local fcn: append all sections to the section list
+	set_nseg()			// local fcn: set the number of segments in each section
+	get_root()			// local fcn: perform morphology checks
 
+	// electrophysiology
+	mechinit()			// local fcn: set values for max conductances and reversal potentials of ion channels and other ephys parameters that are subject to fitting
+	insert_mechs()		// local fcn: insert ion channels and actually set values determined in the mechinit fcn
+	set_chanparams()	// local fcn: after all channels have been inserted, then their other parameters can be set	
+	// synapses
 	pre_list = new List() // define a list for the presynaptic connections
 	define_synapses($3)	// local fcn: define all possible synaptic connections received by this cell
 }
 
 proc connect_sections() { local i
-  	connect dend1(0), soma(1)
-  	connect dend2(0), soma(0)
-  	connect axon(0), soma(1)
+  	connect dend[0](0), soma(1)
+  	connect dend[1](0), soma(1)
+  	connect axon(0), soma(0)
 }
 
-objref all, basal_list, apical_list, soma_list, axon_list, dendrite_list
+proc size_sections() {
+	/*soma[0] {L=20 diam=10}
+	dend[0] {L=250 diam=3}
+	dend[1] {L=250 diam=3}
+	axon[0] {L=150 diam=1.5}*/
+	
+	soma[0] {pt3dclear()
+		pt3dadd(0.0, 0.0, 0.0, 10.0) // distance from (0,0,0) = 0
+		pt3dadd(0.0, 10.0, 0.0, 10.0) // distance from (0,0,0) = 10
+		pt3dadd(0.0, 20.0, 0.0, 10.0) // distance from (0,0,0) = 20
+	}
+	dend[0] {pt3dclear()
+		pt3dadd(0.0, 20.0, 0.0, 3.0) // distance from (0,0,0) = 0
+		pt3dadd(100.0, 120.0, 0.0, 3.0) // distance from (0,0,0) = 10
+		pt3dadd(177.0, 197.0, 0.0, 3.0) // distance from (0,0,0) = 20
+	}
+	dend[1] {pt3dclear()
+		pt3dadd(0.0, 20.0, 0.0, 3.0) // distance from (0,0,0) = 0
+		pt3dadd(-100.0, 120.0, 0.0, 3.0) // distance from (0,0,0) = 10
+		pt3dadd(-177.0, 197.0, 0.0, 3.0) // distance from (0,0,0) = 20
+	}
+	axon[0] {pt3dclear()
+		pt3dadd(0.0, 0.0, 0.0, 1.5) // distance from (0,0,0) = 0
+		pt3dadd(0.0, -75.0, 0.0, 1.5) // distance from (0,0,0) = 10
+		pt3dadd(0.0, -150.0, 0.0, 1.5) // distance from (0,0,0) = 20
+	}
+}
 
+objref all, basal_list, apical_list, dendrite_list, soma_list, axon_list
+proc append_sections() { local i
+	objref all, basal_list, apical_list, dendrite_list, soma_list, axon_list
 
-proc append_sections() {
-	objref all, basal_list, apical_list, soma_list, axon_list, dendrite_list
-
-
-	// Make a list for every section in the cell
-	all = new SectionList()	
-  basal_list = new SectionList()
-  apical_list = new SectionList()
-  dendrite_list = new SectionList()
-  soma_list = new SectionList()
-  axon_list = new SectionList()
-
+	all = new SectionList()
+	basal_list = new SectionList()
+	apical_list = new SectionList()
+	soma_list = new SectionList()
+	axon_list = new SectionList()
+	dendrite_list = new SectionList()
 
     	soma all.append()
     	soma soma_list.append()
-    	dend1 all.append()
-    	dend1 basal_list.append()
-    	dend1 dendrite_list.append()
-    	dend2 all.append()
-    	dend1 basal_list.append()
-    	dend1 dendrite_list.append()
+    	dend[0] all.append()
+    	dend[0] basal_list.append()
+    	dend[0] dendrite_list.append()
+    	dend[1] all.append()
+    	dend[1] basal_list.append()
+    	dend[1] dendrite_list.append()
     	axon all.append()
     	axon axon_list.append()
 }
 
 
-proc size_sections() {
-  	soma {  L = 20  diam = 10  }
-  	dend1 {  L = 250  diam = 3  }
-  	dend2 {  L = 250  diam = 3  }
-  	axon {  L = 150  diam = 1.5  }
-}
-
 external lambda_f
 proc set_nseg() {
-  forsec all { nseg = int((L/(0.1*lambda_f(100))+.9)/2)*2 + 1  }
+  	forsec all { nseg = int((L/(0.1*lambda_f(100))+.9)/2)*2 + 1  }
 }
 
 
-proc insert_mechs() {
+
+proc mechinit() {	
+	// Temperature of simulation
+	celsius = 34.0  
+
 	Vrest = -67
 	
 	Rm = 20000*5
@@ -107,8 +126,10 @@ proc insert_mechs() {
 	gNadend = 2*0.0117
 	gNaaxon = 0.01712
 	
-	eleak = -67
-	
+	eleak = -67	
+}
+
+proc insert_mechs() {
   	soma {
 		insert ch_KvAolm
     		gmax_ch_KvAolm = gKvAsoma
@@ -123,7 +144,7 @@ proc insert_mechs() {
 			e_ch_leak = eleak  	
 	}
 
-  	dend1 {
+  	dend[0] {
 		insert ch_KvAolm
     		gmax_ch_KvAolm = gKvAdend
 		insert ch_Kdrfast // ch_Kvdend
@@ -135,7 +156,7 @@ proc insert_mechs() {
 			e_ch_leak = eleak  	
   	}
 
-  	dend2 {
+  	dend[1] {
 		insert ch_KvAolm
     		gmax_ch_KvAolm = gKvAdend
 		insert ch_Kdrfast // ch_Kvdend
@@ -158,7 +179,7 @@ proc insert_mechs() {
   	}
 }
 
-proc set_biophys() {
+proc set_chanparams() {
 	forsec all {
 		Ra = 150	// Ra = Axial resistivity in ohm-cm. Ra is a
 					//  section variable that must be set for each
@@ -170,9 +191,11 @@ proc set_biophys() {
 	}  // make catau slower70e-3 	cao=2 cai=50.e-6 
 }
 
+
 	proc connect_pre() {  // $o1 target point process, $o2 returned NetCon
 	soma $o2 = new NetCon (&v(1), $o1)
 			$o2.threshold = -20
+
 	}
 
 	func is_art()  { return 0 }
@@ -196,6 +219,11 @@ proc get_root() {local i localobj sref
 			myroot = secname()
 			i=i+1
 		}
+		for(x,0) {
+			if (diam(x) <=0.01) print "WARNING: tiny diameter of ",  diam(x), " um at ", secname(), ", point ", x, "!"
+			if (diam3d(x) <=0.01) print "WARNING: tiny 3d diameter of ", diam3d(x), " um at ", secname(), ", point ", x, "!"
+		}
+		if (L <=0.001) print "WARNING: tiny length of ", L, " um at ", secname(), "!"
 	}
 	if (i>1) {
 		print "WARNING: cell ", gid, " has ", i, " root sections!"

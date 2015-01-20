@@ -44,7 +44,6 @@ celsius=34
 {load_file("./setupfiles/load_cell_conns.hoc")}	// Load in the cell connectivity info
 {load_file("./setupfiles/load_cell_syns.hoc")}	// Load in the cell connectivity info
 
-objref fAll, fSyn
 
 strdef tempFileStr, cmd						// Define a string reference to store the name of the
 										//  current cell template file
@@ -171,10 +170,11 @@ createstart = startsw()					// Record the start time of the cell creation
 IV. CREATE, UNIQUELY ID, AND POSITION CELLS
 ***********************************************************************************************/
 
-objref cells, ransynlist, ranstimlist
+objref cells, ransynlist, ranstimlist, raninitlist
 cells = new List()						
 ransynlist = new List()
 ranstimlist = new List()
+raninitlist = new List()
 													
 {load_file("./setupfiles/create_cells_pos.hoc")}	// Creates each cell on its assigned host
 													//  and sets its position using the algorithm

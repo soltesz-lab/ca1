@@ -69,9 +69,9 @@ proc connect_sections() { local i
   connect apical[8](0), apical[7](1)
   connect basal[0](0), soma(0)
   connect basal[1](0), basal[0](1)
-  connect basal[2](0), soma(1)
+  connect basal[2](0), soma(0)
   connect basal[3](0), basal[2](1)
-  connect axon(0), soma(1)
+  connect axon(0), soma(0)
   //basic_shape()
 }
 
@@ -166,25 +166,90 @@ proc append_sections() { local i
 }
 
 proc size_sections() {
-  soma {  L = 10  diam = 10  }
-  // SR is first 500um of apical dendrite
-  apical[0] {  L = 100  diam = 4  }
-  apical[1] {  L = 100  diam = 3  }
-  apical[2] {  L = 200  diam = 2  }
-  // OLM is final 300um of apical dendrite
-  apical[3] {  L = 100  diam = 2  }
-  apical[4] {  L = 100  diam = 1.5  }
-  apical[5] {  L = 50  diam = 1  }
-  apical[6] {  L = 100  diam = 2  }
-  apical[7] {  L = 100  diam = 1.5  }
-  apical[8] {  L = 50  diam = 1  }
-  // Basal dendrites extend 300 um
-  basal[0] {  L = 100  diam = 2  }
-  basal[1] {  L = 200  diam = 1.5  }
-  basal[2] {  L = 100  diam = 2  }
-  basal[3] {  L = 200  diam = 1.5  }
-  // Short section of axon
-  axon {  L = 150  diam = 1  }
+	soma[0] {pt3dclear()
+		pt3dadd(0.0, 0.0, 0.0, 10.0) // distance from (0,0,0) = 0
+		pt3dadd(0.0, 5.0, 0.0, 10.0) // distance from (0,0,0) = 10
+		pt3dadd(0.0, 10.0, 0.0, 10.0) // distance from (0,0,0) = 20
+	}
+	apical[0] {pt3dclear()
+		pt3dadd(0.0, 10.0, 0.0, 4.0) // distance from (0,0,0) = 0
+		pt3dadd(0.0, 60.0, 0.0, 4.0) // distance from (0,0,0) = 10
+		pt3dadd(0.0, 110.0, 0.0, 4.0) // distance from (0,0,0) = 20
+	}
+	apical[1] {pt3dclear()
+		pt3dadd(0.0, 110.0, 0.0, 3.0) // distance from (0,0,0) = 0
+		pt3dadd(0.0, 160.0, 0.0, 3.0) // distance from (0,0,0) = 10
+		pt3dadd(0.0, 210.0, 0.0, 3.0) // distance from (0,0,0) = 20
+	}
+	apical[2] {pt3dclear()
+		pt3dadd(0.0, 210.0, 0.0, 2.0) // distance from (0,0,0) = 0
+		pt3dadd(0.0, 310.0, 0.0, 2.0) // distance from (0,0,0) = 10
+		pt3dadd(0.0, 410.0, 0.0, 2.0) // distance from (0,0,0) = 20
+	}
+
+
+	apical[3] {pt3dclear()
+		pt3dadd(0.0, 410.0, 0.0, 2.0) // distance from (0,0,0) = 0
+		pt3dadd(35.5, 445.5, 0.0, 2.0) // distance from (0,0,0) = 10
+		pt3dadd(71.0, 481, 0.0, 2.0) // distance from (0,0,0) = 20
+	}
+	apical[4] {pt3dclear()
+		pt3dadd(71.0, 481.0, 0.0, 1.5) // distance from (0,0,0) = 0
+		pt3dadd(106.5, 516.5, 0.0, 1.5) // distance from (0,0,0) = 10
+		pt3dadd(142.0, 552, 0.0, 1.5) // distance from (0,0,0) = 20
+	}
+	apical[5] {pt3dclear()
+		pt3dadd(142.0, 552, 0.0, 1.0) // distance from (0,0,0) = 20
+		pt3dadd(159.7, 569.7, 0.0, 1.0) // distance from (0,0,0) = 20
+		pt3dadd(177.4, 587.4, 0.0, 1.0) // distance from (0,0,0) = 20
+	}
+
+
+	apical[6] {pt3dclear()
+		pt3dadd(0.0, 410.0, 0.0, 2.0) // distance from (0,0,0) = 0
+		pt3dadd(-35.5, 445.5, 0.0, 2.0) // distance from (0,0,0) = 10
+		pt3dadd(-71.0, 481, 0.0, 2.0) // distance from (0,0,0) = 20
+	}
+	apical[7] {pt3dclear()
+		pt3dadd(-71.0, 481.0, 0.0, 1.5) // distance from (0,0,0) = 0
+		pt3dadd(-106.5, 516.5, 0.0, 1.5) // distance from (0,0,0) = 10
+		pt3dadd(-142.0, 552, 0.0, 1.5) // distance from (0,0,0) = 20
+	}
+	apical[8] {pt3dclear()
+		pt3dadd(-142.0, 552, 0.0, 1.0) // distance from (0,0,0) = 20
+		pt3dadd(-159.7, 569.7, 0.0, 1.0) // distance from (0,0,0) = 20
+		pt3dadd(-177.4, 587.4, 0.0, 1.0) // distance from (0,0,0) = 20
+	}
+
+
+
+	basal[0] {pt3dclear()
+		pt3dadd(0.0, 0.0, 0.0, 2.0) // distance from (0,0,0) = 0
+		pt3dadd(35.5, -35.5, 0.0, 2.0) // distance from (0,0,0) = 10
+		pt3dadd(71, -71, 0.0, 2.0) // distance from (0,0,0) = 20
+	}
+	basal[1] {pt3dclear()
+		pt3dadd(71, -71, 0.0, 1.5) // distance from (0,0,0) = 0
+		pt3dadd(142, -142, 0.0, 1.5) // distance from (0,0,0) = 10
+		pt3dadd(212.4, -212.4, 0.0, 1.5) // distance from (0,0,0) = 20
+	}
+	basal[2] {pt3dclear()
+		pt3dadd(0.0, 0.0, 0.0, 2.0) // distance from (0,0,0) = 0
+		pt3dadd(-35.5, -35.5, 0.0, 2.0) // distance from (0,0,0) = 10
+		pt3dadd(-71, -71, 0.0, 2.0) // distance from (0,0,0) = 20
+	}
+	basal[3] {pt3dclear()
+		pt3dadd(-71, -71, 0.0, 1.5) // distance from (0,0,0) = 0
+		pt3dadd(-142, -142, 0.0, 1.5) // distance from (0,0,0) = 10
+		pt3dadd(-212.4, -212.4, 0.0, 1.5) // distance from (0,0,0) = 20
+	}
+
+
+	axon[0] {pt3dclear()
+		pt3dadd(0.0, 0.0, 0.0, 1.0) // distance from (0,0,0) = 0
+		pt3dadd(0.0, -75.0, 0.0, 1.0) // distance from (0,0,0) = 10
+		pt3dadd(0.0, -150.0, 0.0, 1.0) // distance from (0,0,0) = 20
+	}
 }
 
 external lambda_f
