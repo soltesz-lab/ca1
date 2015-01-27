@@ -47,7 +47,7 @@ begintemplate CellCategoryInfo			// Define a template that describes
 		objref CellList[numCells]	// Create a new CellList for this celltype,
 									//  the length of which equals the number
 									//  of cells
-									
+
 		numThisHost = 0
 	}
 	

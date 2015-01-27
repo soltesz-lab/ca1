@@ -116,17 +116,31 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 				highIndices.x[r] = int(conns2make.x[2+r]/1)
 			}
 
+			print "gonna connect ", $s3
 			for r=1+numpost, int(conns2make.x[0]/1)+numpost {		
 				cellind = precellType
-				for pcitr(&i, &ij, &gid, cellType[cellind].cellStartGid, conns2make.x[r+1]) {// use the pciter on this one cell to find owner rank for it: conns2make.x[r+1]
+				for fastitr(&i, &ij, &gid, cellType[cellind].cellStartGid, conns2make.x[r+1]) {// use the pciter on this one cell to find owner rank for it: conns2make.x[r+1]
 					if (pc.gid_exists(gid) && cells2make.x[gid]==-1) {
-						sprint(cmd, "{cellType[%g].CellList[%g]=new ppvec(%g,%g)}", cellind, ij, gid, i) //+cellType[cellind].cellStartGid) // why add the startgid to the gid? 
+						i = ransynlist.count()
+						if (stimflag==0) {
+							sprint(cmd, "{cellType[%g].CellList[%g]=new ppvec(%g,%g)}", cellind, ij, gid, i) //+cellType[cellind].cellStartGid) // why add the startgid to the gid? 
+						} else { 
+							sprint(cmd, "{cellType[%g].CellList[%g]=new sintrain(%g,%g)}", cellind, ij, gid, i) //+cellType[cellind].cellStartGid) // why add the startgid to the gid? 
+						}
 						{runresult=execute(cmd)} //prints a zero!		// This command was written as a string so
 														//	the cell object doesn't have to be hard coded
 																												
 						cells.append(cellType[cellind].CellList[ij])	// Append each cell to cells list
 						cellType[cellind].numThisHost = ij+1 // set number of cells of this type on this host (but add 1 b/c ij is zero based)
 						cells2make.x[gid]=gid
+
+						ransynlist.append(new RandomStream(1+RandomSeedsConn, gid + 1*ncell)) // Create a new random number generator for each cell,
+																	//	with a unique stream. This will be used to determine
+																	//	what type of synapse is used in connections
+																	// lowindex = gid is used in the connection algorithm in the mod file
+						ranstimlist.append(new RandomStream(1+RandomSeedsStim, gid + 2*ncell)) // Create a new random number generator for each cell, used by netstims for setting spont stim.
+						raninitlist.append(new RandomStream(1+RandomSeedsStim, gid + 3*ncell)) // Create a new random number generator for each cell, used to set random initial voltage
+
 						
 						cellType[cellind].CellList[ij].connect_pre(nil, nc)	// Create an empty connection for use by the spike detector
 						pc.cell(gid, nc)									// Associate the cell with its gid and its spike generation location

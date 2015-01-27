@@ -35,6 +35,7 @@ I.  LOAD LIBRARIES
 default_var("gidOI", 0) // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
 default_var("cellindOI", 0) // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
 default_var("spkflag", 0) // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
+default_var("stimflag", 0) // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
 default_var("resultsfolder", "00001") // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
 default_var("runname", "None") // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
 default_var("origRunName", "CutSma_040_11") // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
@@ -67,8 +68,6 @@ sprint(path2SynData, "../networkclamp_results/%s/%s/syndata.dat", origRunName, r
 {load_file("./setupfiles/load_cell_conns.hoc")}	// Load in the cell connectivity info
 {load_file("./setupfiles/load_cell_syns.hoc")}	// Load in the cell connectivity info
 
-objref fAll, fSyn
-
 strdef tempFileStr						// Define a string reference to store the name of the
 										//  current cell template file
 
@@ -83,7 +82,14 @@ proc loadCellTemplates(){local i		// Proc to load the template that defines (eac
 		load_file(tempFileStr)			// Load the file with the template that defines the class
 										//  for each cell type
 	//}
+	if (stimflag==1) {
+		load_file("./cells/class_sintrain.hoc")			// Load the file with the template that defines the class
+		tstop = 1000
+		SimDuration = tstop
+		print "PhasicData = ", PhasicData, ", SimDuration = ", SimDuration
+	} else {
 		load_file("./cells/class_ppvec.hoc")			// Load the file with the template that defines the class
+	}
 }	
 loadCellTemplates()						// Run the newly defined proc
 
@@ -153,6 +159,39 @@ parallelizer()
 iterator pcitr() {local i2, startgid	// Create iterator for use as a standard 'for' loop
 										//  throughout given # cells usage:
 										//  for pcitr(&i1, &i2, &gid, it_start, it_end) {do stuff}
+										//  it_start and it_end let you define range over
+										//  which to iterate
+										//  i1 is the index of the cell on the cell list for that host
+										//  i2 is the index of that cell for that cell type on that host
+	numcycles = int($4/pc.nhost)
+	extra = $4%pc.nhost
+	addcycle=0
+	if (extra>pc.id) {addcycle=1}
+	startgid=(numcycles+addcycle)*pc.nhost+pc.id
+	i1 = numcycles+addcycle // the index into the cell # on this host.
+	i2 = 0 // the index of the cell in that cell type's list on that host
+	if (startgid<=$5) {
+		for (i3=startgid; i3 <= $5; i3 += pc.nhost) {	// Just iterate through the cells on
+														//  this host(this simple statement
+														//  iterates through all the cells on
+														//  this host and only these cells because 
+														//  the roundrobin call made earlier dealt
+														//  the cells among the processors in an
+														//  orderly manner (like a deck of cards)
+				$&1 = i1
+				$&2 = i2
+				$&3 = i3
+				// if (i3 == $5) {iterator_statement}
+				iterator_statement
+				i1 += 1
+				i2 += 1
+		}
+	}
+}
+
+iterator fastitr() {local i2, startgid	// Create iterator for use as a standard 'for' loop
+										//  throughout given # cells usage:
+										//  for fastitr(&i1, &i2, &gid, it_start, it_end) {do stuff}
 										//  it_start and it_end let you define range over
 										//  which to iterate
 										//  i1 is the index of the cell on the cell list for that host
@@ -247,10 +286,12 @@ func mallinfo() {local m // this function is a wrapper for the system function m
 
 {zzz = mallinfo(zzz, "Prior to creating cells")}
 
-objref cells, ransynlist, ranstimlist
+objref cells, ransynlist, ranstimlist, raninitlist
 cells = new List()						
 ransynlist = new List()
 ranstimlist = new List()
+raninitlist = new List()
+
 
 //{load_file("./setupfiles/position_functions.hoc")}	// Defines the algorithm used to set the
 													//  positions of the cells													
@@ -295,10 +336,15 @@ celsius=34
 zzz = mallinfo(zzz, "After connecting cells")
 {pc.barrier()}
 
+if (stimflag==0) {
 {load_file("./setupfiles/clamp/netclamp_stimulation.hoc")}			// Loads in a particular stimulation protocol, including the spike
 							//  vectors for the artificial cells and their connections to the
 							//  'real' cells (where do we define the # of art cells and create them?)
-
+} else {
+	if (stimflag==1) {
+		{load_file("./setupfiles/clamp/netclamp_oscillation_stimulation.hoc")}
+	}
+}
 zzz = mallinfo(zzz, "After defining stimulation")
 
 {load_file("./setupfiles/write_conns_functions.hoc")}	// Defines two funcs (procs?): printNumConFile()
@@ -327,11 +373,54 @@ VI.	INITIALIZE AND RUN NETWORK, OUTPUT RESULT FILES
 ***********************************************************************************************/
 objref mytrace, myvrec, cell
 
+strdef filestr
+sprint(filestr, "./networkclamp_results/%s/%s/allsyns.dat", origRunName, resultsfolder)
+objref fAll, fSyn
+fAll = new File(filestr)
+fAll.wopen()
+sprint(filestr, "./networkclamp_results/%s/%s/synlist.dat", origRunName, resultsfolder)
+fSyn = new File(filestr)
+fSyn.wopen()
+
+strdef cmdstr, tempFileStr
+objref newSecRef
+
+
 if (pc.gid_exists(gidOI)) {
 	cell = pc.gid2cell(gidOI)
 	print "cell is located at: ", cell.x, ", ", cell.y, ", ", cell.z
 	mytrace = new Vector((tstop-tstart)/dt)
 	mytrace.record(&cell.soma.v(0.5))
+
+	ist = 0
+	ien = 0
+	myi = 0
+	access cell.soma[0]
+	{distance()}
+
+	for precellType = 0, numCellTypes-1 {
+		ist = myi
+		for r=0, cellType[celltypeOI].SynList[precellType].count()-1 {
+			sprint(cmdstr,"newSecRef = cell.%s",cellType[celltypeOI].SynList[precellType].object(r).SecRefStr)
+			execute(cmdstr) // sets newSecRef
+						
+			forsec newSecRef {		
+				for (x,0) {
+					execute(cellType[celltypeOI].SynList[precellType].object(r).CondStr)
+					 if (y==1) {
+						fSyn.printf("%s %s %g %s\n", cellType[celltypeOI].cellType_string, cellType[precellType].cellType_string, myi, secname())
+						myi = myi + 1
+					}
+				}
+			}
+		}
+		ien = myi - 1
+		print "print celltype = ", precellType, ": type = ", cellType[precellType].cellType_string, ", st = ", ist, ", en = ", ien
+		if (ien>=ist) {fAll.printf("%s %s %g %g\n", cellType[celltypeOI].cellType_string, cellType[precellType].cellType_string, ist, ien)}
+	}		
+
+	fAll.close()
+	fSyn.close()
 	
 	/*forsec cell.all {
 		insert extracellular
@@ -340,8 +429,10 @@ if (pc.gid_exists(gidOI)) {
 
 	myvrec = new Vector((tstop-tstart)/dt)
 	myvrec.record(&lfp_xtra)*/
+} else {
+	print "couldnt make cell ", gidOI
 }
-/*
+/* 
 load_file("clamp/interpxyz.hoc")	// only interpolates sections that have extracellular
 load_file("clamp/setpointers.hoc")	// automatically calls grindaway() in interpxyz.hoc
 load_file("clamp/calcrxc.hoc")	// computes transfer r between segments and recording electrodes
