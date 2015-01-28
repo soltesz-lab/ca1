@@ -30,8 +30,8 @@ I.  LOAD LIBRARIES
 {load_file("./setupfiles/set_other_parameters.hoc")}// Loads in operational and model parameters
 													//  that can't be changed at command line
 
-{load_file("./setupfiles/check_for_files.hoc")}	// Checks that the necessary chosen files exist
-												//  (datasets, connectivity, and stimulation)
+//{load_file("./setupfiles/check_for_files.hoc")}	// Checks that the necessary chosen files exist
+							//  (datasets, connectivity, and stimulation)
 
 /***********************************************************************************************
 II. SET MODEL SIZE, CELL DEFINITIONS
