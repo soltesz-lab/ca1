@@ -64,7 +64,7 @@ V?	SINGLE CHANNEL RECORDINGS
 	{default_var("pair",0)}		// controls whether to perform paired cell recordings
 	{default_var("mech",0)}		// controls whether to perform ion channel recordings
 	{default_var("conn",100)}		// for paired recording, use these synapse weights
-	{default_var("mysyn",100)}		// for paired recording, use these synapse weights
+	{default_var("mysyn",120)}		// for paired recording, use these synapse weights
 	{default_var("cellnum",100)}		// ?
 	{default_var("cellmechs",0)}		// ?
 	{default_var("numeapair",1)}		// for paired recording, run this number of pairs and average them
@@ -612,23 +612,20 @@ objref mt, cell, strobj
 strobj = new StringFunctions()
 
 if (cellmechs==1) {
-	//for cellind=0, numCellTypes-1 { //don't include ppspont
 	for idxes=0, numCellidxes-1 {
 		cellind = mycellvecs.x[idxes]
 		gid=cellType[cellind].cellStartGid
 		if (pc.gid_exists(gid)) {
-			
 			// add recording locations to cell:
 			cell = pc.gid2cell(gid)
-			if (cell.is_art==0) {					
-				//sprint(outfile, "%s%s/celldata_%s.dat", relpath, resultspath, cellType[cellind].cellType_string)
-				sprint(outfile, "%s%scellclamp_results%scelldata_%s.dat", relpath, sl, sl, cellType[cellind].cellType_string)
+			if (cell.is_art==0) {	
+				sprint(outfile, "%s%s%s%scelldata_%s.dat", relpath, sl, resultspath, sl, cellType[cellind].cellType_string)
 				f = new File(outfile)
 				f.wopen()
 
 				access cell.soma // access cell.soma[0]
 				distance() // set the origin for measuring the distance
-				sprint(headstr,"secname\tpos\tdist\tdiam\tcm\tRa")								
+				sprint(headstr,"secname\tpos\tx\ty\tz\tdist\tdiam\tcm\tRa")								
 				mt = new MechanismType(0)
 				for i=0, mt.count()-1 {
 					mt.select( i )
@@ -643,7 +640,7 @@ if (cellmechs==1) {
 				forsec cell.all { // forsec cell.all // forall
 					for (x) {
 						xdist = distance(x)
-						sprint(headstr,"%s\t%g\t%g\t%g\t%g\t%g", secname(), x, xdist, diam, cm, Ra)								
+						sprint(headstr,"%s\t%g\t%g\t%g\t%g\t%g\t%g\t%g\t%g", secname(), x, x3d(0), y3d(0), z3d(0), xdist, diam, cm, Ra)								
 
 						for i=0, mt.count()-1 {
 							mt.select( i )

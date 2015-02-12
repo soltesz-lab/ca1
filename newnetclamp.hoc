@@ -84,8 +84,8 @@ proc loadCellTemplates(){local i		// Proc to load the template that defines (eac
 	//}
 	if (stimflag==1) {
 		load_file("./cells/class_sintrain.hoc")			// Load the file with the template that defines the class
-		tstop = 1000
-		SimDuration = tstop
+		//tstop = 100
+		//SimDuration = tstop
 		print "PhasicData = ", PhasicData, ", SimDuration = ", SimDuration
 	} else {
 		load_file("./cells/class_ppvec.hoc")			// Load the file with the template that defines the class
@@ -291,23 +291,13 @@ cells = new List()
 ransynlist = new List()
 ranstimlist = new List()
 raninitlist = new List()
-
-
-//{load_file("./setupfiles/position_functions.hoc")}	// Defines the algorithm used to set the
-													//  positions of the cells													
 													
 {load_file("./setupfiles/clamp/netclamp_create_cells_pos.hoc")}	// Creates each cell on its assigned host
 													//  and sets its position using the algorithm
 													//  defined above
 													
 													
-
 strdef cmd
-{load_file("./setupfiles/write_positions.hoc")}		// Defines the proc to write the position
-													//  of each cell to file
-													
-if (PrintCellPositions>0) {posout()}	// Calls the proc that writes the position of each cell to the
-								//  file "position.dat" in the format: gid, x, y, z
 
 createtime = startsw() - createstart	// Calculate time taken to create the cells
 if (pc.id == 0) {printf("\nTIME HOST 0: %g seconds (created cells)\n************\n", createtime)}
