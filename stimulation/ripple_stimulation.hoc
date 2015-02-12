@@ -24,7 +24,7 @@ proc ripcellStims() { local i, wgt, reli, typei, jgid, celltype, counter, jstart
             cell = pc.gid2cell(jgid) // ca3ripcell
             
             nc_appendstim(cellType[oncell_idx].cellStartGid, cell, 1.0, 3.0) // 3ms delay
-			cellType[oncell_idx].numCons.x[ca3rip_idx] +=1
+	    cellType[oncell_idx].numCons.x[ca3rip_idx] +=1
 	}
         
         
@@ -49,7 +49,7 @@ proc ripcellOn() {local reli, typei, jgid localobj cell
             cell.start = Onint
             cell.interval = Offint
             cell.noise = 0
-		}
+	}
     }
         
     // connect oncells to ca3 'ripple' cells
