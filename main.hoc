@@ -34,7 +34,6 @@ I.  LOAD LIBRARIES
 							//  (datasets, connectivity, and stimulation)
                                                         
                                                         
-{load_file("./dipole_lfp.hoc")}
                                                             
 /***********************************************************************************************
 II. SET MODEL SIZE, CELL DEFINITIONS
@@ -253,6 +252,8 @@ V.	CONNECT THE MODEL CELLS AND CONNECT THE STIMULATION CELLS TO SOME MODEL CELLS
 ***********************************************************************************************/
 
 celsius=34
+
+{load_file("./dipole_lfp.hoc")}
 
 {load_file("./setupfiles/nc_append_functions.hoc")}	// Defines nc_append and nc_appendo, which 
 													//  are procs needed to create the netcon
