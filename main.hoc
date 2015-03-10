@@ -434,9 +434,17 @@ proc rrun(){									// Run the network simulation and write out the results
 	totaltime = startsw() - loadstart
 	allottedtime = JobHours*3600
 	if (pc.id == 0) {printf("****\nTIME SUMMARY for host 0\nset up in %g seconds\ncreated cells in %g seconds\nconnected cells in %g seconds\nran simulation in %g seconds\nwrote results in %g seconds\nTOTAL TIME   = %g seconds\nALLOTTED TIME = %g seconds\n************\nThis run is called: %s\n************\n", loadtime, createtime, connecttime, runtime, writetime, totaltime, allottedtime, RunName)}
-}
-objref fihw
-fihw = new FInitializeHandler(2, "midbal()")
+    }
+    
+    objref fih
+    if (ComputeLFP > 0) {
+        // execute sample_lfp() at t = 0,
+        // right after the mechanism INITIAL blocks have been executed
+        fih = new FInitializeHandler("sample_lfp()")
+    }
+    
+    objref fihw
+    fihw = new FInitializeHandler(2, "midbal()")
 walltime = startsw()
 strdef cmd, cmdo
 newtstop = tstop
@@ -512,6 +520,21 @@ if (pc.id==0 && get_spike_hist==1) {
 		f4.printf("%d\t%d\n", i, spkhist.x[i])	// Print the spike time and spiking cell gid
 	}
 	f4.close()
+    }
+    
+objref v
+if (pc.id==0 && (ComputeLFP > 0)) {
+    
+    sprint(cmd,"./results/%s/lfp.dat", RunName)
+    f4 = new File(cmd)
+    f4.wopen()
+    
+    // Open for appending to file
+    for i=0, lfplist.count()-1 {
+        v = lfplist.o(i)
+	f4.printf("%g\t%g\n", v.x[0], v.x[1])	// Prints time and average LFP value
+    }
+    f4.close()
 }
 
 {pc.barrier}
