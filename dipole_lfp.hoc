@@ -11,7 +11,7 @@ func dipole_lfp() { local avglfp, vlfp, ncells, celltype, pci, gid, i, typei loc
 	   for pcitr(&i, &typei, &gid, cellType[celltype].cellStartGid, cellType[celltype].cellEndGid) {
 	       ncells = cellType[celltype].cellEndGid - cellType[celltype].cellStartGid
                cell = pc.gid2cell(gid)
-               vlfp = vlfp + cell.apical_list.o(cell.apical_list.count()-1).v(0.5) - cell.basal_list.o(0).v(0.5)
+               vlfp = vlfp + cell.apical[cell.numApical-1].v(0.5) - cell.basal[0].v(0.5)
            }
        }
        

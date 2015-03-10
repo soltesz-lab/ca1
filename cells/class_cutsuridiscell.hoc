@@ -24,6 +24,7 @@ objref syn, pre_list, templist, rootlist, this
 
 //external variables
 external numCellTypes, cellType
+public NumSoma,NumApical,NumBasal,NumAxon
 
 NumSoma=1
 NumApical=9
