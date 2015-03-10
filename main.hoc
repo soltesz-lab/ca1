@@ -526,7 +526,7 @@ if (pc.id==0 && get_spike_hist==1) {
 	f4.close()
     }
     
-objref v
+objref lfpvec
 if (pc.id==0 && (ComputeLFP > 0)) {
     
     sprint(cmd,"./results/%s/lfp.dat", RunName)
@@ -535,8 +535,8 @@ if (pc.id==0 && (ComputeLFP > 0)) {
     
     // Open for appending to file
     for i=0, lfplist.count()-1 {
-        v = lfplist.o(i)
-	f4.printf("%g\t%g\n", v.x[0], v.x[1])	// Prints time and average LFP value
+        lfpvec = lfplist.o(i)
+	f4.printf("%g\t%g\n", lfpvec.x[0], lfpvec.x[1])	// Prints time and average LFP value
     }
     f4.close()
 }
