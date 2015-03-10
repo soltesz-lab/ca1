@@ -25,8 +25,9 @@ func dipole_lfp() { local avglfp, vlfp, ncells, celltype, pci, gid, i, typei loc
 
 objref lfplist
 lfplist = new List()
-        
+
 lfp_dt = 0.5 // sampling interval for LFP
+
 proc sample_lfp() { local avglfp localobj vec
     avglfp = dipole_lfp()
     cvode.event(t + lfp_dt, "sample_lfp()") // execute sample_lfp lfp_dt ms from now

@@ -34,7 +34,7 @@ I.  LOAD LIBRARIES
 							//  (datasets, connectivity, and stimulation)
                                                         
                                                         
-{load_file("dipole_lfp.hoc")}
+{load_file("./dipole_lfp.hoc")}
                                                             
 /***********************************************************************************************
 II. SET MODEL SIZE, CELL DEFINITIONS
