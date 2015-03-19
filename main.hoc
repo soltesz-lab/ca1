@@ -526,7 +526,7 @@ if (pc.id==0 && get_spike_hist==1) {
 	f4.close()
     }
     
-objref lfpvec
+objref lfpvec, lfptrace
 if (pc.id==0 && (ComputeLFP > 0)) {
     
     sprint(cmd,"./results/%s/lfp.dat", RunName)
@@ -539,6 +539,23 @@ if (pc.id==0 && (ComputeLFP > 0)) {
 	f4.printf("%g\t%g\n", lfpvec.x[0], lfpvec.x[1])	// Prints time and average LFP value
     }
     f4.close()
+    
+    if (name_declared("traceidxlist")) {
+        sprint(cmd,"./results/%s/lfptraces.dat", RunName)
+        f4 = new File(cmd)
+        f4.wopen()
+        
+        for i=0, lfptraces.count()-1 {
+            lfptrace = lfptraces.o(i)
+            for j = 0, lfptrace.count()-1 {
+                lfpvec = lfptrace.o(j)
+	        f4.printf("%g\t%d\t%g\n", lfpvec.x[0], lfpvec.x[1], lfpvec.x[2])	// Prints time and average LFP value
+            }
+        }
+        
+        f4.close()
+    }
+
 }
 
 {pc.barrier}
