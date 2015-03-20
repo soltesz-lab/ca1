@@ -38,11 +38,9 @@ obfunc dipole_lfp_traceidx() { local vlfp, gid, i, typei localobj traceidxlist, 
         vec = new Vector()
         vec.append(t, gid, vlfp)
         r.append(vec)
-       }
-       
-   }
-   
-   return r
+    }
+    
+    return r
 }
 
 objref lfplist, lfptracelist
