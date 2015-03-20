@@ -545,8 +545,8 @@ if (pc.id==0 && (ComputeLFP > 0)) {
         f4 = new File(cmd)
         f4.wopen()
         
-        for i=0, lfptraces.count()-1 {
-            lfptrace = lfptraces.o(i)
+        for i=0, lfptracelist.count()-1 {
+            lfptrace = lfptracelist.o(i)
             for j = 0, lfptrace.count()-1 {
                 lfpvec = lfptrace.o(j)
 	        f4.printf("%g\t%d\t%g\n", lfpvec.x[0], lfpvec.x[1], lfpvec.x[2])	// Prints time and average LFP value
