@@ -24,20 +24,31 @@ func dipole_lfp() { local avglfp, vlfp, ncells, celltype, pci, gid, i, typei loc
 }
 
 // Compute the lfp for the cells whose voltage is recorded 
-obfunc dipole_lfp_traceidx() { local vlfp, gid, i, typei localobj traceidxlist, cell, r, vec
+obfunc dipole_lfp_traceidx() { local vlfp, gid, startgid, endgid, i, typei localobj traceidxlist, cell, r, vec
     
     traceidxlist = $o1
     r = new List()
     
-    for i=0, traceidxlist.count()-1 {
+    for celltype=0, numCellTypes-1 {
+	if (strcmp(cellType[celltype].cellType_string, "pyramidalcell")==0) {
+            startgid = cellType[celltype].cellStartGid
+            endgid = cellType[celltype].cellEndGid
+            break
+        }
+    }
+            
+            
+    for i=0, traceidxlist.size()-1 {
         
         vlfp = 0
-        gid = traceidxlist.o(i)
-        cell = pc.gid2cell(gid)
-        vlfp = cell.apical[cell.NumApical-1].v(0.5) - cell.basal[0].v(0.5)
-        vec = new Vector()
-        vec.append(t, gid, vlfp)
-        r.append(vec)
+        gid = traceidxlist.x(i)
+        if ((gid >= startgid) && (gid <= endgid)) {
+            cell = pc.gid2cell(gid)
+            vlfp = cell.apical[cell.NumApical-1].v(0.5) - cell.basal[0].v(0.5)
+            vec = new Vector()
+            vec.append(t, gid, vlfp)
+            r.append(vec)
+        }
     }
     
     return r
@@ -49,7 +60,7 @@ lfptracelist = new List()
 
 lfp_dt = 0.5 // sampling interval for LFP
 
-
+objref mytraceidxlist
 proc sample_lfp() { local avglfp localobj vec, lfptraces
     avglfp = dipole_lfp()
     if (pc.id == 0) {
@@ -57,8 +68,10 @@ proc sample_lfp() { local avglfp localobj vec, lfptraces
         vec.append(t, avglfp)
         lfplist.append(vec.c)
     }
+    
     if (name_declared("traceidxlist")) {
-        lfptraces = dipole_lfp_traceidx(traceidxlist)
+        execute("~mytraceidxlist = traceidxlist")
+        lfptraces = dipole_lfp_traceidx(mytraceidxlist)
         lfptracelist.append(lfptraces)
     }
     cvode.event(t + lfp_dt, "sample_lfp()") // execute sample_lfp lfp_dt ms from now
