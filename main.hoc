@@ -541,7 +541,7 @@ if (pc.id==0 && (ComputeLFP > 0)) {
     f4.close()
     
     if (name_declared("traceidxlist")) {
-        sprint(cmd,"./results/%s/lfptraces.dat", RunName)
+        sprint(cmd,"./results/%s/lfptraces_%g.dat", RunName, pc.id)
         f4 = new File(cmd)
         f4.wopen()
         

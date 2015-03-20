@@ -42,7 +42,7 @@ obfunc dipole_lfp_traceidx() { local vlfp, gid, startgid, endgid, i, typei local
         
         vlfp = 0
         gid = traceidxlist.x(i)
-        if ((gid >= startgid) && (gid <= endgid)) {
+        if ((gid >= startgid) && (gid <= endgid) && pc.gid_exists(gid)) {
             cell = pc.gid2cell(gid)
             vlfp = cell.apical[cell.NumApical-1].v(0.5) - cell.basal[0].v(0.5)
             vec = new Vector()
