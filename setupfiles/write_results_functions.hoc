@@ -161,8 +161,11 @@ proc write_lfp() { localobj f, lfpvec, lfptrace
 
 proc write_lfp_traces() { localobj f, lfpvec, lfptrace
     
+    print "write_lfp_traces"
     if (name_declared("traceidxlist")) {
         
+        print "write_lfp_traces: name_declared(\"traceidxlist\")"
+
         for i=0, lfptracelist.count()-1 {
             
             gid = traceidxlist.o(i)
@@ -176,6 +179,7 @@ proc write_lfp_traces() { localobj f, lfpvec, lfptrace
                 lfpvec = lfptrace.o(j)
 	        f.printf("%g\t%g\n", lfpvec.x[0], lfpvec.x[1])	// Prints time and average LFP value
             }
+            
             f.close()
         }
         
