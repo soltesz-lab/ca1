@@ -18,7 +18,9 @@ func dipole_lfp() { local avglfp, vlfp, ncells, celltype, pci, gid, i, typei loc
    }
    
    // average over all hosts
-   avglfp = pc.allreduce(vlfp, 1)/ncells
+   if (ncells > 0) {
+       avglfp = pc.allreduce(vlfp, 1)/ncells
+   }
    
    return avglfp
 }
