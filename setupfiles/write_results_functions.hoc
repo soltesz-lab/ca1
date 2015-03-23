@@ -168,7 +168,7 @@ proc write_lfp_traces() { localobj f, lfpvec, lfptrace
 
         for i=0, lfptracelist.count()-1 {
             
-            gid = traceidxlist.o(i)
+            gid = traceidxlist.x(i)
             lfptrace = lfptracelist.o(i)
             
             sprint(cmd,"./results/%s/lfptrace_%g.dat", RunName, gid)
