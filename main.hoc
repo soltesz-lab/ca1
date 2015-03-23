@@ -539,7 +539,9 @@ if (pc.id==0 && (ComputeLFP > 0)) {
 	f4.printf("%g\t%g\n", lfpvec.x[0], lfpvec.x[1])	// Prints time and average LFP value
     }
     f4.close()
+}
     
+if (ComputeLFP > 0) {
     if (name_declared("traceidxlist")) {
         sprint(cmd,"./results/%s/lfptraces_%g.dat", RunName, pc.id)
         f4 = new File(cmd)
