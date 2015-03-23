@@ -137,5 +137,48 @@ proc highIndexout() {local i, ij, gid localobj cell, f
 		f.wopen()
 		f.printf("connection_highIndex=%f;\nsynapse_highIndex=%f;\nstimulation_highIndex=%f;\n",maxconn,maxsyn,maxstim)
 		f.close()
-	}
+	    }
+        }
+        
+        
+        
+        
+        
+proc write_lfp() { localobj f, lfpvec, lfptrace
+    
+    sprint(cmd,"./results/%s/lfp.dat", RunName)
+    f = new File(cmd)
+    f.wopen()
+    
+    // Open for appending to file
+    for i=0, lfplist.count()-1 {
+        lfpvec = lfplist.o(i)
+	f.printf("%g\t%g\n", lfpvec.x[0], lfpvec.x[1])	// Prints time and average LFP value
+    }
+    f.close()
+}
+
+
+proc write_lfp_traces() { localobj f, lfpvec, lfptrace
+    
+    if (name_declared("traceidxlist")) {
+        
+        for i=0, lfptracelist.count()-1 {
+            
+            gid = traceidxlist.o(i)
+            lfptrace = lfptracelist.o(i)
+            
+            sprint(cmd,"./results/%s/lfptrace_%g.dat", RunName, gid)
+            f = new File(cmd)
+            f.wopen()
+            
+            for j = 0, lfptrace.count()-1 {
+                lfpvec = lfptrace.o(j)
+	        f.printf("%g\t%g\n", lfpvec.x[0], lfpvec.x[1])	// Prints time and average LFP value
+            }
+            f.close()
+        }
+        
+    }
+
 }
