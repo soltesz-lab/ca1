@@ -44,7 +44,7 @@ func dipole_lfp_traceidx() { local vlfp, gid, startgid, endgid, i, typei localob
         
         vlfp = 0
         gid = traceidxlist.x(i)
-        lfptrace = lfptracelist.x(i)
+        lfptrace = lfptracelist.o(i)
         
         if ((gid >= startgid) && (gid <= endgid) && pc.gid_exists(gid)) {
             cell = pc.gid2cell(gid)
@@ -65,17 +65,20 @@ lfptracelist = new List()
 lfp_dt = 0.5 // sampling interval for LFP
 
 objref mytraceidxlist, lfptracelist
-proc sample_lfp() { local avglfp localobj vec, lst
+proc sample_lfp() { local i, avglfp localobj vec, lst
+    
     avglfp = dipole_lfp()
+    
     if (pc.id == 0) {
         vec = new Vector()
         vec.append(t, avglfp)
         lfplist.append(vec.c)
     }
     
-    if ((t == 0) && (name_declared("traceidxlist"))) {
+    if ((t == 0) && name_declared("traceidxlist")) {
         execute("~mytraceidxlist = traceidxlist")
-        for i=0, traceidxlist.size()-1 {
+        lfptracelist = new List()
+        for i=0, mytraceidxlist.size()-1 {
             lst = new List()
             lfptracelist.append(lst)
         }
