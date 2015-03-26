@@ -65,7 +65,7 @@ lfptracelist = new List()
 lfp_dt = 0.5 // sampling interval for LFP
 
 objref mytraceidxlist, lfptracelist
-proc sample_lfp() { local i, avglfp localobj vec, lst
+proc sample_lfp() { local i, avglfp, startgid, endgid, gid, celltype localobj vec, lst
     
     avglfp = dipole_lfp()
     
@@ -76,11 +76,23 @@ proc sample_lfp() { local i, avglfp localobj vec, lst
     }
     
     if ((t == 0) && name_declared("traceidxlist")) {
+        
+        for celltype=0, numCellTypes-1 {
+	    if (strcmp(cellType[celltype].cellType_string, "pyramidalcell")==0) {
+                startgid = cellType[celltype].cellStartGid
+                endgid = cellType[celltype].cellEndGid
+                break
+            }
+        }
+        
         execute("~mytraceidxlist = traceidxlist")
         lfptracelist = new List()
         for i=0, mytraceidxlist.size()-1 {
-            lst = new List()
-            lfptracelist.append(lst)
+            gid = mytraceidxlist.x(i)
+            if (pc.gid_exists(gid)) {
+                lst = new List()
+                lfptracelist.append(lst)
+            }
         }
     }
     
