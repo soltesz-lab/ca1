@@ -31,27 +31,18 @@ func dipole_lfp_traceidx() { local vlfp, gid, startgid, endgid, i, typei localob
     traceidxlist = $o1
     lfptracelist = $o2
     
-    for celltype=0, numCellTypes-1 {
-	if (strcmp(cellType[celltype].cellType_string, "pyramidalcell")==0) {
-            startgid = cellType[celltype].cellStartGid
-            endgid = cellType[celltype].cellEndGid
-            break
-        }
-    }
-            
-            
     for i=0, traceidxlist.size()-1 {
         
         vlfp = 0
         gid = traceidxlist.x(i)
         lfptrace = lfptracelist.o(i)
         
-        if ((gid >= startgid) && (gid <= endgid) && pc.gid_exists(gid)) {
+        if (pc.gid_exists(gid)) {
             cell = pc.gid2cell(gid)
             vlfp = cell.apical[cell.NumApical-1].v(0.5) - cell.basal[0].v(0.5)
             vec = new Vector()
             vec.append(t, vlfp)
-            lfptrace.append(vec)
+            lfptrace.append(vec.c)
         }
     }
     
