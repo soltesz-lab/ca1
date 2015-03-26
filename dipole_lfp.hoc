@@ -26,7 +26,7 @@ func dipole_lfp() { local avglfp, vlfp, ncells, celltype, pci, gid, i, typei loc
 }
 
 // Compute the lfp for the cells whose voltage is recorded 
-func dipole_lfp_traceidx() { local vlfp, gid, startgid, endgid, i, typei localobj traceidxlist, lfptracelist, lfptrace, cell, vec
+func dipole_lfp_traceidx() { local vlfp, gid, startgid, endgid, i, j, typei localobj traceidxlist, lfptracelist, lfptrace, cell, vec
     
     traceidxlist = $o1
     lfptracelist = $o2
@@ -38,20 +38,23 @@ func dipole_lfp_traceidx() { local vlfp, gid, startgid, endgid, i, typei localob
             break
         }
     }
-            
-            
+    
+    
+    j = 0
     for i=0, traceidxlist.size()-1 {
         
-        vlfp = 0
         gid = traceidxlist.x(i)
-        lfptrace = lfptracelist.o(i)
         
-        if ((gid >= startgid) && (gid <= endgid) && pc.gid_exists(gid)) {
+        if (pc.gid_exists(gid) && (gid >= startgid) && (gid <= endgid)) {
+            
+            lfptrace = lfptracelist.o(j)
+            
             cell = pc.gid2cell(gid)
             vlfp = cell.apical[cell.NumApical-1].v(0.5) - cell.basal[0].v(0.5)
             vec = new Vector()
             vec.append(t, vlfp)
-            lfptrace.append(vec)
+            lfptrace.append(vec.c)
+            j = j + 1
         }
     }
     
@@ -77,6 +80,9 @@ proc sample_lfp() { local i, avglfp, startgid, endgid, gid, celltype localobj ve
     
     if ((t == 0) && name_declared("traceidxlist")) {
         
+        execute("~mytraceidxlist = traceidxlist")
+        lfptracelist = new List()
+        
         for celltype=0, numCellTypes-1 {
 	    if (strcmp(cellType[celltype].cellType_string, "pyramidalcell")==0) {
                 startgid = cellType[celltype].cellStartGid
@@ -85,11 +91,9 @@ proc sample_lfp() { local i, avglfp, startgid, endgid, gid, celltype localobj ve
             }
         }
         
-        execute("~mytraceidxlist = traceidxlist")
-        lfptracelist = new List()
         for i=0, mytraceidxlist.size()-1 {
             gid = mytraceidxlist.x(i)
-            if (pc.gid_exists(gid)) {
+            if (pc.gid_exists(gid) && (gid >= startgid) && (gid <= endgid)) {
                 lst = new List()
                 lfptracelist.append(lst)
             }
