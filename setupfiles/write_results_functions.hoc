@@ -161,11 +161,8 @@ proc write_lfp() { localobj f, lfpvec, lfptrace
 
 proc write_lfp_traces() { localobj f, lfpvec, lfptrace
     
-    print "write_lfp_traces"
     if (name_declared("traceidxlist")) {
         
-        print "write_lfp_traces: name_declared(\"traceidxlist\")"
-
         for i=0, lfptracelist.count()-1 {
             
             gid = traceidxlist.x(i)
