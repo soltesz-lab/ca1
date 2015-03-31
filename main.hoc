@@ -251,7 +251,7 @@ V.	CONNECT THE MODEL CELLS AND CONNECT THE STIMULATION CELLS TO SOME MODEL CELLS
 
 celsius=34
 
-{load_file("./dipole_lfp.hoc")}			// Defines the code to calculate the LFP
+{load_file("./setupfiles/dipole_lfp.hoc")}			// Defines the code to calculate the LFP
 
 {load_file("./setupfiles/nc_append_functions.hoc")}	// Defines nc_append and nc_appendo, which 
 													//  are procs needed to create the netcon
