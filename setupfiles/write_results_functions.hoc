@@ -139,3 +139,53 @@ proc highIndexout() {local i, ij, gid localobj cell, f
 		f.close()
 	}
 }
+
+
+proc write_lfp() { localobj f, lfpvec, lfptrace
+    sprint(cmd,"./results/%s/lfp.dat", RunName)
+    f = new File(cmd)
+    f.wopen()
+    
+    // Open for appending to file
+    for i=0, lfplist.count()-1 {
+        lfpvec = lfplist.o(i)
+	f.printf("%g\t%g\n", lfpvec.x[0], lfpvec.x[1])	// Prints time and average LFP value
+    }
+    f.close()
+ }
+
+
+proc write_lfp_traces() { local i,j,k,celltype,startgid,endgid localobj f, lfpvec, lfptrace
+    if (name_declared("traceidxlist")) {       
+        for celltype=0, numCellTypes-1 {
+	    if (strcmp(cellType[celltype].cellType_string, "pyramidalcell")==0) {
+                startgid = cellType[celltype].cellStartGid
+                endgid = cellType[celltype].cellEndGid
+                break
+            }
+        }
+        
+        j = 0
+        for i=0, traceidxlist.size()-1 {
+            
+           gid = traceidxlist.x(i)
+            
+            if (pc.gid_exists(gid) && (gid >= startgid) && (gid <= endgid)) {
+                
+                lfptrace = lfptracelist.o(j)
+                
+                sprint(cmd,"./results/%s/lfptrace_%g.dat", RunName, gid)
+                f = new File(cmd)
+                f.wopen()
+                
+                for k = 0, lfptrace.count()-1 {
+                    lfpvec = lfptrace.o(k)
+	            f.printf("%g\t%g\n", lfpvec.x[0], lfpvec.x[1])	// Prints time and average LFP value
+                }
+                
+                f.close()
+                j = j + 1
+            }
+        }
+    }
+}

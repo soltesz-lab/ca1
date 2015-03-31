@@ -15,7 +15,7 @@ public pre_list, connect_pre
 public soma, apical, basal, axon
 public all, basal_list, apical_list, soma_list, axon_list, rad_list, lm_list, dendrite_list
 public x, y, z, position, myroot, Vrest
-
+public NumSoma, NumApical, NumBasal, NumAxon
 // strings
 strdef myroot
 
@@ -403,10 +403,7 @@ proc define_synapses() {local i
 	{distance()}
 
 	for celltype = 0, numCellTypes-1 {
-		//print "celltype = ", celltype, " START: type = ", cellType[celltype].cellType_string, ", i = ", i
 		templist = new List ()
-		//print "CondStr = ", cellType[ind].SynList[celltype].object(0).CondStr
-		//print "NewSynStr = ", cellType[ind].SynList[celltype].object(0).NewSynStr
 		for r=0, cellType[ind].SynList[celltype].count()-1 {
 			execute(cellType[ind].SynList[celltype].object(r).NewSynStr, this) // sets newSecRef
 						
@@ -430,7 +427,6 @@ proc define_synapses() {local i
 							syn.tau2b = cellType[ind].SynList[celltype].object(r).tau2b
 							syn.eb = cellType[ind].SynList[celltype].object(r).eb
 						}
-		//print "         celltype = ", celltype, ", type = ", cellType[celltype].cellType_string, ", i = ", i
 						syn.sid = i
 						templist.append(syn)
 						i = i + 1

@@ -251,6 +251,8 @@ V.	CONNECT THE MODEL CELLS AND CONNECT THE STIMULATION CELLS TO SOME MODEL CELLS
 
 celsius=34
 
+{load_file("./dipole_lfp.hoc")}			// Defines the code to calculate the LFP
+
 {load_file("./setupfiles/nc_append_functions.hoc")}	// Defines nc_append and nc_appendo, which 
 													//  are procs needed to create the netcon
 													//  object associated with each synapse
@@ -435,6 +437,14 @@ proc rrun(){									// Run the network simulation and write out the results
 	allottedtime = JobHours*3600
 	if (pc.id == 0) {printf("****\nTIME SUMMARY for host 0\nset up in %g seconds\ncreated cells in %g seconds\nconnected cells in %g seconds\nran simulation in %g seconds\nwrote results in %g seconds\nTOTAL TIME   = %g seconds\nALLOTTED TIME = %g seconds\n************\nThis run is called: %s\n************\n", loadtime, createtime, connecttime, runtime, writetime, totaltime, allottedtime, RunName)}
 }
+
+objref fih
+if (ComputeLFP > 0) {
+	// execute sample_lfp() at t = 0,
+	// right after the mechanism INITIAL blocks have been executed
+	fih = new FInitializeHandler("sample_lfp()")
+}
+
 objref fihw
 fihw = new FInitializeHandler(2, "midbal()")
 walltime = startsw()
@@ -512,6 +522,14 @@ if (pc.id==0 && get_spike_hist==1) {
 		f4.printf("%d\t%d\n", i, spkhist.x[i])	// Print the spike time and spiking cell gid
 	}
 	f4.close()
+}
+
+if (pc.id == 0 && (ComputeLFP > 0)) {
+    write_lfp()
+}
+
+if (ComputeLFP > 0) {
+    write_lfp_traces()
 }
 
 {pc.barrier}

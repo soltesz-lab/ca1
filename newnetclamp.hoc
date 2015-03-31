@@ -396,6 +396,7 @@ if (pc.gid_exists(gidOI)) {
 						
 			forsec newSecRef {		
 				for (x,0) {
+					//y=0
 					execute(cellType[celltypeOI].SynList[precellType].object(r).CondStr)
 					 if (y==1) {
 						fSyn.printf("%s %s %g %s\n", cellType[celltypeOI].cellType_string, cellType[precellType].cellType_string, myi, secname())
@@ -405,7 +406,6 @@ if (pc.gid_exists(gidOI)) {
 			}
 		}
 		ien = myi - 1
-		print "print celltype = ", precellType, ": type = ", cellType[precellType].cellType_string, ", st = ", ist, ", en = ", ien
 		if (ien>=ist) {fAll.printf("%s %s %g %g\n", cellType[celltypeOI].cellType_string, cellType[precellType].cellType_string, ist, ien)}
 	}		
 
