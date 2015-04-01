@@ -12,6 +12,7 @@ public x, y, z, position, myroot, Vrest
 public pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_list
 public ivycell_list, ngfcell_list, olmcell_list, pvbasketcell_list, scacell_list
 public eccell_list, ca3cell_list, mscell_list
+public NumSoma, NumApical, NumBasal, NumAxon
 
 // strings
 strdef myroot
