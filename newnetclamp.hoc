@@ -361,7 +361,36 @@ if (pc.id == 0) {printf("\nTIME HOST 0: %g seconds (connected cells)\n**********
 /***********************************************************************************************
 VI.	INITIALIZE AND RUN NETWORK, OUTPUT RESULT FILES
 ***********************************************************************************************/
+
 objref mytrace, myvrec, cell
+
+cell = pc.gid2cell(gidOI)
+
+func dipole_lfp() { local vlfp
+   vlfp = cell.apical[cell.NumApical-1].v(0.5) - cell.basal[0].v(0.5)  
+   return vlfp
+}
+
+objref lfplist, lfptracelist, vec
+lfplist = new List()
+lfptracelist = new List()
+
+lfp_dt = 0.5 // sampling interval for LFP
+
+objref mytraceidxlist, lfptracelist
+proc sample_lfp() { local i, avglfp, startgid, endgid, gid, celltype localobj vec, lst
+    
+    avglfp = dipole_lfp()
+    
+    if (pc.id == 0) {
+        vec = new Vector()
+        vec.append(t, avglfp)
+        lfplist.append(vec.c)
+    }
+    cvode.event(t + lfp_dt, "sample_lfp()") // execute sample_lfp lfp_dt ms from now
+}
+
+
 
 strdef filestr
 sprint(filestr, "./networkclamp_results/%s/%s/allsyns.dat", origRunName, resultsfolder)
@@ -396,6 +425,7 @@ if (pc.gid_exists(gidOI)) {
 						
 			forsec newSecRef {		
 				for (x,0) {
+					//y=0
 					execute(cellType[celltypeOI].SynList[precellType].object(r).CondStr)
 					 if (y==1) {
 						fSyn.printf("%s %s %g %s\n", cellType[celltypeOI].cellType_string, cellType[precellType].cellType_string, myi, secname())
@@ -405,7 +435,6 @@ if (pc.gid_exists(gidOI)) {
 			}
 		}
 		ien = myi - 1
-		print "print celltype = ", precellType, ": type = ", cellType[precellType].cellType_string, ", st = ", ist, ", en = ", ien
 		if (ien>=ist) {fAll.printf("%s %s %g %g\n", cellType[celltypeOI].cellType_string, cellType[precellType].cellType_string, ist, ien)}
 	}		
 
@@ -548,6 +577,14 @@ proc rrun(){									// Run the network simulation and write out the results
 	allottedtime = JobHours*3600
 	if (pc.id == 0) {printf("****\nTIME SUMMARY for host 0\nset up in %g seconds\ncreated cells in %g seconds\nconnected cells in %g seconds\nran simulation in %g seconds\nwrote results in %g seconds\nTOTAL TIME   = %g seconds\nALLOTTED TIME = %g seconds\n************\nThis run is called: %s %s\n************\n", loadtime, createtime, connecttime, runtime, writetime, totaltime, allottedtime, RunName, resultsfolder)}
 }
+
+objref fih
+if (ComputeLFP > 0) {
+	// execute sample_lfp() at t = 0,
+	// right after the mechanism INITIAL blocks have been executed
+	fih = new FInitializeHandler("sample_lfp()")
+}
+
 objref fihw
 fihw = new FInitializeHandler(2, "midbal()")
 walltime = startsw()
@@ -711,6 +748,21 @@ proc writeCells() {
 	}
 }
 writeCells()
+
+
+proc write_lfp() { localobj f, lfpvec, lfptrace
+	sprint(cmd,"./networkclamp_results/%s/%s/lfp.dat", runname, resultsfolder)
+    f = new File(cmd)
+    f.wopen()
+    
+    // Open for appending to file
+    for i=0, lfplist.count()-1 {
+        lfpvec = lfplist.o(i)
+		f.printf("%g\t%g\n", lfpvec.x[0], lfpvec.x[1])	// Prints time and average LFP value
+    }
+    f.close()
+ }
+write_lfp()
 
 {pc.barrier}
 {quit()}

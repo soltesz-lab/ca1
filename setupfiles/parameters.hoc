@@ -49,4 +49,3 @@ default_var("TopProc","")		// NEURON process name in the top command
 default_var("RandomVinit",0)		// Positive value indicates that initial voltages should be randomized
 default_var("PhasicData",100)		// Which phasic dataset to use for oscillation/phasic stimulation
 default_var("ComputeLFP",0)		// Positive value indicates that approximate pyramidal cell LFP should be computed
-

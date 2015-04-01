@@ -253,7 +253,7 @@ V.	CONNECT THE MODEL CELLS AND CONNECT THE STIMULATION CELLS TO SOME MODEL CELLS
 
 celsius=34
 
-{load_file("./dipole_lfp.hoc")}
+{load_file("./setupfiles/dipole_lfp.hoc")}			// Defines the code to calculate the LFP
 
 {load_file("./setupfiles/nc_append_functions.hoc")}	// Defines nc_append and nc_appendo, which 
 													//  are procs needed to create the netcon
@@ -438,21 +438,23 @@ proc rrun(){									// Run the network simulation and write out the results
 	totaltime = startsw() - loadstart
 	allottedtime = JobHours*3600
 	if (pc.id == 0) {printf("****\nTIME SUMMARY for host 0\nset up in %g seconds\ncreated cells in %g seconds\nconnected cells in %g seconds\nran simulation in %g seconds\nwrote results in %g seconds\nTOTAL TIME   = %g seconds\nALLOTTED TIME = %g seconds\n************\nThis run is called: %s\n************\n", loadtime, createtime, connecttime, runtime, writetime, totaltime, allottedtime, RunName)}
-    }
-    
-    objref fih
-    if (ComputeLFP > 0) {
-        // execute sample_lfp() at t = 0,
-        // right after the mechanism INITIAL blocks have been executed
-        fih = new FInitializeHandler("sample_lfp()")
-    }
-    
-    objref fihw
-    fihw = new FInitializeHandler(2, "midbal()")
+
+}
+
+objref fih
+if (ComputeLFP > 0) {
+	// execute sample_lfp() at t = 0,
+	// right after the mechanism INITIAL blocks have been executed
+	fih = new FInitializeHandler("sample_lfp()")
+}
+
+objref fihw
+fihw = new FInitializeHandler(2, "midbal()")
 walltime = startsw()
 strdef cmd, cmdo
 newtstop = tstop
 warningflag=0
+
 proc midbal() {local wt, thisstep
 	wt = startsw()
 	if (t>0) {
@@ -529,11 +531,11 @@ if (pc.id==0 && get_spike_hist==1) {
 if (pc.id == 0 && (ComputeLFP > 0)) {
     write_lfp()
 }
-    
-if (ComputeLFP > 0) {
-    write_lfp_traces()
+
+if (pc.id == 0 && (ComputeLFP > 0)) {
+    write_lfp()
 }
-    
+
 {pc.barrier}
 {quit()}
 

@@ -53,7 +53,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 		
 		//print "Host ", pc.id, " is connecting: ", $s3, "s to ", $s4, "s: numpost = ", numpost, ", numConns=", numConns
 
-		if (numConns != 0 && numpost !=0) {
+		if (numConns != 0 && numpost !=0 && numSyns !=0) {
 			params = new Vector(27)
 			if (cellType[postcellType].numCells>=pc.nhost) {
 				connlength = numConns*int(cellType[postcellType].numCells/pc.nhost+1.5)+cellType[postcellType].numCells

@@ -35,7 +35,7 @@ begintemplate SynStore			// Define a template that describes
 		
 		sprint(NewSynStr,"newSecRef = %s", SecRefStr)
 		sprint(SynStr,"syn = new %s(x)", SynType) // ExpGABAab, MyExp2Sidnw, MyExp2Sid
-		sprint(CondStr,"y=(%s && %s)", CheckCond1, CheckCond2)
+		sprint(CondStr,"y=(5e-6+%s && 5e-6+%s)", CheckCond1, CheckCond2)
 
 	}
 

@@ -321,6 +321,8 @@ if (spkflag==1) {
 
 //4. Connect them to the cell
 
+{load_file("./setupfiles/dipole_lfp.hoc")}			// Defines the code to calculate the LFP
+
 {load_file("../setupfiles/nc_append_functions.hoc")}	// Defines nc_append and nc_appendo, which 
 
 f2 = new File()
@@ -492,6 +494,14 @@ proc rrun(){									// Run the network simulation and write out the results
 	} else {
 		if (pc.id == 0) { printf("no load balance info available\nno spike exchange info available\n")}
 	}
+}
+
+
+objref fih
+if (ComputeLFP > 0) {
+	// execute sample_lfp() at t = 0,
+	// right after the mechanism INITIAL blocks have been executed
+	fih = new FInitializeHandler("sample_lfp()")
 }
 
 {cvode.cache_efficient(use_cache_efficient)} // always double check that this addition does not affect the spikeraster (via pointers in mod files, etc)
