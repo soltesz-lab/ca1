@@ -39,7 +39,6 @@ func dipole_lfp_traceidx() { local vlfp, gid, startgid, endgid, i, j, typei loca
         }
     }
     
-    
     j = 0
     for i=0, traceidxlist.size()-1 {
         
@@ -77,6 +76,7 @@ proc sample_lfp() { local i, avglfp, startgid, endgid, gid, celltype localobj ve
         vec.append(t, avglfp)
         lfplist.append(vec.c)
     }
+    
     
     if ((t == 0) && name_declared("traceidxlist")) {
         

@@ -532,8 +532,8 @@ if (pc.id == 0 && (ComputeLFP > 0)) {
     write_lfp()
 }
 
-if (pc.id == 0 && (ComputeLFP > 0)) {
-    write_lfp()
+if (ComputeLFP > 0) {
+    write_lfp_traces()
 }
 
 {pc.barrier}
