@@ -1,0 +1,55 @@
+proc perfpathStims() { local i, wgt, reli, typei, jgid, celltype, idx, counter, jstart, jend, jtot localobj cell		// Connect the perforant path cells to the model cells
+	// find ppspont index
+	for celltype=0, numCellTypes-1 {
+		if (cellType[celltype].is_art==1) {
+			idx = celltype // assume only one type of artificial cell
+			for celltype=0, numCellTypes-1 {
+				if (cellType[celltype].is_art==0) {
+					wgt = cellType[idx].wgtConns.x[celltype]
+					if (wgt > 0) {
+						for pcitr(&reli, &typei, &jgid, cellType[celltype].cellStartGid, cellType[celltype].cellEndGid) {
+							if (pc.gid_exists(jgid)) {
+								cell = pc.gid2cell(jgid)
+								wgt = cellType[idx].wgtConns.x[celltype]
+								if (cell.pre_list.o(idx).count()>0) {
+									nc_appendo(jgid-cellType[celltype].cellEndGid-1+cellType[idx].cellStartGid, cell, idx, 0, wgt, 3)  // 1e-3
+									cellType[idx].numCons.x[celltype] +=1
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+if (strcmp("Connectivity", "try_all_randfast")==0) { // only run this if the art stims are not being connected at another time
+	perfpathStims()
+}
+
+proc setnoise() {local reli, typei, jgid, celltype, idx localobj cell 
+	// find ppspont index
+	for celltype=0, numCellTypes-1 {
+		if (cellType[celltype].is_art==1) {
+			idx = celltype
+			for pcitr(&reli, &typei, &jgid, cellType[idx].cellStartGid, cellType[idx].cellEndGid) {
+				cell = pc.gid2cell(jgid)
+				if (sqrt((cell.x-$1)*(cell.x-$1) + (cell.y-$2)*(cell.y-$2))<MaxEDist) { // relative to a point
+				//if ((cell.x<1000) && (cell.y<700) && (cell.y>200)) { // or by absolute position
+					
+					ranstimlist.object(reli).r.negexp(1) // always use 1 for this - the interval for the netstim will set the 'rate'
+														// for another example (which has the randomstream class defined differently,
+														// and therefore calls different commands at different times) see the following file:
+														// <http://senselab.med.yale.edu/modeldb/showmodel.asp?model=83319&file=\destexhe_benchmarks\NEURON\common\netstim.hoc>
+														// use the ranstimlist because we can continue along this stream for a very long time
+
+					cell.noiseFromRandom(ranstimlist.object(reli).r)
+				} else {
+					cell.start = -1 // then it should be silent the whole simulation (unless this cell receives positive input from another cell)
+				}
+				
+			}
+		}
+	}
+}
+setnoise()
