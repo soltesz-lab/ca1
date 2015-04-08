@@ -24,14 +24,15 @@ func dipole_lfp() { local avglfp, vlfp, ncells, celltype, pci, gid, i, typei loc
 
 func dipole_pos_lfp() { local avglfp, vlfp, ncells, celltype, pci, gid, i, typei, MaxEDist localobj cell
     // $1 = x, $2 = y, $3 = z in microns
-	MaxEDist = 500
+	MaxEDist = 500 // microns
     for celltype=0, numCellTypes-1 {       
 		if (strcmp(cellType[celltype].cellType_string, "pyramidalcell")==0) {			
 		   ncellsp = 0
 		   plfp = 0 // plfp = average over local pyramidal cell
 		   for pcitr(&i, &typei, &gid, cellType[celltype].cellStartGid, cellType[celltype].cellEndGid) {
 			   cell = pc.gid2cell(gid)
-			   if (sqrt((cell.x-$1)*(cell.x-$1) + (cell.y-$2)*(cell.y-$2) + (cell.z-$3)*(cell.z-$3))<MaxEDist) {
+			   //if (sqrt((cell.x-$1)*(cell.x-$1) + (cell.y-$2)*(cell.y-$2) + (cell.z-$3)*(cell.z-$3))<MaxEDist) { // use larger value if z included
+			   if (sqrt((cell.x-$1)*(cell.x-$1) + (cell.y-$2)*(cell.y-$2))<MaxEDist) { // ignore z
 				ncellsp += 1
 				plfp = plfp + cell.apical[cell.NumApical-1].v(0.5) - cell.basal[0].v(0.5)
 			   }
