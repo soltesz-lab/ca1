@@ -52,4 +52,4 @@ proc setnoise() {local reli, typei, jgid, celltype, idx localobj cell
 		}
 	}
 }
-setnoise()
+setnoise(mypoint.x[0],mypoint.x[1])

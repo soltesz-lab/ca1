@@ -245,6 +245,12 @@ connectstart = startsw()				// Grab start time of cell connection
 
 oldtimeout = pc.timeout(0)	// Addresses timeout error that was occuring on some computers
 
+objref mypoint
+mypoint = new Vector(3)
+mypoint.x[0]=200 	// x location in microns
+mypoint.x[1]=500 	// y location in microns
+mypoint.x[2]=10 	// z location in microns
+
 zzz = mallinfo(zzz, "After creating cells")
 
 /***********************************************************************************************
