@@ -2,19 +2,16 @@
 // Computed as the difference in voltage between apical distal and basal dendrites.
 
 func dipole_lfp() { local avglfp, vlfp, ncells, celltype, pci, gid, i, typei localobj cell
-    
-    for celltype=0, numCellTypes-1 {
-        
-	if (strcmp(cellType[celltype].cellType_string, "pyramidalcell")==0) {
-	    
-           vlfp = 0
-	   for pcitr(&i, &typei, &gid, cellType[celltype].cellStartGid, cellType[celltype].cellEndGid) {
-	       ncells = cellType[celltype].cellEndGid - cellType[celltype].cellStartGid
-               cell = pc.gid2cell(gid)
-               vlfp = vlfp + cell.apical[cell.NumApical-1].v(0.5) - cell.basal[0].v(0.5)
-           }
-       }
-       
+
+    for celltype=0, numCellTypes-1 {       
+		if (strcmp(cellType[celltype].cellType_string, "pyramidalcell")==0) {			
+		   ncells = cellType[celltype].cellEndGid - cellType[celltype].cellStartGid
+		   vlfp = 0 // vlfp = average over all pyramidal cells
+		   for pcitr(&i, &typei, &gid, cellType[celltype].cellStartGid, cellType[celltype].cellEndGid) {
+			   cell = pc.gid2cell(gid)
+			   vlfp = vlfp + cell.apical[cell.NumApical-1].v(0.5) - cell.basal[0].v(0.5)
+		   }
+	   }      
    }
    
    // average over all hosts
@@ -24,6 +21,33 @@ func dipole_lfp() { local avglfp, vlfp, ncells, celltype, pci, gid, i, typei loc
    
    return avglfp
 }
+
+func dipole_pos_lfp() { local avglfp, vlfp, ncells, celltype, pci, gid, i, typei, MaxEDist localobj cell
+    // $1 = x, $2 = y, $3 = z in microns
+	MaxEDist = 500
+    for celltype=0, numCellTypes-1 {       
+		if (strcmp(cellType[celltype].cellType_string, "pyramidalcell")==0) {			
+		   ncellsp = 0
+		   plfp = 0 // plfp = average over local pyramidal cell
+		   for pcitr(&i, &typei, &gid, cellType[celltype].cellStartGid, cellType[celltype].cellEndGid) {
+			   cell = pc.gid2cell(gid)
+			   if (sqrt((cell.x-$1)*(cell.x-$1) + (cell.y-$2)*(cell.y-$2) + (cell.z-$3)*(cell.z-$3))<MaxEDist) {
+				ncellsp += 1
+				plfp = plfp + cell.apical[cell.NumApical-1].v(0.5) - cell.basal[0].v(0.5)
+			   }
+		   }
+	   }      
+   }
+   
+   // average over all hosts
+   if (ncellsp > 0) {
+       avgplfp = pc.allreduce(plfp, 1)/ncellsp
+   }
+   
+   return avgplfp
+}
+
+
 
 // Compute the lfp for the cells whose voltage is recorded 
 func dipole_lfp_traceidx() { local vlfp, gid, startgid, endgid, i, j, typei localobj traceidxlist, lfptracelist, lfptrace, cell, vec
@@ -70,6 +94,7 @@ objref mytraceidxlist, lfptracelist
 proc sample_lfp() { local i, avglfp, startgid, endgid, gid, celltype localobj vec, lst
     
     avglfp = dipole_lfp()
+	//avglfp = dipole_pos_lfp(200,500,10) // x, y, z position of electrode in microns
     
     if (pc.id == 0) {
         vec = new Vector()

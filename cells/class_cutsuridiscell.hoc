@@ -16,6 +16,7 @@ public soma, apical, basal, axon
 public all, basal_list, apical_list, soma_list, axon_list, rad_list, lm_list, dendrite_list
 public x, y, z, position, myroot, Vrest
 public NumSoma, NumApical, NumBasal, NumAxon
+
 // strings
 strdef myroot
 
@@ -24,7 +25,6 @@ objref syn, pre_list, templist, rootlist, this
 
 //external variables
 external numCellTypes, cellType
-public NumSoma,NumApical,NumBasal,NumAxon
 
 NumSoma=1
 NumApical=9

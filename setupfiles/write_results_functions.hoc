@@ -137,8 +137,8 @@ proc highIndexout() {local i, ij, gid localobj cell, f
 		f.wopen()
 		f.printf("connection_highIndex=%f;\nsynapse_highIndex=%f;\nstimulation_highIndex=%f;\n",maxconn,maxsyn,maxstim)
 		f.close()
-	    }
-        }
+	}
+}
         
         
         
@@ -181,7 +181,7 @@ proc write_lfp_traces() { local i,j,k,celltype,startgid,endgid localobj f, lfpve
                 
                 for k = 0, lfptrace.count()-1 {
                     lfpvec = lfptrace.o(k)
-	            f.printf("%g\t%g\n", lfpvec.x[0], lfpvec.x[1])	// Prints time and average LFP value
+					f.printf("%g\t%g\n", lfpvec.x[0], lfpvec.x[1])	// Prints time and average LFP value
                 }
                 
                 f.close()
@@ -189,5 +189,4 @@ proc write_lfp_traces() { local i,j,k,celltype,startgid,endgid localobj f, lfpve
             }
         }
     }
-
 }

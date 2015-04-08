@@ -5,10 +5,17 @@ numtrace = 0
 tracevector = new Vector(numCellTypes)
 for i=0,numCellTypes-1 {			// Run the following code for 'real' cell types only - need a different way of singling out real cells?
 	if (cellType[i].is_art==0) {
-		numpercent = int(cellType[i].numCells/(100/FracTraces))+1
-		if (numpercent>NumTraces) {
-			numpercent = NumTraces
-		}	
+		if (strcmp(cellType[i].cellType_string,"pyramidalcell")==1) {
+			numpercent = int(cellType[i].numCells/(100/FracTraces))+1
+			if (numpercent>3000) {
+				numpercent = 3000
+			}	
+		} else {
+			numpercent = int(cellType[i].numCells/(100/FracTraces))+1
+			if (numpercent>NumTraces) {
+				numpercent = NumTraces
+			}	
+		}
 		if (numpercent>cellType[i].numCells) {
 			numpercent = cellType[i].numCells
 		}	
