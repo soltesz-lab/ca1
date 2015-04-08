@@ -34,7 +34,7 @@ proc setnoise() {local reli, typei, jgid, celltype, idx localobj cell
 			idx = celltype
 			for pcitr(&reli, &typei, &jgid, cellType[idx].cellStartGid, cellType[idx].cellEndGid) {
 				cell = pc.gid2cell(jgid)
-				if (sqrt((cell.x-$1)*(cell.x-$1) + (cell.y-$2)*(cell.y-$2))<MaxEDist) { // relative to a point
+				if (sqrt((cell.xpos-$1)*(cell.xpos-$1) + (cell.ypos-$2)*(cell.ypos-$2))<MaxEDist) { // relative to a point
 				//if ((cell.x<1000) && (cell.y<700) && (cell.y>200)) { // or by absolute position
 					
 					ranstimlist.object(reli).r.negexp(1) // always use 1 for this - the interval for the netstim will set the 'rate'
