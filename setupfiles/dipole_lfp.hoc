@@ -94,8 +94,8 @@ lfp_dt = 0.5 // sampling interval for LFP
 objref mytraceidxlist, lfptracelist
 proc sample_lfp() { local i, avglfp, startgid, endgid, gid, celltype localobj vec, lst
     
-    //avglfp = dipole_lfp()
-	avglfp = dipole_pos_lfp(mypoint.x[0],mypoint.x[1]) // x, y, z position of electrode in microns
+    avglfp = dipole_lfp()
+	//avglfp = dipole_pos_lfp(mypoint.x[0],mypoint.x[1]) // x, y, z position of electrode in microns
     
     if (pc.id == 0) {
         vec = new Vector()
