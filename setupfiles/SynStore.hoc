@@ -1,3 +1,15 @@
+/************************************************************
+'ca1' model code repository
+Written by Marianne Bezaire, marianne.bezaire@gmail.com, www.mariannebezaire.com
+In the lab of Ivan Soltesz, www.ivansolteszlab.org
+Published and latest versions of this code are available online at:
+ModelDB: 
+Open Source Brain: http://www.opensourcebrain.org/projects/nc_ca1
+
+Main code file: ../main.hoc
+This file: Last updated on April 9, 2015
+
+************************************************************/
 begintemplate SynStore			// Define a template that describes	
 										
 	public init, SecRefStr,CheckCond1,CheckCond2,tau1,tau2,efirst,tau1a,tau2a,ea,tau1b,tau2b,eb

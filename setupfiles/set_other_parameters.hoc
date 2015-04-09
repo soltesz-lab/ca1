@@ -1,7 +1,28 @@
+/************************************************************
+'ca1' model code repository
+Written by Marianne Bezaire, marianne.bezaire@gmail.com, www.mariannebezaire.com
+In the lab of Ivan Soltesz, www.ivansolteszlab.org
+Published and latest versions of this code are available online at:
+ModelDB: 
+Open Source Brain: http://www.opensourcebrain.org/projects/nc_ca1
+
+Main code file: ../main.hoc
+This file: Last updated on April 9, 2015
+
+This file sets other model parameters that users would either
+change very infrequently, or that depend on the parameter values
+set in the parameters.hoc file.
+************************************************************/
+
 objref LayerVector, strobj
 strdef cmdstr, layers, tmpstr, path2ConnData, path2SynData
 
 proc SetOtherParameters() {local ind, i, layernum, tempheight
+
+	// Parse the string input that defines the number of layers in the model and their
+	//  thickness or height. This string input is stored in the LayerHeights parameter.
+	//  Now we will convert it to a vector called LayerVector, with one entry for each
+	//  layer, giving the height of that layer in microns.
 	strobj = new StringFunctions()
 	tmpstr = LayerHeights
 	ind = strobj.substr(tmpstr,";")
@@ -20,10 +41,20 @@ proc SetOtherParameters() {local ind, i, layernum, tempheight
 		LayerVector.x[i] = tempheight
 	}
 	
+	// If we scale down the number of cells in the model, also scale down the 3D volume that they will be
+	//  distributed in. For now, we just scale down the length and width of the prism, but not the thickness
+	//  of the layers of the network (ie, we leave the Z or height dimension untouched).
 	scTransverseLength = TransverseLength / sqrt(Scale)
 	scLongitudinalLength = LongitudinalLength / sqrt(Scale)
-
-	axconvel = 250	// axonal conduction velocity in microns/ms (Bartos et al. 2002)
+	
+	distres = 5		// The resolution of the axonal bouton distribution function
+					//  for all cells in the network, in terms of steps. Ex: if
+					//  this is set to 5, the Gaussian distribution is solved at
+					//  5 distances from the soma of the cell, starting at the
+					//  soma location and ending at 80% of the total axonal extent
+					//  of the cell.
+					
+	axconvel = 250	// Axonal conduction velocity in microns/ms (Bartos et al. 2002)
 
 	tstart = 0		// Start time of simulation
 	
@@ -41,17 +72,24 @@ proc SetOtherParameters() {local ind, i, layernum, tempheight
 
 	steps_per_ms = 1*N/(dt)		// Controls the intervals at which points are plotted
 	
-	noise_random_stream_offset_ = (tstop - tstart)/dt + 1	// Each noise generator picks a number every
-															// 	dt for the full time range, so stream
-															// 	sections must be at least this long to
-															// 	prevent overlap
+	celsius = 34					// The temperature at which to run the simulation (affects
+								//  some ion channel calculations)
 															
-	//connectionFactor = 1 // Set factor to control # connections formed in the network;
-						// 	changes depending on total # cells and model size (Scale)
-	//if (Scale>=20) {connectionFactor = 1} //5}
-	//if (Scale>=2000) {connectionFactor = 1} //500}
+	OK2executeSysCmds = 1 	// If you don't like the NEURON code to make new directories, concatenate files,
+							//  or delete files, set this parameter to 0. Watch out though, if this is set to
+							//  0, the code will use whatever RunName you supply or 'none' if you do not
+							//  supply a RunName. This means:
+							//  - the program will expect a directory named 'RunName' to be in the results directory
+							//  - the program will overwrite any existing files in the ./results/RunName directory
+							
+	if (OK2executeSysCmds==0) {
+		CatFlag = 0			// Overwrite the CatFlag if necessary. If it is specified that executing system commands
+							//  is *not* okay, we definitely do not want CatFlag to be 1 (do not allow concatenating
+							//  results files)
+	}
 	
+	// Paths to ConnData and SynData dataset files
 	path2ConnData = "../datasets/conndata_%g.dat"
-	path2SynData = "../datasets/syndata_%g.dat"
+	path2SynData = "../datasets/syndata_%g.dat"	
 }	
 SetOtherParameters()
