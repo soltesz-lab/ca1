@@ -60,7 +60,7 @@ proc presimulation() { local prelength, maindt, temp, secondordersav
     
 	t = tstart 						// Set t to the start time of the real simulation
 	
-	dt = dtsav						// Reset dt to the specified value for the simulation
+	dt = maindt						// Reset dt to the specified value for the simulation
 	
 	secondorder = secondordersav	// Reset secondorder to the specified value for the simulation
 }

@@ -26,10 +26,11 @@ lfp_dt = 0.5 // Sampling interval for LFP, in ms
 func dipole_lfp() { local avglfp, vlfp, ncells, celltype, pci, gid, i, typei localobj cell
 	// Calculate the average LFP of all pyramidal cells in the network
 	
-    for celltype=0, numCellTypes-1 {											// Iterate over all cell types
+	ncells = 0			// Initialize the cell count
+ 	vlfp = 0			// Initialize the LFP variable
+   for celltype=0, numCellTypes-1 {											// Iterate over all cell types
 		if (strcmp(cellType[celltype].cellType_string, "pyramidalcell")==0) {	// Choosing pyramidal cells	
 		   ncells = cellType[celltype].cellEndGid - cellType[celltype].cellStartGid	// Get number of pyramidal cells
-		   vlfp = 0																	// Initialize the LFP variable
 		   for pcitr(&i, &typei, &gid, cellType[celltype].cellStartGid, cellType[celltype].cellEndGid) {
 			   cell = pc.gid2cell(gid)
 			   vlfp = vlfp + cell.apical[cell.NumApical-1].v(0.5) - cell.basal[0].v(0.5)	// For each pyramidal cell
@@ -54,19 +55,19 @@ func dipole_lfp() { local avglfp, vlfp, ncells, celltype, pci, gid, i, typei loc
    return avglfp
 }
 
-func dipole_pos_lfp() { local avglfp, vlfp, ncells, celltype, pci, gid, i, typei, MaxEDist localobj cell
+func dipole_pos_lfp() { local avgplfp, plfp, ncellsp, celltype, pci, gid, i, typei, MaxEDist localobj cell
  	// Calculate the average LFP of select pyramidal cells in the network,
 	//  only including pyramidal cells whose somata are within MaxEDist
 	//  microns of the (x,y,z) location passed into this function as
 	//  arguments: $1 = x, $2 = y, $3 = z in microns
 	
 	MaxEDist = 500 // microns
-	
-    for celltype=0, numCellTypes-1 {       
-    for celltype=0, numCellTypes-1 {											// Iterate over all cell types
+	sumcell = 0
+	ncellsp = 0			// Initialize pyramidal cell counter
+	plfp = 0				// Initialize the LFP variable
+   
+   for celltype=0, numCellTypes-1 {											// Iterate over all cell types
 		if (strcmp(cellType[celltype].cellType_string, "pyramidalcell")==0) {	// Choosing pyramidal cells	
-		   ncellsp = 0			// Initialize pyramidal cell counter
-		   plfp = 0				// Initialize the LFP variable
 
 		   for pcitr(&i, &typei, &gid, cellType[celltype].cellStartGid, cellType[celltype].cellEndGid) {
 				cell = pc.gid2cell(gid)
@@ -93,15 +94,16 @@ func dipole_pos_lfp() { local avglfp, vlfp, ncells, celltype, pci, gid, i, typei
    }
    
    
-   pc.barrier()			// Ensure all processors have completed their calculation before proceeding.
+	pc.barrier()			// Ensure all processors have completed their calculation before proceeding.
    
-   if (ncellsp > 0) {
-       avgplfp = pc.allreduce(plfp, 1)/ncellsp									// Sum all the LFP contributions across
+	sumcell=pc.allreduce(ncellsp, 1)
+   if (sumcell > 0) {
+       avgplfp = pc.allreduce(plfp, 1)/sumcell									// Sum all the LFP contributions across
 																				//  all processors using allreduce with
 																				//  argument 1, so that the sum of the
 																				//  LFP contribution from all pyramidal
 																				//  cells in the network is given, and
-																				//  then divide by the total number of
+																				//  then divide by the number of included
 																				//  cells for the average.
    }
    
@@ -159,7 +161,7 @@ func dipole_lfp_traceidx() { local vlfp, gid, startgid, endgid, i, j, typei loca
         }
     }
     
-    return r
+    return 0
 }
 
 objref lfplist, lfptracelist
