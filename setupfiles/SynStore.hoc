@@ -49,7 +49,7 @@ begintemplate SynStore			// Define a template that stores
 	public NewSynStr, SynStr, CondStr, GABAabFlag, SynType, Scaling
 	
 	// Define strings
-	strdef NewSynStr, SynStr, CondStr, SecRefStr,
+	strdef NewSynStr, SynStr, CondStr, SecRefStr
 	strdef CheckCond1,CheckCond2, SynType, Scaling
 
 	proc init(){			// Define a proc to set the parameters
