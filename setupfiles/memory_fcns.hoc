@@ -1,13 +1,13 @@
 /************************************************************
-'superdeep' model code repository
+'ca1' model code repository
 Written by Marianne Bezaire, marianne.bezaire@gmail.com, www.mariannebezaire.com
 In the lab of Ivan Soltesz, www.ivansolteszlab.org
-Latest versions of this code are available online at:
+Published and latest versions of this code are available online at:
 ModelDB: 
 Open Source Brain: http://www.opensourcebrain.org/projects/nc_ca1
 
 Main code file: ../main.hoc
-This file: Last updated on April 9, 2015
+This file: Last updated on April 10, 2015
 
 This file defines a function that can be used to monitor the
 memory usage by the model code throughout the simulation. It

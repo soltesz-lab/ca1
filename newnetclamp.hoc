@@ -347,13 +347,13 @@ zzz = mallinfo(zzz, "After defining stimulation")
 if (PrintConnSummary==1) {printNumConFile()}	// Write "numcons.dat": a QUICK, SMALL summary file of the # of
 										//  connections by pre and post cell types
 /*										
-if (PrintConnDetails==2) {tracenetfast()}		// Write "connections.dat": a VERY SLOW, LARGE file of all cell
+if (PrintConnDetails==2) {allCellConnsParallel()}		// Write "connections.dat": a VERY SLOW, LARGE file of all cell
 										//	connections (pre and post gids, synapse type, host on which
 										//  (target?) cell exists)
-	if (PrintConnDetails==1) {tracenetfast()}	// Write the file of all cell connections (pre and post gids, synapse type,
+	if (PrintConnDetails==1) {allCellConnsParallel()}	// Write the file of all cell connections (pre and post gids, synapse type,
 										//  host on which cell exists), "connections.dat"
 
-	if ((PrintConnDetails==0) && (PrintVoltage==2)) {tracecellsfast()}	// If detailed connections are not being written out, at least write them out for cells that are being traced
+	if ((PrintConnDetails==0) && (PrintVoltage==2)) {recordedCellConnsParallel()}	// If detailed connections are not being written out, at least write them out for cells that are being traced
 */
 connecttime = startsw() - connectstart			// calculate time taken to connect the cells
 if (pc.id == 0) {printf("\nTIME HOST 0: %g seconds (connected cells)\n************\n", connecttime)}
@@ -561,15 +561,15 @@ proc rrun(){									// Run the network simulation and write out the results
 	/*
 	spikeoutfast()
 	
-	timeout()	// Write out a file of run times for each code section
+	TimeOutSerial()	// Write out a file of run times for each code section
 	
 	if (PrintVoltage>0) {voltageout()}	// Write out any voltages that were recorded during simulation
-	if (PrintConnDetails==1) {tracenetfast()}	// Write the file of all cell connections (pre and post gids, synapse type,
+	if (PrintConnDetails==1) {allCellConnsParallel()}	// Write the file of all cell connections (pre and post gids, synapse type,
 										//  host on which cell exists), "connections.dat"
 
-	if ((PrintConnDetails==0) && (PrintVoltage==1)) {tracecellsfast()}	// If detailed connections are not being written out, at least write them out for cells that are being traced
+	if ((PrintConnDetails==0) && (PrintVoltage==1)) {recordedCellConnsParallel()}	// If detailed connections are not being written out, at least write them out for cells that are being traced
 	
-	sumnumout(runtime)	// Write out a file with the total number of cells, spikes, and connections (including contributions from artificial cells)
+	SummaryOut(runtime)	// Write out a file with the total number of cells, spikes, and connections (including contributions from artificial cells)
 	*/
 	
 	writetime = startsw() - writestart				// Calculate write time of program
@@ -688,7 +688,7 @@ if (pc.gid_exists(0)) {	// If cell exists on this machine
 
 }
 
-proc spikeout() {local i, rank  localobj f				// Write out a spike raster (cell, spike time)
+proc SpikeOutSerial() {local i, rank  localobj f				// Write out a spike raster (cell, spike time)
 	pc.barrier()									// Wait for all ranks to get to this point
 	sprint(cmd,"./networkclamp_results/%s/%s/spikeraster.dat", runname, resultsfolder)
 	f = new File(cmd)
@@ -708,9 +708,9 @@ proc spikeout() {local i, rank  localobj f				// Write out a spike raster (cell,
 		pc.barrier()
 	}
 }
-spikeout()
+SpikeOutSerial()
 
-proc tracenet() {local i, rank, srcid localobj tgt, f	// Write out the connections list, including synapse type
+proc allCellConnsSerial() {local i, rank, srcid localobj tgt, f	// Write out the connections list, including synapse type
 	pc.barrier()									// Wait for all ranks to get to this point
 	sprint(cmd,"./networkclamp_results/%s/%s/connections.dat", runname, resultsfolder)
 	f = new File(cmd)
@@ -732,7 +732,7 @@ proc tracenet() {local i, rank, srcid localobj tgt, f	// Write out the connectio
 		pc.barrier()
 	}
 }
-tracenet()
+allCellConnsSerial()
 
 proc writeCells() {
 	pc.barrier()					// Wait for all ranks to get to this point
@@ -750,7 +750,7 @@ proc writeCells() {
 writeCells()
 
 
-proc write_lfp() { localobj f, lfpvec, lfptrace
+proc writeLFP() { localobj f, lfpvec, lfptrace
 	sprint(cmd,"./networkclamp_results/%s/%s/lfp.dat", runname, resultsfolder)
     f = new File(cmd)
     f.wopen()
@@ -762,7 +762,7 @@ proc write_lfp() { localobj f, lfpvec, lfptrace
     }
     f.close()
  }
-write_lfp()
+writeLFP()
 
 {pc.barrier}
 {quit()}

@@ -1,5 +1,39 @@
 /************************************************************
-For more information, consult ModelDoc.pdf
+'ca1' model code repository
+Written by Marianne Bezaire, marianne.bezaire@gmail.com, www.mariannebezaire.com
+and Ivan Raikov, ivan.g.raikov@gmail.com
+Last updated on April 10, 2015
+Latest versions of this code are available online at:
+ModelDB: 
+Open Source Brain: http://www.opensourcebrain.org/projects/nc_ca1
+
+This code is associated with the publications:
+
+This code can be used with the SimTracker tool:
+http://senselab.med.yale.edu/SimToolDB/ShowTool.asp?Tool=153281
+
+If you do not want to run this code, but want to analyze the results
+obtained by running this code, the results are available upon request by
+emailing marianne.bezaire@gmail.com
+
+If you want to view a graphical description of the model network built
+by this code, please see: 
+http://www.ivansolteszlab.org/models/ca1/graphicalmodel.html
+
+For more information about this code, see:
+- ModelDB Quick Start Guide.pdf (included with model code)
+- Lab website: http://www.ivansolteszlab.org/models/ca1.html
+
+To run this model from the command line, enter:
+nrniv main.hoc
+************************************************************
+This main code file has the following structure:
+I.  LOAD LIBRARIES
+II. SET MODEL SIZE, CELL DEFINITIONS
+III. SET UP PARALLEL CAPABILITY AND MEMORY USAGE RECORDER, AND WRITE OUT RUN RECEIPT
+IV. CREATE, UNIQUELY ID, AND POSITION CELLS
+V.	CONNECT THE MODEL CELLS AND CONNECT THE STIMULATION CELLS TO SOME MODEL CELLS
+VI.	INITIALIZE AND RUN NETWORK, OUTPUT RESULT FILES
 ************************************************************/
 
 loadstart = startsw()					// record the start time of the set up
@@ -13,7 +47,7 @@ I.  LOAD LIBRARIES
 										//   up a network that runs on parallel processors
 										
 {load_file("./setupfiles/ranstream.hoc")}	// Contains the template that defines a RandomStream
-											//  class used to produce random numbers for variability
+											//  class used to produce random numbers
 											
 {load_file("./setupfiles/CellCategoryInfo.hoc")}	// Contains the template that defines a 
 													//  CellCategoryInfo class used to store
@@ -22,41 +56,43 @@ I.  LOAD LIBRARIES
 {load_file("./setupfiles/SynStore.hoc")}	// Contains the template that defines a holder of
 											//  synapse type info
 													
-{load_file("./setupfiles/defaultvar.hoc")}	// Contains the proc definition for default_var proc
+{load_file("./setupfiles/defaultvar.hoc")}	// Contains the proc definition for the default_var proc
 
-{load_file("./setupfiles/parameters.hoc")}	// Loads in operational and model parameters that can
-											//  be changed at command line	
-										
+{load_file("./setupfiles/parameters.hoc")}	// Loads in default values for operational and model
+											// parameters whose values were not specified ahead of
+											// time, ie by passing them in at the command line or
+											// in a wrapper hoc file						
+			
 {load_file("./setupfiles/set_other_parameters.hoc")}// Loads in operational and model parameters
-													//  that can't be changed at command line
+													//  that we would not want to define ahead of
+													// time (either because they depend on ones that
+													// *are* specified ahead of time or because they
+													// don't usually change
 
 //{load_file("./setupfiles/check_for_files.hoc")}	// Checks that the necessary chosen files exist
-							//  (datasets, connectivity, and stimulation)
+													//  (datasets, connectivity, and stimulation)
                                                         
                                                         
                                                             
 /***********************************************************************************************
 II. SET MODEL SIZE, CELL DEFINITIONS
 ***********************************************************************************************/
-celsius=34
 
-{load_file("./setupfiles/load_cell_category_info.hoc")}	// Reads the 'cells2include.hoc' file and
-														//  loads the information into one
-														//  'CellCategoryInfo' object for each cell
-														//  type (realistic and artificial cells).
-														//  Info includes number of cells, gid
-														//  ranges, type name 
-
+{load_file("./setupfiles/load_cell_category_info.hoc")}	// Loads cell-specific information into one
+														// 'CellCategoryInfo' object for each cell
+														// type. Info includes number of cells,
+														// gid ranges, type of cell, name of cell 
+														// Also, defines 'numCellTypes' used below
 
 {load_file("./setupfiles/load_cell_conns.hoc")}	// Load in the cell connectivity info
 {load_file("./setupfiles/load_cell_syns.hoc")}	// Load in the synapse info
 
 strdef tempFileStr						// Define a string reference to store the name of the
-										//  current cell template file
+										//  current cell template file 
 
 proc loadCellTemplates(){local i		// Proc to load the template that defines (each) cell class
 
-	for i=0, numCellTypes-1 {			// Iterate over each cell type in cells2include (and art cells?)
+	for i=0, numCellTypes-1 {			// Iterate over each cell type
 	
 		sprint(tempFileStr,"./cells/class_%s.hoc",cellType[i].technicalType)	// Concatenate the
 																				//  path and file
@@ -65,19 +101,19 @@ proc loadCellTemplates(){local i		// Proc to load the template that defines (eac
 										//  for each cell type
 	}
 }	
-loadCellTemplates()						// Run the newly defined proc
+loadCellTemplates()
 
 proc calcNetSize(){local i				// Calculate the final network size (after any cell death)
 
 	totalCells = 0						// Initialize totalCells (which counts the number of 'real'
 										//  cells) so we can add to it iteratively in the 'for' loop
-
+										
 	ncell = 0							// Initialize ncell (which counts all 'real' and 'artificial'
 										//  cells) so we can add to it iteratively in the 'for' loop
-	
+										
 	prevgid = -1						// Initialize gid setter
 	
-	for i=0,numCellTypes-1 {
+	for i=0,numCellTypes-1 {			// For each cell type
 	
 		if (cellType[i].layerflag==0 && cellType[i].is_art==0) {	// For cell types in layer 0, which are susceptible to death
 		
@@ -93,28 +129,27 @@ proc calcNetSize(){local i				// Calculate the final network size (after any cel
 
 		if (cellType[i].is_art==0) {
 			totalCells = totalCells + cellType[i].numCells		// Update the total number of cells
-																//   after sclerosis, not including
+																//   after cell death, not including
 																//   artificial cells
 		}
 		
 		ncell = ncell + cellType[i].numCells 					// Update the total number of cells
-																//   after sclerosis, including
+																//   after cell death, including
 																//   artificial cells
-		prevgid = cellType[i].cellEndGid
+		prevgid = cellType[i].cellEndGid						// Track the prevgid so the subsequent
+																//  gid ranges can be updated
 	}
 }
 calcNetSize()
 
-proc calcBinSize(){local NumGCells
+proc calcBinSize(){
 
 	for i=0, numCellTypes-1 {		// Using the specified dimensions of the network (in um) and
 									//  the total number of cells of each type, set the number
 									//  of bins in X, Y, Z dimensions such that the cells will be
 									//  evenly distributed throughout the allotted volume
-									// just changed this so even the stim cells will be allotted, as now we have some
-									// stimulation protocols that incorporate stim cell position
 	
-		cellType[i].setBins(scLongitudinalLength,scTransverseLength,LayerVector.x[cellType[i].layerflag])  
+		cellType[i].setBins(LongitudinalLength,TransverseLength,LayerVector.x[cellType[i].layerflag])  
 									// For the z length, use the height of the layer in which the
 									// cell somata are found for this cell type
 	}
@@ -122,7 +157,7 @@ proc calcBinSize(){local NumGCells
 calcBinSize()
 
 /***********************************************************************************************
-III.SET UP PARALLEL CAPABILITY AND WRITE OUT RUN RECEIPT
+III. SET UP PARALLEL CAPABILITY AND MEMORY USAGE RECORDER, AND WRITE OUT RUN RECEIPT
 ***********************************************************************************************/
 objref pnm, pc, nc, nil
 proc parallelizer() {
@@ -130,17 +165,32 @@ proc parallelizer() {
 	pc = pnm.pc
 	pnm.round_robin()					// Incorporate all processors - cells 0 through ncell-1
 										//	are distributed throughout the hosts
-										//	(cell 0 goes to host 0, cell 1 to host 1, etc)
+										//	(cell 0 goes to host 0, cell 1 to host 1, etc, like
+										//	dealing a deck of cards)
 }
 parallelizer()
 
-iterator pcitr() {local i2, startgid	// Create iterator for use as a standard 'for' loop
-										//  throughout given # cells usage:
-										//  for pcitr(&i1, &i2, &gid, it_start, it_end) {do stuff}
-										//  it_start and it_end let you define range over
-										//  which to iterate
-										//  i1 is the index of the cell on the cell list for that host
-										//  i2 is the index of that cell for that cell type on that host
+iterator pcitr() {local i1, i2, gid, startgid	// Create an iterator for use instead of standard 'for' 
+												//  loop. This provides an easy way for each processor 
+												//  to do a 'for' loop only over cells that it owns. 
+												//  This particular iterator code is slightly more 
+												//  complex than Michael Hines' usual example, as it 
+												//  allows for getting the index of any cell on a 
+												//  processor relative to all cells on a processor or 
+												//  just that cell type.
+												//
+												//  usage:
+												//  for pcitr(&i1, &i2, &gid, it_start, it_end) {do stuff}
+												//   the first three arguments are pointers that pcitr will
+												//	  fill for you:
+												//    - i1: index of the cell on the cell list for that host
+												//    - i2: index of the cell for that cell type on that host
+												//    - gid: index of the cell in the whole network
+												//   it_start and it_end let you define the gid range over
+												//     which to iterate, usually one of the following:
+												//		- the gid range for a cell type
+												//		- the gid range for the whole network
+										
 	numcycles = int($4/pc.nhost)
 	extra = $4%pc.nhost
 	addcycle=0
@@ -149,7 +199,7 @@ iterator pcitr() {local i2, startgid	// Create iterator for use as a standard 'f
 	i1 = numcycles+addcycle // the index into the cell # on this host.
 	i2 = 0 // the index of the cell in that cell type's list on that host
 	if (startgid<=$5) {
-		for (i3=startgid; i3 <= $5; i3 += pc.nhost) {	// Just iterate through the cells on
+		for (gid=startgid; gid <= $5; gid += pc.nhost) {	// Just iterate through the cells on
 														//  this host(this simple statement
 														//  iterates through all the cells on
 														//  this host and only these cells because 
@@ -158,8 +208,10 @@ iterator pcitr() {local i2, startgid	// Create iterator for use as a standard 'f
 														//  orderly manner (like a deck of cards)
 				$&1 = i1
 				$&2 = i2
-				$&3 = i3
-				iterator_statement
+				$&3 = gid
+				iterator_statement						// this is the code that you put inside  
+														//  your pcitr loop when you call the 
+														//  pcitr iterator
 				i1 += 1
 				i2 += 1
 		}
@@ -169,81 +221,121 @@ iterator pcitr() {local i2, startgid	// Create iterator for use as a standard 'f
 objref  strobj
 strobj = new StringFunctions()
 strdef direx
-if (strcmp(UID,"0")==0 && pc.id==0) {
-	type = unix_mac_pc() // 1 if unix, 2 if mac, 3 if mswin, or 4 if mac osx darwin
-	if (type<3) {
-		{system("uuidgen", direx)} // unix or mac
-		strobj.left(direx, strobj.len(direx)-1)
-	} else {
-		{system("cscript //NoLogo setupfiles/uuid.vbs", direx)} // pc
+if (strcmp(UID,"0")==0 && pc.id==0) {					// if a unique ID (UID) was not already 
+														//  specified for this run, then generate 
+														//  it now. Only one per run is needed, so
+														//  only host 0 should generate it. A unique 
+														//  ID could have been generated outside of 
+														//  NEURON (say, by using the SimTracker) and 
+														//  then passed in to a wrapper hoc code file
+														//  that calls this file, or passed in at the 
+														//  command line. If one was not already passed 
+														//  in, then the UID defaults to 0 and the code
+														//  below runs
+														
+	type = unix_mac_pc() 		// get the operating system type:
+								//  1 if unix, 2 if mac, 3 if mswin, or 4 if mac osx darwin
+	
+	if (type<3 || type==4) { // unix or mac
+		if (OK2executeSysCmds==1) {
+			{system("uuidgen", direx)} // use a built in system command to generate the UID
+			strobj.left(direx, strobj.len(direx)-1) // remove a newline character from the end
+		} else { // Can't access system commands so can't get a UID
+			direx = "unknown"
+		}
+	} else { // pc
+		{system("cscript //NoLogo setupfiles/uuid.vbs", direx)} // use a custom VBS (Visual Basic script)
+																//  to generate the UID. This VBS file is
+																//  included in the code repository
 	}
 	UID = direx
 }
 
-{load_file("./setupfiles/save_run_info.hoc")}
+if (OK2executeSysCmds==1) {
+	{load_file("./setupfiles/save_run_info.hoc")}		// This file will ensure a unique RunName (if 
+														//  the specified RunName was already used, it 
+														//  will append numbers to it like "_00", "_01" 
+														//  to create a unique RunName). Then it will 
+														//  create a RunName directory within the results 
+														//  folder, where all the results will be stored. 
+														//  It will also write out a receipt of the run 
+														//  parameters and other administrative sorts of 
+														//  run information.
+	// NOTE: If you don't like the NEURON code to make new directories, concatenate files, or delete files, 
+	//  set the OK2executeSysCmds parameter to 0 in "set_other_parameters.hoc" file. Watch out though, if 
+	//  OK2executeSysCmds is set to 0, the code will use whatever RunName you supply or 'none' if you do not
+	//  supply a RunName. This means:
+	//  - the program will expect a directory named 'RunName' to be in the results directory
+	//  - the program will overwrite any existing files in the ./results/RunName directory
+}
 
-loadtime = startsw() - loadstart		// Calculate the set up time (now - recorded start time) in seconds
+objref  memfile, topfile
+
+{zzz=0} // zzz contains the last memory usage from the previous call to mallinfo
+
+if (pc.id==0) {
+	{sprint(cmd,"./results/%s/memory.dat", RunName)} 	// Host 0 will make repeated calls to the 
+	{memfile = new File(cmd)}							//  mallinfo function defined below and 
+	{memfile.wopen()}									//  record the nrn_mallinfo output here
+
+	{sprint(cmd,"./results/%s/topoutput.dat", RunName)}	// Host 0 will make repeated calls to the 
+	{topfile = new File(cmd)}							//  mallinfo function defined below and  
+	{topfile.wopen()}									//  record the top command output here
+}
+
+{load_file("./setupfiles/memory_fcns.hoc")} 	// Defines a memory recording function that calls
+											//  mallinfo and also top to track memory usage by
+											//  the code
+
+{zzz = mallinfo(zzz, "Prior to creating cells")}	// Memory usage prior to creating the cells
+
+loadtime = startsw() - loadstart		// Calculate the time used for the set up phase (now - recorded start time) in seconds
 if (pc.id == 0) {printf("\nTIME HOST 0: %g seconds (set up)\n************\n", loadtime)}
-createstart = startsw()					// Record the start time of the cell creation
+createstart = startsw()					// Record the start time of the cell creation phase
 
 /***********************************************************************************************
 IV. CREATE, UNIQUELY ID, AND POSITION CELLS
 ***********************************************************************************************/
-
-objref  memfile, topfile
-{zzz=0}
-if (pc.id==0) {
-	{sprint(cmd,"./results/%s/memory.dat", RunName)}
-	{memfile = new File(cmd)}
-	{memfile.wopen()}
-
-	{sprint(cmd,"./results/%s/topoutput.dat", RunName)}
-	{topfile = new File(cmd)}
-	{topfile.wopen()}
-}
-
-strdef direx1, direx2, TopCommand
-
-func mallinfo() {local m // this function is a wrapper for the system function mallinfo
-        m = nrn_mallinfo(0)
-        if (pc.id == 0) {
-
-			if (PrintTerminal>1) {printf("Memory (host 0) - %s: %ld.  Since last call: %ld\n", $s2, m, m - $1)}
-			memfile.printf("%s\t%f\t%ld\t%ld\n", $s2, startsw()-loadstart, m, m - $1)	// Print the spike time and spiking cell gid
-			
-			
-			sprint(TopCommand,"top -p `pgrep %s | head -n20 | tr \"\\n\" \",\" | sed 's/,$//'` -n1 -b | tail -n2 | head -n1", TopProc)
-
-			if (strcmp(TopProc,"")!=0) { system(TopCommand, direx1)}
-				topfile.printf("%s\t%s\n", $s2, direx1)	// Print the spike time and spiking cell gid
-		}
-        return m
-}
-
-{zzz = mallinfo(zzz, "Prior to creating cells")}
-
 objref cells, ransynlist, ranstimlist, raninitlist
-cells = new List()						
-ransynlist = new List()
-ranstimlist = new List()
-raninitlist = new List()
+cells = new List()			// a list that will contain an entry for each cell in the network						
+ransynlist = new List()		// a list that will contain an entry for each random number generator
+							//  used by the synapse chooser (during the connectivity part of the 
+							//  code) each cell will have its own random number generator for 
+							//  synapse choosing
+							
+ranstimlist = new List()	// a list that will contain an entry for each random number generator
+							//  used by the stimulation generator (during the actual simulation)
+							//  each cell will have its own random number generator for stimulation
+							//  specification. But only artificial cells will actually use their 
+							//  generators
+							
+raninitlist = new List()	// a list that will contain an entry for each random number generator
+							//  used by the voltage initializer (when designing the simulation)
+							//  each cell will have its own random number generator that will be
+							//  called once per point per section within the cell
 													
 {load_file("./setupfiles/create_cells_pos.hoc")}	// Creates each cell on its assigned host
-													//  and sets its position using the algorithm
-													//  defined above
+													//  and sets its position
 
 strdef cmd
 {load_file("./setupfiles/write_positions.hoc")}		// Defines the proc to write the position
 													//  of each cell to file
 													
-if (PrintCellPositions>0) {posout()}	// Calls the proc that writes the position of each cell to the
-										//  file "position.dat" in the format: gid, x, y, z
+if (PrintCellPositions>0) {posout()}	// Calls the proc that writes the position of each cell 
+										//  to the file "position.dat" in the format: gid, x, y, z
 
 createtime = startsw() - createstart	// Calculate time taken to create the cells
 if (pc.id == 0) {printf("\nTIME HOST 0: %g seconds (created cells)\n************\n", createtime)}
 connectstart = startsw()				// Grab start time of cell connection
 
 oldtimeout = pc.timeout(0)	// Addresses timeout error that was occuring on some computers
+
+zzz = mallinfo(zzz, "After creating cells") // Record the memory usage after cells are created
+
+// Define the position of an arbitrary point within the network. This
+//  point can then be used to set regional stimulation or to limit the
+//  pyramidal cells from which the average LFP is recorded to a specific
+//  location, etc.
 
 objref mypoint
 mypoint = new Vector(3)
@@ -257,299 +349,156 @@ zzz = mallinfo(zzz, "After creating cells")
 V.	CONNECT THE MODEL CELLS AND CONNECT THE STIMULATION CELLS TO SOME MODEL CELLS
 ***********************************************************************************************/
 
-celsius=34
-
-
 {load_file("./setupfiles/nc_append_functions.hoc")}	// Defines nc_append and nc_appendo, which 
-													//  are procs needed to create the netcon
+													//  are procs used to create the netcon
 													//  object associated with each synapse
+													//  between cells
 
+MakeArtConns=1
 {sprint(cmd,"./connectivity/%s_connections.hoc", Connectivity)}
-{load_file(cmd)}			// Loads in a particular definition of the connectCells function,
-							//  depending on the value of the Connectivity string
+{load_file(cmd)}			// Loads in a particular algorithm to connect the cells in the network.
+							//  Each algorithm is specified by a different file in the connectivity
+							//  folder, and the file names are all of the format:
+							//  [Connectivity]_connections.hoc, where [Connectivity] is the value in
+							//  the Connectivity parameter that was set in the parameters.hoc file
+							//  loaded above, or passed to this code file via the command line or a
+							//  wrapper hoc file. The program only loads one connectivity file for
+							//  each simulation run.
+							// Some connectivity algorithms connect all network cells, including the
+							//  artificial cells, while others only make the connections between
+							//  real cells. Which connectivity algorithm you use will depend on the
+							//  stimulation algorithms you use (as some stimulation algorithms specify
+							//  the connectivity of the artificial cells onto the real cells).							
 
-zzz = mallinfo(zzz, "After connecting cells")
+zzz = mallinfo(zzz, "After connecting cells")	// Record the memory usage after creating the connections
 
 {sprint(cmd,"./stimulation/%s_stimulation.hoc", Stimulation)}
-{load_file(cmd)}			// Loads in a particular stimulation protocol, including the spike
-							//  vectors for the artificial cells and their connections to the
-							//  'real' cells if not using 'try_all_randfaststim'
+{load_file(cmd)}			// Loads in a particular algorithm to stimulation the network. The algorithm
+							//  will always specify the spike properties (or actual spike trains) of the
+							//  artificial cells in the model, and for some cases will also specify the
+							//  connectivity from the artificial (stimulating) cells to the real cells of
+							//  the model.
 
-zzz = mallinfo(zzz, "After defining stimulation")
+zzz = mallinfo(zzz, "After defining stimulation")	// Record the memory usage after defining stimulation
 
-{load_file("./setupfiles/write_conns_functions.hoc")}	// Defines two procs: printNumConFile()
-														//  writes the number of synapses between every
-														//  combination of pre- and post-synaptic cell type
-														//  and tracenet() lists the presynaptic cell type,
-														//  postsynaptic cell type, and synapse type for
-														//  every connection
+{load_file("./setupfiles/write_conns_functions.hoc")}	// Defines procedures that can be used to write out
+														//  connectivity information for the model network.
+														//  The procedures are not called by this file, but
+														//  may be called later on in this code.
 														
 if (PrintConnSummary==1) {printNumConFile()}	// Write "numcons.dat": a QUICK, SMALL summary file of the # of
 												//  connections by pre and post cell types
 										
-if (PrintConnDetails==2) {tracenetfast()}		// Write "connections.dat": a VERY SLOW, LARGE file of all cell
-												//	connections (pre and post gids, synapse type, host on which
-												//  target cell exists)
+if (PrintConnDetails==2) {allCellConnsParallel()}// Write "connections.dat": a VERY SLOW, LARGE file of all cell
+												//// Write "connections.dat": a VERY SLOW, LARGE file of all cell
+												//	connections (pre- and post-synaptic cell gids, synapse type,
+												//  host on which the postsynaptic cell exists). Do NOT do this
+												//  for large networks. Just print out a few of the connections
+												//  instead, using recordedCellConnsParallel()
 
-if ((PrintConnDetails==0) && (PrintVoltage==2)) {tracecellsfast()}	// If detailed connections are not being written out, at least write them out for cells that are being traced
+if (PrintVoltage>0) {load_file("./setupfiles/recordvoltageauto.hoc")}	// This file contains a function to
+																		//  record intracellular somatic
+																		//  voltage traces of a few cells
+																		//  of each type in your model.
+																		//  Alternatively, you can save only
+																		//  the connectivity information for
+																		//  a few cells and combine that
+																		//  information with the spike raster
+																		//  to regenerate the voltage trace of
+																		//  any cell for which you saved the 
+																		//  connectivity information.
 
-connecttime = startsw() - connectstart			// calculate time taken to connect the cells
+if ((PrintConnDetails==0) && (PrintVoltage>0)) {recordedCellConnsParallel()}// If detailed connections are not being
+																			//  written out, at least write them out 
+																			//  for cells that are being traced
+
+{load_file("./setupfiles/dipole_lfp.hoc")}	// Defines the code to calculate the LFP
+{load_file("./setupfiles/randomVinit.hoc")}	// Random voltage initialization
+
+connecttime = startsw() - connectstart			// Calculate time taken to connect the cells
 if (pc.id == 0) {printf("\nTIME HOST 0: %g seconds (connected cells)\n************\n", connecttime)}
+simstart = startsw()
 
 /***********************************************************************************************
 VI.	INITIALIZE AND RUN NETWORK, OUTPUT RESULT FILES
 ***********************************************************************************************/
+{load_file("./setupfiles/custom_init.hoc")} 	// Redefines the init proc that initializes the
+												//  simulation so that it includes a "pre-run" of the
+												//  simulation to reach steady state prior to the start
+												//  of the simulation at time t = 0 ms.
+												// This function will be called later, just before the
+												//  simulation starts.
+												//
+												// WARNING: Any time you redefine the init function, you
+												//  risk not completely initializing everything that needs
+												//  to be initialized. Read the Initialization section of
+												//  the NEURON Book and see this NEURON forum thread for an
+												//  example of how custom initialization can be mishandled:
+												//  https://www.neuron.yale.edu/phpBB/viewtopic.php?f=8&t=3127
 
-if (PrintVoltage>0) {load_file("./setupfiles/recordvoltageauto.hoc")}	// If we are going to record some voltages, then set up the recordings
-{load_file("./setupfiles/dipole_lfp.hoc")}			// Defines the code to calculate the LFP
+{load_file("./setupfiles/write_results_functions.hoc")}		// Defines procedures to write out various
+															//  simulation results, but does not call
+															//  the procedures yet. They will be called
+															//  later on.
 
-{load_file("./setupfiles/randomVinit.hoc")}	// Random voltage initialization
+{load_file("./setupfiles/simulation_optimization.hoc")}		// Sets various simulation conditions to
+															//  make the simulation more efficient. Note
+															//  that the settings in here will need to be
+															//  tested and possibly altered for each
+															//  computer that the code is run on, and
+															//  the ideal value for some settings may
+															//  also change if your network model changes
+															//  significantly (in number of cells, activity
+															//  level of cells, number of processors you
+															//  usually use, etc).
 
-proc presimulation() { local prelength, maindt, temp
-    
-    prelength = $1
-    
-    // Save the desired dt value to reset it after temporarily
-    //  changing dt to run a quick presimulation to allow the
-    //  network to reach steady state before we start 'recording'
-    maindt = dt
-                                                                        
-    t = -prelength 	// Set the start time for (pre) simulation; ex: -500 ms to allow the
-					//  network to reach steady state before t=0, when real simulation begins
-    
-    dt = 10 // Set dt to a large value so that the presimulation runs quickly
-    
-									
-	secondordersav = secondorder	// Save the desired secondorder value to reset it after
-									//  temporarily changing secondorder to run a quick presimulation
-									//  to allow the network to reach steady state before we start
-									//  'recording' its results
-  
-
-	secondorder = 0 // Set secondorder to 0 to set the solver to the default fully implicit backward
-					//  euler for numerical integration (see NEURON ref)
-    
-    temp = cvode.active() // Check whether cvode, a type of solver (?) is on
-    if (temp!=0) {cvode.active(0)} // If cvode is on, turn it off while running the presimulation
-    
-    // Run the presimulation from t = -prelength
-    //  to t = -100 (why not 0?) to let the
-    //  network and all its components reach
-    //  steady state. Integrate all section
-    //  equations over the interval dt,
-    //  increment t by dt, and repeat until
-    //  t at -100
-    
-    while(t<-100) { fadvance() if (PrintTerminal>2) {print t}}	
-    
-    if (temp!=0) {cvode.active(1)}	// If cvode was on and then turned off, turn it back on now
-    
-    dt = maindt
-	secondorder = secondordersav	// Reset secondorder to the specified value for the simulation
+if (get_spike_hist==1) {		// If you use spike compression to speed up the spike exchange part of the
+								//  simulation (see the simulation_optimization file), this setting is
+								//  relevant. It allows you to obtain a histogram of how many spikes are 
+								//  transferred at each exchange. That knowledge can then be used to set the 
+								//  spike compression settings appropriately.
+								// When running a significantly changed network or running it using a
+								//  different supercomputer or configuration, you may want to generate a new
+								//  histogram to get a sense of the new spike exchange structure so you can
+								//  again find the most efficient setting for the spike compression
+	setupSpikeHistogram()
 }
-
-
-proc init() { 
-    // Call finitialize from within the custom init proc, just as the default
-    //  init proc does. Note that finitialize will call the INITIAL block for
-    //  all mechanisms and point processes inserted in the sections and set the
-    //  initial voltage to v_init for all sections
-    finitialize(v_init)	
-    
-    // if randomly initializing the voltage, call randomVinit, otherwise call 
-    // presimulation, which brings the network to a steady state
-    if (RandomVinit > 0) {
-        // initialize all cells to random voltage centered on their Vrest with stdev of 1.0
-        randomVinit(1.0)
-    } else {
-        presimulation (200)
-    }
-    
-    t = tstart // Set t to the start time of the simulation
-    
-    if (cvode.active()){
-        // If cvode is active, initialize the integrator
-		cvode.re_init()				
-    } else {
-        // If cvode is not active, make all assigned variables
-		// (currents, conductances, etc) consistent with the
-		// values of the states
-		fcurrent()					
-    }
-    
-    frecord_init() // see email from ted - fadvance() increments the recorder, so we need to fix the index it ends up at
-}
-
-
-{load_file("./setupfiles/write_results_functions.hoc")}		// Defines the procs spikeout() and timeout()
-															//  which write out the spikeraster (spikeout)
-															//  and the time taken to run each section of
-															//  the code (timeout)
-use_cache_efficient=1
-get_spike_hist=0
-use_bin_queue=0
-use_spike_compression=0
-if (use_spike_compression==1) {
-	maxstepval = 2.5
-} else {
-	maxstepval = 10
-}														
 															
-proc rrun(){									// Run the network simulation and write out the results
+{load_file("./setupfiles/sim_execution_functions.hoc")}		// Defines a procedure to run the simulation and another one
+															//  to periodically check how long the simulation is taking
+															//  so as to end it early enough to write out results if
+															//  there is limited time on the supercomputer
 
-	pnm.want_all_spikes() 						// Record all spikes of all cells on this machine into the
-												//  vectors pnm.spikevec (spiketimes) and pnm.idvec (gids)
-												
-	local_minimum_delay = pc.set_maxstep(maxstepval)	// Set every machine's max step size to minimum delay of
-														//  all netcons created on pc using pc.gid_connect, but
-														//  not larger than 10
+zzz = mallinfo(zzz, "Before running simulation")	// Get memory usage before running simulation
 
-	if (pc.id==0 && use_spike_compression==1) {print "Host ", pc.id, " has local_minimum_delay=", local_minimum_delay}
-												
-	stdinit()									// Call the init fcn (which is redefined in this code) and
-												//  then make other standard calls (to stop watch, etc)
+{rrun()}	// Run the network simulation using a custom run procedure and write out results
 
-	runstart = startsw()							// grab start time of the simulation
-	pc.psolve(tstop)							// Equivalent to calling cvode.solve(tstop) but for parallel NEURON;
-												//  solve will be broken into steps determined by the result of
-												//  set_maxstep
+zzz = mallinfo(zzz, "After running simulation")		// Get memory usage after running simulation
 
-	runtime = startsw() - runstart				// Calculate runtime of simulation
-												// Print a time summary message to screen
-	writestart = startsw()
-	comptime = pc.step_time
-	avgcomp = pc.allreduce(comptime, 1)/pc.nhost
-	maxcomp = pc.allreduce(comptime, 2)
-	if (maxcomp>0) {
-		if (pc.id == 0) { printf("load_balance = %.3f\n", avgcomp/maxcomp)}
-		if (pc.id == 0) { printf("exchange_time = %.2f ms\n",  runtime - maxcomp) }
-	} else {
-		if (pc.id == 0) { printf("no load balance info available\nno spike exchange info available\n")}
-	}
-	
-	spikeoutfast()	// Write the spike times (in ms) and spiking cells (by gid) into a file called "spikeraster.dat"
-	
-	timeout()	// Write out a file of run times for each code section
-	
-	highIndexout() // document how much of the random streams this run used
-
-	if (PrintVoltage>0) {voltageout()}	// Write out any voltages that were recorded during simulation
-	if (PrintConnDetails==1) {tracenetfast()}	// Write the file of all cell connections (pre and post gids, synapse type,
-										//  host on which cell exists), "connections.dat"
-
-	if ((PrintConnDetails==0) && (PrintVoltage==1)) {tracecellsfast()}	// If detailed connections are not being written out, at least write them out for cells that are being traced
-	
-	sumnumout(runtime)	// Write out a file with the total number of cells, spikes, and connections (including contributions from artificial cells)
-	writetime = startsw() - writestart				// Calculate write time of program
-	totaltime = startsw() - loadstart
-	allottedtime = JobHours*3600
-	if (pc.id == 0) {printf("****\nTIME SUMMARY for host 0\nset up in %g seconds\ncreated cells in %g seconds\nconnected cells in %g seconds\nran simulation in %g seconds\nwrote results in %g seconds\nTOTAL TIME   = %g seconds\nALLOTTED TIME = %g seconds\n************\nThis run is called: %s\n************\n", loadtime, createtime, connecttime, runtime, writetime, totaltime, allottedtime, RunName)}
-
-}
-
-objref fih
-if (ComputeLFP > 0) {
-	// execute sample_lfp() at t = 0,
-	// right after the mechanism INITIAL blocks have been executed
-	fih = new FInitializeHandler("sample_lfp()")
-}
-
-objref fihw
-fihw = new FInitializeHandler(2, "midbal()")
-walltime = startsw()
-strdef cmd, cmdo
-newtstop = tstop
-warningflag=0
-
-proc midbal() {local wt, thisstep
-	wt = startsw()
-	if (t>0) {
-		thisstep = wt - walltime
-		simleft = tstop - t
-		compleft = JobHours*3600 - (startsw() - loadstart)
-		//print "t=",t,", tstop=",tstop,", simleft=",simleft,", jobtime=",JobHours*3600,", timeused=",startsw() - loadstart,", compleft=", compleft 
-		if (warningflag==0 && (simleft/StepBy*thisstep+EstWriteTime)>compleft && pc.id == 0) {
-			newtstop = int((compleft-EstWriteTime)/thisstep)*StepBy + t
-			print "Not enough time to complete ", tstop,  " ms simulation, simulation will likely stop around ", newtstop, " ms"
-			warningflag=1
-		}
-		if (pc.id == 0) { printf("%g ms interval at t=%g ms was %g s\n", StepBy, t, thisstep) }
-		
-		if ((thisstep+EstWriteTime)>compleft && t<tstop) { // not enough time for another step, end now
-			{pc.barrier()}
-			sprint(cmd,"cat results/%s/runreceipt.txt | sed -e 's/^SimDuration = [^ ]*/SimDuration = %g;/' > x ; mv x results/%s/runreceipt.txt", RunName, t, RunName)
-			if (pc.id == 0) { {system(cmd,cmdo)} }
-			if (pc.id == 0) { print "simulation stopped early at t=", t, " ms"}
-			tstop = t
-			stoprun=1
-		}
-	}
-	walltime = wt
-	cvode.event(t+StepBy, "midbal(0)")
-}
-{cvode.cache_efficient(use_cache_efficient)} // always double check that this addition does not affect the spikeraster (via pointers in mod files, etc)
-
-if (use_bin_queue==1) {
-	use_fixed_step_bin_queue = 1 // boolean
-	use_self_queue = 0 // boolean - this one may not be helpful for me, i think it's best for large numbers of artificial cells that receive large numbers of inputs
-	{mode = cvode.queue_mode(use_fixed_step_bin_queue, use_self_queue)}
-}
-
-if (use_spike_compression==1) {
-	nspike = 3 // compress spiketimes or not
-	gid_compress = 0 //only works if fewer than 256 cells on each proc
-	{nspike = pc.spike_compress(nspike, gid_compress)}
-}
-
-objref spkhist
-if (get_spike_hist==1) {
-	spkhist = new Vector(pc.nhost)
-	if (pc.id==0) {
-		pc.max_histogram(spkhist)
-	}
-}
-
-zzz = mallinfo(zzz, "Before running simulation")
-
-{rrun()}	// Run the network simulation (in proc rrun)
-
-zzz = mallinfo(zzz, "After running simulation")
-
-if (pc.id==0) {
+if (pc.id==0) {			// Close the files used to record the memory usage as no more data points will be written
 	{memfile.close()}
 	{topfile.close()}
 }
 
-objref f4
-strdef cmd
-if (pc.id==0 && get_spike_hist==1) {
-	sprint(cmd,"./results/%s/spkhist.dat", RunName)
-	f4 = new File(cmd)
-	f4.wopen()
-
-			// Open for appending to file
-	for i=0, pc.nhost-1 {
-		f4.printf("%d\t%d\n", i, spkhist.x[i])	// Print the spike time and spiking cell gid
-	}
-	f4.close()
-    }
-    
-if (pc.id == 0 && (ComputeLFP > 0)) {
-    write_lfp()
+if (pc.id==0 && get_spike_hist==1) {	// If a spike histogram was generated, print it out.
+	printSpikeHistogram()
 }
 
-if (ComputeLFP > 0) {
-    write_lfp_traces()
-}
+// New quit commands, for use with NEURON development version 91f44d14afd5 or higher.
+//  Use these commands with this NEURON version 91f44d14afd5 or higher if the original
+//  quit commands don't stop the code when you run the program on a supercomputer. This
+//  NEURON version, according to Michael Hines, "allows one to safely quit without a
+//  prior {pc.runworker() pc.done()}".
 
 {pc.barrier}
 {quit()}
 
-/*
-// Old quit method
-{pc.runworker()} 	// Everything after this line is executed only by the host node
+// Original quit commands, which usually work on most computers and supercomputers:
+/*{pc.runworker()} 	// Everything after this line is executed only by the host node
 					//  The NEURON website describes this as "The master host returns immediately. Worker hosts
 					//  start an infinite loop of requesting tasks for execution." 
+					
 {pc.done()}			// Sends the quit message to the worker processors, which then quit NEURON
+
 quit()	// Sends the quit message to the host processor, which then quits NEURON
 */
