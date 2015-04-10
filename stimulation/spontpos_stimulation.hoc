@@ -105,4 +105,5 @@ proc setNoise() {local reli, typei, jgid, idx localobj cell
 		}
 	}
 }
-setnoise(mypoint.x[0],mypoint.x[1])
+
+setNoise(mypoint.x[0],mypoint.x[1])

@@ -291,5 +291,3 @@ proc makeConnections () {local precellType, postcellType, precellStart, precellE
 makeConnections()
 
 objref conns2make // This variable is likely to take up a large amount of memory, so redefine it to clear it at the end of use
-
-makeConnections()								// Try making connections between every type of cell
