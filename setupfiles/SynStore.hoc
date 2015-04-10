@@ -44,7 +44,7 @@ begintemplate SynStore			// Define a template that stores
 								//  cell types.
 	
 	// Public variables, accessible from outside template
-	public init, SecRefStr,CheckCond1,CheckCond2,
+	public init, SecRefStr,CheckCond1,CheckCond2
 	public tau1,tau2,efirst,tau1a,tau2a,ea,tau1b,tau2b,eb
 	public NewSynStr, SynStr, CondStr, GABAabFlag, SynType, Scaling
 	
