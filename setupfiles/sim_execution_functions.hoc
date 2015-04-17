@@ -198,6 +198,7 @@ proc midbal() {local wt, thisstep
 			// Set tstop to the current simulation time, which will cause
 			//  the simulation to end now.
 			tstop = t
+			stoprun = 1	// A flag watched by run executors in NEURON to determine if a run should be stopped prior to the next time step
 		}
 	}
 	// Update the start time of the next interval.
