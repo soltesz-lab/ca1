@@ -209,29 +209,42 @@ proc makeConnections () {local precellType, postcellType, precellStart, precellE
 																	//  5. The first vector, which had the vector method called on it,
 																	//     will then be populated with info about the specific cells
 																	//     to connect. The arrangement of the data within the vector
-																	//     will be as follows, where n is ...:
+																	//     will be as follows, where connlength is the number of spaces
+																	//     set aside for all connections between this pre- and post-
+																	//     synaptic cell type combination, on this host:
 																	//     vector.x[0]: the total number of potential connections found
-																	//     vector.x[1]: the most recent (highest) highIndex used for this
-																	//					postsynaptic cell type
-																	//     vector.x[2]: presynaptic cell gid for potential connection #1
-																	//     vector.x[3]: presynaptic cell gid for potential connection #2
+																	//     vector.x[1]: numpost: the number of postsynaptic cells owned by this host
+																	//     vector.x[2]: last highIndex used by postsynaptic cell #1
+																	//     vector.x[3]: last highIndex used by postsynaptic cell #2
 																	//     ...
-																	//     vector.x[2+n]: postsynaptic cell gid for potential connection #1
-																	//     vector.x[3+n]: postsynaptic cell gid for potential connection #2															
+																	//     vector.x[numpost+1]: last highIndex used by last postsynaptic cell
+																	//     vector.x[numpost+2]: presynaptic cell gid for potential connection #1
+																	//     vector.x[numpost+3]: presynaptic cell gid for potential connection #2															
 																	//     ...
-																	//     vector.x[2+n*2]: the distance in microns between the cells for potential connection #1
-																	//     vector.x[3+n*2]: the distance in microns between the cells for potential connection #1
+																	//     vector.x[numpost+2+vector.x[0]-1]: presynaptic cell gid for last potential connection														
+																	//     ...
+																	//     ...
+																	//     vector.x[connlength+numpost+2]: postsynaptic cell gid for potential connection #1
+																	//     vector.x[connlength+numpost+3]: postsynaptic cell gid for potential connection #2															
+																	//     ...
+																	//     vector.x[connlength+numpost+2+vector.x[0]-1]: postsynaptic cell gid for last potential connection															
 
+			if (int(conns2make.x[0]/1)>connlength) {				// Make sure earlier data not overwritten in conns2make vector by later data
+				print "Problem: vector only saved enough room for ", connlength, " conns but ", int(conns2make.x[0]/1) " were defined, overwriting some data! Simulation is compromised!"
+				{pc.barrier()}
+				{quit()}
+			}
+			
 			sprint(memstr, "Defined %s to %s conns", $s3, $s4)	// Update memory usage after
 			zzz = mallinfo(zzz, memstr)							//  connecting each cell type
 
-			for r=0, numpost-1 {
-				highIndices.x[r] = int(conns2make.x[2+r]/1)
+			for r=2, numpost+1 {
+				highIndices.x[r-2] = int(conns2make.x[r]/1)
 			}
 						
-			for r=1, int(conns2make.x[0]/1)+numpost {	// For each potential connection suggested by the compiled mechanism
+			for r=numpost+2, numpost+2+int(conns2make.x[0]/1)-1 {	// For each potential connection suggested by the compiled mechanism
 				if (numpost>1) {
-					postgid = conns2make.x[r+1+connlength]
+					postgid = conns2make.x[r+connlength]
 				} else {
 					postgid = postcellgids.x[0]
 				}
@@ -261,11 +274,11 @@ proc makeConnections () {local precellType, postcellType, precellStart, precellE
 								conDelay =  3 	// Axonal conduction delay + synapse delay (time between when the presynaptic cell spikes
 												//  and the synapse on the postsynaptic cell is activated)
 							} else { // Don't use the z dimension when computing distances for now - we'll save that for another time
-								xpos=xpos_algorithm(conns2make.x[r+1],cellType[precellType].numCells,cellType[precellType].cellStartGid,cellType[precellType].dentateXBins,cellType[precellType].dentateYBins*cellType[precellType].dentateZBins,cellType[precellType].dentateXBinSize)	// Algorithmically generate cell position
-								ypos=ypos_algorithm(conns2make.x[r+1],cellType[precellType].numCells,cellType[precellType].cellStartGid,cellType[precellType].dentateYBins,cellType[precellType].dentateZBins,cellType[precellType].dentateYBinSize)	// Algorithmically generate cell position
+								xpos=xpos_algorithm(conns2make.x[r],cellType[precellType].numCells,cellType[precellType].cellStartGid,cellType[precellType].dentateXBins,cellType[precellType].dentateYBins*cellType[precellType].dentateZBins,cellType[precellType].dentateXBinSize)	// Algorithmically generate cell position
+								ypos=ypos_algorithm(conns2make.x[r],cellType[precellType].numCells,cellType[precellType].cellStartGid,cellType[precellType].dentateYBins,cellType[precellType].dentateZBins,cellType[precellType].dentateYBinSize)	// Algorithmically generate cell position
 								conDelay = int(10*sqrt((xpos - cell.x)*(xpos - cell.x) + (ypos - cell.y)*(ypos - cell.y))/AxConVel)/10 + 0.5 // use 0.5 for the synaptic cleft delay; this also ensures the delay will never be set to 0, which would error the program
 								if (conDelay<dt || conDelay%dt>0 || conDelay/dt>=255) {
-									print "BAD CONDELAY: host ", pc.id, " precell: ", conns2make.x[r+1], ", postcell: ", conns2make.x[r+1+connlength], ", conDelay = ", conDelay
+									print "BAD CONDELAY: host ", pc.id, " precell: ", conns2make.x[r], ", postcell: ", conns2make.x[r+connlength], ", conDelay = ", conDelay
 									conDelay =  3 
 								}
 							}
@@ -275,12 +288,12 @@ proc makeConnections () {local precellType, postcellType, precellStart, precellE
 							//  presynaptic cell gid to the synapse mechanism. Within the synapse mechanism,
 							//  the presynaptic cell gid will be subtracted from the synapse weight, and the
 							//  two parameters will be stored separately within the mechanism.
-							nc_append(conns2make.x[r+1], postgid, precellType, randSynNumber, synWeight + (conns2make.x[r+1]+1)*1000, conDelay)
+							nc_append(conns2make.x[r], postgid, precellType, randSynNumber, synWeight + (conns2make.x[r]+1)*1000, conDelay)
 						}
 						counter +=1	// After all of the synapses are formed for a single connection, increment the connection counter by 1
 					}
 				} else {	// Something is very wrong if the postsynaptic gid does not exist on this machine, print message to terminal
-					print $s3, "s to ", $s4, "s:", " can't make gid ", postgid, " which is r = ", r, " +  connlength = ", connlength, " = ", r+1+connlength, " from x[r+1] = ", conns2make.x[r+1], " total conns = ", int(conns2make.x[0]/1)
+					print $s3, "s to ", $s4, "s:", " can't make gid ", postgid, " which is (r = ", r, " +  connlength = ", connlength, ") = ", r+connlength, " from x[r] = ", conns2make.x[r], " total conns = ", int(conns2make.x[0]/1)
 				}
 			}
 		}
