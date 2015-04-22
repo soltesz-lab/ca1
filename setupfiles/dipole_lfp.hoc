@@ -21,8 +21,6 @@ The time resolution of the LFP calculation may be lower than
 that of the simulation by setting lfp_dt in this file.
 ************************************************************/
 
-lfp_dt = 0.5 // Sampling interval for LFP, in ms
-
 func dipole_lfp() { local avglfp, vlfp, ncells, celltype, pci, gid, i, typei localobj cell
 	// Calculate the average LFP of all pyramidal cells in the network
 	

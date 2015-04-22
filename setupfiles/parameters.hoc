@@ -1,18 +1,6 @@
-/************************************************************
-'ca1' model code repository
-Written by Marianne Bezaire, marianne.bezaire@gmail.com, www.mariannebezaire.com
-In the lab of Ivan Soltesz, www.ivansolteszlab.org
-Published and latest versions of this code are available online at:
-ModelDB: 
-Open Source Brain: http://www.opensourcebrain.org/projects/nc_ca1
-
-Main code file: ../main.hoc
-This file: Last updated on April 9, 2015
-
-This file sets the default values of model parameters
-in such a way that they can be overridden using certain
-options at the command line.
-************************************************************/
+// This file sets the default values of parameters
+//  in such a way that they can be overridden using
+//  certain options at the command line
  
 default_var("RunName","none")		// Name of simulation run
 default_var("UID","0")		// Unique ID for this simulation run
@@ -63,3 +51,4 @@ default_var("PhasicData",100)		// Which phasic dataset to use for oscillation/ph
 default_var("ComputeLFP",0)		// Positive value indicates that approximate pyramidal cell LFP should be computed
 default_var("NumTracesPyr",3000)		// The maximum number of pyramidal cells to record intracellularly
 default_var("MaxEDist",500)		// The maximum distance in microns away from an electrode point that LFP contributions from cells should be included
+default_var("lfp_dt",.5)		// The time step for recording the LFP trace
