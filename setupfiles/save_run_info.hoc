@@ -90,12 +90,13 @@ proc typeout() {local i, myline, rn, rank, gid, srcid localobj tgt, f, cell, f2c
 		{system(dircmd, direx)}
 
 		// check for Mercurial on the computer running this code
-		sprint(dircmd, "hg parent --template '{rev}: {desc}\n'")
-		{system(dircmd, direx)}
+		//sprint(dircmd, "hg parent --template '{rev}: {desc}\n'")
+		//{system(dircmd, direx)}
 		
 		// Check the length of the output string (direx)
 		index = strobj.len(direx)
-
+                index = 0
+		// if the check matches, then use backup files
 		if (index<1) { 	// If  the output string contains nothing (length == 0),
 						//  then we can't access Mercurial commands from this
 						//  computer, and we must resort to using placeholder
