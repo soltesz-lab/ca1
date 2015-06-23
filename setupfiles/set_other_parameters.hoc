@@ -47,6 +47,9 @@ proc SetOtherParameters() {local ind, i, layernum, tempheight
 	scTransverseLength = TransverseLength / sqrt(Scale)
 	scLongitudinalLength = LongitudinalLength / sqrt(Scale)
 	
+	synVar = .2		// The variance of the synapse weights when using normally distributed
+					//  synapse weights (instead of a single value)
+	
 	distres = 5		// The resolution of the axonal bouton distribution function
 					//  for all cells in the network, in terms of steps. Ex: if
 					//  this is set to 5, the Gaussian distribution is solved at

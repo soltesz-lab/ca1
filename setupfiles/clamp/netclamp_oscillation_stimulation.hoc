@@ -18,7 +18,7 @@ for i=0, numppTypes-1 {
 f2.close()
 
 
-period = Onint + Offint		// Oscillation period in ms
+period = 125 // Onint + Offint		// Oscillation period in ms
 
 proc ppSin() { local ppi, i, wgt, reli, typei, jgid, celltype, counter, jstart, jend, jtot localobj mycell		// Connect the perforant path cells to the model cells
 	// find ppecsin index
