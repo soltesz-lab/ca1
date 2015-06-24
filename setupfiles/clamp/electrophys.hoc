@@ -845,6 +845,10 @@ objref ss, nobj
 strdef pre_type, post_type, cmdstr1
 objref synvec, fpair
 
+objref strfun, ms
+strfun = new StringFunctions()
+strdef mysynstr, mymechstr, mechstr			
+
 if ((pair==2) || (pair==4)) {
 	print "2 or 4 pair = ", pair
 	f2 = new File()
@@ -950,13 +954,27 @@ if ((pair==2) || (pair==4)) {
 					ransynlist.object(cell.randi).r.discunif(0,numSynTypes-1)		// Create a uniform random INTEGER variable over the range specified (0 to # synapse types-1),
 					for q = 0, numSyns-1 {
 						synvec.x[q] =  ransynlist.object(cell.randi).repick
-						
+
 						if (pairrevflag==1) {  //(strcmp(prestr,"ivycell")==0 || strcmp(prestr,"ngfcell")==0) {
-							if (strcmp(prestr,"ngfcell")==0) {
+							sprint(mysynstr,"%s",cell.pre_list.o(precellType).o(synvec.x[q]))	
+							{strfun.left(mysynstr,strfun.substr(mysynstr,"["))}
+							//print "mechstr = ", mysynstr				
+							ms = new MechanismStandard(mysynstr)
+							for j=0, ms.count()-1 {
+								{ms.name(mymechstr, j)}
+								mechstr=mymechstr
+								strfun.left(mechstr,1)
+								if (strcmp("e",mechstr)==0) {
+									//print "setting ", mymechstr, " to " pairrevpot
+									sprint(cmdstr,"cell.pre_list.o(precellType).o(synvec.x[q]).%s = pairrevpot",mymechstr)
+									execute(cmdstr)
+								}
+							}
+							/*if (strcmp(prestr,"ngfcell")==0) {
 								cell.pre_list.o(precellType).o(synvec.x[q]).ea = pairrevpot
 							} else {
 								cell.pre_list.o(precellType).o(synvec.x[q]).e = pairrevpot
-							}
+							}*/
 						//	cell.pre_list.o(precellType).o(synvec.x[q]).ea = pairrevpot
 						//	cell.pre_list.o(precellType).o(synvec.x[q]).eb = -91 //pairrevpot
 						//} else {
@@ -1089,8 +1107,23 @@ if ((pair==1) || (pair==3)) {
 					for q = 0, numSyns-1 {
 						synvec.x[q] = ransynlist.object(cell.randi).repick
 
-						if (pairrevflag==1) { //(strcmp(prestr,"ivycell")==0 || strcmp(prestr,"ngfcell")==0) {
-							cell.pre_list.o(precellType).o(synvec.x[q]).e = pairrevpot
+						if (pairrevflag==1) { //(strcmp(prestr,"ivycell")==0 || strcmp(prestr,"ngfcell")==0) {					
+							sprint(mysynstr,"%s",cell.pre_list.o(precellType).o(synvec.x[q]))	
+							{strfun.left(mysynstr,strfun.substr(mysynstr,"["))}
+							//print "mechstr = ", mysynstr				
+							ms = new MechanismStandard(mysynstr)
+							for j=0, ms.count()-1 {
+								{ms.name(mymechstr, j)}
+								mechstr=mymechstr
+								strfun.left(mechstr,1)
+								if (strcmp("e",mechstr)==0) {
+									//print "setting ", mymechstr, " to " pairrevpot
+									sprint(cmdstr,"cell.pre_list.o(precellType).o(synvec.x[q]).%s = pairrevpot",mymechstr)
+									execute(cmdstr)
+								}
+							}
+						
+						//	cell.pre_list.o(precellType).o(synvec.x[q]).e = pairrevpot
 						//	cell.pre_list.o(precellType).o(synvec.x[q]).ea = pairrevpot
 						//	cell.pre_list.o(precellType).o(synvec.x[q]).eb = -91 //pairrevpot
 						//} else {

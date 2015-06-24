@@ -56,12 +56,16 @@ proc createCells(){ local i, ij, si, pci, cellind, runresult, gid	// Create cell
 				ransynlist.append(new RandomStream(1+RandomSeedsConn, gid + 1*ncell)) 	// Create a new random number generator for each cell,
 																						//	with a unique stream. This will be used to determine
 																						//	what type of synapse is used in connections
+																						
+				ranwgtlist.append(new RandomStream(1+RandomSeedsConn, gid + 4*ncell)) 	// Create a new random number generator for each cell, used to 
+																						//  set variable synapse weights
 
 				ranstimlist.append(new RandomStream(1+RandomSeedsStim, gid + 2*ncell)) 	// Create a new random number generator for each cell, used by 
 																						//  netstims for setting spont stim.
+																						
 				raninitlist.append(new RandomStream(1+RandomSeedsStim, gid + 3*ncell)) 	// Create a new random number generator for each cell, used to 
-																						//  set random initial voltage
-
+																						//  set variable initial voltage
+																						
 				cellType[cellind].CellList[ij].connect_pre(nil, nc)	// Create an empty connection for use by the spike detector
 				pc.cell(gid, nc)									// Associate the cell with its gid and its spike generation location
 				

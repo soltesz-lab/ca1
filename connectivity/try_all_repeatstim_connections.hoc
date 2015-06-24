@@ -265,6 +265,11 @@ proc makeConnections () {local precellType, postcellType, precellStart, precellE
 																					//  allow the specification of a synapse type from all the
 																					//  available synapse types available for that presynaptic
 																					//  cell type (range = 0 to # synapse types-1)
+					
+						ranwgtlist.object(cell.randi).r.normal(synWeight, synWeight*synVar)	// Create a normal distribution that will
+																							//  allow the specification of a synapse weight, where the
+																							//  distribution has the specified mean and variance:
+																							//  "r.normal(mean, variance)"
 																					
 						for s=1,numSyns {	// Randomly pick from the available synapses
 											//  enough times to make the desired number 
@@ -289,7 +294,11 @@ proc makeConnections () {local precellType, postcellType, precellStart, precellE
 							//  presynaptic cell gid to the synapse mechanism. Within the synapse mechanism,
 							//  the presynaptic cell gid will be subtracted from the synapse weight, and the
 							//  two parameters will be stored separately within the mechanism.
-							nc_append(conns2make.x[r], postgid, precellType, randSynNumber, synWeight + (conns2make.x[r]+1)*1000, conDelay)
+							if (RandomSynWgt==1) {
+								nc_append(conns2make.x[r], postgid, precellType, randSynNumber, ranwgtlist.object(cell.randi).repick + (conns2make.x[r]+1)*1000, conDelay)
+							} else {
+								nc_append(conns2make.x[r], postgid, precellType, randSynNumber, synWeight + (conns2make.x[r]+1)*1000, conDelay)
+							}
 						}
 						counter +=1	// After all of the synapses are formed for a single connection, increment the connection counter by 1
 					}

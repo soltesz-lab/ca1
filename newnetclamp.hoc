@@ -344,7 +344,7 @@ zzz = mallinfo(zzz, "After defining stimulation")
 														//  postsynaptic cell type, and synapse type for
 														//  every connection
 														
-if (PrintConnSummary==1) {printNumConFile()}	// Write "numcons.dat": a QUICK, SMALL summary file of the # of
+//if (PrintConnSummary==1) {printNumConFile()}	// Write "numcons.dat": a QUICK, SMALL summary file of the # of
 										//  connections by pre and post cell types
 /*										
 if (PrintConnDetails==2) {allCellConnsParallel()}		// Write "connections.dat": a VERY SLOW, LARGE file of all cell
@@ -652,7 +652,7 @@ if (pc.id==0) {
 
 objref f4
 strdef cmd
-if (pc.id==0 && get_spike_hist==1) {
+/*if (pc.id==0 && get_spike_hist==1) {
 	sprint(cmd,"./results/%s/spkhist.dat", RunName)
 	f4 = new File(cmd)
 	f4.wopen()
@@ -662,7 +662,7 @@ if (pc.id==0 && get_spike_hist==1) {
 		f4.printf("%d\t%d\n", i, spkhist.x[i])	// Print the spike time and spiking cell gid
 	}
 	f4.close()
-}
+}*/
 
 strdef outfile
 objref f

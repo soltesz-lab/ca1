@@ -47,6 +47,7 @@ proc rrun(){									// Run the network simulation and write out the results
 												//  set_maxstep
 
 	runtime = startsw() - runstart				// Calculate the time taken to run the simulation
+	if (pc.id == 0) {printf("\nTIME HOST 0: %g seconds (ran simulation)\n************\n", runtime)}
 	
 												// Compute the load balance	of the simulation			
 
@@ -56,12 +57,14 @@ proc rrun(){									// Run the network simulation and write out the results
 	pc.barrier()
 	avgcomp = pc.allreduce(comptime, 1)/pc.nhost	// allreduce with argument 1 returns the average comptime value from all processors
 	maxcomp = pc.allreduce(comptime, 2)				// allreduce with argument 2 returns the maximum comptime value from all processors
-	if (maxcomp>0) {							// Print a summary message to screen
-		if (pc.id == 0) { printf("load_balance = %.3f\n", avgcomp/maxcomp)} 		// Compute and print the load balance
-		if (pc.id == 0) { printf("exchange_time = %.2f ms\n",  runtime - maxcomp) } 	// Compute and print the spike exchange time
-																						//  (all time not spent on computation).
-	} else {
-		if (pc.id == 0) { printf("no load balance info available\nno spike exchange info available\n")}
+	if  (PrintTerminal>0) {
+		if (maxcomp>0) {							// Print a summary message to screen
+			if (pc.id == 0) { printf("load_balance = %.3f\n", avgcomp/maxcomp)} 		// Compute and print the load balance
+			if (pc.id == 0) { printf("exchange_time = %.2f ms\n",  runtime - maxcomp) } 	// Compute and print the spike exchange time
+																							//  (all time not spent on computation).
+		} else {
+			if (pc.id == 0) { printf("no load balance info available\nno spike exchange info available\n")}
+		}
 	}
 		
 	SpikeOutParallel()	// Each processor writes out a file "spikeraster_#.dat" where # is the processor.
