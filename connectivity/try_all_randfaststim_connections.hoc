@@ -131,9 +131,6 @@ proc makeConnections () {local precellType, postcellType, precellStart, precellE
 		numSyns = cellType[$1].numSyns.x[$2]
 		numConns = cellType[$1].numConns.x[$2]		
 
-		minwgt=synWeight
-		maxwgt=synWeight
-
 		numpost = $5	// Number of postsynaptic cells owned by this processor
 		
 		counter=0	// A variable that keeps track of the total number of connections made between 
@@ -301,9 +298,6 @@ proc makeConnections () {local precellType, postcellType, precellStart, precellE
 								
 								if (thiswgt>synWeight*10) {thiswgt=synWeight*10}
 								if (thiswgt<synWeight/10) {thiswgt=synWeight/10}
-
-								if (thiswgt<minwgt) {minwgt=thiswgt}
-								if (thiswgt>maxwgt) {maxwgt=thiswgt}
 								
 								nc_append(conns2make.x[r], postgid, precellType, randSynNumber, thiswgt + (conns2make.x[r]+1)*1000, conDelay)
 							} else {
@@ -316,12 +310,6 @@ proc makeConnections () {local precellType, postcellType, precellStart, precellE
 					print $s3, "s to ", $s4, "s:", " can't make gid ", postgid, " which is (r = ", r, " +  connlength = ", connlength, ") = ", r+connlength, " from x[r] = ", conns2make.x[r], " total conns = ", int(conns2make.x[0]/1)
 				}
 			}
-		}
-		if (RandomSynWgt==1) {
-			pc.barrier()
-			minwgt=pc.allreduce(minwgt, 3)
-			maxwgt=pc.allreduce(maxwgt, 2)
-			if (pc.id==0) {print "SynWeights for ", $s3, "s to ", $s4, ": ", minwgt, " - ", synWeight, " - ", maxwgt}
 		}
 		
 		return counter	// Return the total number of connections made between this presynaptic
