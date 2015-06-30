@@ -52,5 +52,5 @@ default_var("ComputeLFP",0)		// Positive value indicates that approximate pyrami
 default_var("NumTracesPyr",3000)		// The maximum number of pyramidal cells to record intracellularly
 default_var("MaxEDist",500)		// The maximum distance in microns away from an electrode point that LFP contributions from cells should be included
 default_var("lfp_dt",.5)		// The time step for recording the LFP trace
-default_var("RandomSynWgt",0)		// 1 indicates that synapse weights should vary in a normal distribution with the specified weight as the mean.
+default_var("RandomSynWgt",0)		// >0 indicates that synapse weights should vary with the specified weight as the mean. 1: a normal distribution, 2: a lognormal distribution, 3: a uniform distribution
 default_var("synVar",.03)		// Fraction of the mean synapse weight that should be set as the standard deviation in the normal distribution of synapse weights for randomized synapse weights
