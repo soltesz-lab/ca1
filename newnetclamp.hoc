@@ -367,15 +367,19 @@ objref mytrace, myvrec, cell
 cell = pc.gid2cell(gidOI)
 
 func dipole_lfp() { local vlfp
-   vlfp = cell.apical[cell.NumApical-1].v(0.5) - cell.basal[0].v(0.5)  
-   return vlfp
+	if ((NumApical>0) && (NumBasal>0)) {
+		vlfp = cell.apical[cell.NumApical-1].v(0.5) - cell.basal[0].v(0.5)  
+	} else {
+		vlfp = 0
+	}
+	return vlfp
 }
 
 objref lfplist, lfptracelist, vec
 lfplist = new List()
 lfptracelist = new List()
 
-lfp_dt = 0.5 // sampling interval for LFP
+lfp_dt = 0.1 // sampling interval for LFP
 
 objref mytraceidxlist, lfptracelist
 proc sample_lfp() { local i, avglfp, startgid, endgid, gid, celltype localobj vec, lst
