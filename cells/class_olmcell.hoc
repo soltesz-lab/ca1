@@ -122,7 +122,7 @@ proc mechinit() {
 	
 	Rm = 20000*5
 	
-	gH = 0.0005*.3
+	gH = 0.0005
 	
 	gKvAsoma = 0.0165*.3
 	gKvAdend = 0.004*.7
