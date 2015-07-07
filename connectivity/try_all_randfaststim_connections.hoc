@@ -318,8 +318,6 @@ proc makeConnections () {local precellType, postcellType, precellStart, precellE
 							if (RandomSynWgt>0) {
 								thiswgt = ranwgtlist.object(cell.randi).repick
 								
-								//if (thiswgt>synWeight*10) {thiswgt=synWeight*10}
-								//if (thiswgt<synWeight/10) {thiswgt=synWeight/10}
 								if (thiswgt<0.0) {thiswgt=0.0}
 								
 								nc_append(conns2make.x[r], postgid, precellType, randSynNumber, thiswgt + (conns2make.x[r]+1)*1000, conDelay)
