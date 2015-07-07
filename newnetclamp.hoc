@@ -367,7 +367,7 @@ objref mytrace, myvrec, cell
 cell = pc.gid2cell(gidOI)
 
 func dipole_lfp() { local vlfp
-	if ((NumApical>0) && (NumBasal>0)) {
+	if ((cell.NumApical>0) && (cell.NumBasal>0)) {
 		vlfp = cell.apical[cell.NumApical-1].v(0.5) - cell.basal[0].v(0.5)  
 	} else {
 		vlfp = 0

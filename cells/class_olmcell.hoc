@@ -5,6 +5,7 @@ public  pre_list, connect_pre, is_art, is_connected, gid, randi
 public soma, dend
 public all, basal_list, apical_list, soma_list, axon_list, dendrite_list
 public x, y, z, position, myroot, Vrest
+public NumSoma, NumApical, NumBasal, NumAxon
 
 // strings
 strdef myroot
@@ -15,7 +16,12 @@ objref syn, pre_list, templist, rootlist, this
 // external variables
 external numCellTypes, cellType
 
-create soma[1], dend[2], axon[1]
+NumSoma=1
+NumApical=0
+NumBasal=2
+NumAxon=1
+
+create soma[NumSoma], dend[NumBasal], axon[NumAxon]
 
 
 proc init() {
@@ -50,6 +56,10 @@ proc size_sections() {
 	dend[0] {L=250 diam=3}
 	dend[1] {L=250 diam=3}
 	axon[0] {L=150 diam=1.5}*/
+NumSoma=1
+NumApical=0
+NumBasal=2
+NumAxon=1
 	
 	soma[0] {pt3dclear()
 		pt3dadd(0.0, 0.0, 0.0, 10.0) // distance from (0,0,0) = 0
@@ -112,7 +122,7 @@ proc mechinit() {
 	
 	Rm = 20000*5
 	
-	gH = 0.0005
+	gH = 0.0005*.3
 	
 	gKvAsoma = 0.0165*.3
 	gKvAdend = 0.004*.7
