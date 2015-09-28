@@ -40,9 +40,9 @@ proc posout() {local pci, pcti, rank, gid, srcid localobj tgt, f, cell
 					
 					// Write out the 3d position coordinates and host processor of each cell
 					if (cell.is_art()==0) {
-						f.printf("%d\t%d\t%d\t%d\t%d\n", gid, cell.x, cell.y, cell.z, pc.id)
+						f.printf("%d\t%f\t%f\t%f\t%d\n", gid, cell.x, cell.y, cell.z, pc.id)
 					} else {
-						f.printf("%d\t%d\t%d\t%d\t%d\n", gid, cell.xpos, cell.ypos, cell.zpos, pc.id)
+						f.printf("%d\t%f\t%f\t%f\t%d\n", gid, cell.xpos, cell.ypos, cell.zpos, pc.id)
 					}
 				}
 			}		

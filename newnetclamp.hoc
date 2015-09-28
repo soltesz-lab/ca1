@@ -29,7 +29,7 @@ I.  LOAD LIBRARIES
 {load_file("./setupfiles/set_other_parameters.hoc")}// Loads in operational and model parameters
 													//  that can't be changed at command line
 
-{load_file("./setupfiles/check_for_files.hoc")}	// Checks that the necessary chosen files exist
+//{load_file("./setupfiles/check_for_files.hoc")}	// Checks that the necessary chosen files exist
 												//  (datasets, connectivity, and stimulation)
 												
 default_var("gidOI", 0) // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
@@ -344,7 +344,7 @@ zzz = mallinfo(zzz, "After defining stimulation")
 														//  postsynaptic cell type, and synapse type for
 														//  every connection
 														
-//if (PrintConnSummary==1) {printNumConFile()}	// Write "numcons.dat": a QUICK, SMALL summary file of the # of
+if (PrintConnSummary==1) {printNumConFile()}	// Write "numcons.dat": a QUICK, SMALL summary file of the # of
 										//  connections by pre and post cell types
 /*										
 if (PrintConnDetails==2) {allCellConnsParallel()}		// Write "connections.dat": a VERY SLOW, LARGE file of all cell
@@ -367,19 +367,15 @@ objref mytrace, myvrec, cell
 cell = pc.gid2cell(gidOI)
 
 func dipole_lfp() { local vlfp
-	if ((cell.NumApical>0) && (cell.NumBasal>0)) {
-		vlfp = cell.apical[cell.NumApical-1].v(0.5) - cell.basal[0].v(0.5)  
-	} else {
-		vlfp = 0
-	}
-	return vlfp
+   vlfp = cell.apical[cell.NumApical-1].v(0.5) - cell.basal[0].v(0.5)  
+   return vlfp
 }
 
 objref lfplist, lfptracelist, vec
 lfplist = new List()
 lfptracelist = new List()
 
-lfp_dt = 0.1 // sampling interval for LFP
+lfp_dt = 0.5 // sampling interval for LFP
 
 objref mytraceidxlist, lfptracelist
 proc sample_lfp() { local i, avglfp, startgid, endgid, gid, celltype localobj vec, lst
@@ -407,11 +403,6 @@ fSyn.wopen()
 
 strdef cmdstr, tempFileStr
 objref newSecRef
-
-	strdef cmdstr
-	strdef mname, tmpstr
-	objref strobj, mt, cell
-	objref mechstring[9], mechlength
 
 
 if (pc.gid_exists(gidOI)) {
@@ -449,52 +440,6 @@ if (pc.gid_exists(gidOI)) {
 
 	fAll.close()
 	fSyn.close()
-
-
-	// Mechanisms
-	strdef nickname
-	nickname = "soma"
-
-	mechlength = new Vector(1)
-	strobj = new StringFunctions()
-	mt = new MechanismType(0)
-	objref mechstring[mt.count()]
-	k = 0
-	for i=0, mt.count()-1 {
-		mt.select( i )
-		mt.selected(mname)
-		if( ismembrane(mname)) {
-			if (strcmp(mname,"capacitance")!=0 && strcmp(mname,"morphology")!=0 && strcmp(mname,"iconc_Ca")!=0  && strcmp(mname,"iconcCa")!=0 && strcmp(mname,"ccanl")!=0 && strcmp(mname,"cad")!=0 && strcmp(mname,"pas")!=0 && strcmp(mname,"vmax")!=0 ) { //
-				if (strobj.substr(mname,"_ion")==-1) {
-					//printf("myi_%s \n", mname) 
-					sprint(tmpstr, "myi_%s", mname) // "cell.soma.%s(0.5)", tmpstr
-					mechstring[k] = new String()
-					mechstring[k].s = tmpstr
-					if (strcmp("myi_ch_Nav", mechstring[k].s)==0) {
-					print nickname, ": ", tmpstr}
-					{k = k+1}
-				} 
-			} 
-		}
-	}
-	{mechlength.x[0] = k}
-		if (strcmp("som", nickname)==0) {
-	print "num mechs: ", k}
-
-	for rt = 0, mechlength.x[0]-1 {
-		sprint(cmdstr, "{objref %s_%s}", nickname, mechstring[rt].s)
-		execute1(cmdstr)
-		sprint(cmdstr, "{%s_%s = new Vector(%g)}", nickname, mechstring[rt].s, (tstop-tstart)/dt)
-		execute1(cmdstr)
-		sprint(cmdstr, "{%s_%s.record(&%s.%s(0.5))}", nickname, mechstring[rt].s, cell.myroot, mechstring[rt].s)
-		execute1(cmdstr)
-		if (strcmp("myi_ch_Nav", mechstring[rt].s)==0) {
-		print "record: ", cmdstr}
-	}
-
-
-
-
 	
 	/*forsec cell.all {
 		insert extracellular
@@ -707,7 +652,7 @@ if (pc.id==0) {
 
 objref f4
 strdef cmd
-/*if (pc.id==0 && get_spike_hist==1) {
+if (pc.id==0 && get_spike_hist==1) {
 	sprint(cmd,"./results/%s/spkhist.dat", RunName)
 	f4 = new File(cmd)
 	f4.wopen()
@@ -717,7 +662,7 @@ strdef cmd
 		f4.printf("%d\t%d\n", i, spkhist.x[i])	// Print the spike time and spiking cell gid
 	}
 	f4.close()
-}*/
+}
 
 strdef outfile
 objref f
@@ -818,63 +763,6 @@ proc writeLFP() { localobj f, lfpvec, lfptrace
     f.close()
  }
 writeLFP()
-
-
-proc writeMechs() {
-	sprint(outfile,"./networkclamp_results/%s/%s/somamechs.dat", runname, resultsfolder)
-	{f = new File(outfile)}
-	{f.wopen()}
-	{f.printf("t\tv")} // write header
-		
-		mt = new MechanismType(0)
-		objref mechstring[mt.count()]
-		k = 0
-		for i=0, mt.count()-1 {
-			mt.select( i )
-			mt.selected(mname)
-			if( ismembrane(mname)) {
-				if (strcmp(mname,"capacitance")!=0 && strcmp(mname,"morphology")!=0 && strcmp(mname,"iconc_Ca")!=0  && strcmp(mname,"iconcCa")!=0 && strcmp(mname,"ccanl")!=0 && strcmp(mname,"cad")!=0 && strcmp(mname,"pas")!=0 ) { //
-					if (strobj.substr(mname,"_ion")==-1) {
-						//printf("myi_%s \n", mname) 
-						sprint(tmpstr, "myi_%s", mname) // "cell.soma.%s(0.5)", tmpstr
-						mechstring[k] = new String()
-						mechstring[k].s = tmpstr
-			if (strcmp("myi_ch_Nav", mechstring[k].s)==0) {
-						print nickname, ": ", tmpstr}
-						{k = k+1}
-					} 
-				} 
-			}
-		}
-		mechlength.x[0]=k
-		
-		
-		for rt = 0, mechlength.x[0]-1 {
-			sprint(cmdstr, "%s_%s", nickname, mechstring[rt].s)		
-		if (strcmp("myi_ch_Nav", mechstring[rt].s)==0) {
-			print "Nav nickname: ", nickname}
-		if (strcmp("som", nickname)==0) {
-			print "cmdstr: ", cmdstr, " declared: ", name_declared(cmdstr)		}
-			if (name_declared(cmdstr)>0) {
-				f.printf("\t%s", mechstring[rt].s)
-			}
-		}
-	{f.printf("\n")}
-
-	for i=0, (tstop-tstart)/dt-1 {
-		{f.printf("%g\t%g", i*dt, mytrace.x[i])}
-			for rt = 0, mechlength.x[0]-1 {
-				sprint(cmdstr, "%s_%s", nickname, mechstring[rt].s)				
-				if (name_declared(cmdstr)>0) {
-					sprint(cmdstr, "{f.printf(\"\\t%%g\", %s_%s.x[i])}", nickname, mechstring[rt].s)
-					execute1(cmdstr)
-				}
-			}
-		{f.printf("\n")}
-	}
-	{f.close()}	
-}
-writeMechs()
 
 {pc.barrier}
 {quit()}
