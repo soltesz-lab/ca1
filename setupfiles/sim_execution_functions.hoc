@@ -76,7 +76,7 @@ proc rrun(){									// Run the network simulation and write out the results
 	highIndexOut() 	// Write a file "MaxHighIndex.dat" how much of the random streams this run used, for a statistically independent run,
 					//  start the next run with random seeds that are greater than the maximum number reported in this file
 
-	if (ComputeLFP > 0) {	// Write out the LFP recordings to "lfp.dat" for the average LFP and lfp_gid.dat for each cell that was recorded
+	if ((ComputeDipoleLFP > 0) || (ComputeNpoleLFP > 0)) {	// Write out the LFP recordings to "lfp.dat" for the average LFP and lfp_gid.dat for each cell that was recorded
 		if (pc.id == 0) {
 			writeLFP()		// Average LFP
 		}
@@ -221,9 +221,16 @@ proc midbal() {local wt, thisstep
 //  set using the lfp_dt value defined within the
 //  ./setupfiles/dipole_lfp.hoc file.
 
-objref fih
-if (ComputeLFP > 0) {
+objref fih1, fih2
+if (ComputeDipoleLFP > 1) {
 	// execute sample_lfp() at t = 0,
 	// right after the mechanism INITIAL blocks have been executed
-	fih = new FInitializeHandler("sample_lfp()")
+	fih1 = new FInitializeHandler("sample_lfp()")
+    }
+    
+if (ComputeDipoleLFP > 1) {
+    // execute sample_lfp() at t = 0,
+    // right after the mechanism INITIAL blocks have been executed
+    fih2 = new FInitializeHandler("sample_npole_lfp()")
 }
+    

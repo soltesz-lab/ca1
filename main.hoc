@@ -416,7 +416,8 @@ if ((PrintConnDetails==0) && (PrintVoltage>0)) {recordedCellConnsParallel()}// I
 																			//  written out, at least write them out 
 																			//  for cells that are being traced
 
-{load_file("./setupfiles/dipole_lfp.hoc")}	// Defines the code to calculate the LFP
+{load_file("./setupfiles/dipole_lfp.hoc")}	// Defines the code to calculate the dipole LFP 
+{load_file("./setupfiles/npole_lfp.hoc")}	// Defines the code to calculate the n-pole LFP
 {load_file("./setupfiles/randomVinit.hoc")}	// Random voltage initialization
 
 connecttime = startsw() - connectstart			// Calculate time taken to connect the cells
