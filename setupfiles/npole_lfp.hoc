@@ -31,7 +31,7 @@ func arcsin () { local x
     return atan2(x, sqrt(1.0 - x*x))
 }
 
-func npole_pos_lfp() { local avgilfp, ilfp, celltype, pci, gid, i, j, ex, ey, ez, typei, MaxEDist localobj cell
+func npole_pos_lfp() { local avglfp, vlfp, celltype, pci, gid, i, j, ex, ey, ez, typei, MaxEDist localobj cell
  	// Calculate the average LFP of select pyramidal cells in the network,
 	//  only including pyramidal cells whose somata are within MaxEDist
 	//  microns of the (x,y,z) location passed into this function as
@@ -44,7 +44,7 @@ func npole_pos_lfp() { local avgilfp, ilfp, celltype, pci, gid, i, j, ex, ey, ez
         
         
 	sumcell = 0
-	ilfp = 0 // Initialize the LFP currents variable
+	vlfp = 0 // Initialize the LFP currents variable
         
         for celltype=0, numCellTypes-1 { // Iterate over all cell types
 	    if (strcmp(cellType[celltype].cellType_string, "pyramidalcell")==0) {	// Choosing pyramidal cells	
@@ -58,7 +58,7 @@ func npole_pos_lfp() { local avgilfp, ilfp, celltype, pci, gid, i, j, ex, ey, ez
                         j = 0
                         forsec cell.all { 
                             forall {
-			        ilfp = ilfp + (i_membrane(0.5) * lfpkmatrix.x[i][j])
+			        vlfp = vlfp + (i_membrane(0.5) * lfpkmatrix.x[i][j])
                                 j = j + 1
                             }
                         }
@@ -70,9 +70,9 @@ func npole_pos_lfp() { local avgilfp, ilfp, celltype, pci, gid, i, j, ex, ey, ez
 	// Ensure all processors have completed their calculation before proceeding.
 	pc.barrier()
         
-        avgilfp = pc.allreduce(ilfp, 1)
+        avglfp = pc.allreduce(vlfp, 1)
         
-        return avgilfp
+        return avglfp
     }
     
 // Distance from a point to a line in 3D
