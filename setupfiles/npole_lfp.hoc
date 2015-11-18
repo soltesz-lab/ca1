@@ -21,7 +21,7 @@ of the LFP calculation may be lower than that of the simulation by
 setting lfp_dt in this file.
 ************************************************************/
 
-objref lfplist, lfpklist
+objref lfplist, lfpklist, lfpkmatrix
 lfplist = new List()
 lfpkmatrix = new Matrix()
 
@@ -117,8 +117,8 @@ proc linedist () { local x0, x1, x2, y0, y1, y2, z0, z1, z2, la, lb, lc, s, a, r
     // Longitudinal distance from point to starting point of line
     h = la * cos(abc)
     
-    dist.x[0] = r
-    dist.x[1] = h
+    res.x[0] = r
+    res.x[1] = h
 }
 
 
@@ -137,6 +137,7 @@ proc sample_npole_lfp() { local i, j, r, h, s, avglfp, gid, celltype, ex, ey, ez
     // lfpkmatrix.
     
     if (t == 0) {
+        printf ("entering npole_lfp\n")
         
         // Vector for storing longitudinal and perpendicular distances
         // between recording electrode and compartments
@@ -164,14 +165,18 @@ proc sample_npole_lfp() { local i, j, r, h, s, avglfp, gid, celltype, ex, ey, ez
                                 s = L + h
 			        lfpkmatrix.x[i][j] = (rho / (4 * PI * L)) * abs(log((sqrt(h*h + r*r) - h) / (sqrt(s*s + r*r) - s)))
                                 j = j + 1
+                                printf ("npole_lfp: i = %d j = %d r = %g h = %g\n", i, j, r, h)
                             }
                         }
 		    }
 		}
 	    }      
         }
-    }
+        
+        printf ("npole_lfp: lfpkmatrix.nrow = %d lfpkmatrix.ncol = %d\n", lfpkmatrix.nrow, lfpkmatrix.ncol)
 
+    }
+    
     
     // Execute this code regularly throughout the simulation
     //  to add datapoints to all the LFP recordings (average

@@ -37,7 +37,7 @@ proc rrun(){									// Run the network simulation and write out the results
 	local_minimum_delay = pc.set_maxstep(maxstepval)	// Set every machine's max step size to minimum delay of
 														//  all netcons created on pc using pc.gid_connect, but
 														//  not larger than 10
-												
+
 	stdinit()									// Call the init fcn (which is redefined in this code) and
 												//  then make other standard calls
 
@@ -80,6 +80,7 @@ proc rrun(){									// Run the network simulation and write out the results
 		if (pc.id == 0) {
 			writeLFP()		// Average LFP
 		}
+
 		writeLFPTraces()	// LFP traces per each cell
 	}
 		
@@ -222,15 +223,16 @@ proc midbal() {local wt, thisstep
 //  ./setupfiles/dipole_lfp.hoc file.
 
 objref fih1, fih2
-if (ComputeDipoleLFP > 1) {
+if (ComputeDipoleLFP >= 1) {
 	// execute sample_lfp() at t = 0,
 	// right after the mechanism INITIAL blocks have been executed
 	fih1 = new FInitializeHandler("sample_lfp()")
     }
     
-if (ComputeDipoleLFP > 1) {
+ /*
+if (ComputeNpoleLFP >= 1) {
     // execute sample_lfp() at t = 0,
     // right after the mechanism INITIAL blocks have been executed
     fih2 = new FInitializeHandler("sample_npole_lfp()")
 }
-    
+*/    
