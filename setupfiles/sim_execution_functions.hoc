@@ -229,10 +229,9 @@ if (ComputeDipoleLFP >= 1) {
 	fih1 = new FInitializeHandler("sample_lfp()")
     }
     
- /*
+
 if (ComputeNpoleLFP >= 1) {
     // execute sample_lfp() at t = 0,
     // right after the mechanism INITIAL blocks have been executed
     fih2 = new FInitializeHandler("sample_npole_lfp()")
 }
-*/    
