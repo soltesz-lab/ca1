@@ -158,6 +158,7 @@ proc sample_npole_lfp() { local i, j, r, h, s, avglfp, gid, celltype, ex, ey, ez
         }
         
         lfpkmatrix = new Matrix(i+1, j+1)
+        printf ("npole_lfp: lfpkmatrix.nrow = %d lfpkmatrix.ncol = %d\n", lfpkmatrix.nrow, lfpkmatrix.ncol)
         
         
         for celltype=0, numCellTypes-1 { // Iterate over all cell types
@@ -190,7 +191,6 @@ proc sample_npole_lfp() { local i, j, r, h, s, avglfp, gid, celltype, ex, ey, ez
 	    }      
         }
         
-        printf ("npole_lfp: lfpkmatrix.nrow = %d lfpkmatrix.ncol = %d\n", lfpkmatrix.nrow, lfpkmatrix.ncol)
 
     }
     
