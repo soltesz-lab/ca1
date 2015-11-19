@@ -54,7 +54,7 @@ func npole_pos_lfp() { local avglfp, vlfp, celltype, pci, gid, i, j, ex, ey, ez,
                         // Iterate over each compartment of the cell
                         j = 0
                         forsec cell.all { 
-			    vlfp = vlfp + (i_membrane(0.5) * lfpkmatrix.x[i][j])
+			    vlfp = vlfp + (i_membrane(0.5) * lfpkmatrix.x[typei][j])
                             j = j + 1
                         }
 		    }
@@ -141,7 +141,7 @@ proc sample_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, cell
         
         for celltype=0, numCellTypes-1 { // Iterate over all cell types
 	    if (strcmp(cellType[celltype].cellType_string, "pyramidalcell")==0) {	// Choosing pyramidal cells	
-                m = cellType[celltype].cellEndGid-cellType[celltype].cellStartGid
+                m = cellType[celltype].numThisHost
 		for pcitr(&i, &typei, &gid, cellType[celltype].cellStartGid, cellType[celltype].cellStartGid) {
 		    cell = pc.gid2cell(gid)
 		    
@@ -153,7 +153,7 @@ proc sample_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, cell
 	    }
         }
         
-        lfpkmatrix = new Matrix(m+1, n+1)
+        lfpkmatrix = new Matrix(m, n+1)
         printf ("npole_lfp: lfpkmatrix.nrow = %d lfpkmatrix.ncol = %d\n", lfpkmatrix.nrow, lfpkmatrix.ncol)
         
         
@@ -176,7 +176,7 @@ proc sample_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, cell
                             r = dists.x[0]
                             h = dists.x[1]
                             s = L + h
-                            printf ("npole_lfp: i = %d j = %d r = %g h = %g k = %g\n", i, j, r, h, k)
+                            printf ("npole_lfp: typei = %d i = %d j = %d r = %g h = %g k = %g\n", typei, i, j, r, h, k)
 			    lfpkmatrix.x[i][j] = (rho / (4 * PI * L)) * abs(log((sqrt(h*h + r*r) - h) / (sqrt(s*s + r*r) - s)))
                             j = j + 1
                         }
