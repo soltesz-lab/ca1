@@ -270,7 +270,7 @@ proc typeout() {local i, myline, rn, rank, gid, srcid localobj tgt, f, cell, f2c
 	f = new File(cmd)
 	if (pc.id == 0) { 				// Write header to file 1 time only
 		f.wopen()
-		f.printf("celltype\ttypeIndex\trangeStart\trangeEnd\n")
+		f.printf("celltype\ttechtype\ttypeIndex\trangeStart\trangeEnd\n")
 		for i=0, numCellTypes-1 {
 			f.printf("%s\t%s\t%d\t%d\t%d\n", cellType[i].cellType_string, cellType[i].technicalType, i, cellType[i].cellStartGid, cellType[i].cellEndGid)
 		}
@@ -318,7 +318,7 @@ proc printnow() {
 
 typeout()	// Call the function we defined in this file.
 
-{pc.barrier()}				// Wait for all processors to get to this point
+pc.barrier()				// Wait for all processors to get to this point
 							//  to ensure that the next command is not run
 							//  before processor 0 (which just did all the work)
 							//  is ready.
