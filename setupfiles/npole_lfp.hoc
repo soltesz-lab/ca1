@@ -18,14 +18,23 @@ of the LFP calculation may be lower than that of the simulation by
 setting lfp_dt in this file.
 ************************************************************/
 
-objref lfplist, lfpklist, lfpkmatrix
+objref lfplist, lfpklist, lfpkmatrix, r
 lfplist = new List()
 lfpkmatrix = new Matrix()
+rlfp = new Random()
+rlfp.uniform(0,1)
 
-func arcsin () { local x
+func arcsin () { local x, xx, result
     x = $1
+    xx = 1.0 - x*x
     
-    return atan2(x, sqrt(1.0 - x*x))
+    if (xx < 0) {
+       result = atan2(x, 0)
+    } else {
+       result = atan2(x, sqrt(xx))
+    }
+
+    return result
 }
 
 func npole_pos_lfp() { local avglfp, vlfp, celltype, pci, gid, i, j, ex, ey, ez, typei, MaxEDist localobj cell
@@ -39,13 +48,15 @@ func npole_pos_lfp() { local avglfp, vlfp, celltype, pci, gid, i, j, ex, ey, ez,
         ey = $3
         ez = $4
         
-        
 	sumcell = 0
 	vlfp = 0 // Initialize the LFP currents variable
         
         for celltype=0, numCellTypes-1 { // Iterate over all cell types
 	    if (strcmp(cellType[celltype].cellType_string, "pyramidalcell")==0) {	// Choosing pyramidal cells	
-                
+                                
+                m = cellType[celltype].numThisHost
+                if (m > 0) {
+
 		for pcitr(&i, &typei, &gid, cellType[celltype].cellStartGid, cellType[celltype].cellEndGid) {
 		    cell = pc.gid2cell(gid)
 		    
@@ -61,7 +72,8 @@ func npole_pos_lfp() { local avglfp, vlfp, celltype, pci, gid, i, j, ex, ey, ez,
 		}
 	    }      
         }
-        
+
+        }        
 	// Ensure all processors have completed their calculation before proceeding.
 	pc.barrier()
         
@@ -111,17 +123,16 @@ proc linedist () { local x0, x1, x2, y0, y1, y2, z0, z1, z2, la, lb, lc, s, a, r
     
     // Longitudinal distance from point to starting point of line
     h = la * cos(abc)
-    
+
     res.x[0] = r
     res.x[1] = h
 }
 
 
-proc sample_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, celltype, ex, ey, ez, MaxEDist localobj dists, vec, lst
+proc sample_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, celltype, ex, ey, ez localobj dists, vec, lst
     
-    rho = 333.0 // extracellular resistivity, [ohm]
-    
-    MaxEDist = 1000 // microns
+    rho = 333.0 // extracellular resistivity, [ohm cm]
+    fdst = 0.2 // percent of distant cells to include in the computation
     
     ex = mypoint.x[0]
     ey = mypoint.x[1]
@@ -133,7 +144,7 @@ proc sample_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, cell
     // lfpkmatrix.
     
     if (t == 0) {
-        printf ("entering npole_lfp\n")
+        printf ("host %d: entering sample_npole_lfp\n", pc.id)
         
         // Vector for storing longitudinal and perpendicular distances
         // between recording electrode and compartments
@@ -142,24 +153,19 @@ proc sample_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, cell
         for celltype=0, numCellTypes-1 { // Iterate over all cell types
 	    if (strcmp(cellType[celltype].cellType_string, "pyramidalcell")==0) {	// Choosing pyramidal cells	
                 m = cellType[celltype].numThisHost
-		for pcitr(&i, &typei, &gid, cellType[celltype].cellStartGid, cellType[celltype].cellStartGid) {
-		    cell = pc.gid2cell(gid)
-		    
-                    n = 0
-                    forsec cell.all { 
-                        n = n + 1
-                    }
-		}
+                
+                if (m > 0) {
+  	          lfpkmatrix = new Matrix(m,
+		  printf ("host %d: npole_lfp: lfpkmatrix.nrow = %d lfpkmatrix.ncol = %d\n", pc.id, lfpkmatrix.nrow, lfpkmatrix.ncol)
+                }
+                break
 	    }
         }
         
-        lfpkmatrix = new Matrix(m, n+1)
-        printf ("npole_lfp: lfpkmatrix.nrow = %d lfpkmatrix.ncol = %d\n", lfpkmatrix.nrow, lfpkmatrix.ncol)
-        
-        
         for celltype=0, numCellTypes-1 { // Iterate over all cell types
 	    if (strcmp(cellType[celltype].cellType_string, "pyramidalcell")==0) {	// Choosing pyramidal cells	
-                
+                m = cellType[celltype].numThisHost
+                if (m > 0) {
 		for pcitr(&i, &typei, &gid, cellType[celltype].cellStartGid, cellType[celltype].cellEndGid) {
 		    cell = pc.gid2cell(gid)
 		    
@@ -167,6 +173,8 @@ proc sample_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, cell
 		    if (sqrt((cell.x-ex)*(cell.x-ex) + (cell.y-ey)*(cell.y-ey) + (cell.z-ez)*(cell.z-ez))<MaxEDist) {
                         // Iterate over each compartment of the cell
                         j = 0
+                        printf ("host %d: npole_lfp (2): gid = %d\n", pc.id, gid)
+		        printf ("host %d: npole_lfp (2): lfpkmatrix.nrow = %d lfpkmatrix.ncol = %d\n", pc.id, lfpkmatrix.nrow, lfpkmatrix.ncol)
                         forsec cell.all { 
                             // L is compartment length 
                             // r is the perpendicular distance from the electrode to a line through the compartment
@@ -176,16 +184,21 @@ proc sample_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, cell
                             r = dists.x[0]
                             h = dists.x[1]
                             s = L + h
-                            printf ("npole_lfp: typei = %d i = %d j = %d r = %g h = %g k = %g\n", typei, i, j, r, h, k)
-			    lfpkmatrix.x[i][j] = (rho / (4 * PI * L)) * abs(log((sqrt(h*h + r*r) - h) / (sqrt(s*s + r*r) - s)))
+                            k = 0.0001 * area(0.5) * (rho / (4 * PI * L)) * abs(log((sqrt(h*h + r*r) - h) / (sqrt(s*s + r*r) - s)))
+                            printf ("host %d: npole_lfp: typei = %d i = %d j = %d r = %g h = %g k = %g\n", pc.id, typei, i, j, r, h, k)
+ 			    lfpkmatrix.x[i][j] = k
                             j = j + 1
                         }
+		    } else if (rlfp.repick() < fdst) { 
+		      
+                        
+
 		    }
 		}
 	    }      
         }
-        
-
+          
+      }
     }
     
     
