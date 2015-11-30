@@ -32,8 +32,8 @@ func arcsin () { local x, xx, result
     x = $1
     xx = 1.0 - x*x
     
-    if (xx < 0) {
-       result = atan2(x, 0)
+    if (xx < 0.0) {
+       result = atan2(x, 0.0)
     } else {
        result = atan2(x, sqrt(xx))
     }
@@ -126,10 +126,10 @@ proc linedist () { local x0, x1, x2, y0, y1, y2, z0, z1, z2, la, lb, lc, s, a, r
 }
 
 
-proc sample_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, celltype, ex, ey, ez, lfptype localobj cell, dists, vec, lst
+proc sample_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, celltype, ex, ey, ez, lfptype localobj cell, dists, vec, lst strdef ks
     
     rho = 333.0 // extracellular resistivity, [ohm cm]
-    fdst = 0.2 // percent of distant cells to include in the computation
+    fdst = 0.1 // percent of distant cells to include in the computation
     
     ex = mypoint.x[0]
     ey = mypoint.x[1]
@@ -202,12 +202,17 @@ proc sample_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, cell
                 h = dists.x[1]
                 s = L + h
                 k = 0.0001 * area(0.5) * (rho / (4 * PI * L)) * abs(log((sqrt(h*h + r*r) - h) / (sqrt(s*s + r*r) - s)))
+                sprint(ks,"%g",k)
+                if ((strcmp(ks,"nan") == 0) || (strcmp(ks,"-nan") == 0)) {
+                   k = 0
+                }
                 // Distal cell
                 if (lfp_types.x[i] == 2) {
  		    k = (1.0/fdst)*k
                 } 
                 printf ("host %d: npole_lfp: gid = %d i = %d j = %d r = %g h = %g k = %g\n", pc.id, gid, i, j, r, h, k)
  		lfpkmatrix.x[i][j] = k
+
                 j = j + 1
             }
 	}
