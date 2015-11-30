@@ -62,8 +62,12 @@ func npole_pos_lfp() { local avglfp, vlfp, celltype, pci, gid, i, j, ex, ey, ez,
 	    
             j = 0
             forsec cell.all { 
-		vlfp = vlfp + (i_membrane(0.5) * lfpkmatrix.x[i][j])
-                j = j + 1
+                if (ismembrane("extracellular")) {
+		    for (x,0) { 
+                        vlfp = vlfp + (i_membrane(x) * lfpkmatrix.x[i][j])
+                    }
+                    j = j + 1
+                }
             }
 	}
 
@@ -165,7 +169,9 @@ proc sample_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, cell
                         m = m+1
                         if (n == 0) {
                             forsec cell.all { 
-                                n = n + 1
+                                if (ismembrane("extracellular")) {
+                                    n = n + 1
+                                }
                             }
                         }
                     }
