@@ -63,9 +63,7 @@ func npole_pos_lfp() { local avglfp, vlfp, celltype, pci, gid, i, j, ex, ey, ez,
             j = 0
             forsec cell.all { 
                 if (ismembrane("extracellular")) {
-		    for (x,0) { 
-                        vlfp = vlfp + (i_membrane(x) * lfpkmatrix.x[i][j])
-                    }
+                    vlfp = vlfp + (i_membrane(0.5) * lfpkmatrix.x[i][j])
                     j = j + 1
                 }
             }
@@ -193,27 +191,29 @@ proc sample_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, cell
             // Iterates over each compartment of the cell
             j = 0
             forsec cell.all { 
-                // L is compartment length 
-                // r is the perpendicular distance from the electrode to a line through the compartment
-                // h is longitudinal distance along this line from the electrode to one end of the compartment
-                // s = l + h is longitudinal distance to the other end of the compartment
-                linedist (dists,ex,ey,ez,x3d(0),y3d(0),z3d(0),x3d(n3d()-1),y3d(n3d()-1),z3d(n3d()-1))
-                r = dists.x[0]
-                h = dists.x[1]
-                s = L + h
-                k = 0.0001 * area(0.5) * (rho / (4 * PI * L)) * abs(log((sqrt(h*h + r*r) - h) / (sqrt(s*s + r*r) - s)))
-                sprint(ks,"%g",k)
-                if ((strcmp(ks,"nan") == 0) || (strcmp(ks,"-nan") == 0)) {
-                   k = 0
+                if (ismembrane("extracellular")) {
+                    // L is compartment length 
+                    // r is the perpendicular distance from the electrode to a line through the compartment
+                    // h is longitudinal distance along this line from the electrode to one end of the compartment
+                    // s = l + h is longitudinal distance to the other end of the compartment
+                    linedist (dists,ex,ey,ez,x3d(0),y3d(0),z3d(0),x3d(n3d()-1),y3d(n3d()-1),z3d(n3d()-1))
+                    r = dists.x[0]
+                    h = dists.x[1]
+                    s = L + h
+                    k = 0.0001 * area(0.5) * (rho / (4 * PI * L)) * abs(log((sqrt(h*h + r*r) - h) / (sqrt(s*s + r*r) - s)))
+                    sprint(ks,"%g",k)
+                    if ((strcmp(ks,"nan") == 0) || (strcmp(ks,"-nan") == 0)) {
+                        k = 0
+                    }
+                    // Distal cell
+                    if (lfp_types.x[i] == 2) {
+ 		        k = (1.0/fdst)*k
+                    } 
+                    printf ("host %d: npole_lfp: gid = %d i = %d j = %d r = %g h = %g k = %g\n", pc.id, gid, i, j, r, h, k)
+ 		    lfpkmatrix.x[i][j] = k
+                    
+                    j = j + 1
                 }
-                // Distal cell
-                if (lfp_types.x[i] == 2) {
- 		    k = (1.0/fdst)*k
-                } 
-                printf ("host %d: npole_lfp: gid = %d i = %d j = %d r = %g h = %g k = %g\n", pc.id, gid, i, j, r, h, k)
- 		lfpkmatrix.x[i][j] = k
-
-                j = j + 1
             }
 	}
     }
