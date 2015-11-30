@@ -671,7 +671,6 @@ proc insert_mechs() {
         if (ismembrane("ch_Navaxonp") || ismembrane("ch_Navp")) {ena=enaval}
         if (ismembrane("ch_Kdrp") || ismembrane("ch_KvAproxp") || ismembrane("ch_KvAdistp")) {ek=ekval}
         if (ismembrane("ch_HCNp") ) {e_ch_HCNp=eHCNval}
-        insert extracellular
 	}
 }
 
