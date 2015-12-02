@@ -14,7 +14,7 @@ change very infrequently, or that depend on the parameter values
 set in the parameters.hoc file.
 ************************************************************/
 
-objref LayerVector, strobj
+objref LayerVector, strobj, mypoint
 strdef cmdstr, layers, tmpstr, path2ConnData, path2SynData
 
 proc SetOtherParameters() {local ind, i, layernum, tempheight
@@ -72,8 +72,21 @@ proc SetOtherParameters() {local ind, i, layernum, tempheight
 
 	steps_per_ms = 1*N/(dt)		// Controls the intervals at which points are plotted
 	
-	celsius = 34					// The temperature at which to run the simulation (affects
+	celsius = 34				// The temperature at which to run the simulation (affects
 								//  some ion channel calculations)
+	
+	strdef xposstr, yposstr, zposstr		// Extract the X, Y, Z location values for the LFP electrode
+	mypoint = new Vector(3)		//  from the ElectrodePoint string into the mypoint vector
+
+	strobj.head(ElectrodePoint,";",xposstr)
+	sscanf(xposstr,"%g", &mypoint.x[0])
+	
+	strobj.tail(ElectrodePoint,";",yposstr)
+	strobj.head(yposstr,";",yposstr)
+	sscanf(yposstr,"%g", &mypoint.x[1])
+	
+	strobj.tail(ElectrodePoint,";[0-9]+;",zposstr)
+	sscanf(zposstr,"%g", &mypoint.x[2])
 															
 	OK2executeSysCmds = 1 	// If you don't like the NEURON code to make new directories, concatenate files,
 							//  or delete files, set this parameter to 0. Watch out though, if this is set to
