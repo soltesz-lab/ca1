@@ -12,6 +12,7 @@
 : Gate is on for "number" modulation cycles
 
 COMMENT
+Supplied (written?) by Ted Carnevale
 This mechanism can be combined with a NetStim that has noise=1 
 to implement a non-homogeneous Poisson process.
 Quoting from http://en.wikipedia.org/wiki/Non-homogeneous_Poisson_process

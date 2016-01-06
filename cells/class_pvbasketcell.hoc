@@ -5,6 +5,7 @@ public  pre_list, connect_pre, is_art, is_connected, gid, randi
 public soma, dend
 public all, basal_list, apical_list, soma_list, axon_list, dendrite_list
 public x, y, z, position, myroot, Vrest
+public NumSoma, NumApical, NumBasal, NumAxon
 
 // strings
 strdef myroot
@@ -15,7 +16,12 @@ objref syn, pre_list, templist, rootlist, this
 // external variables
 external numCellTypes, cellType
 
-create soma[1], dend[16]
+// create the sections[segments]
+NumSoma=1
+NumApical=16
+NumBasal=0
+NumAxon=0
+create soma[NumSoma], dend[NumApical]
 
 
 proc init() {

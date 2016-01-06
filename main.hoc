@@ -341,12 +341,6 @@ zzz = mallinfo(zzz, "After creating cells") // Record the memory usage after cel
 //  pyramidal cells from which the average LFP is recorded to a specific
 //  location, etc.
 
-objref mypoint
-mypoint = new Vector(3)
-mypoint.x[0]=200 	// x location in microns
-mypoint.x[1]=500 	// y location in microns
-mypoint.x[2]=10 	// z location in microns
-
 zzz = mallinfo(zzz, "After creating cells")
 
 /***********************************************************************************************
@@ -415,7 +409,8 @@ if (PrintVoltage>0) {load_file("./setupfiles/recordvoltageauto.hoc")}	// This fi
 if ((PrintConnDetails==0) && (PrintVoltage>0)) {recordedCellConnsParallel()}// If detailed connections are not being
 																			//  written out, at least write them out 
 																			//  for cells that are being traced
-{load_file("./setupfiles/dipole_lfp.hoc")}	// Defines the code to calculate the LFP
+																			
+{load_file("./setupfiles/dipole_lfp.hoc")}	// Defines the code to calculate the dipole LFP
 {load_file("./setupfiles/npole_lfp.hoc")}	// Defines the code to calculate the n-pole LFP
 {load_file("./setupfiles/randomVinit.hoc")}	// Random voltage initialization
 

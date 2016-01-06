@@ -92,34 +92,8 @@ extern double get_z_pos(double gid, double gmin, double BinNumZ, double binSizeZ
 ENDVERBATIM
 
 VERBATIM
-/*
-static double get_x_pos (int gid, int gmin, int BinNumX, int BinNumYZ, int binSizeX) {
-	double pos;
-	int CellNum, tmp;
-	CellNum=gid - gmin+1;
-	tmp = floor((CellNum-1)/BinNumYZ);
-	pos =  (tmp%BinNumX)*binSizeX+binSizeX/2.0;
-	return pos;
-}
 
-static double get_y_pos (int gid, int gmin, int BinNumY, int BinNumZ, int binSizeY) {
-	double pos;
-	int CellNum, tmp;
-	CellNum=gid - gmin+1;
-	tmp = floor((CellNum-1)/BinNumZ);
-	pos =  (tmp%BinNumY)*binSizeY+binSizeY/2.0;
-	return pos;
-}
-
-static double get_z_pos (int gid, int gmin, int BinNumZ, int binSizeZ, int ZHeight) {
-	double pos;
-	int CellNum;
-	CellNum=gid - gmin+1;
-	pos = ((CellNum-1)%BinNumZ)*binSizeZ+binSizeZ/2+ZHeight;
-	return pos;
-}
-*/
-static int fastconn (void* vv) {
+static  double fastconn (void* vv) {
   int finalconn, ny, nz, nhigh, num_pre, num_post, gmin, gmax, steps, myflaggy, myi, postgmin, stepover;
   double *x, *y, *z, *high, a, b, c, nconv, ncell, axonal_extent;
 
@@ -176,9 +150,6 @@ static int fastconn (void* vv) {
 	//    index value that is calculated using row and column index values and 
 	//    the column dimension
 
-	
-	//double prepos [num_pre][3];
-	//double postpos [num_post][3];
 	int cell;
 
 	for (cell=0; cell<num_pre; cell++) {
