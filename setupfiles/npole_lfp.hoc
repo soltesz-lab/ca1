@@ -228,6 +228,11 @@ proc setup_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, cellt
 
 proc sample_npole_lfp() { local avglfp, ex, ey, ez, lfptype localobj vec 
     
+    
+    ex = mypoint.x[0]
+    ey = mypoint.x[1]
+    ez = mypoint.x[2]
+    
     // At t=0, calculate distances from recording electrode to all
     // compartments of all pyramidal cells, calculate scaling
     // coefficients for the LFP calculation, and save them in
