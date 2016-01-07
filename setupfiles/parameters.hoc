@@ -54,3 +54,4 @@ default_var("RandomSynWgt",0)		// Randomize synaptic weight
 default_var("synVar",0.03)		// Synaptic weight variability
 default_var("MaxEDist",1000)		// The maximum distance in microns away from an electrode point that LFP contributions from cells should be included
 default_var("ElectrodePoint","200;100;120")		// X,Y,Z coordinates of LFP recording electrode, in microns, separated by semicolon
+default_var("NumTracesPyr",3000)		// The maximum number of pyramidal cells to record intracellularly
