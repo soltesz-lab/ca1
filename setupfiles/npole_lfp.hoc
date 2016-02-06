@@ -112,7 +112,7 @@ proc interpxyz() { local ii, nn, kk, xr, nsegs localobj xx, yy, zz, xint, yint, 
 }
 
 
-proc setup_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, celltype, ex, ey, ez, sx, sy, sz, lfptype, ii, nn localobj myr, cell, dists, lst, xx, yy, zz, ll, xint, yint, zint strdef ks
+proc setup_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, celltype, ex, ey, ez, sx, sy, sz, lfptype, ii, nn localobj myr, cell, dists, lst, xx, yy, zz, ll, xint, yint, zint strdef ks, s1, s2
     
     rho = 333.0 // extracellular resistivity, [ohm cm]
     fdst = 0.1 // percent of distant cells to include in the computation
@@ -129,106 +129,108 @@ proc setup_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, cellt
     
     // This loop determines which cells will be used for the LFP computation and the sizes of their compartments
     for celltype=0, numCellTypes-1 { // Iterate over all cell types	
-		sprint(s1,";%s;",LFPCellTypes)
-		sprint(s2,";%s;",cellType[celltype].cellType_string)
-		
-		if (strobj.substr(s1, s2)>-1) {
-		//if (strcmp(cellType[celltype].cellType_string, "pyramidalcell")==0) {	// Choosing pyramidal cells	
-			m = 0
-			n = 0
-			for pcitr(&i, &typei, &gid, cellType[celltype].cellStartGid, cellType[celltype].cellEndGid) {
-				cell = pc.gid2cell(gid)
-				// Relative to the recording electrode position
-				if (sqrt((cell.x-ex)*(cell.x-ex) + (cell.y-ey)*(cell.y-ey) + (cell.z-ez)*(cell.z-ez))<MaxEDist) {
-					lfptype = 1 // proximal cell
-				} else {
-					myr = ranlfplist.object(i).r
-					myr.uniform(0, 1)
-					if (myr.repick() < fdst) {
-						lfptype = 2 // distal cell -- include only fdst fraction of total
-					} else {
-						lfptype = 0
-					}
-				}
-				if (lfptype > 0) {
-					lfp_ids[celltype].append(gid)
-					lfp_types[celltype].append(lfptype)
-					m = m+1
-					if (n == 0) {
-						forsec cell.all { 
-							insert extracellular
-							n = n + nseg
-						}
-					}
-				}			
-			}
-			if (m > 0) {
-				lfpkmatrix[celltype] = new Matrix(m+1,n+1)
-				//printf ("host %d: npole_lfp: lfpkmatrix.nrow = %d lfpkmatrix.ncol = %d\n", pc.id, lfpkmatrix.nrow, lfpkmatrix.ncol)
-			}
-			//break
+        
+	sprint(s1,";%s;",LFPCellTypes)
+	sprint(s2,";%s;",cellType[celltype].cellType_string)
+	
+	if (strobj.substr(s1, s2)>-1) {
+            
+	    m = 0
+	    n = 0
+	    for pcitr(&i, &typei, &gid, cellType[celltype].cellStartGid, cellType[celltype].cellEndGid) {
+		cell = pc.gid2cell(gid)
+		// Relative to the recording electrode position
+		if (sqrt((cell.x-ex)*(cell.x-ex) + (cell.y-ey)*(cell.y-ey) + (cell.z-ez)*(cell.z-ez))<MaxEDist) {
+		    lfptype = 1 // proximal cell
+		} else {
+		    myr = ranlfplist.object(i).r
+		    myr.uniform(0, 1)
+		    if (myr.repick() < fdst) {
+			lfptype = 2 // distal cell -- include only fdst fraction of total
+		    } else {
+			lfptype = 0
+		    }
 		}
-		
-		for i=0, lfp_ids[celltype].size()-1 { // Iterates over all cells chosen for the LFP computation. If none of that type, size == 0 and loop won't run
-			
-			gid = lfp_ids[celltype].x[i]
-			cell = pc.gid2cell(gid)
-		
-			// Iterates over each compartment of the cell
-			j = 0
+		if (lfptype > 0) {
+		    lfp_ids[celltype].append(gid)
+		    lfp_types[celltype].append(lfptype)
+		    m = m+1
+		    if (n == 0) {
 			forsec cell.all { 
-				if (ismembrane("extracellular")) {
-					nn = n3d()
-					
-			xx = new Vector(nn)
-			yy = new Vector(nn)
-			zz = new Vector(nn)
-					ll = new Vector(nn)
-					
-			for ii = 0,nn-1 {
-				xx.x[ii] = x3d(ii)
-				yy.x[ii] = y3d(ii)
-				zz.x[ii] = z3d(ii)
-						ll.x[ii] = arc3d(ii)
+			    insert extracellular
+			    n = n + nseg
 			}
-					
-					xint = new Vector(nseg+2)
-					yint = new Vector(nseg+2)
-					zint = new Vector(nseg+2)
-
-					interpxyz(nn,nseg,xx,yy,zz,ll,xint,yint,zint)
-					
-					j = 0
-					for (x,0) {
-						sx = xint.x[j]
-				sy = yint.x[j]
-				sz = zint.x[j]
-						
-						// l = L/nseg is compartment length 
-						// r is the perpendicular distance from the electrode to a line through the compartment
-						// h is longitudinal distance along this line from the electrode to one end of the compartment
-						// s = l + h is longitudinal distance to the other end of the compartment
-						l = L/nseg
-						r = sqrt((ex-sx)*(ex-sx) + (ey-sy)*(ey-sy) + (ez-sz)*(ez-sz))
-						h = l/2
-						s = l + h
-						k = 0.0001 * area(x) * (rho / (4 * PI * l)) * abs(log((sqrt(h*h + r*r) - h) / (sqrt(s*s + r*r) - s)))
-						sprint(ks,"%g",k)
-						if ((strcmp(ks,"nan") == 0) || (strcmp(ks,"-nan") == 0)) {
-							k = 0
-						}
-						// Distal cell
-						if (lfp_types[celltype].x[i] == 2) {
-					k = (1.0/fdst)*k
-						} 
-						//printf ("host %d: npole_lfp: gid = %d i = %d j = %d r = %g h = %g k = %g\n", pc.id, gid, i, j, r, h, k)
-				lfpkmatrix[celltype].x[i][j] = k
-						
-						j = j + 1
-					}
-				}
+		    }
+		}			
+	    }
+	    if (m > 0) {
+                
+		lfpkmatrix[celltype] = new Matrix(m+1,n+1)
+		//printf ("host %d: npole_lfp: lfpkmatrix.nrow = %d lfpkmatrix.ncol = %d\n", pc.id, lfpkmatrix.nrow, lfpkmatrix.ncol)
+	    }
+	}
+	
+	for i=0, lfp_ids[celltype].size()-1 { // Iterates over all cells chosen for the LFP computation. If none of that type, size == 0 and loop won't run
+	    
+	    gid = lfp_ids[celltype].x[i]
+	    cell = pc.gid2cell(gid)
+	    
+	    // Iterates over each compartment of the cell
+	    j = 0
+	    forsec cell.all { 
+		if (ismembrane("extracellular")) {
+		    nn = n3d()
+		    
+		    xx = new Vector(nn)
+		    yy = new Vector(nn)
+		    zz = new Vector(nn)
+		    ll = new Vector(nn)
+		    
+		    for ii = 0,nn-1 {
+			xx.x[ii] = x3d(ii)
+			yy.x[ii] = y3d(ii)
+			zz.x[ii] = z3d(ii)
+			ll.x[ii] = arc3d(ii)
+		    }
+		    
+		    xint = new Vector(nseg+2)
+		    yint = new Vector(nseg+2)
+		    zint = new Vector(nseg+2)
+                    
+		    interpxyz(nn,nseg,xx,yy,zz,ll,xint,yint,zint)
+		    
+		    j = 0
+		    for (x,0) {
+                        
+			sx = xint.x[j]
+			sy = yint.x[j]
+			sz = zint.x[j]
+			
+			// l = L/nseg is compartment length 
+			// r is the perpendicular distance from the electrode to a line through the compartment
+			// h is longitudinal distance along this line from the electrode to one end of the compartment
+			// s = l + h is longitudinal distance to the other end of the compartment
+			l = L/nseg
+			r = sqrt((ex-sx)*(ex-sx) + (ey-sy)*(ey-sy) + (ez-sz)*(ez-sz))
+			h = l/2
+			s = l + h
+			k = 0.0001 * area(x) * (rho / (4 * PI * l)) * abs(log((sqrt(h*h + r*r) - h) / (sqrt(s*s + r*r) - s)))
+			sprint(ks,"%g",k)
+			if ((strcmp(ks,"nan") == 0) || (strcmp(ks,"-nan") == 0)) {
+			    k = 0
 			}
+			// Distal cell
+			if (lfp_types[celltype].x[i] == 2) {
+			    k = (1.0/fdst)*k
+			} 
+			//printf ("host %d: npole_lfp: gid = %d i = %d j = %d r = %g h = %g k = %g\n", pc.id, gid, i, j, r, h, k)
+			lfpkmatrix[celltype].x[i][j] = k
+			
+			j = j + 1
+		    }
 		}
+	    }
+	}
     }  
 }
 
