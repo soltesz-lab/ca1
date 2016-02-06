@@ -121,8 +121,7 @@ proc setup_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, cellt
     ey = mypoint.x[1] //$2
     ez = mypoint.x[2] //$3
     
-    printf ("host %d: entering setup_npole_lfp\n", pc.id)
-	printf ("MaxEDist = %d\n", MaxEDist)
+    //printf ("host %d: entering setup_npole_lfp\n", pc.id)
     
     // Vector for storing longitudinal and perpendicular distances
     // between recording electrode and compartments
@@ -133,7 +132,6 @@ proc setup_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, cellt
 		sprint(s1,";%s;",LFPCellTypes)
 		sprint(s2,";%s;",cellType[celltype].cellType_string)
 		
-		print "does ", s1 , " contain ", s2 , "? answer = ", strobj.substr(s1, s2)
 		if (strobj.substr(s1, s2)>-1) {
 		//if (strcmp(cellType[celltype].cellType_string, "pyramidalcell")==0) {	// Choosing pyramidal cells	
 			m = 0
@@ -153,7 +151,6 @@ proc setup_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, cellt
 					}
 				}
 				if (lfptype > 0) {
-					printf ("host %d: sample_npole_lfp: adding %d at location (%.1f,%.1f,%.1f) close (%d) to (%d,%d,%d)\n", pc.id, gid, cell.x, cell.y, cell.z, lfptype, ex, ey, ez)
 					lfp_ids[celltype].append(gid)
 					lfp_types[celltype].append(lfptype)
 					m = m+1
