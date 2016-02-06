@@ -66,6 +66,11 @@ proc createCells(){ local i, ij, si, pci, cellind, runresult, gid	// Create cell
 				raninitlist.append(new RandomStream(1+RandomSeedsStim, gid + 3*ncell)) 	// Create a new random number generator for each cell, used to 
 																						//  set variable initial voltage
 																						
+				ranlfplist.append(new RandomStream(1+RandomSeedsStim, gid + 4*ncell)) 	// Create a new random number generator for each cell, used to 
+																						//  determine whether cell provides a small contribution to the
+																						//  LFP calculation for cells outside of the region surrounding
+																						//  the electrode point (see npole_lfp.hoc for more details).
+																						
 				cellType[cellind].CellList[ij].connect_pre(nil, nc)	// Create an empty connection for use by the spike detector
 				pc.cell(gid, nc)									// Associate the cell with its gid and its spike generation location
 				

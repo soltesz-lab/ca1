@@ -296,7 +296,7 @@ createstart = startsw()					// Record the start time of the cell creation phase
 /***********************************************************************************************
 IV. CREATE, UNIQUELY ID, AND POSITION CELLS
 ***********************************************************************************************/
-objref cells, ransynlist, ranstimlist, raninitlist, ranwgtlist
+objref cells, ransynlist, ranstimlist, raninitlist, ranwgtlist, ranlfplist
 cells = new List()			// a list that will contain an entry for each cell in the network						
 ransynlist = new List()		// a list that will contain an entry for each random number generator
 							//  used by the synapse chooser (during the connectivity part of the 
@@ -317,6 +317,12 @@ raninitlist = new List()	// a list that will contain an entry for each random nu
 							//  used by the voltage initializer (when designing the simulation)
 							//  each cell will have its own random number generator that will be
 							//  called once per point per section within the cell
+							
+ranlfplist = new List()	// a list that will contain an entry for each random number generator
+							//  used by the LFP sampling algorithm (when designing the simulation)
+							//  if the cell type's contribution is included in the LFP calculation
+							//  and the cell is further away from the electrode point than MaxEDist
+							//  (see npole_lfp.hoc for more detail)
 													
 {load_file("./setupfiles/create_cells_pos.hoc")}	// Creates each cell on its assigned host
 													//  and sets its position

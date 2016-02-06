@@ -56,3 +56,4 @@ default_var("synVar",.03)		// Fraction of the mean synapse weight that should be
 default_var("ElectrodePoint","200;100;120")		// X,Y,Z coordinates of LFP recording electrode, in microns, separated by semicolon
 default_var("ComputeNpoleLFP",1)		// Compute the LFP using all or a fraction of compartments from nearby pyramidal cells
 default_var("ComputeDipoleLFP",0)		// Compute the LFP using two compartments (dipole) of nearby pyramidal cells
+default_var("LFPCellTypes","pyramidalcell")		// semicolon separated list of cell types to record LFP from (give full name of celltype) -- ONLY WORKS FOR NPOLE!
