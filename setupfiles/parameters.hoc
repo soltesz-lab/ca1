@@ -46,14 +46,13 @@ default_var("primetime",10)		// How many ms ahead of the ripple stim the prepuls
 default_var("Jitter",.2)		// Fraction of noise associated with jitterburst stimulation.
 default_var("myConDelay",1.2)		// Axonal conduction delay
 default_var("TopProc","")		// NEURON process name in the top command
-default_var("RandomVinit",0)		// Positive value indicates that initial voltages should be randomized
-default_var("PhasicData",100)		// Which phasic dataset to use for oscillation/phasic stimulation
-default_var("NumTracesPyr",3000)		// The maximum number of pyramidal cells to record intracellularly
+default_var("RandomVinit",0)		// Initialize V randomly
+default_var("lfp_dt",0.1)		// LFP sampling time step
+default_var("ComputeDipoleLFP",0)		// Use dipole LFP method
+default_var("ComputeNpoleLFP",0)		// Use n-pole LFP method
+default_var("RandomSynWgt",0)		// Randomize synaptic weight
+default_var("synVar",0.03)		// Synaptic weight variability
 default_var("MaxEDist",1000)		// The maximum distance in microns away from an electrode point that LFP contributions from cells should be included
-default_var("lfp_dt",.5)		// The time step for recording the LFP trace
-default_var("RandomSynWgt",0)		// >0 indicates that synapse weights should vary with the specified weight as the mean. 1: a normal distribution, 2: a lognormal distribution, 3: a uniform distribution
-default_var("synVar",.03)		// Fraction of the mean synapse weight that should be set as the standard deviation in the normal distribution of synapse weights for randomized synapse weights
 default_var("ElectrodePoint","200;100;120")		// X,Y,Z coordinates of LFP recording electrode, in microns, separated by semicolon
-default_var("ComputeNpoleLFP",1)		// Compute the LFP using all or a fraction of compartments from nearby pyramidal cells
-default_var("ComputeDipoleLFP",0)		// Compute the LFP using two compartments (dipole) of nearby pyramidal cells
-default_var("LFPCellTypes","pyramidalcell")		// semicolon separated list of cell types to record LFP from (give full name of celltype) -- ONLY WORKS FOR NPOLE!
+default_var("NumTracesPyr",3000)		// The maximum number of pyramidal cells to record intracellularly
+default_var("LFPCellTypes","pyramidalcell")		// semicolon separated list of cell types to record LFP from (give full name of celltype) -- ONLY WORK
