@@ -296,7 +296,7 @@ createstart = startsw()					// Record the start time of the cell creation phase
 /***********************************************************************************************
 IV. CREATE, UNIQUELY ID, AND POSITION CELLS
 ***********************************************************************************************/
-objref cells, ransynlist, ranstimlist, raninitlist, ranwgtlist, ranlfplist
+objref cells, ransynlist, ranstimlist, raninitlist, ranwgtlist, ranlfplist, ranswrlst
 cells = new List()			// a list that will contain an entry for each cell in the network						
 ransynlist = new List()		// a list that will contain an entry for each random number generator
 							//  used by the synapse chooser (during the connectivity part of the 
@@ -323,6 +323,10 @@ ranlfplist = new List()	// a list that will contain an entry for each random num
 							//  if the cell type's contribution is included in the LFP calculation
 							//  and the cell is further away from the electrode point than MaxEDist
 							//  (see npole_lfp.hoc for more detail)
+                                                        
+ranswrlist = new List()	// a list that will contain an entry for each random number generator
+			//  used by the ripple stimulus to determine a Gaussian distribution of onset times
+			//  (see stimulation/ripple_stimulation.hoc for more detail)
 													
 {load_file("./setupfiles/create_cells_pos.hoc")}	// Creates each cell on its assigned host
 													//  and sets its position

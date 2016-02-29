@@ -36,31 +36,32 @@ proc ripcellStims() { local i, wgt, reli, typei, jgid, celltype, counter, jstart
 ripcellStims()
 
 
-proc ripcellOn() {local reli, typei, jgid localobj cell
+proc ripcellOn() {local reli, typei, jgid localobj cell, myrng
 
-    // connect oncells to ca3 'ripple' cells
     for pcitr(&reli, &typei, &jgid, cellType[oncell_idx].cellStartGid, cellType[oncell_idx].cellEndGid) {
         
         if (pc.gid_exists(jgid)) {
             
-            cell = pc.gid2cell(jgid) // ca3ripcell
+	    myrng = ranswrlist.object(i).r
+	    myrng.normal(Onint, 10)
+            
+            cell = pc.gid2cell(jgid) // oncell
             
             cell.number = 1e9
-            cell.start = Onint
-            cell.interval = Offint
+            cell.start = myrng.repick()
+            cell.interval = cell.start + Offint
             cell.noise = 0
 	}
     }
         
-    // connect oncells to ca3 'ripple' cells
     for pcitr(&reli, &typei, &jgid, cellType[ca3rip_idx].cellStartGid, cellType[ca3rip_idx].cellEndGid) {
         
         if (pc.gid_exists(jgid)) {
             
             cell = pc.gid2cell(jgid) // ca3ripcell
 			
-            cell.number = 5
-            cell.interval = 7
+            cell.number = 1
+            cell.interval = 1000/RipStim
             cell.start = -1
             cell.noise = 0
 	}
