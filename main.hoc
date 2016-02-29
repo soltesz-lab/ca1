@@ -296,7 +296,7 @@ createstart = startsw()					// Record the start time of the cell creation phase
 /***********************************************************************************************
 IV. CREATE, UNIQUELY ID, AND POSITION CELLS
 ***********************************************************************************************/
-objref cells, ransynlist, ranstimlist, raninitlist, ranwgtlist, ranlfplist, ranswrlst
+objref cells, ransynlist, ranstimlist, raninitlist, ranwgtlist, ranlfplist, ranswrlist
 cells = new List()			// a list that will contain an entry for each cell in the network						
 ransynlist = new List()		// a list that will contain an entry for each random number generator
 							//  used by the synapse chooser (during the connectivity part of the 
