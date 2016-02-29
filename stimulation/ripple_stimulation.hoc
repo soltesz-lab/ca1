@@ -22,8 +22,7 @@ proc ripcellStims() { local i, wgt, reli, typei, jgid, celltype, counter, jstart
         if (pc.gid_exists(jgid)) {
             
             cell = pc.gid2cell(jgid) // ca3ripcell
-            printf("reli = %d typei = %d\n", reli, typei)
-            nc_appendstim(cellType[oncell_idx].cellStartGid+reli, cell, 1.0, 3.0) // 3ms delay
+            nc_appendstim(cellType[oncell_idx].cellStartGid+typei, cell, 1.0, 3.0) // 3ms delay
 	    cellType[oncell_idx].numCons.x[ca3rip_idx] +=1
 	}
         
