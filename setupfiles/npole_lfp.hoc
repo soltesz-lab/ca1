@@ -25,11 +25,11 @@ objref lfplist, lfp_ids[numCellTypes], lfp_types[numCellTypes], lfpkmatrix[numCe
 
 lfplist    = new List()
 
-for celltype=0, numCellTypes-1 {
-	lfpkmatrix[celltype] = new Matrix()
-	lfp_ids[celltype]    = new Vector()
-	lfp_types[celltype]  = new Vector()
-}
+//for celltype=0, numCellTypes-1 {
+//	lfpkmatrix[celltype] = new Matrix()
+//	lfp_ids[celltype]    = new Vector()
+//	lfp_types[celltype]  = new Vector()
+//}
 
 func npole_pos_lfp() { local avglfp, vlfp, celltype, pci, gid, i, j, ex, ey, ez, typei, MaxEDist localobj cell
  	// Calculate the average LFP of select pyramidal cells in the network,
@@ -129,6 +129,9 @@ proc setup_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, cellt
     
     // This loop determines which cells will be used for the LFP computation and the sizes of their compartments
     for celltype=0, numCellTypes-1 { // Iterate over all cell types	
+
+	lfp_ids[celltype]    = new Vector()
+	lfp_types[celltype]  = new Vector()
         
 	sprint(s1,";%s;",LFPCellTypes)
 	sprint(s2,";%s;",cellType[celltype].cellType_string)
@@ -137,6 +140,9 @@ proc setup_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, cellt
             
 	    m = 0
 	    n = 0
+
+	    //printf ("host %d: npole_lfp: m = %d lfp_ids[%d].size = %d\n", pc.id, m, celltype, lfp_ids[celltype].size())
+
 	    for pcitr(&i, &typei, &gid, cellType[celltype].cellStartGid, cellType[celltype].cellEndGid) {
 		cell = pc.gid2cell(gid)
 		// Relative to the recording electrode position
@@ -165,11 +171,13 @@ proc setup_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, cellt
 	    }
 	    if (m > 0) {
                 
-		lfpkmatrix[celltype] = new Matrix(m+1,n+1)
-		//printf ("host %d: npole_lfp: lfpkmatrix.nrow = %d lfpkmatrix.ncol = %d\n", pc.id, lfpkmatrix.nrow, lfpkmatrix.ncol)
+		lfpkmatrix[celltype] = new Matrix(m,n)
+
+		//printf ("host %d: npole_lfp: m = %d lfpkmatrix[%d].nrow = %d lfpkmatrix[%d].ncol = %d lfp_ids[%d].size = %d\n", pc.id, m, celltype, lfpkmatrix[celltype].nrow, celltype, lfpkmatrix[celltype].ncol, celltype, lfp_ids[celltype].size())
 	    }
 	}
-	
+
+
 	for i=0, lfp_ids[celltype].size()-1 { // Iterates over all cells chosen for the LFP computation. If none of that type, size == 0 and loop won't run
 	    
 	    gid = lfp_ids[celltype].x[i]
@@ -228,10 +236,11 @@ proc setup_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, gid, cellt
 			
 			j = j + 1
 		    }
+
 		}
 	    }
 	}
-    }  
+    }
 }
 
 
@@ -257,7 +266,8 @@ proc sample_npole_lfp() { local avglfp, lfptype localobj vec
     //  and per-cell).
     
     // Compute LFP across a subset of cells within a certain distance from the recording electrode:
-    avglfp = npole_pos_lfp(MaxEDist) // x, y, z position of electrode in microns
+
+   avglfp = npole_pos_lfp(MaxEDist) // x, y, z position of electrode in microns
     
     if (pc.id == 0) {
         
@@ -267,7 +277,6 @@ proc sample_npole_lfp() { local avglfp, lfptype localobj vec
         // Append the vector for this time step to the list
 	lfplist.append(vec.c)			
     }
-    
     
     // Add another event to the event queue, to 
     // execute sample_npole_lfp again, lfp_dt ms from now
