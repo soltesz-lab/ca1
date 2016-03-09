@@ -28,6 +28,7 @@ default_var("FracTraces",100)		// The percent of cells to record intracellularly
 default_var("DegreeStim",10)		// Degree of stimulation; meaning depends on Stimulation type
 default_var("Onint",125)		// Duration of burst (in ms) when burst stimulation is used
 default_var("Offint",0)		// Duration of rest interval between bursts (in ms) when burst stimulation is used
+default_var("OnStdev",3)		// Standard deviation of burst start time
 default_var("PercentCellDeath",0)		// Percent of cells that are killed (removed), for cell types flagged for cell death
 default_var("PercentAxonSprouting",0)		// Probability of connection between granule cells, given as a percent of connections to make out of all possible granule cell connections
 default_var("RipStim",200)		// Degree of ripple CA3 stimulation; Higher=more
