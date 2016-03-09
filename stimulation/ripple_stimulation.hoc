@@ -42,7 +42,7 @@ proc ripcellOn() {local reli, typei, jgid localobj cell, myrng
         if (pc.gid_exists(jgid)) {
             
 	    myrng = ranswrlist.object(reli).r
-	    myrng.normal(Onint, 10)
+	    myrng.normal(Onint, OnStdev)
             
             cell = pc.gid2cell(jgid) // oncell
             
