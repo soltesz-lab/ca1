@@ -62,7 +62,7 @@ proc ripcellOn() {local reli, typei, jgid localobj cell, myrng
             cell.number = 1
             cell.interval = 1000/RipStim
             cell.start = -1
-            cell.noise = 0
+            cell.noise = RipNoise
 	}
     }
 }
