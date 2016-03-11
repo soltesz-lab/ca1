@@ -58,3 +58,4 @@ default_var("NumTracesPyr",3000)		// The maximum number of pyramidal cells to re
 default_var("LFPCellTypes","pyramidalcell")		// Populations to be included in the LFP calculation
 default_var("OnStdev",3)		// Standard deviation of burst starting time
 default_var("RipNoise",0.0)		// Noise level of ripple cells
+default_var("RipNumber",1)		// Number of ripple events
