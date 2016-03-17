@@ -1,7 +1,7 @@
 ca3rip_idx=-1
-oncell_idx=-1
 
-proc ripcellStims() { local i, wgt, reli, typei, jgid, celltype, counter, jstart, jend, jtot localobj cell
+
+proc ripcellStims() { local i, j, wgt, reli, typei, jgid, celltype, counter, jstart, jend, jtot localobj cell
     
     for celltype=0, numCellTypes-1 {
         // determine ca3ripcell index
@@ -9,26 +9,7 @@ proc ripcellStims() { local i, wgt, reli, typei, jgid, celltype, counter, jstart
 	    ca3rip_idx = celltype 
 	}
         
-        // determine oncell index
-	if (strcmp(cellType[celltype].cellType_string, "oncell")==0) {
-	    oncell_idx = celltype 
-            
-	}
-    }
-    
-    // connect oncells to ca3 'ripple' cells
-    for pcitr(&reli, &typei, &jgid, cellType[ca3rip_idx].cellStartGid, cellType[ca3rip_idx].cellEndGid) {
-        
-        if (pc.gid_exists(jgid)) {
-            
-            cell = pc.gid2cell(jgid) // ca3ripcell
-            nc_appendstim(cellType[oncell_idx].cellStartGid+typei, cell, 1.0, 3.0) // 3ms delay
-	    cellType[oncell_idx].numCons.x[ca3rip_idx] +=1
-	}
-        
-        
-    }
-    
+    }    
 }
 
 
@@ -37,31 +18,18 @@ ripcellStims()
 
 proc ripcellOn() {local reli, typei, jgid localobj cell, myrng
 
-    for pcitr(&reli, &typei, &jgid, cellType[oncell_idx].cellStartGid, cellType[oncell_idx].cellEndGid) {
-        
-        if (pc.gid_exists(jgid)) {
-            
-	    myrng = ranswrlist.object(reli).r
-	    myrng.normal(Onint, OnStdev)
-            
-            cell = pc.gid2cell(jgid) // oncell
-            
-            cell.number = 1e9
-            cell.start = myrng.repick()
-            cell.interval = cell.start + Offint
-            cell.noise = 0
-	}
-    }
-        
     for pcitr(&reli, &typei, &jgid, cellType[ca3rip_idx].cellStartGid, cellType[ca3rip_idx].cellEndGid) {
         
         if (pc.gid_exists(jgid)) {
             
             cell = pc.gid2cell(jgid) // ca3ripcell
+
+	    myrng = ranswrlist.object(reli).r
+	    myrng.normal(Onint, OnStdev)
 			
             cell.number = RipNumber
             cell.interval = 1000/RipStim
-            cell.start = -1
+            cell.start = myrng.repick()
             cell.noise = RipNoise
 	}
     }
