@@ -488,11 +488,6 @@ proc setup_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, celltype, 
 				if ((strcmp(ks,"nan") == 0) || (strcmp(ks,"-nan") == 0)) {
 					k = 0
 				}
-				/*// Distal cell
-				if (lfp_types[celltype].x[i] == 2) {
-					k = (1.0/fdst)*k
-				} */
-					//printf ("host %d: npole_lfp: gid = %d i = %d j = %d r = %g h = %g k = %g\n", pc.id, gid, i, j, r, h, k)
 				lfpkmatrix.x[j] = k
 					
 				j = j + 1
@@ -506,6 +501,7 @@ setup_npole_lfp()
 
 
 func npole_lfp() { local vlfp
+	vlfp = 0 // Initialize the LFP variable
 	forsec cell.all { 
 		if (ismembrane("extracellular")) {
 			j = 0
@@ -527,7 +523,7 @@ lfp_dt = 0.5 // sampling interval for LFP
 objref mytraceidxlist, lfptracelist
 proc sample_lfp() { local i, avglfp, startgid, endgid, gid, celltype localobj vec, lst
     
-    avglfp = npole_lfp()
+   avglfp = npole_pos_lfp(MaxEDist) // x, y, z position of electrode in microns
     
     if (pc.id == 0) {
         vec = new Vector()
