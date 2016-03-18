@@ -119,7 +119,7 @@ proc calcNetSize(){local i				// Calculate the final network size (after any cel
 		totalCells = totalCells + cellType[i].numCells			// Update the total number of cells
 																//   after sclerosis, not including
 																//   artificial cells
-		
+
 		ncell = ncell + cellType[i].numCells 					// Update the total number of cells
 																//   after sclerosis, including
 																//   artificial cells
@@ -227,11 +227,11 @@ strobj = new StringFunctions()
 strdef direx
 if (strcmp(UID,"0")==0 && pc.id==0) {
 	type = unix_mac_pc() // 1 if unix, 2 if mac, 3 if mswin, or 4 if mac osx darwin
-	if (type<3) {
+	if (type==3) {
+		{system("cscript //NoLogo setupfiles/uuid.vbs", direx)} // pc
+	} else {
 		{system("uuidgen", direx)} // unix or mac
 		strobj.left(direx, strobj.len(direx)-1)
-	} else {
-		{system("cscript //NoLogo setupfiles/uuid.vbs", direx)} // pc
 	}
 	UID = direx
 }
@@ -523,7 +523,7 @@ lfp_dt = 0.5 // sampling interval for LFP
 objref mytraceidxlist, lfptracelist
 proc sample_lfp() { local i, avglfp, startgid, endgid, gid, celltype localobj vec, lst
     
-   avglfp = npole_pos_lfp(MaxEDist) // x, y, z position of electrode in microns
+   avglfp = npole_lfp(MaxEDist) // x, y, z position of electrode in microns
     
     if (pc.id == 0) {
         vec = new Vector()
@@ -718,7 +718,7 @@ proc rrun(){									// Run the network simulation and write out the results
 	writetime = startsw() - writestart				// Calculate write time of program
 	totaltime = startsw() - loadstart
 	allottedtime = JobHours*3600
-	if (pc.id == 0) {printf("****\nTIME SUMMARY for host 0\nset up in %g seconds\ncreated cells in %g seconds\nconnected cells in %g seconds\nran simulation in %g seconds\nwrote results in %g seconds\nTOTAL TIME   = %g seconds\nALLOTTED TIME = %g seconds\n************\nThis run is called: %s %s\n************\n", loadtime, createtime, connecttime, runtime, writetime, totaltime, allottedtime, RunName, resultsfolder)}
+	if (pc.id == 0) {printf("****\nTIME SUMMARY for host 0\nset up in %g seconds\ncreated cells in %g seconds\nconnected cells in %g seconds\nran simulation in %g seconds\nwrote results in %g seconds\nTOTAL TIME   = %g seconds\nALLOTTED TIME = %g seconds\n************\nThis run is called: %s %s\n************\n", loadtime, createtime, connecttime, runtime, writetime, totaltime, allottedtime, origRunName, resultsfolder)}
 }
 
 objref fih
