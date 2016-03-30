@@ -59,3 +59,4 @@ default_var("LFPCellTypes","pyramidalcell")		// Populations to be included in th
 default_var("OnStdev",3)		// Standard deviation of burst starting time
 default_var("RipNoise",0.0)		// Noise level of ripple cells
 default_var("RipNumber",1)		// Number of ripple events
+default_var("StimulusPoint","2000;100;120")		// Position for (ripple) stimulus cells

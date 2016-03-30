@@ -14,7 +14,7 @@ change very infrequently, or that depend on the parameter values
 set in the parameters.hoc file.
 ************************************************************/
 
-objref LayerVector, strobj, mypoint
+objref LayerVector, strobj, mypoint, stimpoint
 strdef cmdstr, layers, tmpstr, path2ConnData, path2SynData
 
 proc SetOtherParameters() {local ind, i, layernum, tempheight
@@ -75,8 +75,8 @@ proc SetOtherParameters() {local ind, i, layernum, tempheight
 	celsius = 34				// The temperature at which to run the simulation (affects
 								//  some ion channel calculations)
 	
-	strdef xposstr, yposstr, zposstr		// Extract the X, Y, Z location values for the LFP electrode
-	mypoint = new Vector(3)		//  from the ElectrodePoint string into the mypoint vector
+	strdef xposstr, yposstr, zposstr		// Extract the X, Y, Z location values for the LFP electrode and stimulus location
+	mypoint = new Vector(3)		//  from the ElectrodePoint and StimulusPoint strings into the mypoint and stimpoint vectors
 
 	strobj.head(ElectrodePoint,";",xposstr)
 	sscanf(xposstr,"%g", &mypoint.x[0])
@@ -87,7 +87,18 @@ proc SetOtherParameters() {local ind, i, layernum, tempheight
 	
 	strobj.tail(ElectrodePoint,";[0-9]+;",zposstr)
 	sscanf(zposstr,"%g", &mypoint.x[2])
-															
+        
+        stimpoint = new Vector(3)
+	strobj.head(StimulusPoint,";",xposstr)
+	sscanf(xposstr,"%g", &stimpoint.x[0])
+	
+	strobj.tail(StimulusPoint,";",yposstr)
+	strobj.head(yposstr,";",yposstr)
+	sscanf(yposstr,"%g", &stimpoint.x[1])
+	
+	strobj.tail(StimulusPoint,";[0-9]+;",zposstr)
+	sscanf(zposstr,"%g", &stimpoint.x[2])
+
 	OK2executeSysCmds = 1 	// If you don't like the NEURON code to make new directories, concatenate files,
 							//  or delete files, set this parameter to 0. Watch out though, if this is set to
 							//  0, the code will use whatever RunName you supply or 'none' if you do not
