@@ -1,0 +1,50 @@
+ca3rip_idx=-1
+
+
+proc ripcellStims() { local i, j, wgt, reli, typei, jgid, celltype, px, py, pz  localobj cell
+    
+    for celltype=0, numCellTypes-1 {
+        // determine ca3ripcell index
+	if (strcmp(cellType[celltype].cellType_string, "ca3ripcell")==0) {
+	    ca3rip_idx = celltype 
+	}
+        
+        for pcitr(&reli, &typei, &jgid, cellType[ca3rip_idx].cellStartGid, cellType[ca3rip_idx].cellEndGid) {
+	    if (pc.gid_exists(jgid)) {
+                
+                cell = pc.gid2cell(jgid) 
+                
+                px = stimpoint.x[0]
+                py = stimpoint.x[1]
+                pz = stimpoint.x[2]
+                
+                cell.position(px,py,pz)
+	    }
+	}
+
+    }
+}
+
+
+ripcellStims()
+
+
+proc ripcellOn() {local reli, typei, jgid localobj cell, myrng
+
+    for pcitr(&reli, &typei, &jgid, cellType[ca3rip_idx].cellStartGid, cellType[ca3rip_idx].cellEndGid) {
+        
+        if (pc.gid_exists(jgid)) {
+            
+            cell = pc.gid2cell(jgid) // ca3ripcell
+
+	    myrng = ranswrlist.object(reli).r
+	    myrng.normal(Onint, OnStdev)
+			
+            cell.number = RipNumber
+            cell.interval = 1000/RipStim
+            cell.start = myrng.repick()
+            cell.noise = RipNoise
+	}
+    }
+}
+ripcellOn()
