@@ -86,7 +86,7 @@ proc loadCellTemplates(){local i		// Proc to load the template that defines (eac
 		load_file("./cells/class_sintrain.hoc")			// Load the file with the template that defines the class
 		//tstop = 100
 		//SimDuration = tstop
-		print "PhasicData = ", PhasicData, ", SimDuration = ", SimDuration
+		print "Using PhasicData, SimDuration = ", SimDuration
 	} else {
 		load_file("./cells/class_ppvec.hoc")			// Load the file with the template that defines the class
 	}
