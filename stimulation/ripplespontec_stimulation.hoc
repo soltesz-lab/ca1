@@ -1,0 +1,4 @@
+{load_file("spontaneous_stimulation.hoc")}	// Normal tonic stimulation
+{load_file("ripple_stimulation.hoc")}	// Ripple-specific stimulation
+{load_file("ec_stimulation.hoc")}	// Additional EC-specific stimulation configuration
+

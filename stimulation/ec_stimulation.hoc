@@ -1,0 +1,39 @@
+// Sets the EC firing rate independently of CA3 firing rate. 
+
+eccell_idx=-1
+
+
+proc FindIndex_eccells() { local celltype
+    
+    for celltype=0, numCellTypes-1 {
+	if (strcmp(cellType[celltype].cellType_string, "eccell")==0) {
+	    eccell_idx = celltype 
+	}
+        
+    }    
+}
+
+
+FindIndex_eccells()
+
+
+proc SetStim_eccells() {local reli, typei, jgid localobj cell, myrng
+    
+    if (name_declared("ECStim") && name_declared("ECNoise")) {
+        
+        for pcitr(&reli, &typei, &jgid, cellType[eccell_idx].cellStartGid, cellType[eccell_idx].cellEndGid) {
+            
+            if (pc.gid_exists(jgid)) {
+                
+                cell = pc.gid2cell(jgid) // eccell
+                
+                cell.number = 1e9
+                cell.interval = 1000/ECStim
+                cell.start = 0
+                cell.noise = ECNoise
+	    }
+        }
+    }
+}
+
+SetStim_eccells()

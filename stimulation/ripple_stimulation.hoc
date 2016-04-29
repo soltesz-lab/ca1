@@ -1,7 +1,9 @@
+
+
 ca3rip_idx=-1
 
 
-proc ripcellStims() { local i, j, wgt, reli, typei, jgid, celltype, counter, jstart, jend, jtot localobj cell
+proc FindIndex_ca3ripcells() { local i, j, wgt, reli, typei, jgid, celltype, counter, jstart, jend, jtot localobj cell
     
     for celltype=0, numCellTypes-1 {
         // determine ca3ripcell index
@@ -13,10 +15,10 @@ proc ripcellStims() { local i, j, wgt, reli, typei, jgid, celltype, counter, jst
 }
 
 
-ripcellStims()
+FindIndex_ca3ripcells()
 
 
-proc ripcellOn() {local reli, typei, jgid localobj cell, myrng
+proc SetStim_ca3ripcells() {local reli, typei, jgid localobj cell, myrng
 
     for pcitr(&reli, &typei, &jgid, cellType[ca3rip_idx].cellStartGid, cellType[ca3rip_idx].cellEndGid) {
         
@@ -34,4 +36,4 @@ proc ripcellOn() {local reli, typei, jgid localobj cell, myrng
 	}
     }
 }
-ripcellOn()
+SetStim_ca3ripcells()
