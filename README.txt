@@ -1,6 +1,6 @@
-README for ca1.hoc
+README for main.hoc
 For detailed information, view Model_Manual.pdf
-Produced by: marianne.case@uci.edu 2010
+Produced by: marianne.bezaire@gmail.com 2016
 
 PURPOSE OF CODE:
 This code creates a scalable network of cells and runs a simulation.
@@ -30,7 +30,7 @@ INSTRUCTIONS FOR RUNNING THE PROGRAM
 
 FILE ORGANIZATION:
 root folder:
-	- ca1.hoc (main hoc file) and all mechanism files
+	- main.hoc (main hoc file) and all mechanism files
 cells folder:
 	- individual files defining each cell type
 	- individual files defining the axonal distribution of each cell type
@@ -63,9 +63,7 @@ runreceipt.txt
 lowindex.hoc
 
 VIEWING THE RESULTS
-In the tools folder, there are several MATLAB scripts useful for viewing the model characteristics or simulation results:
-- Run Organizer
-- AutoRig
+Try our simulation management tool, SimTracker (http://mariannebezaire.com/simtracker/)
 
 USING MERCURIAL
 Mercurial is a code versioning program; this model is meant to be used with Mercurial.
@@ -142,7 +140,7 @@ IV. CREATE, UNIQUELY ID, AND POSITION CELLS
 			vi. Calculate and store the cell's position using an algorithm based on gid, cell type,
 				# of cells of that type, # available 'bins'
 
-V.	CONNECT THE CELLS AND CONNECT THE PERFORANT PATH TO SOME CELLS
+V.	CONNECT THE MODEL CELLS AND CONNECT THE STIMULATING AFFERENTS TO THE MODEL CELLS
 	1. For each cell type x cell type combination, load in the connection properties
 		(probability, weight, delay # synapses to choose from)
 		a. If the probability of connection is not 0, for a given cell type x cell type combination:
@@ -174,4 +172,3 @@ VI.	INITIALIZE AND RUN NETWORK, OUTPUT RESULT FILES
 		c. A position file that gives the gid and x, y, and z coordinates of each cell
 		d. A cell type file that gives cell name and gid range for each cell type
 		e. A runtimes file that gives the real time taken by each code section in seconds
-		
