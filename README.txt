@@ -7,6 +7,24 @@ This code creates a scalable network of cells and runs a simulation.
 It models the rat CA1 using several cell types and can include
 characteristics of an epileptic network (sprouting and cell death).
 
+
+INSTRUCTIONS FOR RUNNING CODE FROM BITBUCKET:
+
+
+In your terminal, move to the parent directory where you want to place the ca1 repository (which will come in a ca1 directory) and then enter the following commands:
+hg clone ssh://hg@bitbucket.org/mbezaire/ca1
+cd ca1/
+hg clone ssh://hg@bitbucket.org/mbezaire/ca1datasets
+mv ca1datasets datasets
+nrnivmodl  # Or mknrndll for Windows
+mkdir results
+nrniv -c "NumData=101" -c "ConnData=430" -c "SynData=120" -c "Scale=10000" -c "SimDuration=100" -c "strdef RunName" -c "RunName=\"TestRun\"" ./main.hoc -c "quit()"
+
+
+
+
+
+
 INSTRUCTIONS FOR RUNNING THE PROGRAM
 >SETUP:
 1. Ensure neuron is installed on the head node and has its directory added to PATH
