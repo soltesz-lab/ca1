@@ -20,7 +20,11 @@ nrnivmodl  # Or mknrndll for Windows
 mkdir results
 nrniv -c "NumData=101" -c "ConnData=430" -c "SynData=120" -c "Scale=10000" -c "SimDuration=100" -c "strdef RunName" -c "RunName=\"TestRun\"" ./main.hoc -c "quit()"
 
+Results from this run would appear in:
 
+./results/TestRun/
+
+I recommend running with a small scale and short time for the personal computer, I chose 10000 here but 1000 would work as well (Scale = how many real neurons are represented by 1 model neuron).
 
 
 
