@@ -55,10 +55,12 @@ for i=0, numCellTypes-1 {
 DegreeStim=1
 strdef filestr
 sprint(filestr,"%s/allsyns.dat",filesavepath) 
+print "printing in  ", filestr
 objref fAll, fSyn
 fAll = new File(filestr)
 fAll.wopen()
 sprint(filestr,"%s/synlist.dat",filesavepath)
+print "printing in  ", filestr
 fSyn = new File(filestr)
 fSyn.wopen()
 

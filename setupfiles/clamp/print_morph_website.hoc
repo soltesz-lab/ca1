@@ -32,15 +32,12 @@ I.  LOAD LIBRARIES
 
 {load_file("./setupfiles/check_for_files.hoc")}	// Checks that the necessary chosen files exist
 												//  (datasets, connectivity, and stimulation)
-
-SynData=120
-ConnData=330
-NumData=106
+												
 /***********************************************************************************************
 II. SET MODEL SIZE, CELL DEFINITIONS
 ***********************************************************************************************/
 celsius=34
-
+print "ConnData = ", ConnData
 {load_file("./setupfiles/load_cell_category_info.hoc")}	// Reads the 'cells2include.hoc' file and
 														//  loads the information into one
 														//  'CellCategoryInfo' object for each cell
@@ -171,11 +168,13 @@ IV. CREATE, UNIQUELY ID, AND POSITION CELLS
 
 strdef direx1, direx2, TopProc, TopCommand
 
-objref cells, ransynlist, ranstimlist, raninitlist
+objref cells, ransynlist, ranwgtlist, ranlfplist, ranstimlist, raninitlist
 cells = new List()						
 ransynlist = new List()
 ranstimlist = new List()
 raninitlist = new List()
+ranwgtlist = new List()
+ranlfplist = new List()
 
 {load_file("./setupfiles/create_cells_pos.hoc")}	// Creates each cell on its assigned host
 													//  and sets its position using the algorithm
@@ -187,8 +186,10 @@ V. WRITE OUT MORPH DATA AND IMAGES
 ***********************************************************************************************/
 
 strdef websitepath, websitepathchan
-websitepath="/cygdrive/c/Users/maria_000/Documents/Websites/modelgraphic/cells"
-websitepathchan="/cygdrive/c/Users/maria_000/Documents/Websites/modelgraphic/channels"
+sprint(websitepath,"%s/cells",reposdir)
+sprint(websitepathchan,"%s/channels",reposdir)
+// websitepath="/cygdrive/c/Users/maria_000/Documents/Websites/modelgraphic/cells"
+// websitepathchan="/cygdrive/c/Users/maria_000/Documents/Websites/modelgraphic/channels"
 
 numlists=6
 objref mysecs[numlists]

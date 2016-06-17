@@ -1,6 +1,9 @@
 /************************************************************
 For more information, consult ModelDoc.pdf
 ************************************************************/
+NumData=101
+ConnData=430
+SynData=120
 
 loadstart = startsw()					// record the start time of the set up
 /***********************************************************************************************
@@ -170,11 +173,13 @@ createstart = startsw()					// Record the start time of the cell creation
 IV. CREATE, UNIQUELY ID, AND POSITION CELLS
 ***********************************************************************************************/
 
-objref cells, ransynlist, ranstimlist, raninitlist
+objref cells, ransynlist, ranstimlist, raninitlist, ranwgtlist, ranlfplist
 cells = new List()						
 ransynlist = new List()
 ranstimlist = new List()
 raninitlist = new List()
+ranwgtlist = new List()
+ranlfplist = new List()
 													
 {load_file("./setupfiles/create_cells_pos.hoc")}	// Creates each cell on its assigned host
 													//  and sets its position using the algorithm
