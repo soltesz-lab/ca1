@@ -52,6 +52,7 @@ proc init() {
 					// make sure to do it after setting the morphology
 					// and inserting the mechanisms, as it depends on those
 	get_root()
+	rotate_shape()
 	
 	pre_list = new List() // define a list for the presynaptic connections
 	define_synapses($3)	// local fcn: define all possible synaptic connections received by this cell
@@ -352,6 +353,7 @@ proc append_sections() { local i
 	forsec basal_list {ca3cell_list.append()}
 }
 
+
 proc size_sections1() {
 	axon[0]  {nseg=5 diam=1 L=50}
 	axon[1]  {nseg=10 diam=0.7 L=250}
@@ -559,6 +561,15 @@ proc size_sections2() {
 	basal[57]  {nseg=2 diam= .4  L= 32.70675  }
 	basal[58]  {nseg=8 diam= .4  L= 165.4767  }
 	basal[59]  {nseg=8 diam= .4  L= 161.9148  }	
+}
+
+
+proc rotate_shape() {local i
+	forsec all {
+		for i=0,n3d()-1 {
+			pt3dchange(i, y3d(i), x3d(i), z3d(i), diam3d(i))
+		}
+	}
 }
 
 external lambda_f

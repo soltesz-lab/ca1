@@ -36,8 +36,7 @@ I.  LOAD LIBRARIES
 /***********************************************************************************************
 II. SET MODEL SIZE, CELL DEFINITIONS
 ***********************************************************************************************/
-celsius=34
-print "ConnData = ", ConnData
+
 {load_file("./setupfiles/load_cell_category_info.hoc")}	// Reads the 'cells2include.hoc' file and
 														//  loads the information into one
 														//  'CellCategoryInfo' object for each cell
@@ -254,7 +253,7 @@ for celltype=0, numCellTypes-1 {
 				
 				fprop = new File()
 				sprint(myfile,"%s/%s/cellproptable.txt",websitepath ,cellType[celltype].cellType_string)
-				print "gonna write out to ", myfile
+				// print "gonna write out to ", myfile
 				fprop.wopen(myfile)
 				fprop.printf("Ra,%.1f,ohm*cm,Axial resistance\ncm,%.1f,uF/cm2,Membrane capacitance\ncelsius,%.1f,o C, Temperature\n", cell.soma.Ra, cell.soma.cm, celsius)
 				{fprop.close}
@@ -467,6 +466,9 @@ for celltype=0, numCellTypes-1 {
 				}
 				
 				objref ss
+				objref strobj
+				strobj = new StringFunctions()
+				strdef beforestr, aftstr
 				
 				////////////////////////////////
 				// Ion Channel Plot and Table //
@@ -497,7 +499,7 @@ for celltype=0, numCellTypes-1 {
 							sprint(myfile,"%s/%s/celltable.txt",websitepathchan , channame)
 							f2.aopen(myfile)
 						}
-
+// print "ion channel = ", mname, ", or = ", channame
 						sprint(tmpstr, "gmax_%s", mname) // "cell.soma.%s(0.5)", tmpstr
 												
 						peakvalue = 0
@@ -549,8 +551,15 @@ for celltype=0, numCellTypes-1 {
 							} else {
 							description = "not available"
 							}
+							index = strobj.substr(description, ",")
+							while (index>-1) {
+								strobj.head(description, ",", beforestr)
+								strobj.tail(description, ",", aftstr)
+								sprint(description, "%s;%s", beforestr,aftstr)
+								index = strobj.substr(description, ",")
+							}
+							
 							strdef tailstr, headstr
-
 							sprint(cmdstr, "grep \"USEION\" ./%s.mod", mname)
 							{system(cmdstr, mystr)}
 							if (sf.len(mystr)>0) {
@@ -581,7 +590,7 @@ for celltype=0, numCellTypes-1 {
 							swidth = 467
 							sheight = 345
 							
-							print cellType[celltype].cellType_string, ": ", mwidth, " x ", mheight
+							// print cellType[celltype].cellType_string, ": ", mwidth, " x ", mheight
 							
 							//g.size(-199.999,199.999,-147.615,147.615)
 							//g.view(-199.999, -147.615, 399.998, 295.23, 49, 151, 467.1, 344.8)
@@ -619,6 +628,7 @@ for celltype=0, numCellTypes-1 {
 							g.view(mleft, mbottom, mwidth, mheight, sleft, top, swidth, sheight)
 							
 							sprint(cmdstr, "g.printfile(\"%s/%s/%s.ps\")", websitepath, cellType[celltype].cellType_string, channame) // later converted to channame.png
+							// print cmdstr
 							execute(cmdstr)
 							objref g
 						}
