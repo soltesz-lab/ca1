@@ -41,6 +41,7 @@ proc init() {
 	connect_sections()// connect soma, dendrites, axon
 	size_sections1()	// set the size dimensions of each section
 	size_sections2()	// set the size dimensions of each section
+	size_sections3()	// set the size dimensions of each section
 	define_shape()
 	
 	// subcellular mechanisms: channels, pumps, transporters
@@ -467,6 +468,9 @@ proc size_sections1() {
 	apical[93]   {nseg=4 diam= 1  L= 65.21848  }
 	apical[94]   {nseg=4 diam= 1  L= 65.93275  }
 	apical[95]   {nseg=1 diam= .4  L= 2.210091  }
+}
+
+proc size_sections2() {
 	apical[96]   {nseg=4 diam= .4  L= 80.05907  }
 	apical[97]   {nseg=1 diam= .4  L= 12.09364  }
 	apical[98]   {nseg=2 diam= .4  L= 40.26765  }
@@ -500,7 +504,7 @@ proc size_sections1() {
 	apical[126]  {nseg=4 diam= .4  L= 89.57475  }
 }
 
-proc size_sections2() {
+proc size_sections3() {
 	basal[0]  {nseg=1 diam= .8  L= 2.888482  }
 	basal[1]  {nseg=1 diam= .8  L= 12.67608  }
 	basal[2]  {nseg=1 diam= .4  L= 6.226819  }
