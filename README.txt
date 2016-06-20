@@ -174,4 +174,39 @@ VI.	INITIALIZE AND RUN NETWORK, OUTPUT RESULT FILES
 		c. A position file that gives the gid and x, y, and z coordinates of each cell
 		d. A cell type file that gives cell name and gid range for each cell type
 		e. A runtimes file that gives the real time taken by each code section in seconds
-		
+
+DATASETS
+Dataset Files - Column Headers
+
+cellnumbers_###.dat:
+Cell Type Name - name of the cell as it will be referred to in the conndata and syndata datasets, as well as elsewhere in the code and analysis
+Technical Type - which code template to use for the cell (class_[technicalcell].hoc). have these two decoupled means we can play around with which ephys profile to use with which cell if we are trying to study/break a phenomenon we see in the network
+Number - number of cells to include in the model (if at full scale, Scale==1.  Will be scaled down proportionally for smaller scale models)
+Layer - Which layer (in 3D) to place the cell, 0-oriens, 1-pyramidale, 2-radiatum, 3-lacunosum-moleculare
+Artifical Flag - 0: realistic cell, 1: artificial point process spike train cell, 2: Izhikevich neuron
+
+
+conndata_###.dat:
+Presynaptic Cell Type
+PostSynaptic Cell Type
+Synapse Weight - weight of each synaptic connection in the units of the corresponding mod file's conductance. For this model, we always use microSemiens, uS
+Number of Connections - In terms of Convergence onto a single cell: the number of presynaptic cells of that type that connect to 1 postsynaptic cell of the postsynaptic type
+Synapses/Connection - since connections between cells often comprise multiple synapses, here set the number of synapses that will be made between each "connection" of 1 presynaptic to 1 postsynaptic cell
+
+syndata_###.dat:
+PostSynaptic Cell Type
+Presynaptic Cell Type
+Synapse Mechanism - corresponds to the name of the NMODL mechanism to use for the synapse (the SUFFIX within the NEURON block of the mod file)
+Section List - the section list on the postsynaptic cell (must be defined in that celltype's class_.hoc template) where synapses of this type can be found
+Distance Condition 1 - criteria for distance away from the soma synapses may occur (on sections within the section list only)
+Distance Condition 2 - criteria for distance away from the soma synapses may occur (on sections within the section list only)
+Scaling parameter - blank for all synapses in this model
+Tau1 - for all synapses except mixed GABA_AB (for which this field is blank), the 10-90% rise time of the synapse (ms)
+Tau2 - for all synapses except mixed GABA_AB (for which this field is blank), the decay time constant of the synapse (ms)
+e - for all synapses except mixed GABA_AB (for which this field is blank), the reversal potential of the synapse (mV)
+Tau1a - for mixed GABA_AB synapses only (for all others this is blank), the 10-90% rise time of the GABA_A conductance of the synapse (ms)
+Tau2a - for mixed GABA_AB synapses only (for all others this is blank), the decay time constant of the GABA_A conductance of the synapse (ms)
+ea - for mixed GABA_AB synapses only (for all others this is blank), the reversal potential of the GABA_A conductance of the synapse (mV)
+Tau1b - for mixed GABA_AB synapses only (for all others this is blank), the 10-90% rise time of the GABA_B conductance of the synapse (ms)
+Tau2b - for mixed GABA_AB synapses only (for all others this is blank), the decay time constant of the GABA_A conductance of the synapse (ms)
+eb - for mixed GABA_AB synapses only (for all others this is blank), the reversal potential of the GABA_A conductance of the synapse (mV)
