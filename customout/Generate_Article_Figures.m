@@ -1,12 +1,23 @@
 function Generate_Article_Figures(~,~,handles)
-global myFontSize sl colorvec myFontWeight myFontName myhandles repodir savepath printflag draftqual printtable fid
+global mypath myFontSize sl colorvec myFontWeight myFontName myhandles repodir savepath printflag draftqual printtable fid
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Editable parameters here
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
-repodir='C:\Users\maria_000\Documents\repos\ca1';%'/Users/mariannebezaire/Documents/repos/ca1';%'C:\Users\maria_000\Documents\repos\ca1';%
-savepath='C:\Users\maria_000\Documents\TeXnicCenterDocs\NewCA1Paper\Figures\';
+if exist([mypath sl 'data' sl 'myrepos.mat'],'file')
+    load([mypath sl 'data' sl 'myrepos.mat'], 'myrepos')
+end
+
+q=getcurrepos(handles); %#ok<NASGU>
+
+repodir=myrepos(q).dir;
+tmp=findstr(repodir,sl);
+savepath=[repodir(1:tmp(end)) 'papers' repodir(tmp(end):end) ];
+if exist(savepath,'dir')==0
+    mkdir(savepath)
+end
+
 ctrlstr='ca1_centerlfp_long_exc_065_01';%'ca1_nlfp_long_exc_065_01_02';
 
 myElectrode=[2000 500];
@@ -42,7 +53,7 @@ whichFigs2Print=[6]; % Only figs 3-8 are implemented right now
 
 printflag=0;
 draftqual=1;
-printtable=1;
+printtable=0;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -52,6 +63,7 @@ else
     disp('Put the FinalFig6Data.mat file in your SimTracker directory and try again.');
     return
 end
+
 updatectrlflag=1;%0;
 if isempty(strmatch(FinalData(1).Name,ctrlstr))
     FinalData(1).Name=ctrlstr;
@@ -281,6 +293,7 @@ if printtable
     fprintf(fid,'\\hline\n');
 end
 
+GetAllSDFs(FinalData,handles)
 %%% Everything below here is for generating figure 6:
 
 GABAFig(FinalData,handles);
@@ -631,6 +644,98 @@ else
     set(ax,'FontName',myFontName,'FontWeight',myFontWeight,'FontSize',myFontSize)  
 end
 box off
+
+function GetAllSDFs(FinalData,handles)
+global savepath sl
+    load('FinalFig6Data.mat','cellnumbers','LayerHeights','LongitudinalLength','TransverseLength','historical')
+load(['data' sl 'MyOrganizer.mat'],'general')
+handles.general=general;
+timewindow=2000;
+timeflag=1;
+myElectrode=historical.myElectrode ;%[2000 500];
+maxdist=historical.maxdist ;%500;
+fid=fopen([savepath sl 'Pyramidal_SDF_All_Conditions.txt'],'w');
+fid2=fopen([savepath sl 'All_SDF_Ctrl_Condition.txt'],'w');
+fprintf(fid,'Time')
+fprintf(fid2,'Time')
+for r=1:length(FinalData)-1
+    if 1==1 %infig6
+        eval(['global ' FinalData(r).Name])
+        evalin('caller',['global ' FinalData(r).Name])
+        evalin('base',['global ' FinalData(r).Name])
+        if exist(FinalData(r).Name,'var')==0 || eval(['isempty(' FinalData(r).Name ')']) || eval(['isstruct(' FinalData(r).Name ')==0'])
+            % export again
+            handles.curses=[];
+            handles.curses.ind=FinalData(r).Idx;
+            guidata(handles.btn_generate, handles)
+            h=load_results([],handles);
+        end
+        eval(['handles.curses=' FinalData(r).Name '.curses;']);
+        eval(['handles.runinfo=' FinalData(r).Name '.runinfo;']);
+        if exist('myhandles','var')==0 || isempty(myhandles) || isstruct(myhandles)==0
+            myhandles = CustomNearElectrode(handles,cellnumbers,LayerHeights,LongitudinalLength,TransverseLength,myElectrode,maxdist);
+        end
+        handles.curses.cells=myhandles.curses.cells;
+        
+        fprintf(fid,'\t%s',FinalData(r).Name)
+        
+        pyrIdx=7;
+        idx = find(ismember(handles.curses.spikerast(:,2),handles.curses.cells(pyrIdx).mygids)==1);
+        if timeflag
+            idt = find(handles.curses.spikerast(idx,1)>handles.general.crop & handles.curses.spikerast(idx,1)<timewindow);
+        else
+            idt = find(handles.curses.spikerast(idx,1)>handles.general.crop);
+        end
+
+        if timeflag
+            binned= histc(handles.curses.spikerast(idx(idt),1),[handles.general.crop:1:timewindow]); % binned by 1 ms
+            timevec=[handles.general.crop:1:timewindow];
+        else
+            binned= histc(handles.curses.spikerast(idx(idt),1),[handles.general.crop:1:handles.runinfo.SimDuration]); % binned by 1 ms
+            timevec=[handles.general.crop:1:handles.runinfo.SimDuration];
+        end
+        window=3; % ms
+        kernel=mynormpdf(-floor((window*6+1)/2):floor((window*6+1)/2),0,window);
+        sdf = conv(binned,kernel,'same');
+        if r==1
+            mymat=timevec(:);
+            
+            for q=1:length(handles.curses.cells)
+                fprintf(fid2,'\t%s',handles.curses.cells(q).name)
+                idx = find(ismember(handles.curses.spikerast(:,2),handles.curses.cells(q).mygids)==1);
+                if timeflag
+                    idt = find(handles.curses.spikerast(idx,1)>handles.general.crop & handles.curses.spikerast(idx,1)<timewindow);
+                else
+                    idt = find(handles.curses.spikerast(idx,1)>handles.general.crop);
+                end
+
+                if timeflag
+                    binned= histc(handles.curses.spikerast(idx(idt),1),[handles.general.crop:1:timewindow]); % binned by 1 ms
+                    timevec=[handles.general.crop:1:timewindow];
+                else
+                    binned= histc(handles.curses.spikerast(idx(idt),1),[handles.general.crop:1:handles.runinfo.SimDuration]); % binned by 1 ms
+                    timevec=[handles.general.crop:1:handles.runinfo.SimDuration];
+                end
+                window=3; % ms
+                kernel=mynormpdf(-floor((window*6+1)/2):floor((window*6+1)/2),0,window);
+                tmpsdf = conv(binned,kernel,'same');                
+                if q==1
+                    onemat=timevec(:);
+                end
+                onemat=[onemat tmpsdf(:)];
+            end
+            
+        end
+        mymat=[mymat sdf(:)];
+    end
+end
+fclose(fid)
+fclose(fid2)
+%fprintf(fid,'\n')
+dlmwrite([savepath sl 'Pyramidal_SDF_All_Conditions.txt'],mymat,'-append',...
+'delimiter','\t','roffset',1)
+dlmwrite([savepath sl 'All_SDF_Ctrl_Condition.txt'],onemat,'-append',...
+'delimiter','\t','roffset',1)
 
 
 function h=printExpData(myresultsstruct)
@@ -1185,12 +1290,27 @@ end
     mdx=find([FinalData.Idx]==mycontrolstruct.curses.ind);
 
     if isfield(FinalData(mdx),'mydata') && ~isempty(FinalData(mdx).mydata)
-        [tmp, mydata] = plot_phasemod([],mycontrolstruct,1,FinalData(mdx).mydata);
+        [tmp, mydata, peaks] = plot_phasemod([],mycontrolstruct,1,FinalData(mdx).mydata);
     else
-        [tmp, mydata] = plot_phasemod([],mycontrolstruct,1);
+        [tmp, mydata, peaks] = plot_phasemod([],mycontrolstruct,1);
         FinalData(mdx).mydata = mydata;
     end
-    
+
+    myHz=8; % Hz
+    thetaper=1000/myHz;
+    for r=1:length(mydata)
+        [angle, magnitude, modtimes]=getspikephase(mydata(r).activitytimes, thetaper, peaks);
+        mycellSD(r).name=mydata(r).tech;
+        mycellSD(r).sptimes=mydata(r).activitytimes;
+        mycellSD(r).spphases=modtimes/thetaper*360;
+        
+        fid=fopen([savepath sl 'Spike_Phase_Time_' mydata(r).tech '.txt'],'w');
+        for q=1:length(mycellSD(r).spphases)
+            fprintf(fid,'%f\t%.1f\n',mycellSD(r).sptimes(q),mycellSD(r).spphases(q));
+        end
+        fclose(fid);
+    end
+
     myfg=figure('Color','w','Name','PhasexMod','units','inches','PaperUnits','inches','Position',[0 0 3 2.5],'PaperPosition',[0 0 3 2.5],'PaperSize',[3 2.5]);
     tmpphase=[];
     for m=1:9
@@ -1556,8 +1676,10 @@ figure(gy(1))
     bargraph=subplot('Position',[alg/(alg+sc*mysize(1)) 0.1120+.1 1-1.1*alg/(alg+sc*mysize(1)) .7]);
 % end
 for i=1:N
-    fprintf(fid,'%s & %.1f & %.1e & %.1f & %.1e & %.1f & %.1e \\\\ \n', strrep(strrep(strrep(xL{i},'&','\&'),'#','\#'),'GABA_B','GABA$_B$'), myfreqs(i,1), myfreqs(i,2), myfreqs(i,5), myfreqs(i,6), myfreqs(i,3), myfreqs(i,4));
-    fprintf(fid,'\\hline\n');        
+    if printtable
+        fprintf(fid,'%s & %.1f & %.1e & %.1f & %.1e & %.1f & %.1e \\\\ \n', strrep(strrep(strrep(xL{i},'&','\&'),'#','\#'),'GABA_B','GABA$_B$'), myfreqs(i,1), myfreqs(i,2), myfreqs(i,5), myfreqs(i,6), myfreqs(i,3), myfreqs(i,4));
+        fprintf(fid,'\\hline\n'); 
+    end
     h(i) = bar(i, myplotvals(i));
     if i == 1, hold on, end
     set(h(i), 'FaceColor', mycolors(i,:),'EdgeColor','none','BarWidth',.8) % get(h(i),'BarWidth')*.7
@@ -1706,6 +1828,7 @@ for b=1:length(bf)
     set(bf(b),'FontName',myFontName,'FontWeight',myFontWeight,'FontSize',myFontSize)
 end
 
+
 function handles = CustomNearElectrode(handles,cellnumbers,LayerHeights,LongitudinalLength,TransverseLength,ElectrodeLoc,maxdist)
 
 layers=regexp(LayerHeights,';','split');
@@ -1730,7 +1853,7 @@ for postype=1:length(handles.curses.cells)
 end
 
 function [h, mytrace]=basictrace(resultname,handles,zoomrange)
-global myFontSize sl repodir myFontWeight myFontName
+global myFontSize sl repodir myFontWeight myFontName savepath
 
 totrange=0;
 myw=6;
@@ -1942,6 +2065,7 @@ set(ax2,'XTick',[],'YTick',[],'XColor','w','YColor','w','box','on','layer','top'
 lfpht=.7; %.55;
 
 filteredlfp=mikkofilter(handles.curses.lfp,1000/handles.runinfo.lfp_dt);
+thetalfp=filteredlfp;
 if olderflag==1
     h(3)=figure('Renderer', 'painters','Visible','on','Color','w','PaperUnits','inches','PaperSize',[myw lfpht],'PaperPosition',[0 0 myw lfpht],'Name','Filtered LFP','Units','inches','Position',[.5 .5 myw 1]);
 else
@@ -2005,6 +2129,45 @@ disp(['LFP scale = ' num2str(diff(get(myax,'ylim'))/diff(yL)*.2) ' mV on gamma L
 % plot(myax,[xL(2)-3 xL(2)-3],[yL(1)+.02 yL(1)+.2+.02],'k','LineWidth',2)
 % plot(myax,[xL(2)-103 xL(2)-3],[yL(1)+.02 yL(1)+.02],'k','LineWidth',2)
 % text(xL(2)-30,yL(2),{'100 ms','.2 mV'},'HorizontalAlignment','right','FontName','ArialMT','FontSize',myFontSize)
+
+fid=fopen([savepath sl 'LFP.txt'],'w');
+ploffset=(length(handles.curses.lfp)-length(thetalfp))/2;
+fprintf(fid,'Time\tRaw\n');
+for f=1:length(thetalfp)
+    fprintf(fid,'%f\t%f\n', handles.curses.lfp(f+ploffset,1), handles.curses.lfp(f+ploffset,2));
+end
+fclose(fid)
+
+fid=fopen([savepath sl 'FilteredLFP.txt'],'w');
+ploffset=(length(handles.curses.lfp)-length(thetalfp))/2;
+fprintf(fid,'Time\tTheta\tGamma\n');
+for f=1:length(thetalfp)
+    fprintf(fid,'%f\t%f\t%f\n', handles.curses.lfp(f+ploffset,1), thetalfp(f,2), filteredlfp(f,2));
+end
+fclose(fid)
+
+fid=fopen([savepath sl 'Membrane_Potentials.txt'],'w');
+fprintf(fid,'Time');
+mystr='%f\t';
+myvars='mytrace.(mycells{1}).trace(q,1),';
+for m=1:length(mycells)
+    mystr=[mystr '%f\t'];
+    myvars=[myvars 'mytrace.' mycells{m} '.trace(q,2),'];
+    fprintf(fid,'\t%s',mycells{m});
+end
+fprintf(fid,'\n');
+
+mystr=[mystr(1:end-1) 'n'];
+myvars=myvars(1:end-1);
+
+for q=1:length(mytrace.(mycells{1}).trace(:,1))
+    eval(['fprintf(fid,''' mystr ''',' myvars ');']);
+end
+fclose(fid)
+    %subplot(length(mycells),1,mytrace.(mycells{m}).pos)
+    
+
+
 
 function trace=loadmyfile(handles,resultname,celltype)
 global sl repodir
