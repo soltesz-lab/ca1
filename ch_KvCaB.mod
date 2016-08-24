@@ -34,11 +34,8 @@ UNITS {
 
 NEURON {
 	SUFFIX ch_KvCaB
-	USEION k READ ek WRITE ik
+	USEION k READ ek WRITE ik VALENCE 1
 	USEION ca READ cai VALENCE 2
-	:USEION nca READ ncai VALENCE 2
-	:USEION lca READ lcai VALENCE 2
-	:USEION tca READ tcai VALENCE 2
 	RANGE gmax, g, ik
 	RANGE myi
 	GLOBAL oinf, otau	: these two are not thread safe
@@ -51,42 +48,35 @@ UNITS {
 }
 
 PARAMETER {	: clean up the PARAMETER and ASSIGNED blocks
-	gmax=.01	(mho/cm2)	: Maximum Permeability
+	gmax=.01		(mho/cm2)	: Maximum Permeability
 
 	d1 = .84
 	d2 = 1.	
-	k1 = .48e-3	(mM)
-	k2 = .13e-6	(mM)
-	:cai = 5.e-5	(mM)
-	cai (mM)
+	k1 = .48e-3		(mM)
+	k2 = .13e-6		(mM)
+    celsius (degC) : temperature - set in hoc; default is 6.3
+	cai 			(mM)
+	v				(mV)
+	ek				(mV)
 	
-	abar = .28	(/ms)
-	bbar = .48	(/ms)
+	abar = .28		(/ms)
+	bbar = .48		(/ms)
 	
-	st=1		(1)
+	st=1			(1)
 }
 
 ASSIGNED {	: clean up the PARAMETER and ASSIGNED blocks
-      celsius (degC) : temperature - set in hoc; default is 6.3
-	v			(mV)
-
-	:lcai		(mV)
-	:ncai		(mV)
-	:tcai		(mV)
-
-	ek			(mV)
 	ik			(mA/cm2)
 
 	oinf
 	otau		(ms)
-	g		(mho/cm2)
-	myi (mA/cm2)
+	g			(mho/cm2)
+	myi 		(mA/cm2)
 }
 
 INITIAL {
-	:cai= ncai + lcai : + tcai
-        rate(v,cai)
-        o=oinf
+	rate(v,cai)
+	o=oinf
 }
 
 STATE {	o }		: fraction of open channels
@@ -99,7 +89,6 @@ BREAKPOINT {
 }
 
 DERIVATIVE state {	: exact when v held constant; integrates over dt step
-	:cai= ncai + lcai : + tcai
 	rate(v, cai)
 	o' = (oinf - o)/otau
 }

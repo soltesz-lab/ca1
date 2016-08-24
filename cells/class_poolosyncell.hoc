@@ -667,7 +667,7 @@ proc insert_mechs() {
 			gmax_ch_KvAproxp=0
 			gmax_ch_KvAdistp=0
 
-			for (x){ xdist = distance(x)
+			for (x,0){ xdist = distance(x)
 				if (xdist>500) {xdist=500}
 				gmax_ch_HCNp(x) = gHCN*(1+1.5*xdist/100)
 				if (xdist > 100){

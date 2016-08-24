@@ -288,12 +288,12 @@ proc insert_mechs() {
 		for (x,0) {
 			if (distance(x)<100) {
 				insert ch_Navcck
-				gmax_ch_Navcck=gNav*.5
+				gmax_ch_Navcck(x)=gNav*.5
 				ena = enaval
 				insert ch_Kdrfast
-				gmax_ch_Kdrfast=gKdr*10
+				gmax_ch_Kdrfast(x)=gKdr*10
 				insert ch_KvGroup
-				gmax_ch_KvGroup = gKGroup*2
+				gmax_ch_KvGroup(x) = gKGroup*2
 			}
 		}
 	}	
