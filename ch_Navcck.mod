@@ -50,9 +50,9 @@ PARAMETER {
 	mBetaC = 0.3 (1) : 0.3
 	mBetaV = 14.5 (mV)
 
-	hAlphC = 0.35 (1) : 23
+	hAlphC = 0.6 (1) : 23
 	hAlphV = 65 (mV)
-	hBetaC = 2.25 (1) : 3.33
+	hBetaC = 1.3 (1) : 3.33
 	hBetaV = 12.5 (mV)
 }
  
