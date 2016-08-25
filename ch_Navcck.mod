@@ -45,10 +45,10 @@ PARAMETER {
 	ena  (mV)
 	gmax (mho/cm2)   
 
-	mAlphC = -0.6 (1)
-	mAlphV = 44 (mV)
+	mAlphC = -0.5 (1) : -0.6 (1)
+	mAlphV = 42 (mV) : 44 (mV)
 	mBetaC = 0.3 (1) : 0.3
-	mBetaV = 14.5 (mV)
+	mBetaV = 13.0 (mV) : 14.5 (mV)
 
 	hAlphC = 0.6 (1) : 23
 	hAlphV = 65 (mV)
