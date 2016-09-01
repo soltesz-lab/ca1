@@ -199,8 +199,8 @@ proc mechinit() {
 	celsius = 34.0  
 
 	// Membrane resistance in ohm*cm2
-	RmDend = 30000 // 60000
-	RmSoma = 30000 // 60000 
+	RmDend = 27000 // 30000
+	RmSoma = 27000 // 30000 
 
 	// Membrane capacitance in uF/cm2
 	CmSoma= 1.0 // 1.8
@@ -226,7 +226,7 @@ proc mechinit() {
 	eleakval = Vrest
 
 	// max ion channel conductances in mho/cm2
- 	gNav     = 0.005 // soma: // 0.12 //original 0.030 to .055 ; lm: //0.5  	//original 0.015
+ 	gNav     = 0.005*1.5 // soma: // 0.12 //original 0.030 to .055 ; lm: //0.5  	//original 0.015
 	gKdr     = 0.003    // Delayed rectifier potassium
  	gKGroup  = 0.0015 //0.1465/1
  	gKvA 	 = 0.0010 // Proximal A-type potassium
@@ -235,7 +235,7 @@ proc mechinit() {
  	gCavL    = 0.0001 //  L-type calcium
  	gKvCaB	 = 0.0001 // Big potassium channel: voltage and calcium gated 
 	gKCaS	 = 0.02 //  Small potassium channel: calcium gated	
-	gKvM	 = 0.06
+	gKvM	 = 0.06*1.5
 }
 
 proc insert_mechs() {
@@ -261,7 +261,7 @@ proc insert_mechs() {
 
 		insert ch_HCN
 		gmax_ch_HCN=gHCN
-		
+
 		Ra = RaSoma
 	} 
 

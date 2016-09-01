@@ -665,11 +665,19 @@ if (cellmechs==1) {
 	}
 }
 
-objref zz, fcell
+objref zz, fcell, fs2
 tmp1unused=0
 tmp2unused=1
 
 strdef cmdstr
+objref trace_s
+trace_s = new Vector(44000)
+objref trace_sinf
+trace_sinf = new Vector(44000)
+objref trace_sexp
+trace_sexp = new Vector(44000)
+objref trace_taus
+trace_taus = new Vector(44000)
 
 if (onecell==1) {
 	// single cell props
@@ -750,7 +758,12 @@ if (onecell==1) {
 						execute1(cmdstr)
 						sprint(cmdstr, "{trace_%s.record(&cell.%s.v(0.5))}", cellType[cellind].cellType_string, sname)
 						execute1(cmdstr)
-						
+
+						trace_s.record(&cell.soma.s_ch_Navcck)
+						trace_sexp.record(&cell.soma.sexp_ch_Navcck)
+						trace_sinf.record(&cell.soma.sinf_ch_Navcck)
+						trace_taus.record(&cell.soma.g_ch_Navcck)
+											
 						if (myi_flag==1) {
 							print_mechs(gid)
 							for rt = 0, mechlength.x[0]-1 {
@@ -789,7 +802,7 @@ if (onecell==1) {
 			gid=cellType[cellind].cellStartGid
 			if (pc.gid_exists(gid)) {
 				// add recording locations to cell:
-				strdef sname, cmdstr, outfile
+				strdef sname, cmdstr, outfile, outfile2
 				cell = pc.gid2cell(gid)
 				if (cell.is_art==0) {
 					// write out recordings	
@@ -800,6 +813,13 @@ if (onecell==1) {
 						index = strobj.substr(sname, "[")
 						if (index>0) {strobj.left(sname, index)}
 						sprint(outfile, "%s%s%s%strace_%s.%s(0.5).%g.dat", relpath, sl, resultspath, sl, cellType[cellind].cellType_string, sname, i)
+						sprint(outfile2, "%s%s%s%sstrace.dat", relpath, sl, resultspath, sl)
+						
+						//trace_s, trace_sexp, trace_sinf, trace_taus
+print "outfile2 = ", outfile2
+							fs2 = new File(outfile2)
+							fs2.wopen()
+							fs2.printf("t\ts\tsexp\tsinf\tg\n")
 
 							f = new File(outfile)
 							f.wopen()
@@ -824,6 +844,10 @@ if (onecell==1) {
 								{f.printf("\n")}
 							}
 							f.close()
+							for j=0, (tstop-tstart)/dt-1 {
+								fs2.printf("%.4f\t%.2f\t%.6f\t%.2f\t%.10f\n", j*dt, trace_s.x[j], trace_sexp.x[j], trace_sinf.x[j], trace_taus.x[j])
+							}
+							fs2.close()
 						
 					}
 					sprint(cmdstr, "{objref stim%g}", cellind)
