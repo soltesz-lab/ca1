@@ -23,7 +23,7 @@ ctrlstr='ca1_centerlfp_long_exc_065_01';%'ca1_nlfp_long_exc_065_01_02';
 myElectrode=[2000 500];
 maxdist=500;
 
-whichFigs2Print=[6]; % Only figs 3-8 are implemented right now
+whichFigs2Print=[5]; % Only figs 3-8 are implemented right now
 % 1: Anatomical constraints 
 % 2: Electrophysiological constraints
 % 3: Spectrograms & Heat Maps
@@ -248,7 +248,7 @@ if ismember(7,whichFigs2Print)
     [anglebase, anglepv, anglesom, h, mydata]=mynewphaseshiftLFP();    
     if printflag
         for t=1:length(h)
-            printeps(h(t),[savepath get(h(t),'Name')])
+            printeps(h(t),[savepath sl get(h(t),'Name')])
         end
     end
 end
@@ -262,7 +262,7 @@ if ismember(2,whichFigs2Print)
     h=ephysFig2();
     if printflag
         for t=1:length(h)
-            printeps(h(t),[savepath get(h(t),'Name')])
+            printeps(h(t),[savepath sl get(h(t),'Name')])
         end
     end
 end
@@ -271,7 +271,7 @@ if ismember(12,whichFigs2Print)
     h=SDFwalkthru(mycontrolstruct);
     if printflag
         for t=1:length(h)
-            printeps(h(t),[savepath get(h(t),'Name')])
+            printeps(h(t),[savepath sl get(h(t),'Name')])
         end
     end
 end
@@ -353,8 +353,8 @@ end
 myplotvals(isnan(myplotvals))=0;
 gy=plotmebaronly(myname, mycolors, myplotvals,mysize,xL,yL,myfreqs,freqstruct,mytitle,myapp);
 if printflag
-printeps(gy(1),[savepath myname])
-printeps(gy(2),[savepath myname 'Freq'])
+printeps(gy(1),[savepath sl myname])
+printeps(gy(2),[savepath sl myname 'Freq'])
 end
 
 
@@ -425,8 +425,8 @@ end
 myplotvals(isnan(myplotvals))=0;
 gy=plotmebaronly(myname, mycolors, myplotvals,mysize,xL,yL,myfreqs,freqstruct,mytitle,myapp);
 if printflag
-printeps(gy(1),[savepath myname])
-printeps(gy(2),[savepath myname 'Freq'])
+printeps(gy(1),[savepath sl myname])
+printeps(gy(2),[savepath sl myname 'Freq'])
 end
 
 % Ephys same and PV Conv
@@ -490,8 +490,8 @@ end
 myplotvals(isnan(myplotvals))=0;
 gy=plotmebaronly(myname, mycolors, myplotvals,mysize,xL,yL,myfreqs,freqstruct,mytitle,myapp);
 if printflag
-printeps(gy(1),[savepath myname])
-printeps(gy(2),[savepath myname 'Freq'])
+printeps(gy(1),[savepath sl myname])
+printeps(gy(2),[savepath sl myname 'Freq'])
 end
 
 % Muted
@@ -554,8 +554,8 @@ end
 myplotvals(isnan(myplotvals))=0;
 gy=plotmebaronly(myname, mycolors, myplotvals,mysize,xL,yL,myfreqs,freqstruct,mytitle,myapp);
 if printflag
-printeps(gy(1),[savepath myname])
-printeps(gy(2),[savepath myname 'Freq'])
+printeps(gy(1),[savepath sl myname])
+printeps(gy(2),[savepath sl myname 'Freq'])
 end
 
 % PV Exc
@@ -620,8 +620,8 @@ end
 myplotvals(isnan(myplotvals))=0;
 gy=plotmebaronly(myname, mycolors, myplotvals,mysize,xL,yL,myfreqs,freqstruct,mytitle,myapp);
 if printflag
-printeps(gy(1),[savepath myname])
-printeps(gy(2),[savepath myname 'Freq'])
+printeps(gy(1),[savepath sl myname])
+printeps(gy(2),[savepath sl myname 'Freq'])
 end
 
 
@@ -828,6 +828,27 @@ end
             if exist(['.' sl 'KS08' sl celltype(1:end-4) '.bmp'],'file')
                 myim=imread(['.' sl 'KS08' sl celltype(1:end-4) '.bmp']);
                 image(myim)
+                hold on
+                xL=get(gca,'xLim');
+                yL=get(gca,'yLim');
+                fst = (xL(2) - xL(1))/4;
+                snd= (xL(2) - xL(1))*3/4;
+                if strcmp(celltype(1:end-4),'sca')
+                    plot([fst fst], yL, 'Color',[1 1 1],'LineStyle','--')
+                    plot([snd snd], yL, 'Color',[1 1 1],'LineStyle','--')
+                    plot(xL, [yL(end) yL(end)],'Color',[1 1 1])
+                else
+                    plot([fst fst], yL, 'Color',[.5 .5 .5],'LineStyle','--')
+                    plot([snd snd], yL, 'Color',[.5 .5 .5],'LineStyle','--')
+                    plot(xL, [yL(end) yL(end)],'Color',[.75 .75 .75])
+                end
+                
+%                 hold on
+%                 xr=xlim();
+%                 yr=ylim();
+%                 plot([diff(xr)*.25+xr(1) diff(xr)*.25+xr(1)],yr)
+%                 plot([xr(2)-diff(xr) xr(2)-diff(xr)],yr)
+                
                 axis off
             end
         end
@@ -1057,13 +1078,13 @@ set(h(1),'Units','inches','PaperUnits','inches','PaperSize',[3.75 3],'PaperPosit
 
 if printflag
     for tt=1:length(h)
-        printeps(figure(h(tt)),[savepath get(h(tt),'Name')])
+        printeps(figure(h(tt)),[savepath sl get(h(tt),'Name')])
     end
 end
     
 myh=tgcross(mycontrolstruct);
 if printflag
-printeps(figure(myh),[savepath get(myh,'Name')])
+printeps(figure(myh),[savepath sl get(myh,'Name')])
 end
 end
 
@@ -1091,7 +1112,7 @@ end
         end
         set(tmph,'Units','inches','PaperUnits','inches','PaperSize',[6 3],'PaperPosition',[0 0 6 3],'Position',[.5 .5 6 3])
         if printflag
-            printeps(figure(tmph),[savepath get(tmph,'Name')])
+            printeps(figure(tmph),[savepath sl get(tmph,'Name')])
         end
     end
 
@@ -1131,7 +1152,7 @@ if ismember(14,plotCtrlFigs)
         set(bf(b),'FontName',myFontName,'FontWeight',myFontWeight,'FontSize',myFontSize)
     end
 if printflag
-    printeps(figure(hfull),[savepath get(hfull,'Name')])
+    printeps(figure(hfull),[savepath sl get(hfull,'Name')])
 end
     end
 end
@@ -1152,7 +1173,7 @@ if ismember(4,plotCtrlFigs)
             set(bf(b),'FontName',myFontName,'FontWeight',myFontWeight,'FontSize',myFontSize)
         end
         if printflag
-        printeps(figure(hh(hz)),[savepath get(hh(hz),'Name')])
+        printeps(figure(hh(hz)),[savepath sl get(hh(hz),'Name')])
         end
     end
 
@@ -1179,7 +1200,7 @@ if ismember(4,plotCtrlFigs)
         set(bf(b),'FontName',myFontName,'FontWeight',myFontWeight,'FontSize',myFontSize,'xLim',zoomrange)
     end
 if printflag
-    printeps(figure(hh(newi)),[savepath get(hh(newi),'Name')])
+    printeps(figure(hh(newi)),[savepath sl get(hh(newi),'Name')])
 end
 
     consolflag=1;
@@ -1236,7 +1257,7 @@ end
             end
             if printflag
 
-            printeps(figure(hh(hzz)),[savepath get(hh(hzz),'Name') 'New'])
+            printeps(figure(hh(hzz)),[savepath sl get(hh(hzz),'Name') 'New'])
             end
         end
     end
@@ -1279,7 +1300,7 @@ if ismember(5,plotCtrlFigs)
     set(gca,'Position',[.13 .15 .85 .83])
 if printflag
 
-    printeps(figure(hhh(1)),[savepath get(hhh(1),'Name')])
+    printeps(figure(hhh(1)),[savepath sl get(hhh(1),'Name')])
 end
 
     hexp=printExpData(mycontrolstruct);
@@ -1354,7 +1375,7 @@ end
     box off
     if printflag
 
-    printeps(figure(myfg),[savepath get(myfg,'Name')])
+    printeps(figure(myfg),[savepath sl get(myfg,'Name')])
     end
     
     for r=1:length(FinalData(mdx).mydata)
@@ -1414,13 +1435,13 @@ end
             end
             if printflag
 
-            printeps(figure(hexp(h)),[savepath get(hexp(h),'Name')])
+            printeps(figure(hexp(h)),[savepath sl get(hexp(h),'Name')])
             end
         end
 end
 
 function GABAFig(FinalData,handles)
-global myFontSize myFontWeight myFontName savepath printflag printtable fid
+global myFontSize myFontWeight myFontName savepath printflag printtable fid sl
 % This needs additional datasets so I sequestered this code for now unless
 % you want to run it too, just let me know if you do.
 
@@ -1597,7 +1618,7 @@ xlim([0.5 3.5])
 bb=get(gca,'Position');
 set(gca,'Position',[bb(1) bb(2) bb(3) .72])
 if printflag
-printeps(figure(gcf),[savepath get(gcf,'Name')])
+printeps(figure(gcf),[savepath sl get(gcf,'Name')])
 end
 
 mycolors=[];
@@ -1621,7 +1642,7 @@ myplotvals(isnan(myplotvals))=0;
 
 gy=plotmebaronly('GABAFreq', mycolors, myplotvals,mysize,xL,yL,myfreqs,freqstruct,mytitle,myapp);
 if printflag
-printeps(gy(2),[savepath 'GABAFreq'])
+printeps(gy(2),[savepath sl 'GABAFreq'])
 end
 
 function gy=plotmebaronly(myname, mycolors, myplotvals, mysize,xL,yL,varargin)
