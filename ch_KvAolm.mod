@@ -81,9 +81,9 @@ ASSIGNED {
 }
  
 BREAKPOINT {
-        SOLVE deriv METHOD derivimplicit
-		g = gmax*a*b
-        ik = g*(v - ek)
+	SOLVE deriv METHOD derivimplicit
+	g = gmax*a*b
+	ik = g*(v - ek)
 	myi = ik
 }
  
@@ -94,16 +94,16 @@ INITIAL {
 }
 
 DERIVATIVE deriv {  :Computes state variables m, h, and n rates(v)      
-		: at the current v and dt.
-        a' = (ainf - a)/(tau_a)
-        b' = (binf - b)/(tau_b)
+	: at the current v and dt.
+	rates(v) : fixed a typo found by of Andres Ecker
+	a' = (ainf - a)/(tau_a)
+	b' = (binf - b)/(tau_b)
 }
  
 PROCEDURE rates(v) {  :Computes rate and other constants at current v.
                       :Call once from HOC to initialize inf at resting v.
         LOCAL alpha_b, beta_b
-	TABLE ainf, aexp, binf, bexp, tau_a, tau_b  DEPEND dt, p FROM -200
-TO 100 WITH 300
+	TABLE ainf, aexp, binf, bexp, tau_a, tau_b  DEPEND dt, p FROM -200 TO 100 WITH 300
 	alpha_b = 0.000009/exp((v-26)/18.5)
 	beta_b = 0.014/(exp((v+70)/(-11))+0.2)
         ainf = 1/(1 + exp(-(v + 14)/16.6))

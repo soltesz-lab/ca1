@@ -3,6 +3,7 @@
 chdir("setupfiles")
 {load_file("../setupfiles/defaultvar.hoc")}	// Contains the proc definition for default_var proc
 {default_var("NumData",100)}		// for paired recording, use these synapse weights
+{default_var("ConnData",100)}		// for paired recording, use these synapse weights
 {default_var("SynData",100)}		// for paired recording, use these synapse weights
 {default_var("path2ConnData","../datasets/conndata_%g.dat")}		// for paired recording, use these synapse weights
 {default_var("path2SynData","../datasets/syndata_%g.dat")}		// for paired recording, use these synapse weights
@@ -54,10 +55,12 @@ for i=0, numCellTypes-1 {
 DegreeStim=1
 strdef filestr
 sprint(filestr,"%s/allsyns.dat",filesavepath) 
+print "printing in  ", filestr
 objref fAll, fSyn
 fAll = new File(filestr)
 fAll.wopen()
 sprint(filestr,"%s/synlist.dat",filesavepath)
+print "printing in  ", filestr
 fSyn = new File(filestr)
 fSyn.wopen()
 
@@ -75,6 +78,9 @@ for i = 0, numCellTypes-1 {
 		access cell.soma[0]
 		{distance()}
 
+
+		precellType = 0
+		r=0
 		for precellType = 0, numCellTypes-1 {
 			ist = myi
 			for r=0, cellType[i].SynList[precellType].count()-1 {
@@ -85,7 +91,13 @@ for i = 0, numCellTypes-1 {
 					for (x,0) {
 						execute(cellType[i].SynList[precellType].object(r).CondStr)
 						 if (y==1) {
-							fSyn.printf("%s %s %g %s\n", cellType[i].cellType_string, cellType[precellType].cellType_string, myi, secname())
+							if (strcmp(cellType[i].SynList[precellType].object(r).SynType,"ExpGABAab")==0) {	// For GABA_A,B synapses, which have extra
+								fSyn.printf("%s %s %g %s %s %g %g %g\n", cellType[i].cellType_string, cellType[precellType].cellType_string, myi, secname(), cellType[i].SynList[precellType].object(r).SynType, cellType[i].SynList[precellType].object(r).tau1a, cellType[i].SynList[precellType].object(r).tau2a, cellType[i].SynList[precellType].object(r).ea)
+								fSyn.printf("%s %s %g %s %s %g %g %g\n", cellType[i].cellType_string, cellType[precellType].cellType_string, myi, secname(), cellType[i].SynList[precellType].object(r).SynType, cellType[i].SynList[precellType].object(r).tau1b, cellType[i].SynList[precellType].object(r).tau2b, cellType[i].SynList[precellType].object(r).eb)
+							} else {								// For all other synapse types, there is only
+								fSyn.printf("%s %s %g %s %s %g %g %g\n", cellType[i].cellType_string, cellType[precellType].cellType_string, myi, secname(), cellType[i].SynList[precellType].object(r).SynType, cellType[i].SynList[precellType].object(r).tau1, cellType[i].SynList[precellType].object(r).tau2, cellType[i].SynList[precellType].object(r).efirst)
+							}
+
 							myi = myi + 1
 						}
 					}

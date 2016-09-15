@@ -86,7 +86,7 @@ proc loadCellTemplates(){local i		// Proc to load the template that defines (eac
 		load_file("./cells/class_sintrain.hoc")			// Load the file with the template that defines the class
 		//tstop = 100
 		//SimDuration = tstop
-		print "PhasicData = ", PhasicData, ", SimDuration = ", SimDuration
+		print "Using PhasicData, SimDuration = ", SimDuration
 	} else {
 		load_file("./cells/class_ppvec.hoc")			// Load the file with the template that defines the class
 	}
@@ -119,7 +119,7 @@ proc calcNetSize(){local i				// Calculate the final network size (after any cel
 		totalCells = totalCells + cellType[i].numCells			// Update the total number of cells
 																//   after sclerosis, not including
 																//   artificial cells
-		
+
 		ncell = ncell + cellType[i].numCells 					// Update the total number of cells
 																//   after sclerosis, including
 																//   artificial cells
@@ -227,11 +227,11 @@ strobj = new StringFunctions()
 strdef direx
 if (strcmp(UID,"0")==0 && pc.id==0) {
 	type = unix_mac_pc() // 1 if unix, 2 if mac, 3 if mswin, or 4 if mac osx darwin
-	if (type<3) {
+	if (type==3) {
+		{system("cscript //NoLogo setupfiles/uuid.vbs", direx)} // pc
+	} else {
 		{system("uuidgen", direx)} // unix or mac
 		strobj.left(direx, strobj.len(direx)-1)
-	} else {
-		{system("cscript //NoLogo setupfiles/uuid.vbs", direx)} // pc
 	}
 	UID = direx
 }
@@ -363,11 +363,154 @@ VI.	INITIALIZE AND RUN NETWORK, OUTPUT RESULT FILES
 ***********************************************************************************************/
 
 objref mytrace, myvrec, cell
+objref lfpkmatrix
+
+lfpkmatrix = new Vector()
 
 cell = pc.gid2cell(gidOI)
 
-func dipole_lfp() { local vlfp
-   vlfp = cell.apical[cell.NumApical-1].v(0.5) - cell.basal[0].v(0.5)  
+/*********************
+inserted stuff right below here:
+************/
+
+
+/* 
+Computes xyz coords of nodes in a model cell  whose topology & geometry are defined by pt3d data.
+Code by Ted Carnevale.
+*/
+
+proc interpxyz() { local ii, nn, kk, xr, nsegs localobj xx, yy, zz, xint, yint, zint, ll, range
+    
+    // get the data for the section
+    nn = $1
+    nsegs = $2
+    xx = $o3
+    yy = $o4
+    zz = $o5
+    ll = $o6
+    xint = $o7
+    yint = $o8
+    zint = $o9
+    
+    // to use Vector class's .interpolate() 
+    // must first scale the independent variable
+    // i.e. normalize length along centroid
+    ll.div(ll.x[nn-1])
+    
+    // initialize the destination "independent" vector
+    range = new Vector(nsegs+2)
+    range.indgen(1/nsegs)
+    range.sub(1/(2*nsegs))
+    range.x[0]=0
+    range.x[nsegs+1]=1
+    
+    // length contains the normalized distances of the pt3d points 
+    // along the centroid of the section.  These are spaced at 
+    // irregular intervals.
+    // range contains the normalized distances of the nodes along the 
+    // centroid of the section.  These are spaced at regular intervals.
+    // Ready to interpolate.
+    
+    xint.interpolate(range, ll, xx)
+    yint.interpolate(range, ll, yy)
+    zint.interpolate(range, ll, zz)
+}
+
+
+proc setup_npole_lfp() { local i, j, k, m, n, r, h, s, avglfp, typei, celltype, ex, ey, ez, sx, sy, sz, lfptype, ii, nn localobj myr, dists, lst, xx, yy, zz, ll, xint, yint, zint strdef ks
+    
+    rho = 333.0 // extracellular resistivity, [ohm cm]
+    fdst = 0.1 // percent of distant cells to include in the computation
+    
+    ex = mypoint.x[0] //$1
+    ey = mypoint.x[1] //$2
+    ez = mypoint.x[2] //$3
+    
+    //printf ("host %d: entering setup_npole_lfp\n", pc.id)
+    
+    // Vector for storing longitudinal and perpendicular distances
+    // between recording electrode and compartments
+    dists = new Vector(2)
+     
+	m = 0
+	n = 0
+
+	// Relative to the recording electrode position
+
+	forsec cell.all { 
+		insert extracellular
+		n = n + nseg
+	}
+
+	lfpkmatrix = new Vector(n+1)
+		//printf ("host %d: npole_lfp: lfpkmatrix.nrow = %d lfpkmatrix.ncol = %d\n", pc.id, lfpkmatrix.nrow, lfpkmatrix.ncol)
+
+	// Iterates over each compartment of the cell
+	j = 0
+	forsec cell.all { 
+		if (ismembrane("extracellular")) {
+			nn = n3d()
+					
+			xx = new Vector(nn)
+			yy = new Vector(nn)
+			zz = new Vector(nn)
+			ll = new Vector(nn)
+				
+			for ii = 0,nn-1 {
+				xx.x[ii] = x3d(ii)
+				yy.x[ii] = y3d(ii)
+				zz.x[ii] = z3d(ii)
+				ll.x[ii] = arc3d(ii)
+			}
+				
+			xint = new Vector(nseg+2)
+			yint = new Vector(nseg+2)
+			zint = new Vector(nseg+2)
+
+			interpxyz(nn,nseg,xx,yy,zz,ll,xint,yint,zint)
+			
+			j = 0
+			for (x,0) {
+				sx = xint.x[j]
+				sy = yint.x[j]
+				sz = zint.x[j]
+				
+				// l = L/nseg is compartment length 
+				// r is the perpendicular distance from the electrode to a line through the compartment
+				// h is longitudinal distance along this line from the electrode to one end of the compartment
+				// s = l + h is longitudinal distance to the other end of the compartment
+				l = L/nseg
+				r = sqrt((ex-sx)*(ex-sx) + (ey-sy)*(ey-sy) + (ez-sz)*(ez-sz))
+				h = l/2
+				s = l + h
+				k = 0.0001 * area(x) * (rho / (4 * PI * l)) * abs(log((sqrt(h*h + r*r) - h) / (sqrt(s*s + r*r) - s)))
+				sprint(ks,"%g",k)
+				if ((strcmp(ks,"nan") == 0) || (strcmp(ks,"-nan") == 0)) {
+					k = 0
+				}
+				lfpkmatrix.x[j] = k
+					
+				j = j + 1
+			}
+		}
+	}
+} 
+setup_npole_lfp()
+
+/************** done inserting *********/
+
+
+func npole_lfp() { local vlfp
+	vlfp = 0 // Initialize the LFP variable
+	forsec cell.all { 
+		if (ismembrane("extracellular")) {
+			j = 0
+			for (x,0) {
+				vlfp = vlfp + (i_membrane(x) * lfpkmatrix.x[j])
+				j = j + 1
+			}
+		}
+	}  //  vlfp = cell.apical[cell.NumApical-1].v(0.5) - cell.basal[0].v(0.5)  
    return vlfp
 }
 
@@ -380,7 +523,7 @@ lfp_dt = 0.5 // sampling interval for LFP
 objref mytraceidxlist, lfptracelist
 proc sample_lfp() { local i, avglfp, startgid, endgid, gid, celltype localobj vec, lst
     
-    avglfp = dipole_lfp()
+   avglfp = npole_lfp(MaxEDist) // x, y, z position of electrode in microns
     
     if (pc.id == 0) {
         vec = new Vector()
@@ -575,11 +718,12 @@ proc rrun(){									// Run the network simulation and write out the results
 	writetime = startsw() - writestart				// Calculate write time of program
 	totaltime = startsw() - loadstart
 	allottedtime = JobHours*3600
-	if (pc.id == 0) {printf("****\nTIME SUMMARY for host 0\nset up in %g seconds\ncreated cells in %g seconds\nconnected cells in %g seconds\nran simulation in %g seconds\nwrote results in %g seconds\nTOTAL TIME   = %g seconds\nALLOTTED TIME = %g seconds\n************\nThis run is called: %s %s\n************\n", loadtime, createtime, connecttime, runtime, writetime, totaltime, allottedtime, RunName, resultsfolder)}
+	if (pc.id == 0) {printf("****\nTIME SUMMARY for host 0\nset up in %g seconds\ncreated cells in %g seconds\nconnected cells in %g seconds\nran simulation in %g seconds\nwrote results in %g seconds\nTOTAL TIME   = %g seconds\nALLOTTED TIME = %g seconds\n************\nThis run is called: %s %s\n************\n", loadtime, createtime, connecttime, runtime, writetime, totaltime, allottedtime, origRunName, resultsfolder)}
 }
 
 objref fih
-if (ComputeLFP > 0) {
+// ComputeNpoleLFP=1 ComputeDipoleLFP=0
+if (ComputeNpoleLFP > 0) {
 	// execute sample_lfp() at t = 0,
 	// right after the mechanism INITIAL blocks have been executed
 	fih = new FInitializeHandler("sample_lfp()")

@@ -13,6 +13,16 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			numpost = cellType[j].numThisHost
 			postcellgids = new Vector(numpost)
 			
+			highIndices = new Vector(numpost)	// Create a vector to hold a list of the last highIndex used
+												//  by each cell of this postsynaptic type, owned by this host
+			
+			for r=0, numpost-1 {				// Fill the newly created vector with the gids
+				postcellgids.x[r] = cellType[postType].CellList[r].gid*1.0
+				highIndices.x[r] = 1+RandomSeedsConn
+			}
+		
+		newhighindex = 1 + RandomSeedsConn	// Set the highIndex seed used by the random number generator within
+			
 			for r=0, numpost-1 {
 				postcellgids.x[r] = cellType[j].CellList[r].gid
 			}
@@ -24,6 +34,12 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 				}	
 			}		
 			cellType[j].LastHighIndex = newhighindex
+		}
+		cellType[postType].LastHighIndex = 1+RandomSeedsConn	
+		for r=0, numpost-1 {
+			if (cellType[postType].LastHighIndex<highIndices.x[r]) {
+				cellType[postType].LastHighIndex = highIndices.x[r]
+			}
 		}
 	}
 	if ((PrintTerminal>1)) {print "Host ", pc.id, " connected cells."}
@@ -91,7 +107,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			params.x[25]= newhighindex
 			params.x[26]= connlength
 
-			conns2make.fastconn(params, postcellgids)
+			conns2make.fastconn(params, postcellgids, highIndices)
 			
 			sprint(memstr, "Defined %s to %s conns", $s3, $s4)
 			zzz = mallinfo(zzz, memstr)

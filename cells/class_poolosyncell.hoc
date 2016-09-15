@@ -41,6 +41,7 @@ proc init() {
 	connect_sections()// connect soma, dendrites, axon
 	size_sections1()	// set the size dimensions of each section
 	size_sections2()	// set the size dimensions of each section
+	size_sections3()	// set the size dimensions of each section
 	define_shape()
 	
 	// subcellular mechanisms: channels, pumps, transporters
@@ -52,6 +53,7 @@ proc init() {
 					// make sure to do it after setting the morphology
 					// and inserting the mechanisms, as it depends on those
 	get_root()
+	rotate_shape()
 	
 	pre_list = new List() // define a list for the presynaptic connections
 	define_synapses($3)	// local fcn: define all possible synaptic connections received by this cell
@@ -352,6 +354,7 @@ proc append_sections() { local i
 	forsec basal_list {ca3cell_list.append()}
 }
 
+
 proc size_sections1() {
 	axon[0]  {nseg=5 diam=1 L=50}
 	axon[1]  {nseg=10 diam=0.7 L=250}
@@ -465,6 +468,9 @@ proc size_sections1() {
 	apical[93]   {nseg=4 diam= 1  L= 65.21848  }
 	apical[94]   {nseg=4 diam= 1  L= 65.93275  }
 	apical[95]   {nseg=1 diam= .4  L= 2.210091  }
+}
+
+proc size_sections2() {
 	apical[96]   {nseg=4 diam= .4  L= 80.05907  }
 	apical[97]   {nseg=1 diam= .4  L= 12.09364  }
 	apical[98]   {nseg=2 diam= .4  L= 40.26765  }
@@ -498,7 +504,7 @@ proc size_sections1() {
 	apical[126]  {nseg=4 diam= .4  L= 89.57475  }
 }
 
-proc size_sections2() {
+proc size_sections3() {
 	basal[0]  {nseg=1 diam= .8  L= 2.888482  }
 	basal[1]  {nseg=1 diam= .8  L= 12.67608  }
 	basal[2]  {nseg=1 diam= .4  L= 6.226819  }
@@ -559,6 +565,15 @@ proc size_sections2() {
 	basal[57]  {nseg=2 diam= .4  L= 32.70675  }
 	basal[58]  {nseg=8 diam= .4  L= 165.4767  }
 	basal[59]  {nseg=8 diam= .4  L= 161.9148  }	
+}
+
+
+proc rotate_shape() {local i
+	forsec all {
+		for i=0,n3d()-1 {
+			pt3dchange(i, y3d(i), x3d(i), z3d(i), diam3d(i))
+		}
+	}
 }
 
 external lambda_f
@@ -652,7 +667,7 @@ proc insert_mechs() {
 			gmax_ch_KvAproxp=0
 			gmax_ch_KvAdistp=0
 
-			for (x){ xdist = distance(x)
+			for (x,0){ xdist = distance(x)
 				if (xdist>500) {xdist=500}
 				gmax_ch_HCNp(x) = gHCN*(1+1.5*xdist/100)
 				if (xdist > 100){
