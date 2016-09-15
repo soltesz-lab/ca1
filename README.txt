@@ -1,11 +1,32 @@
-README for ca1.hoc
+README for main.hoc
 For detailed information, view Model_Manual.pdf
-Produced by: marianne.case@uci.edu 2010
+Produced by: marianne.bezaire@gmail.com 2016
 
 PURPOSE OF CODE:
 This code creates a scalable network of cells and runs a simulation.
 It models the rat CA1 using several cell types and can include
 characteristics of an epileptic network (sprouting and cell death).
+
+INSTRUCTIONS FOR RUNNING CODE FROM BITBUCKET:
+
+
+In your terminal, move to the parent directory where you want to place the ca1 repository (which will come in a ca1 directory) and then enter the following commands:
+hg clone ssh://hg@bitbucket.org/mbezaire/ca1
+cd ca1/
+hg clone ssh://hg@bitbucket.org/mbezaire/ca1datasets
+mv ca1datasets datasets
+nrnivmodl  # Or mknrndll for Windows
+mkdir results
+nrniv -c "NumData=101" -c "ConnData=430" -c "SynData=120" -c "Scale=10000" -c "SimDuration=100" -c "strdef RunName" -c "RunName=\"TestRun\"" ./main.hoc -c "quit()"
+
+Results from this run would appear in:
+
+./results/TestRun/
+
+I recommend running with a small scale and short time for the personal computer, I chose 10000 here but 1000 would work as well (Scale = how many real neurons are represented by 1 model neuron).
+
+
+
 
 INSTRUCTIONS FOR RUNNING THE PROGRAM
 >SETUP:
@@ -30,7 +51,7 @@ INSTRUCTIONS FOR RUNNING THE PROGRAM
 
 FILE ORGANIZATION:
 root folder:
-	- ca1.hoc (main hoc file) and all mechanism files
+	- main.hoc (main hoc file) and all mechanism files
 cells folder:
 	- individual files defining each cell type
 	- individual files defining the axonal distribution of each cell type
@@ -63,9 +84,7 @@ runreceipt.txt
 lowindex.hoc
 
 VIEWING THE RESULTS
-In the tools folder, there are several MATLAB scripts useful for viewing the model characteristics or simulation results:
-- Run Organizer
-- AutoRig
+Try our simulation management tool, SimTracker (http://mariannebezaire.com/simtracker/)
 
 USING MERCURIAL
 Mercurial is a code versioning program; this model is meant to be used with Mercurial.
@@ -142,7 +161,7 @@ IV. CREATE, UNIQUELY ID, AND POSITION CELLS
 			vi. Calculate and store the cell's position using an algorithm based on gid, cell type,
 				# of cells of that type, # available 'bins'
 
-V.	CONNECT THE CELLS AND CONNECT THE PERFORANT PATH TO SOME CELLS
+V.	CONNECT THE MODEL CELLS AND CONNECT THE STIMULATING AFFERENTS TO THE MODEL CELLS
 	1. For each cell type x cell type combination, load in the connection properties
 		(probability, weight, delay # synapses to choose from)
 		a. If the probability of connection is not 0, for a given cell type x cell type combination:
@@ -209,4 +228,5 @@ Tau2a - for mixed GABA_AB synapses only (for all others this is blank), the deca
 ea - for mixed GABA_AB synapses only (for all others this is blank), the reversal potential of the GABA_A conductance of the synapse (mV)
 Tau1b - for mixed GABA_AB synapses only (for all others this is blank), the 10-90% rise time of the GABA_B conductance of the synapse (ms)
 Tau2b - for mixed GABA_AB synapses only (for all others this is blank), the decay time constant of the GABA_A conductance of the synapse (ms)
-eb - for mixed GABA_AB synapses only (for all others this is blank), the reversal potential of the GABA_A conductance of the synapse (mV)
+eb - for mixed GABA_AB synapses only (for all others this is blank), the reversal potential of the GABA_A conductance of the synapse (mV)=======
+		e. A runtimes file that gives the real time taken by each code section in seconds>>>>>>> other
