@@ -40,8 +40,13 @@ default_var("resultsfolder", "00001") // Run Comments  // -c 'strdef RunName ' '
 default_var("runname", "None") // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
 default_var("origRunName", "CutSma_040_11") // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
 default_var("celltype2use", "axoaxoniccell") // Run Comments  // -c 'strdef RunName ' 'RunName = "Woo"'
+
+default_var("relpath"," /cygdrive/c/Users/maria_000/Documents/repos/ca1") //"/home/casem/repos/ca1")
+default_var("resultspath","networkclamp_results")
+default_var("sl","/")
 												
 celltypeOI=cellindOI
+myi_flag=1
 //gidOI=0
 i=0
 ij=0
@@ -299,6 +304,43 @@ raninitlist = new List()
 													
 strdef cmd
 
+
+//new
+strdef mname, tmpstr
+objref strobj
+objref mechstring[9], mechlength
+
+proc print_mechs(){local i, k localobj mt, cell	// this code courtesy of Jose Ambros-Ingerson via the NEURON forum
+mechlength = new Vector(1)
+strobj = new StringFunctions()
+	cell = pc.gid2cell($1)
+	access cell.soma {
+		mt = new MechanismType(0)
+		objref mechstring[mt.count()]
+		k = 0
+		for i=0, mt.count()-1 {
+			mt.select( i )
+			mt.selected(mname)
+			if( ismembrane(mname)) {
+				if (strcmp(mname,"capacitance")!=0 && strcmp(mname,"morphology")!=0 && strcmp(mname,"iconc_CaZ")!=0 && strcmp(mname,"iconc_Ca")!=0  && strcmp(mname,"iconcCa")!=0 && strcmp(mname,"ccanl")!=0 && strcmp(mname,"cad")!=0 && strcmp(mname,"pas")!=0 && strcmp(mname,"vmax")!=0 ) { //
+					if (strobj.substr(mname,"_ion")==-1) {
+						//printf("myi_%s \n", mname) 
+						sprint(tmpstr, "myi_%s", mname) // "cell.soma.%s(0.5)", tmpstr
+						mechstring[k] = new String()
+						mechstring[k].s = tmpstr
+						{k = k+1}
+					} 
+				} 
+			}
+		}
+	}
+	//{printf("mt count = %g, mechlength0 = %g mechstring = %s\n", mt.count(), k-1, mechstring[k-1].s)}
+	{mechlength.x[0] = k}
+	//{printf("'bout to leave. mechstring count = %g \n",  mechstring.count)}
+	//return mechstring
+}
+//newend
+
 createtime = startsw() - createstart	// Calculate time taken to create the cells
 if (pc.id == 0) {printf("\nTIME HOST 0: %g seconds (created cells)\n************\n", createtime)}
 connectstart = startsw()				// Grab start time of cell connection
@@ -361,6 +403,65 @@ if (pc.id == 0) {printf("\nTIME HOST 0: %g seconds (connected cells)\n**********
 /***********************************************************************************************
 VI.	INITIALIZE AND RUN NETWORK, OUTPUT RESULT FILES
 ***********************************************************************************************/
+//new
+strdef mname, headstr, outfile, cmdstr
+objref mt, cell, strobj, f
+strobj = new StringFunctions()
+
+cellmechs=1
+if (cellmechs==1) {
+		cellind = cellindOI
+		if (pc.gid_exists(gidOI)) {
+			// add recording locations to cell:
+			cell = pc.gid2cell(gidOI)
+			if (cell.is_art==0) {	resultsfolder
+				sprint(outfile, "./networkclamp_results/%s/%s/celldata_%s.dat", origRunName, resultsfolder, cellType[cellind].cellType_string)
+
+				//sprint(outfile, "%s%s%s%scelldata_%s.dat", relpath, sl, resultspath, sl, cellType[cellind].cellType_string)
+				f = new File(outfile)
+				f.wopen()
+
+				access cell.soma // access cell.soma[0]
+				distance() // set the origin for measuring the distance
+				sprint(headstr,"secname\tpos\tx\ty\tz\tdist\tdiam\tcm\tRa")								
+				mt = new MechanismType(0)
+				for i=0, mt.count()-1 {
+					mt.select( i )
+					mt.selected(mname)
+					if (strobj.substr(mname,"ch_")>-1) {
+						sprint(headstr,"%s\tgmax_%s", headstr, mname)	
+					}							
+				}
+				sprint(headstr,"%s\n", headstr)	
+				f.printf(headstr)
+				
+				forsec cell.all { // forsec cell.all // forall
+					for (x) {
+						xdist = distance(x)
+						sprint(headstr,"%s\t%g\t%g\t%g\t%g\t%g\t%g\t%g\t%g", secname(), x, x3d(0), y3d(0), z3d(0), xdist, diam, cm, Ra)								
+
+						for i=0, mt.count()-1 {
+							mt.select( i )
+							mt.selected(mname)
+							if (strobj.substr(mname,"ch_")>-1) {
+								g=0
+								e=0
+								if ( ismembrane(mname)) {
+									sprint(cmdstr, "g = gmax_%s", mname)
+									execute1(cmdstr)
+								}
+								sprint(headstr,"%s\t%g", headstr, g)	
+							}						
+						}
+						sprint(headstr,"%s\n", headstr)	
+						f.printf(headstr)
+					}
+				}
+				f.close()
+			}
+		}
+}
+//newend
 
 objref mytrace, myvrec, cell
 objref lfpkmatrix
@@ -544,7 +645,7 @@ sprint(filestr, "./networkclamp_results/%s/%s/synlist.dat", origRunName, results
 fSyn = new File(filestr)
 fSyn.wopen()
 
-strdef cmdstr, tempFileStr
+strdef cmdstr, tempFileStr, sname
 objref newSecRef
 
 
@@ -554,6 +655,25 @@ if (pc.gid_exists(gidOI)) {
 	mytrace = new Vector((tstop-tstart)/dt)
 	mytrace.record(&cell.soma.v(0.5))
 
+//new
+	if (myi_flag==1) {
+		cell.soma{
+			sname = secname()
+
+			print_mechs(gidOI)
+			cellind = cellindOI
+			for rt = 0, mechlength.x[0]-1 {
+				sprint(cmdstr, "{objref %s_%s}", cellType[cellind].cellType_string, mechstring[rt].s)
+				execute1(cmdstr)
+				sprint(cmdstr, "{%s_%s = new Vector(%g)}", cellType[cellind].cellType_string, mechstring[rt].s, (tstop-tstart)/dt)
+				execute1(cmdstr)
+				sprint(cmdstr, "{%s_%s.record(&%s.%s(0.5))}", cellType[cellind].cellType_string, mechstring[rt].s, sname, mechstring[rt].s)
+				execute1(cmdstr)
+			}	
+		}	
+	}	
+//newend
+	
 	ist = 0
 	ien = 0
 	myi = 0
@@ -808,31 +928,43 @@ if (pc.id==0 && get_spike_hist==1) {
 	f4.close()
 }
 
-strdef outfile
-objref f
-if (pc.gid_exists(0)) {	// If cell exists on this machine
-	sprint(outfile, "./networkclamp_results/%s/%s/mytrace_%d_soma.dat", runname, resultsfolder, gidOI)
-	//ssprint(outfile, "./results/%s/mytrace_%d_soma.dat", RunName, gidOI)
-	f = new File(outfile)
-	f.wopen()
-	f.printf("t\tv\n")
-	for i=0, (tstop-tstart)/dt-1 {
-		f.printf("%g\t%g\n", i*dt, mytrace.x[i])
-	}
-	f.close()
-/*
-	sprint(outfile, "../networkclamp_results/%s/%s/myvrec_%d_soma.dat", RunName, resultsfolder, gidOI)
-	f = new File(outfile)
-	f.wopen()
-	f.printf("t\tv\n")
-	for i=0, (tstop-tstart)/dt-1 {
-		f.printf("%g\t%f\n", i*dt, myvrec.x[i])
-	}
-	f.close()*/
-
+strdef outfile, umfile
+objref f, umf
+sprint(outfile, "./networkclamp_results/%s/%s/mytrace_%d_soma.dat", runname, resultsfolder, gidOI)
+f = new File(outfile)
+f.wopen()
+f.printf("t\tv\n")
+for i=0, (tstop-tstart)/dt-1 {
+	f.printf("%g\t%g\n", i*dt, mytrace.x[i])
 }
+f.close()
 
-proc SpikeOutSerial() {local i, rank  localobj f				// Write out a spike raster (cell, spike time)
+
+sprint(outfile, "./networkclamp_results/%s/%s/othertrace_%d_soma.dat", runname, resultsfolder, gidOI)
+f = new File(outfile)
+f.wopen()
+f.printf("t\tv")
+print_mechs(gidOI) // mechstring = 
+if (myi_flag==1) {
+	for rt = 0, mechlength.x[0]-1 {
+		f.printf("\t%s", mechstring[rt].s)
+	}
+}
+f.printf("\n")
+for i=0, (tstop-tstart)/dt-1 {
+	f.printf("%g\t%g", i*dt, mytrace.x[i])
+	if (myi_flag==1) {
+		for rt = 0, mechlength.x[0]-1 {
+			sprint(cmdstr, "{f.printf(\"\\t%%g\", %s_%s.x[i])}", cellType[cellindOI].cellType_string, mechstring[rt].s)
+			execute1(cmdstr)
+		}
+	}						
+	{f.printf("\n")}
+}
+f.close()
+
+
+proc SpikeOutSerial() {local i, rank localobj f				// Write out a spike raster (cell, spike time)
 	pc.barrier()									// Wait for all ranks to get to this point
 	sprint(cmd,"./networkclamp_results/%s/%s/spikeraster.dat", runname, resultsfolder)
 	f = new File(cmd)
