@@ -71,7 +71,8 @@ proc init() {
     //  init proc does. Note that finitialize will call the INITIAL block for
     //  all mechanisms and point processes inserted in the sections and set the
     //  initial voltage to v_init for all sections
-    finitialize(v_init)	
+    finitialize() // v_init	
+	print "orig v_init = ", v_init
     
     // if randomly initializing the voltage, call randomVinit, otherwise call 
     // presimulation, which brings the network to a steady state
@@ -79,7 +80,9 @@ proc init() {
         // initialize all cells to random voltage centered on their Vrest with stdev of 1.0
         randomVinit(1.0)
     } else {
-        presimulation (500)
+		if (RandomVrest == 0) {
+			presimulation (500)
+		}
     }    
  	
 	if (cvode.active()){
