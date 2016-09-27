@@ -69,6 +69,8 @@ classdef SimRun < handle
         RandomVinit = 0 % Positive value indicates that initial voltages should be randomized
         PhasicData = 100 %  Which phasic dataset to use for oscillation/phasic stimulation
         PercentCellDeath = 0 %  Percent of cells that are killed (removed), for cell types flagged for cell death
+        RandomSynWgt = 0 % >0 indicates that synapse weights should vary with the specified weight as the mean. 1: a normal distribution, 2: a lognormal distribution, 3: a uniform distribution
+        synVar = 0.03 %  Fraction of the mean synapse weight that should be set as the standard deviation in the normal distribution of synapse weights for randomized synapse weights
 end
    methods
       function BA = SimRun(RunName,ResultsDirectory,UID)

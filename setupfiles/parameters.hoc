@@ -47,3 +47,5 @@ default_var("RandomVrest",0.0)		// Standard deviation away from Vrest for RMP of
 default_var("RandomVinit",0)		// Positive value indicates that initial voltages should be randomized
 default_var("PhasicData",100)		//  Which phasic dataset to use for oscillation/phasic stimulation
 default_var("PercentCellDeath",0)		//  Percent of cells that are killed (removed), for cell types flagged for cell death
+default_var("RandomSynWgt",0)		// >0 indicates that synapse weights should vary with the specified weight as the mean. 1: a normal distribution, 2: a lognormal distribution, 3: a uniform distribution
+default_var("synVar",0.03)		//  Fraction of the mean synapse weight that should be set as the standard deviation in the normal distribution of synapse weights for randomized synapse weights
