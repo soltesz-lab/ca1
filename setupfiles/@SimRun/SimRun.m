@@ -29,12 +29,12 @@ classdef SimRun < handle
         PrintCellPositions = 1 % Flag for printing the cell positions
         PrintConnSummary = 1 % Flag for printing the summary connection matrix
         TransverseLength = 1000 % Length of the network subfield in the transverse direction in microns
-        LongitudinalLength = 4000 % Length of the network subfield in the longitudinal direction in microns
-        LayerHeights = '4;100;50;200;100;' % Vector of heights of each network subfield layer in microns (from basal to molecular layer)
+        LongitudinalLength = 6000 % Length of the network subfield in the longitudinal direction in microns
+        LayerHeights = '4;500;100;400;100;' % Vector of heights of each network subfield layer in microns (from basal to molecular layer)
         SpatialResolution = 100 % Spatial discretization method or resolution
-        ConnData = 211 % Number of the connection dataset to use
-        SynData = 110 % Number of the synapse kinetics dataset that was used to prepare the cell definition files
-        NumData = 101 % Number of the cells dataset to use
+        ConnData = 1 % Number of the connection dataset to use
+        SynData = 1 % Number of the synapse kinetics dataset that was used to prepare the cell definition files
+        NumData = 1 % Number of the cells dataset to use
         RunComments = '' % Comments about the run, entered into the RunOrganizer
         NumCellsRecorded = 1 % Number of cells whose voltages were traced throughout the simulation
         NumCells = 1 % Number of real cells in the network
@@ -44,19 +44,19 @@ classdef SimRun < handle
         ModelName = '' % Main model code file that was run (often named for the subfield of the network
         Errors = '' % Description of an error that occurred during the run, breaking the simulation (hand entered)
         Groups = '' % User-defined groups that the run is a member of
-        NumTraces = 40 % The maximum number of cells to record intracellularly, for each cell type
-        FracTraces = 100 % The percent of cells to record intracellularly, for each cell type
-        DegreeStim = 10 % Degree of stimulation; meaning depends on Stimulation type
-        CatFlag = 0 % Whether to concatenate and remove trace connection files
+        NumTraces = 100 % The maximum number of cells to record intracellularly, for each cell type
+        FracTraces = 50 % The percent of cells to record intracellularly, for each cell type
         JobNumber = 0 % Job number assigned by supercomputer
-        RandomSeedsConn = 0 % Starting highIndex used by connectivity streams
-        RandomSeedsStim = 0 % Starting highIndex used by stimulation streams
-        AxConVel = 0 % Axonal conduction delay in um/ms, usually 250-500
         StepBy = 100 % Number of ms to run at a time
         JobHours = 4 % Number of hours to let the run go for
         EstWriteTime = 660 % Number of seconds to save for the run to write out its results
-        myConDelay = 1.2 % Axonal conduction delay
         TopProc = '' % NEURON process name in the top command
+        DegreeStim = 10 % Degree of stimulation; meaning depends on Stimulation type
+        CatFlag = 1 % Whether to concatenate and remove trace connection files
+        RandomSeedsConn = 0 % Starting highIndex used by connectivity streams
+        RandomSeedsStim = 0 % Starting highIndex used by stimulation streams
+        AxConVel = 0 % Axonal conduction delay in um/ms, usually 250-500
+        myConDelay = 1.2 % Axonal conduction delay
         ComputeLFP = 0 % Positive value indicates that approximate pyramidal cell LFP should be computed
         NumTracesPyr = 3000 % The maximum number of pyramidal cells to record intracellularly
         MaxEDist = 1000 % The maximum distance in microns away from an electrode point that LFP contributions from cells should be included
@@ -65,6 +65,7 @@ classdef SimRun < handle
         ComputeNpoleLFP = 1 % Compute the LFP using all or a fraction of compartments from nearby pyramidal cells
         ComputeDipoleLFP = 0 % Compute the LFP using two compartments (dipole) of nearby pyramidal cells
         LFPCellTypes = 'pyramidalcell' % semicolon separated list of cell types to record LFP from (give full name of celltype) -- ONLY WORKS FOR NPOLE!
+        RandomVrest = 0.0 % Standard deviation away from Vrest for RMP of each cell
 end
    methods
       function BA = SimRun(RunName,ResultsDirectory,UID)
