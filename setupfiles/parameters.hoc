@@ -45,3 +45,5 @@ default_var("ComputeDipoleLFP",0)		// Compute the LFP using two compartments (di
 default_var("LFPCellTypes","pyramidalcell")		// semicolon separated list of cell types to record LFP from (give full name of celltype) -- ONLY WORKS FOR NPOLE!
 default_var("RandomVrest",0.0)		// Standard deviation away from Vrest for RMP of each cell
 default_var("RandomVinit",0)		// Positive value indicates that initial voltages should be randomized
+default_var("PhasicData",100)		//  Which phasic dataset to use for oscillation/phasic stimulation
+default_var("PercentCellDeath",0)		//  Percent of cells that are killed (removed), for cell types flagged for cell death

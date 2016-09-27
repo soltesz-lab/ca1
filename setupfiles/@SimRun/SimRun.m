@@ -68,6 +68,7 @@ classdef SimRun < handle
         RandomVrest = 0.0 % Standard deviation away from Vrest for RMP of each cell
         RandomVinit = 0 % Positive value indicates that initial voltages should be randomized
         PhasicData = 100 %  Which phasic dataset to use for oscillation/phasic stimulation
+        PercentCellDeath = 0 %  Percent of cells that are killed (removed), for cell types flagged for cell death
 end
    methods
       function BA = SimRun(RunName,ResultsDirectory,UID)
