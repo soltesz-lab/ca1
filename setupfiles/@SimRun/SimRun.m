@@ -32,9 +32,9 @@ classdef SimRun < handle
         LongitudinalLength = 6000 % Length of the network subfield in the longitudinal direction in microns
         LayerHeights = '4;500;100;400;100;' % Vector of heights of each network subfield layer in microns (from basal to molecular layer)
         SpatialResolution = 100 % Spatial discretization method or resolution
-        ConnData = 1 % Number of the connection dataset to use
-        SynData = 1 % Number of the synapse kinetics dataset that was used to prepare the cell definition files
-        NumData = 1 % Number of the cells dataset to use
+        ConnData = 100 % Number of the connection dataset to use
+        SynData = 100 % Number of the synapse kinetics dataset that was used to prepare the cell definition files
+        NumData = 100 % Number of the cells dataset to use
         RunComments = '' % Comments about the run, entered into the RunOrganizer
         NumCellsRecorded = 1 % Number of cells whose voltages were traced throughout the simulation
         NumCells = 1 % Number of real cells in the network
@@ -66,6 +66,8 @@ classdef SimRun < handle
         ComputeDipoleLFP = 0 % Compute the LFP using two compartments (dipole) of nearby pyramidal cells
         LFPCellTypes = 'pyramidalcell' % semicolon separated list of cell types to record LFP from (give full name of celltype) -- ONLY WORKS FOR NPOLE!
         RandomVrest = 0.0 % Standard deviation away from Vrest for RMP of each cell
+        RandomVinit = 0 % Positive value indicates that initial voltages should be randomized
+        PhasicData = 100 %  Which phasic dataset to use for oscillation/phasic stimulation
 end
    methods
       function BA = SimRun(RunName,ResultsDirectory,UID)

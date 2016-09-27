@@ -76,11 +76,11 @@ proc init() {
     
     // if randomly initializing the voltage, call randomVinit, otherwise call 
     // presimulation, which brings the network to a steady state
-    if (RandomVinit > 0) {
+    if (RandomVinit > 0.0) {
         // initialize all cells to random voltage centered on their Vrest with stdev of 1.0
         randomVinit(1.0)
     } else {
-		if (RandomVrest == 0) {
+		if (RandomVrest == 0.0) {
 			presimulation (500)
 		}
     }    
