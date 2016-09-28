@@ -191,18 +191,18 @@ proc set_nseg() {
 proc mechinit() {
 
 	// resting membrane potential. Must lie between Na+ and K+ reversal potentials
-	Vrest=-55
+	Vrest=-57
 	
 	// Temperature of simulation
 	celsius = 34.0  
 
 	// Membrane resistance in ohm*cm2
-	RmDend = 35000 // 60000
-	RmSoma = 35000 // 60000 
+	RmDend = 45000 // 60000
+	RmSoma = 45000 // 60000 
 
 	// Membrane capacitance in uF/cm2
-	CmSoma= 1.2 // 1.8
-	CmDend = 1.2 // 1.8
+	CmSoma= 1.0 // 1.8
+	CmDend = 1.0 // 1.8
 
 	// Axial resistance in ohm*cm
 	RaDend= 150 //75*3
@@ -221,7 +221,7 @@ proc mechinit() {
 	
 	if (Vrest<ekval) Vrest=ekval // Cell cannot rest lower than K+ reversal potential
 	if (Vrest>enaval) Vrest=enaval // Cell cannot rest higher than Na+ reversal potential
-	eleakval = -72 //Vrest
+	eleakval = Vrest
 
 	// max ion channel conductances in mho/cm2
 	gNav     = 0.04 // soma: // 0.12 //original 0.030 to .055 ; lm: //0.5  	//original 0.015
