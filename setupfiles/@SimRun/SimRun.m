@@ -29,8 +29,8 @@ classdef SimRun < handle
         PrintCellPositions = 1 % Flag for printing the cell positions
         PrintConnSummary = 1 % Flag for printing the summary connection matrix
         TransverseLength = 1000 % Length of the network subfield in the transverse direction in microns
-        LongitudinalLength = 6000 % Length of the network subfield in the longitudinal direction in microns
-        LayerHeights = '4;500;100;400;100;' % Vector of heights of each network subfield layer in microns (from basal to molecular layer)
+        LongitudinalLength = 4000 % Length of the network subfield in the longitudinal direction in microns
+        LayerHeights = '4;100;50;200;100;' % Vector of heights of each network subfield layer in microns (from basal to molecular layer)
         SpatialResolution = 100 % Spatial discretization method or resolution
         ConnData = 100 % Number of the connection dataset to use
         SynData = 100 % Number of the synapse kinetics dataset that was used to prepare the cell definition files
