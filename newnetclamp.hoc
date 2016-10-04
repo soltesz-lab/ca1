@@ -322,7 +322,7 @@ strobj = new StringFunctions()
 			mt.select( i )
 			mt.selected(mname)
 			if( ismembrane(mname)) {
-				if (strcmp(mname,"capacitance")!=0 && strcmp(mname,"morphology")!=0 && strcmp(mname,"iconc_CaZ")!=0 && strcmp(mname,"iconc_Ca")!=0  && strcmp(mname,"iconcCa")!=0 && strcmp(mname,"ccanl")!=0 && strcmp(mname,"cad")!=0 && strcmp(mname,"pas")!=0 && strcmp(mname,"vmax")!=0 ) { //
+				if (strcmp(mname,"capacitance")!=0 && strcmp(mname,"morphology")!=0 && strcmp(mname,"iconc_CaZ")!=0 && strcmp(mname,"iconc_Ca")!=0  && strcmp(mname,"iconcCa")!=0 && strcmp(mname,"ccanl")!=0 && strcmp(mname,"cad")!=0 && strcmp(mname,"pas")!=0 && strcmp(mname,"vmax")!=0  && strcmp(mname,"extracellular")!=0 ) { //
 					if (strobj.substr(mname,"_ion")==-1) {
 						//printf("myi_%s \n", mname) 
 						sprint(tmpstr, "myi_%s", mname) // "cell.soma.%s(0.5)", tmpstr
@@ -938,6 +938,31 @@ for i=0, (tstop-tstart)/dt-1 {
 	f.printf("%g\t%g\n", i*dt, mytrace.x[i])
 }
 f.close()
+
+
+strdef outfile, umfile
+objref f, umf
+sprint(outfile, "./networkclamp_results/%s/%s/mytrace_%d_syns.dat", runname, resultsfolder, gidOI)
+f = new File(outfile)
+f.wopen()
+f.printf("t")
+for i = 0, numCellTypes-1 {
+	f.printf("\t%s", cellType[i].cellType_string)
+}
+f.printf("\n")
+for ti=0, (tstop-tstart)/dt-1 {
+	f.printf("%g", ti*dt)
+	for i = 0, numCellTypes-1 {
+		totcur=0
+		for m=0,pretyperec[i].count()-1 {
+			totcur=totcur+pretyperec[i].o(m).x[ti]
+		}
+		f.printf("\t%g", totcur)
+	}
+	f.printf("\n")
+}
+f.close()
+
 
 
 sprint(outfile, "./networkclamp_results/%s/%s/othertrace_%d_soma.dat", runname, resultsfolder, gidOI)

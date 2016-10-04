@@ -5,7 +5,10 @@ speed = 1
 objref highIndices
 objref fconn, fsubst
 
-objref conns2make, cells2make
+objref conns2make, cells2make, keepingtrack, recordvar, pretyperec[numCellTypes]
+
+keepingtrack = new Vector()
+recordvar = new Vector()
 
 {cells2make = new Vector(ncell)}
 {cells2make.fill(-1)}
@@ -28,6 +31,7 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 			highIndices.x[0] = 1+RandomSeedsConn
 
 			for i = 0, numCellTypes-1 {	
+				pretyperec[i] = new List()
 				//if (cellType[i].is_art()==0) {
 				precellType_string =  cellType[i].cellType_string	// Load cell type string used to grab connection-specific properties later
 				//print "precellType_string: ", precellType_string, " -> postcellType_string: ", postcellType_string
@@ -157,11 +161,15 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 					}
 				} 
 			}
+			
+						
 			{pc.barrier}
 			for r=1+numpost, int(conns2make.x[0]/1)+numpost {		
 				if (pc.gid_exists(gidOI)) {
 					cell = pc.gid2cell(gidOI)
 					numSynTypes = cell.pre_list.o(precellType).count()
+					keepingtrack = new Vector(numSynTypes)
+					recordvar = new Vector((tstop-tstart)/dt)
 					if (numSynTypes > 0) {
 						// ransynlist.object(cell.randi).r.discunif(0,numSynTypes-1)		// Create a uniform random INTEGER variable over the range specified (0 to # synapse types-1),
 						ransynlist.object(0).r.discunif(0,numSynTypes-1)		// Create a uniform random INTEGER variable over the range specified (0 to # synapse types-1),
@@ -175,6 +183,11 @@ proc makeConnections () {local precellType, distres, postcellType, precellStart,
 								conDelay = int(10*sqrt((xpos - cell.x)*(xpos - cell.x) + (ypos - cell.y)*(ypos - cell.y))/AxConVel)/10 + 0.5 // use 0.5 for the synaptic cleft delay; this also ensures the delay will never be set to 0, which would error the program
 							}
 							nc_append(conns2make.x[r+1], gidOI, precellType, randSynNumber, synWeight + (conns2make.x[r+1]+1)*1000, conDelay)	// Make the connection  // the latter part is for tracing the big bug, used by exp2sid mech (it will take away this extra part)
+							if (keepingtrack.x[randSynNumber]==0) {		
+								recordvar.record(&cell.pre_list.o(precellType).o(randSynNumber).i)						
+								pretyperec[precellType].append(recordvar)
+								keepingtrack.x[randSynNumber]=1
+							}
 						}
 						counter +=1
 					}
