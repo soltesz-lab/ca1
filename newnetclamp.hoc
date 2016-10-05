@@ -361,10 +361,11 @@ celsius=34
 													//  (synapse)
 
 {pc.barrier()}
-
+print "got here?"
 {load_file("./setupfiles/clamp/list_randfaststim_connections.hoc")}			// Loads in a particular definition of the connectCells function,
 							//  depending on the value of the Connectivity string
 
+print "or here?"
 zzz = mallinfo(zzz, "After connecting cells")
 {pc.barrier()}
 
@@ -378,7 +379,7 @@ if (stimflag==0) {
 	}
 }
 zzz = mallinfo(zzz, "After defining stimulation")
-
+print "got there!"
 {load_file("./setupfiles/write_conns_functions.hoc")}	// Defines two funcs (procs?): printNumConFile()
 														//  writes the number of synapses between every
 														//  combination of pre- and post-synaptic cell type

@@ -594,7 +594,7 @@ for r=1:length(Runs2Use)
     if ~isempty(strfind(FinalData(Runs2Use(r)).Comments,'Control')) && isempty(strfind(FinalData(Runs2Use(r)).Comments,'GrrControl'))
         xL{r}='Ctrl';
     else
-        xL{r}= FinalData(Runs2Use(r)).Comments(length(RecColl)+1:end);%strrep(strrep(FinalData(Runs2Use(r)).Comments(7:end),'.',''),' ','');
+        xL{r}= FinalData(Runs2Use(r)).Comments(length('RecColl')+1:end);%strrep(strrep(FinalData(Runs2Use(r)).Comments(7:end),'.',''),' ','');
     end
 end
 if usenorm==1

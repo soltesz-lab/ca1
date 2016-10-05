@@ -1,6 +1,7 @@
 distres = 5
 objref postcellgids
 speed = 1
+PrintTerminal=3
 
 objref highIndices
 objref fconn, fsubst
