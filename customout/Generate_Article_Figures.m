@@ -23,7 +23,7 @@ ctrlstr='ca1_centerlfp_long_exc_065_01';%'ca1_nlfp_long_exc_065_01_02';
 myElectrode=[2000 500];
 maxdist=500;
 
-whichFigs2Print=[5]; % Only figs 3-8 are implemented right now
+whichFigs2Print=[6]; % Only figs 3-8 are implemented right now
 % 1: Anatomical constraints 
 % 2: Electrophysiological constraints
 % 3: Spectrograms & Heat Maps
@@ -494,6 +494,132 @@ printeps(gy(1),[savepath sl myname])
 printeps(gy(2),[savepath sl myname 'Freq'])
 end
 
+% Disinh
+Runs2Use=[];
+for r=1:length(FinalData)
+    if ~isempty(strfind(FinalData(r).Comments,'Disinh')) || (~isempty(strfind(FinalData(r).Comments,'Control')) && isempty(strfind(FinalData(r).Comments,'GrrControl'))) %~isempty(find(myfigs(r).figs==2))
+        Runs2Use=[Runs2Use r];
+    end
+end
+
+thetafreq=[];
+thetapow=[];
+thetanorm=[];
+for bb=1:length(Runs2Use)
+    thetafreq(bb)=FinalData(Runs2Use(bb)).Pos.Freqs(FinalData(Runs2Use(bb)).Pyr).Theta;
+    thetapow(bb)=FinalData(Runs2Use(bb)).Pos.Freqs(FinalData(Runs2Use(bb)).Pyr).ThetaP;
+    thetanorm(bb)=FinalData(Runs2Use(bb)).Pos.Freqs(FinalData(Runs2Use(bb)).Pyr).ThetaP/FinalData(Runs2Use(bb)).Pos.Freqs(FinalData(Runs2Use(bb)).Pyr).OverallP;
+end
+
+myname='Disinh';
+mytitle='Disinhibition';
+myapp='';
+
+if usenorm==1
+    myplotvals=thetanorm;
+else
+    myplotvals=thetapow;
+end
+
+mysize=[length(Runs2Use) myszht];
+xL={};
+for r=1:length(Runs2Use)
+    if ~isempty(strfind(FinalData(Runs2Use(r)).Comments,'Control')) && isempty(strfind(FinalData(Runs2Use(r)).Comments,'GrrControl'))
+        xL{r}='Ctrl';
+    else
+        whichnum=regexp(FinalData(Runs2Use(r)).Name,'[0-9][0-9]','match');
+        xL{r}= [FinalData(Runs2Use(r)).Name(14:end-4) '-' whichnum{1} '%'];%strrep(strrep(FinalData(Runs2Use(r)).Comments(7:end),'.',''),' ','');
+    end
+end
+if usenorm==1
+yL={'Norm. Theta Power','Relative to Control'};
+else
+yL='Theta Power';
+end
+
+mycolors=[];
+myfreqs=[];
+freqstruct=[];
+for r=1:length(Runs2Use)
+    mycelltype=lower(strrep(strrep(strrep(strrep(xL{r},'-',''),'.',''),'+',''),' ',''));
+    if strcmp(xL{r}(1:2),'pv')
+        mycolors(r,:)=[0 1 0];
+    elseif strcmp(xL{r}(1:2),'so')
+        mycolors(r,:)=[.8 .2 1];
+    else
+        mycolors(r,:)=[0 0 0];
+    end
+    myfreqs(r,:)=[FinalData(Runs2Use(r)).Pos.Freqs(FinalData(Runs2Use(r)).Pyr).Theta FinalData(Runs2Use(r)).Pos.Freqs(FinalData(Runs2Use(r)).Pyr).ThetaP FinalData(Runs2Use(r)).Pos.Freqs(FinalData(Runs2Use(r)).Pyr).Overall FinalData(Runs2Use(r)).Pos.Freqs(FinalData(Runs2Use(r)).Pyr).OverallP  FinalData(Runs2Use(r)).Pos.Freqs(FinalData(Runs2Use(r)).Pyr).Gamma FinalData(Runs2Use(r)).Pos.Freqs(FinalData(Runs2Use(r)).Pyr).GammaP];
+    freqstruct(r).freqs= FinalData(Runs2Use(r)).Pos.Freqs(1).Gamma;%unique([FinalData(mdx).tbldata{:,6}]);
+    freqstruct(r).pows= FinalData(Runs2Use(r)).Pos.Freqs(1).GammaP;%unique([FinalData(mdx).tbldata{:,6}]);
+end
+myplotvals(isnan(myplotvals))=0;
+gy=plotmebaronly(myname, mycolors, myplotvals,mysize,xL,yL,myfreqs,freqstruct,mytitle,myapp);
+if printflag
+printeps(gy(1),[savepath sl myname])
+printeps(gy(2),[savepath sl myname 'Freq'])
+end
+
+
+% Recurrent Collaterals
+Runs2Use=[];
+for r=1:length(FinalData)
+    if ~isempty(strfind(FinalData(r).Comments,'RecColl')) || (~isempty(strfind(FinalData(r).Comments,'Control')) && isempty(strfind(FinalData(r).Comments,'GrrControl'))) %~isempty(find(myfigs(r).figs==2))
+        Runs2Use=[Runs2Use r];
+    end
+end
+
+thetafreq=[];
+thetapow=[];
+thetanorm=[];
+for bb=1:length(Runs2Use)
+    thetafreq(bb)=FinalData(Runs2Use(bb)).Pos.Freqs(FinalData(Runs2Use(bb)).Pyr).Theta;
+    thetapow(bb)=FinalData(Runs2Use(bb)).Pos.Freqs(FinalData(Runs2Use(bb)).Pyr).ThetaP;
+    thetanorm(bb)=FinalData(Runs2Use(bb)).Pos.Freqs(FinalData(Runs2Use(bb)).Pyr).ThetaP/FinalData(Runs2Use(bb)).Pos.Freqs(FinalData(Runs2Use(bb)).Pyr).OverallP;
+end
+
+myname='RecColl';
+mytitle='Recurrent Collaterals';
+myapp='';
+
+if usenorm==1
+    myplotvals=thetanorm;
+else
+    myplotvals=thetapow;
+end
+
+mysize=[length(Runs2Use) myszht];
+xL={};
+for r=1:length(Runs2Use)
+    if ~isempty(strfind(FinalData(Runs2Use(r)).Comments,'Control')) && isempty(strfind(FinalData(Runs2Use(r)).Comments,'GrrControl'))
+        xL{r}='Ctrl';
+    else
+        xL{r}= FinalData(Runs2Use(r)).Comments(length(RecColl)+1:end);%strrep(strrep(FinalData(Runs2Use(r)).Comments(7:end),'.',''),' ','');
+    end
+end
+if usenorm==1
+yL={'Norm. Theta Power','Relative to Control'};
+else
+yL='Theta Power';
+end
+
+mycolors=[];
+myfreqs=[];
+freqstruct=[];
+for r=1:length(Runs2Use)
+    mycelltype=lower(strrep(strrep(strrep(strrep(xL{r},'-',''),'.',''),'+',''),' ',''));
+    mycolors(r,:)=[0 0 0];
+    myfreqs(r,:)=[FinalData(Runs2Use(r)).Pos.Freqs(FinalData(Runs2Use(r)).Pyr).Theta FinalData(Runs2Use(r)).Pos.Freqs(FinalData(Runs2Use(r)).Pyr).ThetaP FinalData(Runs2Use(r)).Pos.Freqs(FinalData(Runs2Use(r)).Pyr).Overall FinalData(Runs2Use(r)).Pos.Freqs(FinalData(Runs2Use(r)).Pyr).OverallP  FinalData(Runs2Use(r)).Pos.Freqs(FinalData(Runs2Use(r)).Pyr).Gamma FinalData(Runs2Use(r)).Pos.Freqs(FinalData(Runs2Use(r)).Pyr).GammaP];
+    freqstruct(r).freqs= FinalData(Runs2Use(r)).Pos.Freqs(1).Gamma;%unique([FinalData(mdx).tbldata{:,6}]);
+    freqstruct(r).pows= FinalData(Runs2Use(r)).Pos.Freqs(1).GammaP;%unique([FinalData(mdx).tbldata{:,6}]);
+end
+myplotvals(isnan(myplotvals))=0;
+gy=plotmebaronly(myname, mycolors, myplotvals,mysize,xL,yL,myfreqs,freqstruct,mytitle,myapp);
+if printflag
+printeps(gy(1),[savepath sl myname])
+printeps(gy(2),[savepath sl myname 'Freq'])
+end
+
 % Muted
 Runs2Use=[];
 for r=1:length(FinalData)
@@ -656,9 +782,21 @@ myElectrode=historical.myElectrode ;%[2000 500];
 maxdist=historical.maxdist ;%500;
 fid=fopen([savepath sl 'Pyramidal_SDF_All_Conditions.txt'],'w');
 fid2=fopen([savepath sl 'All_SDF_Ctrl_Condition.txt'],'w');
-fprintf(fid,'Time')
-fprintf(fid2,'Time')
+fprintf(fid,'Time');
+fprintf(fid2,'Time');
 for r=1:length(FinalData)-1
+    if r==1 && isfield(FinalData(1),'sdftimevec') && ~isempty(FinalData(1).sdftimevec)
+        mymat=zeros(length(FinalData(1).sdftimevec),length(FinalData)+1);
+        onemat=zeros(length(FinalData(1).onetimevec),length(FinalData)+1);
+        mymat(:,1)=FinalData(r).sdftimevec(:);
+        onemat(:,1)=FinalData(r).onetimevec(:);
+        onemat(:,r+1)=FinalData(r).tmpsdf(:);
+        mymat(:,r+1)=FinalData(r).sdf(:);
+    elseif r>1 &&  isfield(FinalData(r),'sdf') && ~isempty(FinalData(r).sdf) &&  isfield(FinalData(r),'tmpsdf') && ~isempty(FinalData(r).tmpsdf)
+        onemat(:,r+1)=FinalData(r).tmpsdf(:);
+        mymat(:,r+1)=FinalData(r).sdf(:);
+    else
+
     if 1==1 %infig6
         eval(['global ' FinalData(r).Name])
         evalin('caller',['global ' FinalData(r).Name])
@@ -677,7 +815,7 @@ for r=1:length(FinalData)-1
         end
         handles.curses.cells=myhandles.curses.cells;
         
-        fprintf(fid,'\t%s',FinalData(r).Name)
+        fprintf(fid,'\t%s',FinalData(r).Name);
         
         pyrIdx=7;
         idx = find(ismember(handles.curses.spikerast(:,2),handles.curses.cells(pyrIdx).mygids)==1);
@@ -698,10 +836,12 @@ for r=1:length(FinalData)-1
         kernel=mynormpdf(-floor((window*6+1)/2):floor((window*6+1)/2),0,window);
         sdf = conv(binned,kernel,'same');
         if r==1
-            mymat=timevec(:);
+            mymat=zeros(length(timevec),length(FinalData)+1);
+            mymat(:,1)=timevec(:);
+            FinalData(r).sdftimevec=timevec(:);
             
             for q=1:length(handles.curses.cells)
-                fprintf(fid2,'\t%s',handles.curses.cells(q).name)
+                fprintf(fid2,'\t%s',handles.curses.cells(q).name);
                 idx = find(ismember(handles.curses.spikerast(:,2),handles.curses.cells(q).mygids)==1);
                 if timeflag
                     idt = find(handles.curses.spikerast(idx,1)>handles.general.crop & handles.curses.spikerast(idx,1)<timewindow);
@@ -720,18 +860,24 @@ for r=1:length(FinalData)-1
                 kernel=mynormpdf(-floor((window*6+1)/2):floor((window*6+1)/2),0,window);
                 tmpsdf = conv(binned,kernel,'same');                
                 if q==1
-                    onemat=timevec(:);
+                    onemat=zeros(length(timevec),length(FinalData)+1);
+                    onemat(:,1)=timevec(:);
+                    FinalData(r).onetimevec=timevec(:);
                 end
-                onemat=[onemat tmpsdf(:)];
+                onemat(:,r+1)=tmpsdf(:);%onemat=[onemat tmpsdf(:)];
+                FinalData(r).tmpsdf=tmpsdf(:);
+                save('FinalFig6Data.mat','FinalData','-append')
             end
-            
         end
-        mymat=[mymat sdf(:)];
+        mymat(:,r+1)=sdf(:);%mymat=[mymat sdf(:)];
+        FinalData(r).sdf=sdf(:);
+        save('FinalFig6Data.mat','FinalData','-append')
+    end
     end
 end
-fclose(fid)
-fclose(fid2)
-%fprintf(fid,'\n')
+fclose(fid);
+fclose(fid2);
+%fprintf(fid,'\n');
 dlmwrite([savepath sl 'Pyramidal_SDF_All_Conditions.txt'],mymat,'-append',...
 'delimiter','\t','roffset',1)
 dlmwrite([savepath sl 'All_SDF_Ctrl_Condition.txt'],onemat,'-append',...
@@ -2157,7 +2303,7 @@ fprintf(fid,'Time\tRaw\n');
 for f=1:length(thetalfp)
     fprintf(fid,'%f\t%f\n', handles.curses.lfp(f+ploffset,1), handles.curses.lfp(f+ploffset,2));
 end
-fclose(fid)
+fclose(fid);
 
 fid=fopen([savepath sl 'FilteredLFP.txt'],'w');
 ploffset=(length(handles.curses.lfp)-length(thetalfp))/2;
@@ -2165,7 +2311,7 @@ fprintf(fid,'Time\tTheta\tGamma\n');
 for f=1:length(thetalfp)
     fprintf(fid,'%f\t%f\t%f\n', handles.curses.lfp(f+ploffset,1), thetalfp(f,2), filteredlfp(f,2));
 end
-fclose(fid)
+fclose(fid);
 
 fid=fopen([savepath sl 'Membrane_Potentials.txt'],'w');
 fprintf(fid,'Time');
@@ -2184,7 +2330,7 @@ myvars=myvars(1:end-1);
 for q=1:length(mytrace.(mycells{1}).trace(:,1))
     eval(['fprintf(fid,''' mystr ''',' myvars ');']);
 end
-fclose(fid)
+fclose(fid);
     %subplot(length(mycells),1,mytrace.(mycells{m}).pos)
     
 
