@@ -82,40 +82,6 @@ proc SpikeOutParallel() {local i  localobj f
 
 	
 	g=1
-	if (CatFlag==1) {	// If the user is okay with system commands concatenating all processors'
-						//  results file into one results file, then proceed. Parallelize the
-						//  concatenation as much as possible using the following algorithm.
-						//  Ex: if there were 8 processors, with indices 0 - 7, then the
-						//  concatenation happens in the following minimal number of steps:
-						//  1. processor 1 adds its file contents to those for processor 0;
-						//     at the same time as 1 --> 0, these other transfers are also
-						//     occurring: 3 --> 2, 5 --> 4, 7 --> 6.
-						//  2. The next level of concatenation occurs: 2 -->0 and 6 --> 4
-						//  3. The final concatenation occurs: 4 --> 0.
-		pc.barrier()
-		while (pc.nhost>g) {
-			g=g*2
-			if ((pc.id/g - int(pc.id/g))==0.5) {
-				sprint(dircmd,"cat ./results/%s/spikeraster_%g.dat >> ./results/%s/spikeraster_%g.dat", RunName, pc.id, RunName, int(pc.id-g/2))
-				{system(dircmd, direx)}			
-				sprint(dircmd,"rm ./results/%s/spikeraster_%g.dat", RunName, pc.id)
-				{system(dircmd, direx)}			
-			}
-			pc.barrier()
-		}
-	}
-	pc.barrier()
-	if (pc.id==0) {
-		if (CatFlag==1) {	// If the user is okay with system commands concatenating files,
-							//  then all the files have been concatenated into the results file
-							//  for processor 0, and now they will be transferred to the final
-							//  results file.
-			sprint(dircmd,"cat ./results/%s/spikeraster_0.dat >> ./results/%s/spikeraster.dat", RunName, RunName)
-			{system(dircmd, direx)}		
-			sprint(dircmd,"rm ./results/%s/spikeraster_%g.dat", RunName, pc.id)
-			{system(dircmd, direx)}	
-		}	
-	}
 }
 
 // Print a summary of some of the job properties, data that
