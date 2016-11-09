@@ -15,7 +15,7 @@ synaptic inputs, and set aside some random number generators (random
 streams) for each cell.
 ************************************************************/
 
-proc createCells(){ local i, ij, si, pci, cellind, runresult, gid	// Create cells and assign a GID to each cell
+proc createCells(){ local i, ij, si, pci, cellind, runresult, gid localobj tmpr	// Create cells and assign a GID to each cell
 	for cellind=0, numCellTypes-1 {									//	number stream have already been used
 		for pcitr(&i, &ij, &gid, cellType[cellind].cellStartGid, cellType[cellind].cellEndGid) {// use the pciter over all cells of this type
 			if (pc.gid_exists(gid)) {
@@ -64,7 +64,7 @@ proc createCells(){ local i, ij, si, pci, cellind, runresult, gid	// Create cell
 																						//  netstims for setting spont stim.
 																						
 				raninitlist.append(new RandomStream(1+RandomSeedsStim, gid + 3*ncell)) 	// Create a new random number generator for each cell, used to 
-																						//  set variable initial voltage
+																						//  set variable initial voltage OR variable RMP for each cell
 																						
 				ranlfplist.append(new RandomStream(1+RandomSeedsStim, gid + 4*ncell)) 	// Create a new random number generator for each cell, used to 
 																						//  determine whether cell provides a small contribution to the
@@ -98,9 +98,25 @@ proc createCells(){ local i, ij, si, pci, cellind, runresult, gid	// Create cell
 					//  of printouts, print out a notification when every tenth of each cell
 					//  type has been created.
 					if ((ij%int(cellType[cellind].numCells/10+1) == 0) && (PrintTerminal>2)) {
-						print cellType[cellind].cellType_string, ": ", i
+						print cellType[cellind].cellType_string, ": ", ij
 					}
-				}				
+
+					if (RandomVrest>0) {
+						// For real or specified cell types, allow variability in their preferred Vrest
+						tmpr = raninitlist.object(i).r
+						tmpr.normal(cellType[cellind].CellList[ij].Vrest, RandomVrest)		// Vary over normal distribution with mean of original Vrest and std of RandomVrest mV
+						cellType[cellind].CellList[ij].Vrest = tmpr.repick()
+						forsec cellType[cellind].CellList[ij].all { 	// Iterate over all sections of this cell
+							
+							for (x,0) { 	// Iterate over all internal nodes of this section
+								v = cellType[cellind].CellList[ij].Vrest
+												// Set the voltage of this node to the randomly
+												//  picked value from the above normal distribution
+							}
+						}
+					}
+				}
+
 				
 				// Determine the z height of the cells of this type by finding which layer they are in and
 				//  adding the heights of all the lower layers to get the height in the current layer
@@ -109,18 +125,6 @@ proc createCells(){ local i, ij, si, pci, cellind, runresult, gid	// Create cell
 
 				// Algorithmically generate cell position using the functions get_x_pos, get_y_pos, and get_z_pos,
 				//  defined in the mod file ../positionfcns.mod
-				if (gid==20900) {
-					print "TROUBLESHOOT POSITIONING"
-					print "gid=", gid
-					print "cellType[cellind].cellStartGid=", cellType[cellind].cellStartGid
-					print "cellType[cellind].dentateXBins=", cellType[cellind].dentateXBins
-					print "cellType[cellind].dentateYBins=", cellType[cellind].dentateYBins
-					print "cellType[cellind].dentateZBins=", cellType[cellind].dentateZBins
-					print "cellType[cellind].dentateXBinSize=", cellType[cellind].dentateXBinSize
-					print "cellType[cellind].dentateYBinSize=", cellType[cellind].dentateYBinSize
-					print "cellType[cellind].dentateZBinSize=", cellType[cellind].dentateZBinSize
-					print "addheight=", addheight
-				}
 				xpos=get_x_pos(gid,cellType[cellind].cellStartGid,cellType[cellind].dentateXBins,cellType[cellind].dentateYBins*cellType[cellind].dentateZBins,cellType[cellind].dentateXBinSize)
 				ypos=get_y_pos(gid,cellType[cellind].cellStartGid,cellType[cellind].dentateYBins,cellType[cellind].dentateZBins,cellType[cellind].dentateYBinSize)
 				zpos=get_z_pos(gid,cellType[cellind].cellStartGid,cellType[cellind].dentateZBins,cellType[cellind].dentateZBinSize,addheight)	

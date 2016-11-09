@@ -759,10 +759,10 @@ if (onecell==1) {
 						sprint(cmdstr, "{trace_%s.record(&cell.%s.v(0.5))}", cellType[cellind].cellType_string, sname)
 						execute1(cmdstr)
 
-						trace_s.record(&cell.soma.s_ch_Navcck)
+/*						trace_s.record(&cell.soma.s_ch_Navcck)
 						trace_sexp.record(&cell.soma.sexp_ch_Navcck)
 						trace_sinf.record(&cell.soma.sinf_ch_Navcck)
-						trace_taus.record(&cell.soma.g_ch_Navcck)
+						trace_taus.record(&cell.soma.g_ch_Navcck)*/
 											
 						if (myi_flag==1) {
 							print_mechs(gid)
