@@ -47,6 +47,7 @@ default_var("Jitter",.2)		// Fraction of noise associated with jitterburst stimu
 default_var("myConDelay",1.2)		// Axonal conduction delay
 default_var("TopProc","")		// NEURON process name in the top command
 default_var("RandomVinit",0)		// Initialize V randomly
+default_var("RandomVrest",0)		// Initialize V randomly
 default_var("lfp_dt",0.1)		// LFP sampling time step
 default_var("ComputeDipoleLFP",0)		// Use dipole LFP method
 default_var("ComputeNpoleLFP",0)		// Use n-pole LFP method
