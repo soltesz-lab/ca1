@@ -7,23 +7,27 @@ begintemplate ppvec
 	proc init() {
 		gid = $1
 		randi = $2
-                
-                if (numarg() > 2) {
-                    
-                    spikevect = $o3
-                    pp = new VecStim()
-                    pp.play(spikevect)
-                    
-                } else {
-		    pp = new MyNetStim(.5)
-		    pp.interval = 1
-		    pp.number = 5
-		    pp.start = -5
-		    pp.gid = gid
-		    pp.randi = randi
-	        }
+                setup()
             }
-
+            
+        proc setup() {
+            if (numarg() > 0) {
+                
+                spikevect = $o1
+                pp = new VecStim()
+                pp.play(spikevect)
+                
+            } else {
+		pp = new MyNetStim(.5)
+		pp.interval = 1
+		pp.number = 5
+		pp.start = -5
+		pp.gid = gid
+		pp.randi = randi
+	    }
+            
+        }
+        
 	func is_art() {return 1}
 	
 	proc connect_pre() {$o2 = new NetCon(pp, $o1)}

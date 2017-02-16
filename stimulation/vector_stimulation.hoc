@@ -67,7 +67,7 @@ if (MakeArtConns==0) {	// Only make connections from artificial cells if they
     connectStims()      //  have not been connected at another time (ie, in the
 }		//  connectivity algorithm)
 
-proc setVecStim() {local sendpos, celltype_idx, rank_idx, rank_startgid, startgid, endgid, pop_size, gid_idx, gid_size localobj vindex, vspiketimes, vcounts, cell strdef vecstim_index_filename, vecstim_filename
+proc setVecStim() {local sendpos, celltype_idx, rank_idx, rank_startgid, startgid, endgid, pop_size, gid_idx, gid_size localobj vindex, vspiketimes, vcounts, vcellspikes, cell strdef vecstim_index_filename, vecstim_filename
     
     vecstim_index_filename=$s1
     vecstim_filename=$s2
@@ -116,10 +116,14 @@ proc setVecStim() {local sendpos, celltype_idx, rank_idx, rank_startgid, startgi
                 for (gid=rank_startgid; gid <= endgid; gid += pc.nhost) {
                     gid_idx   = vindex[gid]
                     gid_size  = vsizes[gid]
+                    vsendbuf.append(gid_idx)
+                    sendpos += 1
+                    vsendbuf.append(gid_size)
+                    sendpos += 1
                     vsendbuf.copy(vspiketimes, sendpos, gid_index, gid_index+gid_size-1)
                     sendpos += gid_size
-                    vrecvcounts[rank_idx] += gid_size
-                    vsendcounts[rank_idx] += gid_size
+                    vrecvcounts[rank_idx] += gid_size+2
+                    vsendcounts[rank_idx] += gid_size+2
                 }
                 vsendcounts1.x[rank_idx] = 1
             }
@@ -136,33 +140,22 @@ proc setVecStim() {local sendpos, celltype_idx, rank_idx, rank_startgid, startgi
         // send out the spike vectors (only rank 0 sends data)
         pc.alltoall(vsendbuf, vsendcounts, vspiketimes)
         
+        recvpos = 0
+        while (recvpos < vspiketimes.size()) {
+            
+            gid = vspiketimes.x[recvpos]
+            recvpos += 1
+            gid_size = vspiketimes.x[recvpos]
+            recvpos += 1
+            vcellspikes = new Vector()
+            vcellspikes.copy(vspiketimes, 0, recvpos, recvpos+gid_size-1)
+            recvpos += gid_size
+            
+            cell = pc.gid2cell(gid)
+            cell.setup(vcellspikes)
+        }
         
     }
 }
-    
-    
-    
-    
-    for idx=0, numCellTypes-1 {
-	if (cellType[idx].is_art==1) {	// If the cell type is artificial, set the random stream
-	    //  associated with the noise in its spike times
-	    
-	    // For all the artificial cells of this type, owned by this processor
-	    for pcitr(&reli, &typei, &jgid, cellType[idx].cellStartGid, cellType[idx].cellEndGid) {
-		cell = pc.gid2cell(jgid)	// Create a reference to the artificial cell
-		ranstimlist.object(reli).r.negexp(1) 	// Using a negative exponential distribution to determine
-		//  the interspike interval (ISI) gives Poisson-distributed 
-		//  spike times. Always use 1 as the argument; the interval
-		//  for the netstim will set the 'rate' (or average ISI).
-		//
-		// For another example (which defines the randomstream class 
-		//  differently, and therefore calls different commands at 
-		//  different times) see the following file:
-		// <http://senselab.med.yale.edu/modeldb/showmodel.asp?model=83319&file=\destexhe_benchmarks\NEURON\common\netstim.hoc>
-		cell.noiseFromRandom(ranstimlist.object(reli).r)	
 
-	    }														
-	}															
-    }
-}
-setVecStim()
+setVecStim(VecStimFileName,VecStimIndexFilename)
