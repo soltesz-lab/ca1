@@ -70,8 +70,10 @@ if (MakeArtConns==0) {	// Only make connections from artificial cells if they
 proc setNoise() {local reli, typei, jgid, idx localobj cell 
 	for idx=0, numCellTypes-1 {
 		if (cellType[idx].is_art==1) {	// If the cell type is artificial, set the random stream
-										//  associated with the noise in its spike times
-			
+		    //  associated with the noise in its spike times
+                    
+		    if (strcmp(cellType[idx].technicalType, "ppvec")!=0) {
+
 			// For all the artificial cells of this type, owned by this processor
 			for pcitr(&reli, &typei, &jgid, cellType[idx].cellStartGid, cellType[idx].cellEndGid) {
 				cell = pc.gid2cell(jgid)	// Create a reference to the artificial cell
@@ -86,7 +88,8 @@ proc setNoise() {local reli, typei, jgid, idx localobj cell
 														// <http://senselab.med.yale.edu/modeldb/showmodel.asp?model=83319&file=\destexhe_benchmarks\NEURON\common\netstim.hoc>
 				cell.noiseFromRandom(ranstimlist.object(reli).r)	// Set this random stream as the random number
 			}														//  generator for the noise functionality of
-		}															//  the spike generator.
+		    }															//  the spike generator.
+                }
 	}
 }
 setNoise()

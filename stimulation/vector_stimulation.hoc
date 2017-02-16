@@ -67,12 +67,12 @@ if (MakeArtConns==0) {	// Only make connections from artificial cells if they
     connectStims()      //  have not been connected at another time (ie, in the
 }		//  connectivity algorithm)
 
-proc setVecStim() {local sendpos, celltype_idx, rank_idx, rank_startgid, startgid, endgid, pop_size, gid_idx, gid_size localobj vindex, vspiketimes, vcounts, vcellspikes, cell strdef vecstim_index_filename, vecstim_filename
+proc setVecStim() {local sendpos, celltype_idx, rank_idx, rank_startgid, startgid, endgid, pop_size, gid_idx, gid_size localobj f, vindex, vspiketimes, vsizes, vcounts, vrecvcounts, vsendcounts, vsendcounts1, vgidspikes, vcellspikes, vsendbuf, cell strdef vecstim_index_filename, vecstim_filename
     
     vecstim_index_filename=$s1
     vecstim_filename=$s2
     
-    
+    celltype_idx=-1
     for celltype=0, numCellTypes-1 {
 
         vindex      = new Vector()
@@ -82,80 +82,84 @@ proc setVecStim() {local sendpos, celltype_idx, rank_idx, rank_startgid, startgi
         vsendcounts1 = new Vector(pc.nhost)
         vsendcounts = new Vector(pc.nhost)
         vrecvcounts = new Vector(pc.nhost)
+        vcounts     = new Vector()
         
         if (strcmp(cellType[celltype].technicalType, "ppvec")==0) {
 	    celltype_idx = celltype 
         }
         
-        startgid = cellType[idx].cellStartGid
-        endgid = cellType[idx].cellEndGid
-        pop_size = endgid - startgid
-        
-        if (pc.id == 0) {
+        if (celltype_idx > -1) {
             
-            f = new File ()
+            startgid = cellType[celltype_idx].cellStartGid
+            endgid = cellType[celltype_idx].cellEndGid
+            pop_size = endgid - startgid
             
-            f.ropen (vecstim_index_filename)
-            vindex.vread(f)
-            f.close()
             
-            f.ropen (vecstim_filename)
-            vspiketimes.vread(f)
-            f.close()
-            
-            vsizes.resize(vindex.size())
-            for (i=0; i < vindex.size()-1; i++) {
-                vsizes.x[i] = vindex.x[i+1] - vindex.x[i]
-            }
-            vsizes.x[vindex.size()-1] = vindex.size() - vindex.x[vindex.size()-1]
-            
-            vsendbuf.resize(vspiketimes.size())
-            sendpos = 0
-            for (rank_idx=0; rank_idx < pc.nhost-1; rank_idx++) {
-                rank_startgid = startgid + rank_idx
-                for (gid=rank_startgid; gid <= endgid; gid += pc.nhost) {
-                    gid_idx   = vindex[gid]
-                    gid_size  = vsizes[gid]
-                    vsendbuf.append(gid_idx)
-                    sendpos += 1
-                    vsendbuf.append(gid_size)
-                    sendpos += 1
-                    vsendbuf.copy(vspiketimes, sendpos, gid_index, gid_index+gid_size-1)
-                    sendpos += gid_size
-                    vrecvcounts[rank_idx] += gid_size+2
-                    vsendcounts[rank_idx] += gid_size+2
+            if (pc.id == 0) {
+                
+                f = new File ()
+                
+                status = f.ropen (vecstim_index_filename)
+                vindex.vread(f)
+                f.close()
+                
+                status = f.ropen (vecstim_filename)
+                vspiketimes.vread(f)
+                f.close()
+                
+                vsizes.resize(vindex.size())
+                for (i=0; i < vindex.size()-1; i+=1) {
+                    vsizes.x[i] = vindex.x[i+1] - vindex.x[i]
                 }
-                vsendcounts1.x[rank_idx] = 1
+                vsizes.x[vindex.size()-1] = vindex.size() - vindex.x[vindex.size()-1]
+                
+                vcounts.resize(pc.nhost)
+                for (rank_idx=0; rank_idx < pc.nhost; rank_idx+=1) {
+                    rank_startgid = startgid + rank_idx
+                    for (gid=rank_startgid; gid <= endgid; gid += pc.nhost) {
+                        gid_idx   = vindex.x[gid-startgid]
+                        gid_size  = vsizes.x[gid-startgid]
+                        vsendbuf.append(gid)
+                        vsendbuf.append(gid_size)
+                        vgidspikes = new Vector(gid_size)
+                        vgidspikes.copy(vspiketimes, 0, gid_idx, gid_idx+gid_size-1)
+                        vsendbuf.append(vgidspikes)
+                        vcounts.x[rank_idx] += gid_size+2
+                        vsendcounts.x[rank_idx] += gid_size+2
+                    }
+                    vsendcounts1.x[rank_idx] = 1
+                }
             }
-        }
-        // send out the number of spike entries each rank is going to receive
-        pc.alltoall(vrecvcounts, vsendcounts1, vrecvcounts)
-        
-        recvsize = 0
-        for (rank_idx=0; rank_idx < pc.nhost-1; rank_idx++) {
-            recvsize += vrecvcounts.x[rank_idx]
-        }
-        vspiketimes.resize(recvsize)
-        
-        // send out the spike vectors (only rank 0 sends data)
-        pc.alltoall(vsendbuf, vsendcounts, vspiketimes)
-        
-        recvpos = 0
-        while (recvpos < vspiketimes.size()) {
             
-            gid = vspiketimes.x[recvpos]
-            recvpos += 1
-            gid_size = vspiketimes.x[recvpos]
-            recvpos += 1
-            vcellspikes = new Vector()
-            vcellspikes.copy(vspiketimes, 0, recvpos, recvpos+gid_size-1)
-            recvpos += gid_size
+            // send out the number of spike entries each rank is going to receive
+            pc.alltoall(vcounts, vsendcounts1, vrecvcounts)
             
-            cell = pc.gid2cell(gid)
-            cell.setup(vcellspikes)
+            recvsize = 0
+            for (rank_idx=0; rank_idx < pc.nhost-1; rank_idx+=1) {
+                recvsize += vrecvcounts.x[rank_idx]
+            }
+            vspiketimes.resize(recvsize)
+            
+            
+            // send out the spike vectors (only rank 0 sends data)
+            pc.alltoall(vsendbuf, vsendcounts, vspiketimes)
+            
+            recvpos = 0
+            while (recvpos < vspiketimes.size()) {
+                
+                gid = vspiketimes.x[recvpos]
+                recvpos += 1
+                gid_size = vspiketimes.x[recvpos]
+                recvpos += 1
+                vcellspikes = new Vector()
+                vcellspikes.copy(vspiketimes, 0, recvpos, recvpos+gid_size-1)
+                recvpos += gid_size
+                cell = pc.gid2cell(gid)
+                cell.play(vcellspikes)
+            }
         }
         
     }
 }
 
-setVecStim(VecStimFileName,VecStimIndexFilename)
+setVecStim(VecStimIndexFileName,VecStimFileName)
