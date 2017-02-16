@@ -140,7 +140,6 @@ proc setVecStim() {local sendpos, celltype_idx, rank_idx, rank_startgid, startgi
             }
             vspiketimes.resize(recvsize)
             
-            
             // send out the spike vectors (only rank 0 sends data)
             pc.alltoall(vsendbuf, vsendcounts, vspiketimes)
             
