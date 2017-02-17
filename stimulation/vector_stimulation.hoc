@@ -151,7 +151,10 @@ proc setVecStim() {local sendpos, celltype_idx, rank_idx, rank_startgid, startgi
                 gid_size = vspiketimes.x[recvpos]
                 recvpos += 1
                 vcellspikes = new Vector()
-                vcellspikes.copy(vspiketimes, 0, recvpos, recvpos+gid_size-1)
+		printf("recvpos = %d gid_size = %d\n", recvpos, gid_size);
+		if (gid_size > 0) {
+		   vcellspikes.copy(vspiketimes, 0, recvpos, recvpos+gid_size-1)
+                }
                 recvpos += gid_size
                 cell = pc.gid2cell(gid)
                 cell.play(vcellspikes)
