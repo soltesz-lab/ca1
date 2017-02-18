@@ -113,17 +113,22 @@ proc setVecStim() {local sendpos, celltype_idx, rank_idx, rank_startgid, startgi
                 }
                 vsizes.x[vindex.size()-1] = vindex.size() - vindex.x[vindex.size()-1]
                 
-                vcounts.resize(pc.nhost)
+                vcounts.resize(pc.nhost, 0)
                 for (rank_idx=0; rank_idx < pc.nhost; rank_idx+=1) {
                     rank_startgid = startgid + rank_idx
+	            printf("rank_startgid = %d\n", rank_startgid)
                     for (gid=rank_startgid; gid <= endgid; gid += pc.nhost) {
+			printf("gid = %d\n", gid)
                         gid_idx   = vindex.x[gid-startgid]
                         gid_size  = vsizes.x[gid-startgid]
+			printf("gid = %d gid_idx = %d gid_size = %d\n", gid, gid_idx, gid_size)
                         vsendbuf.append(gid)
                         vsendbuf.append(gid_size)
-                        vgidspikes = new Vector(gid_size)
-                        vgidspikes.copy(vspiketimes, 0, gid_idx, gid_idx+gid_size-1)
-                        vsendbuf.append(vgidspikes)
+			if (gid_size > 0) {
+                           vgidspikes = new Vector(gid_size)
+                           vgidspikes.copy(vspiketimes, 0, gid_idx, gid_idx+gid_size)
+                           vsendbuf.append(vgidspikes)
+			} 
                         vcounts.x[rank_idx] += gid_size+2
                         vsendcounts.x[rank_idx] += gid_size+2
                     }
@@ -133,28 +138,31 @@ proc setVecStim() {local sendpos, celltype_idx, rank_idx, rank_startgid, startgi
             
             // send out the number of spike entries each rank is going to receive
             pc.alltoall(vcounts, vsendcounts1, vrecvcounts)
+	    printf("after alltoall(1): rank %d: vrecvcounts[0] = %d\n", pc.id, vrecvcounts.x[0])
             
-            recvsize = 0
-            for (rank_idx=0; rank_idx < pc.nhost-1; rank_idx+=1) {
-                recvsize += vrecvcounts.x[rank_idx]
-            }
+            recvsize = vrecvcounts.x[0]
+	    printf("before alltoall(2): rank %d: recvsize = %d\n", pc.id, recvsize)
+
             vspiketimes.resize(recvsize)
             
             // send out the spike vectors (only rank 0 sends data)
             pc.alltoall(vsendbuf, vsendcounts, vspiketimes)
             
+	    printf("after alltoall: rank %d: vspiketimes.size %d\n", pc.id, vspiketimes.size())
             recvpos = 0
             while (recvpos < vspiketimes.size()) {
                 
+                printf("rank %d: gid = %d gid_size = %d\n", pc.id, gid, gid_size)
                 gid = vspiketimes.x[recvpos]
                 recvpos += 1
                 gid_size = vspiketimes.x[recvpos]
                 recvpos += 1
+                printf("rank %d: gid = %d gid_size = %d\n", rank, gid, gid_size)
                 vcellspikes = new Vector()
 		if (gid_size > 0) {
 		   vcellspikes.copy(vspiketimes, 0, recvpos, recvpos+gid_size-1)
+                   recvpos += gid_size
                 }
-                recvpos += gid_size
                 cell = pc.gid2cell(gid)
                 cell.play(vcellspikes)
             }
