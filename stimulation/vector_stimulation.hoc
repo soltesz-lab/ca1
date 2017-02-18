@@ -115,10 +115,10 @@ proc setVecStim() {local sendpos, celltype_idx, startgid, endgid, pop_size local
             pc.broadcast(vspiketimes, 0)
             
             for (i=0; i < vindex.size(); i+=1) {
-	    	gid = startgid + i
+	        gid = startgid + i
 		if (pc.gid_exists(gid)) {
 		   vcellspikes = new Vector()
-		   vcellspikes.copy(vspiketimes, 0, vindex[i], vindex[i]+vsizes[i]-1)
+		   vcellspikes.copy(vspiketimes, 0, vindex.x[i], vindex.x[i]+vsizes.x[i]-1)
 		   cell = pc.gid2cell(gid)
                    cell.play(vcellspikes)
 		}
