@@ -67,7 +67,7 @@ if (MakeArtConns==0) {	// Only make connections from artificial cells if they
     connectStims()      //  have not been connected at another time (ie, in the
 }		//  connectivity algorithm)
 
-proc setVecStim() {local sendpos, celltype_idx, rank_idx, rank_startgid, startgid, endgid, pop_size, gid_idx, gid_size localobj f, vindex, vspiketimes, vsizes, vcounts, vrecvcounts, vsendcounts, vsendcounts1, vgidspikes, vcellspikes, vsendbuf, cell strdef vecstim_index_filename, vecstim_filename
+proc setVecStim() {local sendpos, celltype_idx, startgid, endgid, pop_size localobj f, vindex, vspiketimes, vsizes, vcellspikes, cell strdef vecstim_index_filename, vecstim_filename
     
     vecstim_index_filename=$s1
     vecstim_filename=$s2
@@ -75,14 +75,9 @@ proc setVecStim() {local sendpos, celltype_idx, rank_idx, rank_startgid, startgi
     celltype_idx=-1
     for celltype=0, numCellTypes-1 {
 
-        vindex      = new Vector()
-        vspiketimes = new Vector()
-        vsizes      = new Vector()
-        vsendbuf    = new Vector()
-        vsendcounts1 = new Vector(pc.nhost)
-        vsendcounts = new Vector(pc.nhost)
-        vrecvcounts = new Vector(pc.nhost)
-        vcounts     = new Vector()
+        vindex       = new Vector()
+        vspiketimes  = new Vector()
+        vsizes       = new Vector()
         
         if (strcmp(cellType[celltype].technicalType, "ppvec")==0) {
 	    celltype_idx = celltype 
@@ -111,67 +106,24 @@ proc setVecStim() {local sendpos, celltype_idx, rank_idx, rank_startgid, startgi
                 for (i=0; i < vindex.size()-1; i+=1) {
                     vsizes.x[i] = vindex.x[i+1] - vindex.x[i]
                 }
-                vsizes.x[vindex.size()-1] = vindex.size() - vindex.x[vindex.size()-1]
-                
-                vcounts.resize(pc.nhost, 0)
-                for (rank_idx=0; rank_idx < pc.nhost; rank_idx+=1) {
-                    rank_startgid = startgid + rank_idx
-	            printf("rank_startgid = %d\n", rank_startgid)
-                    for (gid=rank_startgid; gid <= endgid; gid += pc.nhost) {
-			printf("gid = %d\n", gid)
-                        gid_idx   = vindex.x[gid-startgid]
-                        gid_size  = vsizes.x[gid-startgid]
-			printf("gid = %d gid_idx = %d gid_size = %d\n", gid, gid_idx, gid_size)
-                        vsendbuf.append(gid)
-                        vsendbuf.append(gid_size)
-			if (gid_size > 0) {
-                           vgidspikes = new Vector(gid_size)
-                           vgidspikes.copy(vspiketimes, 0, gid_idx, gid_idx+gid_size-1)
-                           vsendbuf.append(vgidspikes)
-			} 
-                        vcounts.x[rank_idx] += gid_size+2
-                        vsendcounts.x[rank_idx] += gid_size+2
-                    }
-                    vsendcounts1.x[rank_idx] = 1
-                }
+                vsizes.x[vindex.size()-1] = vspiketimes.size() - vindex.x[vindex.size()-1]
             }
             
             // send out the number of spike entries each rank is going to receive
-            pc.alltoall(vcounts, vsendcounts1, vrecvcounts)
-	    printf("after alltoall(1): rank %d: vrecvcounts[0] = %d\n", pc.id, vrecvcounts.x[0])
+            pc.broadcast(vsizes, 0)
+            pc.broadcast(vindex, 0)
+            pc.broadcast(vspiketimes, 0)
             
-            recvsize = vrecvcounts.x[0]
-	    printf("before alltoall(2): rank %d: recvsize = %d\n", pc.id, recvsize)
-
-            vspiketimes.resize(recvsize)
-
-            print "vsendbuf.size = ", vsendbuf.size()
-            vsendcounts.printf()
-            
-            // send out the spike vectors (only rank 0 sends data)
-            pc.alltoall(vsendbuf, vsendcounts, vspiketimes)
-            
-	    printf("after alltoall: rank %d: vspiketimes.size %d\n", pc.id, vspiketimes.size())
-            recvpos = 0
-            while (recvpos < vspiketimes.size()) {
-                
-                printf("rank %d: gid = %d gid_size = %d\n", pc.id, gid, gid_size)
-                gid = vspiketimes.x[recvpos]
-                recvpos += 1
-                gid_size = vspiketimes.x[recvpos]
-                recvpos += 1
-                printf("rank %d: gid = %d gid_size = %d\n", pc.id, gid, gid_size)
-                vcellspikes = new Vector()
-		if (gid_size > 0) {
-		   vcellspikes.copy(vspiketimes, 0, recvpos, recvpos+gid_size-1)
-                   vcellspikes.printf()
-                   recvpos += gid_size
-                }
-                cell = pc.gid2cell(gid)
-                cell.play(vcellspikes)
-            }
+            for (i=0; i < vindex.size(); i+=1) {
+	    	gid = startgid + i
+		if (pc.gid_exists(gid)) {
+		   vcellspikes = new Vector()
+		   vcellspikes.copy(vspiketimes, 0, vindex[i], vindex[i]+vsizes[i]-1)
+		   cell = pc.gid2cell(gid)
+                   cell.play(vcellspikes)
+		}
+	    }
         }
-        
     }
 }
 
