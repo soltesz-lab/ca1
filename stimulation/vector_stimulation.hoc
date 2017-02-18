@@ -117,10 +117,12 @@ proc setVecStim() {local sendpos, celltype_idx, startgid, endgid, pop_size local
             for (i=0; i < vindex.size(); i+=1) {
 	        gid = startgid + i
 		if (pc.gid_exists(gid)) {
-		   vcellspikes = new Vector()
-		   vcellspikes.copy(vspiketimes, 0, vindex.x[i], vindex.x[i]+vsizes.x[i]-1)
-		   cell = pc.gid2cell(gid)
-                   cell.play(vcellspikes)
+		   if (vsizes.x[i] > 0) {
+		      vcellspikes = new Vector()
+  		      vcellspikes.copy(vspiketimes, 0, vindex.x[i], vindex.x[i]+vsizes.x[i]-1)
+		      cell = pc.gid2cell(gid)
+                      cell.play(vcellspikes)
+		      }	
 		}
 	    }
         }
