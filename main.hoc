@@ -477,7 +477,7 @@ if (get_spike_hist==1) {		// If you use spike compression to speed up the spike 
 															//  so as to end it early enough to write out results if
 															//  there is limited time on the supercomputer
 
-zzz = mallinfo(zzz, "Before running simulation")	// Get memory usage before running simulation
+//zzz = mallinfo(zzz, "Before running simulation")	// Get memory usage before running simulation
 
 {rrun()}	// Run the network simulation using a custom run procedure and write out results
 
