@@ -90,8 +90,8 @@ proc setVecStim() {local sendpos, celltype_idx, startgid, endgid, pop_size local
             
             if (pc.id == 0) {
                 
-                sprintf(vecstim_index_filename,"%s_vecstim_index.bin",cellType[celltype_idx].cellType_string)
-                sprintf(vecstim_filename,"%s_vecstim.bin",cellType[celltype_idx].cellType_string)
+                sprint(vecstim_index_filename,"%s_vecstim_index.bin",cellType[celltype_idx].cellType_string)
+                sprint(vecstim_filename,"%s_vecstim.bin",cellType[celltype_idx].cellType_string)
                 
                 f = new File ()
                 
