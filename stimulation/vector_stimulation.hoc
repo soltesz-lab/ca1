@@ -69,12 +69,10 @@ if (MakeArtConns==0) {	// Only make connections from artificial cells if they
 
 proc setVecStim() {local sendpos, celltype_idx, startgid, endgid, pop_size localobj f, vindex, vspiketimes, vsizes, vcellspikes, cell strdef vecstim_index_filename, vecstim_filename
     
-    vecstim_index_filename=$s1
-    vecstim_filename=$s2
     
-    celltype_idx=-1
     for celltype=0, numCellTypes-1 {
-
+        
+        celltype_idx=-1
         vindex       = new Vector()
         vspiketimes  = new Vector()
         vsizes       = new Vector()
@@ -91,6 +89,9 @@ proc setVecStim() {local sendpos, celltype_idx, startgid, endgid, pop_size local
             
             
             if (pc.id == 0) {
+                
+                sprint(vecstim_index_filename,"%s_vecstim_index.bin",cellType[celltype_idx].cellType_string)
+                sprint(vecstim_filename,"%s_vecstim.bin",cellType[celltype_idx].cellType_string)
                 
                 f = new File ()
                 
@@ -117,14 +118,16 @@ proc setVecStim() {local sendpos, celltype_idx, startgid, endgid, pop_size local
             for (i=0; i < vindex.size(); i+=1) {
 	        gid = startgid + i
 		if (pc.gid_exists(gid)) {
-		   vcellspikes = new Vector()
-		   vcellspikes.copy(vspiketimes, 0, vindex.x[i], vindex.x[i]+vsizes.x[i]-1)
-		   cell = pc.gid2cell(gid)
-                   cell.play(vcellspikes)
+		   if (vsizes.x[i] > 0) {
+		      vcellspikes = new Vector()
+  		      vcellspikes.copy(vspiketimes, 0, vindex.x[i], vindex.x[i]+vsizes.x[i]-1)
+		      cell = pc.gid2cell(gid)
+                      cell.play(vcellspikes)
+		      }	
 		}
 	    }
         }
     }
 }
 
-setVecStim(VecStimIndexFileName,VecStimFileName)
+setVecStim()
