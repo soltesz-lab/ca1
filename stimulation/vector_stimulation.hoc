@@ -67,7 +67,7 @@ if (MakeArtConns==0) {	// Only make connections from artificial cells if they
     connectStims()      //  have not been connected at another time (ie, in the
 }		//  connectivity algorithm)
 
-proc setVecStim() {local sendpos, celltype_idx, startgid, endgid, pop_size localobj f, vptr, vspiketimes, vactive, vsizes, vcellspikes, cell strdef vecstim_ptr_filename, vecstim_filename, vecstim_active_filename
+proc setVecStim() {local sendpos, celltype_idx, startgid, endgid, numCells localobj f, vptr, vspiketimes, vactive, vsizes, vcellspikes, cell strdef vecstim_ptr_filename, vecstim_filename, vecstim_active_filename
     
     
     for celltype=0, numCellTypes-1 {
@@ -84,10 +84,11 @@ proc setVecStim() {local sendpos, celltype_idx, startgid, endgid, pop_size local
         
         if (celltype_idx > -1) {
             
+            print "vecstim: cellType[celltype].technicalType = ", cellType[celltype].cellType_string
+            
             startgid = cellType[celltype_idx].cellStartGid
             endgid = cellType[celltype_idx].cellEndGid
-            pop_size = endgid - startgid
-            
+            numCells = cellType[celltype_idx].numCells
             
             if (pc.id == 0) {
                 
@@ -131,12 +132,12 @@ proc setVecStim() {local sendpos, celltype_idx, startgid, endgid, pop_size local
             
             for (i=0; i < vptr.size(); i+=1) {
 	        gid = startgid + i
-		if (pc.gid_exists(gid) && (vactive.x[i] > 0)) {
+		if ((i<numCells) && pc.gid_exists(gid) && (vactive.x[i] > 0)) {
 		   if (vsizes.x[i] > 0) {
-		      vcellspikes = new Vector()
-  		      vcellspikes.copy(vspiketimes, 0, vptr.x[i], vptr.x[i]+vsizes.x[i]-1)
-		      cell = pc.gid2cell(gid)
-                      cell.play(vcellspikes)
+		       vcellspikes = new Vector()
+  		       vcellspikes.copy(vspiketimes, 0, vptr.x[i], vptr.x[i]+vsizes.x[i]-1)
+		       cell = pc.gid2cell(gid)
+                       cell.play(vcellspikes)
 		      }	
 		}
 	    }
