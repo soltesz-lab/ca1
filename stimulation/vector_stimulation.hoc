@@ -67,15 +67,16 @@ if (MakeArtConns==0) {	// Only make connections from artificial cells if they
     connectStims()      //  have not been connected at another time (ie, in the
 }		//  connectivity algorithm)
 
-proc setVecStim() {local sendpos, celltype_idx, startgid, endgid, pop_size localobj f, vindex, vspiketimes, vsizes, vcellspikes, cell strdef vecstim_index_filename, vecstim_filename
+proc setVecStim() {local sendpos, celltype_idx, startgid, endgid, pop_size localobj f, vptr, vspiketimes, vactive, vsizes, vcellspikes, cell strdef vecstim_ptr_filename, vecstim_filename, vecstim_active_filename
     
     
     for celltype=0, numCellTypes-1 {
         
         celltype_idx=-1
-        vindex       = new Vector()
+        vptr       = new Vector()
         vspiketimes  = new Vector()
         vsizes       = new Vector()
+        vactive      = new Vector()
         
         if (strcmp(cellType[celltype].technicalType, "ppvec")==0) {
 	    celltype_idx = celltype 
@@ -90,37 +91,50 @@ proc setVecStim() {local sendpos, celltype_idx, startgid, endgid, pop_size local
             
             if (pc.id == 0) {
                 
-                sprint(vecstim_index_filename,"%s_vecstim_index.bin",cellType[celltype_idx].cellType_string)
+                sprint(vecstim_ptr_filename,"%s_vecstim_ptr.bin",cellType[celltype_idx].cellType_string)
                 sprint(vecstim_filename,"%s_vecstim.bin",cellType[celltype_idx].cellType_string)
+                sprint(vecstim_active_filename,"%s_vecstim_active.bin",cellType[celltype_idx].cellType_string)
                 
                 f = new File ()
                 
-                status = f.ropen (vecstim_index_filename)
-                vindex.vread(f)
+                status = f.ropen (vecstim_ptr_filename)
+                vptr.vread(f)
                 f.close()
                 
                 status = f.ropen (vecstim_filename)
                 vspiketimes.vread(f)
                 f.close()
                 
-                vsizes.resize(vindex.size())
-                for (i=0; i < vindex.size()-1; i+=1) {
-                    vsizes.x[i] = vindex.x[i+1] - vindex.x[i]
+                status = f.ropen (vecstim_active_filename)
+                if (status > 0) {
+                    vactive.vread(f)
+                } else {
+                    // if active file does not exist, assume all cells are active
+                    vactive.resize(vptr.size())
+                    vactive.fill(1)
                 }
-                vsizes.x[vindex.size()-1] = vspiketimes.size() - vindex.x[vindex.size()-1]
+                
+                f.close()
+                
+                vsizes.resize(vptr.size())
+                for (i=0; i < vptr.size()-1; i+=1) {
+                    vsizes.x[i] = vptr.x[i+1] - vptr.x[i]
+                }
+                vsizes.x[vptr.size()-1] = vspiketimes.size() - vptr.x[vptr.size()-1]
             }
             
             // send out the number of spike entries each rank is going to receive
             pc.broadcast(vsizes, 0)
-            pc.broadcast(vindex, 0)
+            pc.broadcast(vptr, 0)
             pc.broadcast(vspiketimes, 0)
+            pc.broadcast(vactive, 0)
             
-            for (i=0; i < vindex.size(); i+=1) {
+            for (i=0; i < vptr.size(); i+=1) {
 	        gid = startgid + i
-		if (pc.gid_exists(gid)) {
+		if (pc.gid_exists(gid) && (vactive.x[i] > 0)) {
 		   if (vsizes.x[i] > 0) {
 		      vcellspikes = new Vector()
-  		      vcellspikes.copy(vspiketimes, 0, vindex.x[i], vindex.x[i]+vsizes.x[i]-1)
+  		      vcellspikes.copy(vspiketimes, 0, vptr.x[i], vptr.x[i]+vsizes.x[i]-1)
 		      cell = pc.gid2cell(gid)
                       cell.play(vcellspikes)
 		      }	
