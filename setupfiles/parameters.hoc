@@ -22,6 +22,8 @@ default_var("SpatialResolution",100)		// Spatial discretization method or resolu
 default_var("ConnData",211)		// Number of the connection dataset to use
 default_var("SynData",110)		// Number of the synapse kinetics dataset that was used to prepare the cell definition files
 default_var("NumData",101)		// Number of the cells dataset to use
+default_var("VecStimData",0)		// Number of the vecstim dataset to use (0 = ignore and use population name)
+default_var("VecStimActiveData",0)	// Number of the file containing active vecstims (0 = ignore and use all vecstims)
 default_var("TemporalResolution",0.1)		// Temporal resolution of the simulation (in ms)
 default_var("NumTraces",40)		// The maximum number of cells to record intracellularly, for each cell type
 default_var("FracTraces",100)		// The percent of cells to record intracellularly, for each cell type

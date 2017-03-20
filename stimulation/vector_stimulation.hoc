@@ -90,9 +90,18 @@ proc setVecStim() {local sendpos, celltype_idx, startgid, endgid, numCells local
             
             if (pc.id == 0) {
                 
-                sprint(vecstim_ptr_filename,"%s_vecstim_ptr.bin",cellType[celltype_idx].cellType_string)
-                sprint(vecstim_filename,"%s_vecstim.bin",cellType[celltype_idx].cellType_string)
-                sprint(vecstim_active_filename,"%s_vecstim_active.bin",cellType[celltype_idx].cellType_string)
+                if (VecStimData > 0) {
+                    sprint(vecstim_ptr_filename,"%s_%d_vecstim_ptr.bin",cellType[celltype_idx].cellType_string,VecStimData)
+                    sprint(vecstim_filename,"%s_%d_vecstim.bin",cellType[celltype_idx].cellType_string,VecStimData)
+                } else {
+                    sprint(vecstim_ptr_filename,"%s_vecstim_ptr.bin",cellType[celltype_idx].cellType_string)
+                    sprint(vecstim_filename,"%s_vecstim.bin",cellType[celltype_idx].cellType_string)
+                }
+                if (VecStimActiveData > 0) {
+                    sprint(vecstim_active_filename,"%s_%d_vecstim_active.bin",cellType[celltype_idx].cellType_string,VecStimActive)
+                } else {
+                    sprint(vecstim_active_filename,"%s_vecstim_active.bin",cellType[celltype_idx].cellType_string)
+                }
                 
                 f = new File ()
                 
