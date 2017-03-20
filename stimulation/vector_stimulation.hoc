@@ -84,8 +84,6 @@ proc setVecStim() {local sendpos, celltype_idx, startgid, endgid, numCells local
         
         if (celltype_idx > -1) {
             
-            print "vecstim: cellType[celltype].technicalType = ", cellType[celltype].cellType_string
-            
             startgid = cellType[celltype_idx].cellStartGid
             endgid = cellType[celltype_idx].cellEndGid
             numCells = cellType[celltype_idx].numCells
