@@ -71,17 +71,26 @@ proc SpikeOutSerial() {local i, rank  localobj f
 //  processor in the results folder. In this case, if using
 //  the SimTracker, it will concatenate the files automatically
 //  after uploading the results.
-proc SpikeOutParallel() {local i  localobj f
-	sprint(cmd,"./results/%s/spikeraster_%g.dat", RunName, pc.id)
+proc SpikeOutParallel() {local i  localobj f, vcnts, spikevec_all, idvec_all
+    
+    vcnts        = new Vector(pc.nhost)
+    
+    spikevec_all = new Vector()
+    idvec_all    = new Vector()
+    
+    vcnts.x[0] = pnm.spikevec.size
+    pnm.pc.alltoall(pnm.spikevec, vcnts, spikevec_all)
+    pnm.pc.alltoall(pnm.idvec, vcnts, idvec_all)
+    
+    if (pnm.pc.id == 0) {
+	sprint(cmd,"./results/%s/spikeraster.dat", RunName, pc.id)
 	f = new File(cmd)
 	f.wopen()
-	for i=0, pnm.idvec.size-1 {
-		f.printf("%.3f %d\n", pnm.spikevec.x[i], pnm.idvec.x[i])	// Print the spike time and spiking cell gid
+	for i=0, idvec_all.size-1 {
+		f.printf("%.3f %d\n", spikevec_all.x[i], idvec_all.x[i])	// Print the spike time and spiking cell gid
 	}
 	f.close()
-
-	
-	g=1
+    }
 }
 
 // Print a summary of some of the job properties, data that
