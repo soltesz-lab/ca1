@@ -275,7 +275,7 @@ func mallinfo() {local m // this function is a wrapper for the system function m
 			memfile.printf("%s\t%f\t%ld\t%ld\n", $s2, startsw()-loadstart, m, m - $1)	// Print the spike time and spiking cell gid
 			
 			
-			sprint(TopCommand,"top -p `pgrep %s | head -n20 | tr \"\\n\" \",\" | sed 's/,$//'` -n1 -b | tail -n2 | head -n1", TopProc)
+			sprint(TopCommand,"top -p `pgrep %s | head -n20 | tr \"\\n\" \",\" | sed 's/,$//'` -n1 -b | tail -n2 | head -n1`", TopProc)
 			//print "TopCommand = ", TopCommand
 			if (strcmp(TopProc,"")!=0) { system(TopCommand, direx1)}
 			//system("top -p `pgrep special | head -n20 | tr \"\\n\" \",\" | sed 's/,$//'` -n1 -b | tail -n2 | head -n1",direx1)
