@@ -1,0 +1,63 @@
+strdef RunName
+RunName="ca1_ripplestim_1x_01"
+strdef UID
+UID="d8987656-9423-4536-a7d3-d97931bda703"
+strdef Stimulation
+Stimulation="ripplespont"
+strdef Connectivity
+Connectivity="try_all_randfaststim"
+Scale=1
+SimDuration=2000
+RandomSeeds=0
+strdef Positioning
+Positioning=""
+PrintVoltage=1
+PrintTerminal=1
+PrintConnDetails=0
+PrintCellPositions=1
+PrintConnSummary=1
+TransverseLength=1000
+LongitudinalLength=4000
+strdef LayerHeights
+LayerHeights="4;100;50;200;100;"
+SpatialResolution=100
+ConnData=501
+SynData=121
+NumData=117
+TemporalResolution=0.1
+NumTraces=40
+FracTraces=100
+DegreeStim=0.65
+Onint=1000
+Offint=1250
+PercentCellDeath=0
+PercentAxonSprouting=0
+RipStim=100
+CatFlag=0
+RandomSeedsConn=0
+RandomSeedsStim=0
+AxConVel=0
+StepBy=100
+JobHours=23
+EstWriteTime=660
+somaK=1
+axonK=1
+gKJ=0.0732
+primetime=10
+Jitter=0.2
+myConDelay=1.2
+strdef TopProc
+TopProc="special"
+RandomVinit=1
+lfp_dt=0.1
+ComputeDipoleLFP=0
+ComputeNpoleLFP=1
+RandomSynWgt=0
+synVar=0.03
+MaxEDist=100
+strdef ElectrodePoint
+ElectrodePoint="200;100;120"
+NumTracesPyr=3000
+strdef LFPCellTypes
+LFPCellTypes="pyramidalcell"
+{load_file("./main.hoc")}
