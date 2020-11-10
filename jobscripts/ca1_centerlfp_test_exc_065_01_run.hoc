@@ -1,0 +1,66 @@
+strdef RunName
+RunName="ca1_centerlfp_test_exc_065_01"
+strdef UID
+UID="1eff130b-60da-49ae-b003-0eaf157c6f45"
+strdef Stimulation
+Stimulation="spontaneous"
+strdef Connectivity
+Connectivity="try_all_randfaststim"
+Scale=1000
+SimDuration=2000
+RandomSeeds=0
+strdef Positioning
+Positioning=""
+PrintVoltage=1
+PrintTerminal=1
+PrintConnDetails=0
+PrintCellPositions=1
+PrintConnSummary=1
+TransverseLength=1000
+LongitudinalLength=4000
+strdef LayerHeights
+LayerHeights="4;100;50;200;100;"
+SpatialResolution=100
+ConnData=501
+SynData=120
+NumData=101
+TemporalResolution=0.025
+NumTraces=40
+FracTraces=100
+DegreeStim=0.65
+Onint=200
+Offint=250
+PercentCellDeath=0
+PercentAxonSprouting=0
+RipStim=200
+CatFlag=0
+RandomSeedsConn=0
+RandomSeedsStim=0
+AxConVel=0
+StepBy=100
+JobHours=48
+EstWriteTime=660
+somaK=1
+axonK=1
+gKJ=0.0732
+primetime=10
+Jitter=0.2
+myConDelay=1.2
+strdef TopProc
+TopProc="special"
+RandomVinit=0
+lfp_dt=0.1
+ComputeDipoleLFP=0
+ComputeNpoleLFP=1
+RandomSynWgt=0
+synVar=0.03
+MaxEDist=100
+strdef ElectrodePoint
+ElectrodePoint="2000;500;120"
+NumTracesPyr=3000
+strdef LFPCellTypes
+LFPCellTypes="pyramidalcell"
+OnStdev=3
+RipNoise=0
+RipNumber=1
+{load_file("./main.hoc")}

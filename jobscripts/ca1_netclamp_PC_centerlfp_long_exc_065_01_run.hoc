@@ -1,0 +1,19 @@
+Scale=1
+gidOI = 211411
+cellindOI = 6
+spkflag=0
+stimflag=0
+strdef RunName
+RunName="ca1_netclamp_PC_centerlfp_long_exc_065_01"
+strdef origRunName
+origRunName = "ca1_centerlfp_long_exc_065_01"
+strdef celltype2use
+celltype2use = "poolosyncell"
+strdef relpath
+relpath = "ca1"
+strdef resultspath
+resultspath = "networkclamp_results"
+strdef resultsfolder
+resultsfolder = ""
+
+{load_file("./newnetclamp.hoc")}
