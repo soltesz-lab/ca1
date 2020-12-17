@@ -1,0 +1,38 @@
+## Bistratified Cell (BS) synapse density configuration
+
+## https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6782984/
+
+apical:
+  excitatory:
+    LM:
+      mean: 1.43
+      variance: 0.1   
+    Radiatum:
+      mean: 4.16
+      variance: 0.1
+
+  inhibitory:
+    LM:
+      mean: 0.27
+      variance: 0.1
+    Radiatum:
+      mean: 0.16
+      variance: 0.1
+basal:
+  excitatory:
+    Oriens:
+      mean: 3.61
+      variance: 0.1
+  inhibitory:
+    Oriens:
+      mean: 3.44
+      variance: 0.1
+soma:
+  inhibitory:
+    default:
+      mean: 0.18
+      variance: 0.1
+  excitatory:
+    default:
+      mean: 0.40
+      variance: 0.1

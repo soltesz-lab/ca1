@@ -1,0 +1,39 @@
+## CCKBC synapse density configuration. 
+## Ask IvanR and Alexandra about the cell distribution of these guys
+## https://pubmed.ncbi.nlm.nih.gov/15016082/
+
+apical:
+  excitatory:
+    LM:
+      mean: 0.89
+      variance: 0.1   
+    Radiatum:
+      mean: 0.72
+      variance: 0.1
+
+  inhibitory:
+    LM:
+      mean: 0.61
+      variance: 0.1
+    Radiatum:
+      mean: 0.45
+      variance: 0.1
+
+basal:
+  excitatory:
+    Oriens:
+      mean: 0.84
+      variance: 0.1
+  inhibitory:
+    Oriens:
+      mean: 0.62
+      variance: 0.1
+soma:
+  inhibitory:
+    default:
+      mean: 0.50
+      variance: 0.1
+  excitatory:
+    default:
+      mean: 0.68
+      variance: 0.1
