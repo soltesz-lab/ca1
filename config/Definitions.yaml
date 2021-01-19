@@ -1,4 +1,4 @@
-# Common definitions used in model configuration of dentate gyrus network
+# Common definitions used in model configuration of CA1 and dentate gyrus network
 SWC Types:
   soma:   1
   axon:   2
@@ -18,10 +18,16 @@ Synapse Mechanisms:
   GABA_B:  2
   NMDA:    30
 Layers:
-  Oriens:     0
-  Pyramidale: 1
-  Radiatum:   2
-  LM:         3
+  Hilus: 0
+  GCL:   1  ## Granule cell
+  IML:   2  ## Inner molecular
+  MML:   3  ## Middle molecular
+  OML:   4  ## Outer molecular
+  SO:    5  ## Oriens
+  SP:    6  ## Pyramidale
+  SL:    7  ## Lucidum
+  SR:    8  ## Radiatum
+  SLM:   9  ## Lacunosum-moleculare
 Populations:
   DPYR:  0
   SPYR:  1

@@ -1,0 +1,63 @@
+## Model configuration of CA1 network
+Model Name: CA1_Full_Scale_Basis
+Dataset Name: Full_Scale_Control
+Definitions: !include Definitions.yaml
+Global Parameters: !include Global.yaml
+Geometry: !include Geometry.yaml
+Random Seeds: !include Random.yaml
+Connection Generator: !include Full_Scale_Connections.yaml
+#Recording: !include Recording.yaml
+#Stimulus: !include Input_Configuration.yaml
+Analysis: !include Analysis_Configuration.yaml
+## Cell types for dentate gyrus model
+Cell Types:
+  AAC:
+    template: AxoAxonicCell
+    synapses:
+      density: !include AAC_synapse_density.yaml
+  BS:
+    template: BistratifiedCell
+    synapses:
+      density: !include BS_synapse_density.yaml
+  CCKBC:
+    template: CCKBasketCell
+    synapses:
+      density: !include CCKBC_synapse_density.yaml
+  DPYR:
+    template: PyramidalCell
+    synapses:
+      density: !include DPYR_synapse_density.yaml
+  IS:
+    template: ISCell
+    synapses:
+      density: !include IS_synapse_density.yaml
+  IVY:
+    template: IvyCell
+    synapses:
+      density: !include Ivy_synapse_density.yaml
+  NGFC:
+    template: NGFCell
+    synapses:
+      density: !include NGFC_synapse_density.yaml
+  OLM:
+    template: OLMCell
+    synapses:
+      density: !include OLM_synapse_density.yaml
+  PVBC:
+    template: PVBasketCell
+    synapses:
+      density: !include PVBC_synapse_density.yaml
+  SCA:
+    template: SCACell
+    synapses:
+      density: !include SCA_synapse_density.yaml
+  SPYR:
+    template: PyramicalCell
+    synapses:
+      density: !include SPYR_synapse_density.yaml
+  CA3:
+    template: VecStim
+  CA2:
+    template: VecStim
+  EC:
+    template: VecStim
