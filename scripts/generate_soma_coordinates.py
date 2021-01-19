@@ -125,6 +125,9 @@ def main(config, config_prefix, types_path, template_path, geometry_path, output
                     save_alpha_shape(geometry_path, this_layer_alpha_shape_path, this_layer_alpha_shape)
     
     population_ranges = read_population_ranges(output_path, comm)[0]
+    if populations is None:
+        populations = sorted(populations_ranges.keys())
+
 
     if rank == 0:
         color = 1

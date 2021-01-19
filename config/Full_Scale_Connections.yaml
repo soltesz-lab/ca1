@@ -1,5 +1,4 @@
-## Information needed: CA2 projetions and strengths, NMDA unit strengths, ..
-
+## Information needed: CA2 projections and strengths, NMDA unit strengths, ..
 
 Synapse Mechanisms:
   AMPA: LinExp2Syn  # SatExp2Syn
@@ -8,6 +7,7 @@ Synapse Mechanisms:
   GABA_B: LinExp2Syn  # SatExp2Syn
 Synapse Parameter Rules: !include Synapse_Parameter_Rules.yaml
 Axon Extent: !include Axon_Extent.yaml
+Connection Velocity: !include Connection_Velocity.yaml
 Synapses:
   SPYR:
     CA2:
@@ -93,8 +93,7 @@ Synapses:
     PVBC:   
       type: inhibitory
       sections: [soma]
-      layers: [SP]:1
-
+      layers: [SP]
       proportions: [0.82]
       mechanisms:
         GABA_A:
@@ -124,7 +123,7 @@ Synapses:
           tau_decay: 9.7
           e: -60
           g_unit: 0.000510
-    Ivy:
+    IVY:
       type: inhibitory
       sections: [apical]
       layers: [SR]
@@ -164,7 +163,7 @@ Synapses:
             tau_decay: 200.0
             e:   -90
             g_unit: 0.000145
-    SLM: 
+    OLM: 
       type: inhibitory
       sections: [apical]
       layers: [SLM]
@@ -261,8 +260,7 @@ Synapses:
     PVBC:   
       type: inhibitory
       sections: [soma]
-      layers: [SP]:1
-
+      layers: [SP]
       proportions: [0.82]
       mechanisms:
         GABA_A:
@@ -273,7 +271,7 @@ Synapses:
     CCKBC:  
       type: inhibitory
       sections: [soma, apical]
-      layers: [SPyramidale, SP]
+      layers: [SP, SP]
       proportions: [0.18, 1.0]
       mechanisms:
         GABA_A:
@@ -292,7 +290,7 @@ Synapses:
           tau_decay: 9.7
           e: -60
           g_unit: 0.000510
-    Ivy:
+    IVY:
       type: inhibitory
       sections: [apical]
       layers: [SR]
@@ -332,7 +330,7 @@ Synapses:
             tau_decay: 200.0
             e:   -90
             g_unit: 0.000145
-    SLM: 
+    OLM: 
       type: inhibitory
       sections: [apical]
       layers: [SLM]

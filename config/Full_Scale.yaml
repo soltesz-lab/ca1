@@ -55,4 +55,9 @@ Cell Types:
     template: PyramicalCell
     synapses:
       density: !include SPYR_synapse_density.yaml
-          	       		
+  CA3:
+    template: VecStim
+  CA2:
+    template: VecStim
+  EC:
+    template: VecStim
