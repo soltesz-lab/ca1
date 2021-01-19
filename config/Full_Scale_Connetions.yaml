@@ -1,4 +1,4 @@
-## Information needed: CA2 projetions and strengths, NMDA unit strengths, ..
+## Information needed: CA2 projetions and strengths, NMDA unit strengths, IS infomration
 
 
 Synapse Mechanisms:
@@ -93,8 +93,7 @@ Synapses:
     PVBC:   
       type: inhibitory
       sections: [soma]
-      layers: [Pyramidale]:1
-
+      layers: [Pyramidale]
       proportions: [0.82]
       mechanisms:
         GABA_A:
@@ -261,8 +260,7 @@ Synapses:
     PVBC:   
       type: inhibitory
       sections: [soma]
-      layers: [Pyramidale]:1
-
+      layers: [Pyramidale]
       proportions: [0.82]
       mechanisms:
         GABA_A:
@@ -343,3 +341,168 @@ Synapses:
             tau_rise:  0.13
             tau_decay: 11.0
             e:   -60
+            g_unit: 0.00120
+
+
+  PVBC:
+    CA2:
+      type: excitatory
+      sections: []
+      layers: []
+      proportions: []
+      mechanisms:
+        AMPA:
+          tau_rise: 
+          tau_decay:
+          e: 0
+          g_unit: 
+    CA3:
+      type: excitatory
+      sections: [apical]
+      layers: [Radiatum]
+      proportions: [1.0]
+      mechanisms:
+        AMPA:
+          tau_rise: 2.0
+          tau_decay: 6.3
+          e: 0
+          g_unit: 
+    EC:
+      type: excitatory
+      sections: [apical]
+      layers: [LM]
+      proportions: [1.0]
+      mechanisms:
+        AMPA:
+          tau_rise: 2.0
+          tau_decay: 6.3
+          e: 0
+          g_unit:      
+    SPYR:
+      type: excitatory
+      sections: []
+      layers: []
+      proportions: []
+      mechanisms:
+        AMPA:
+          tau_rise: 0.07
+          tau_decay: 0.20
+          e: 0
+          g_unit: 
+        NMDA:
+          g_unit: 
+    DPYR:
+      type: excitatory
+      sections: []
+      layers: []
+      proportions: []
+      mechanisms:
+        AMPA:
+          tau_rise: 0.07
+          tau_decay: 0.20
+          e: 0
+          g_unit: 
+        NMDA:
+          g_unit: 
+    PVBC:   
+      type: inhibitory
+      sections: [soma, apical]
+      layers: [Pyramidale, Pyramidale]
+      proportions: [0.16, 0.16]
+      mechanisms:
+        GABA_A:
+          tau_rise: 0.08
+          tau_decay: 4.8
+          e: -60
+          g_unit:
+    CCKBC:  
+      type: inhibitory
+      sections: [soma, apical]
+      layers: [Pyramidale, Pyramidale]
+      proportions: [0.84, 0.84]
+      mechanisms:
+        GABA_A:
+          tau_rise: 0.432
+          tau_decay: 4.9
+          e: -60
+          g_unit: 
+    BS:   
+      type: inhibitory
+      sections: [apical]
+      layers: [Radiatum]
+      proportions: [0.21]
+      mechanisms:
+        GABA_A:
+          tau_rise: 0.287
+          tau_decay: 2.67
+          e: -60
+          g_unit: 
+    Ivy:
+      type: inhibitory
+      sections: [apical]
+      layers: [Radiatum]
+      proportions: [0.76]
+      mechanisms:
+        GABA_A:
+          tau_rise: 2.9
+          tau_decay: 3.1
+          e: -60
+          g_unit: 
+    SCA:
+      type: inhibitory
+      sections: [apical]
+      layers: [Radiatum]
+      proportions: [0.03]
+      mechanisms:
+        GABA_A:
+          tau_rise: 0.419
+          tau_decay: 4.99
+          e: -60
+          g_unit: 
+
+    NGFC: 
+      type: inhibitory
+      sections: [apical]
+      layers: [LM]
+      proportions: [0.595]
+      swctype mechanisms:
+        apical:
+          GABA_A:
+            tau_rise:  8.0
+            tau_decay: 39.0
+            e:   -60
+            g_unit: 
+          GABA_B:
+            tau_rise:  180.0
+            tau_decay: 200.0
+            e:   -90
+            g_unit: 
+    OLM: 
+      type: inhibitory
+      sections: [apical]
+      layers: [LM]
+      proportions: [0.405]
+      swctype mechanisms:
+        apical:
+          GABA_A:
+            tau_rise:  0.25
+            tau_decay: 7.5
+            e:   -60
+            g_unit: 
+            
+            g_unit: 
+    IS: 
+      type: inhibitory
+      sections: []
+      layers: []
+      proportions: []
+      swctype mechanisms:
+        apical:
+          GABA_A:
+            tau_rise:  
+            tau_decay:
+            e:   -60
+            g_unit: 
+            
+            
+
