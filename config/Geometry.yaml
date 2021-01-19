@@ -4,10 +4,10 @@ Parametric Surface:
     V: median
     L: max
   Layer Extents:
-    Oriens:     [[0.0,0.0,0.0], [4000.0,1000.0,100.0]]
-    Pyramidale: [[0.0,0.0,100.0],[4000.0,1000.0,150.0]]
-    Radiatum:   [[0.0,0.0,150.0], [4000.0,1000.0,350.0]]
-    LM:         [[0.0, 0.0,350.0], [4000.0, 1000.0, 450.0]]
+    Oriens:     [[0.0,0.0,0.0], [4000.0,1250.0,100.0]]
+    Pyramidale: [[0.0,0.0,100.0],[4000.0,1250.0,150.0]]
+    Radiatum:   [[0.0,0.0,150.0], [4000.0,1250.0,350.0]]
+    LM:         [[0.0, 0.0,350.0], [4000.0, 1250.0, 450.0]]
   Rotation: [0.0, 0.0, 0.0]
 Cell Distribution:
   DPYR:
@@ -60,11 +60,21 @@ Cell Distribution:
     Pyramidale: 0
     Radiatum:   400
     LM:         0
+  IS:
+    Oriens: 780
+    Pyramidale:  2710
+    Radiatum:  1000
+    LM: 1010
   CA3:
     Oriens:     0
     Pyramidale: 0
     Radiatum:   204700
     LM:         0
+  CA2:
+    Oriens: 40000
+    Pyramidale: 0
+    Radiatum: 0
+    LM: 0
   EC:
     Oriens:     0
     Pyramidale: 0
