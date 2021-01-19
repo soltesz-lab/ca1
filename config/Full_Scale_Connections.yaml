@@ -13,7 +13,7 @@ Synapses:
     CA2:
       type: excitatory
       sections: [basal]
-      layers: [Oriens]
+      layers: [SO]
       proportions: []
       mechanisms:
         AMPA:
@@ -27,7 +27,7 @@ Synapses:
     CA3:
       type: excitatory
       sections: [apical]
-      layers: [Radiatum]
+      layers: [SR]
       proportions: [1.0]
       mechanisms:
         AMPA:
@@ -41,7 +41,7 @@ Synapses:
     EC:
       type: excitatory
       sections: [apical]
-      layers: [LM]
+      layers: [SLM]
       proportions: [1.0]
       mechanisms:
         AMPA:
@@ -55,7 +55,7 @@ Synapses:
     SPYR:
       type: excitatory
       sections: [basal]
-      layers: [Oriens]
+      layers: [SO]
       proportions: []
       mechanisms:
         AMPA:
@@ -68,7 +68,7 @@ Synapses:
     DPYR:
       type: excitatory
       sections: [basal]
-      layers: [Oriens]
+      layers: [SO]
       proportions: []
       mechanisms:
         AMPA:
@@ -81,7 +81,7 @@ Synapses:
     AAC:
       type: inhibitory
       sections: [ais]
-      layers: [Pyramidale]
+      layers: [SP]
       proportions: [1.0]
       swctype mechanisms:
         ais:
@@ -93,7 +93,7 @@ Synapses:
     PVBC:   
       type: inhibitory
       sections: [soma]
-      layers: [Pyramidale]:1
+      layers: [SP]:1
 
       proportions: [0.82]
       mechanisms:
@@ -105,7 +105,7 @@ Synapses:
     CCKBC:  
       type: inhibitory
       sections: [soma, apical]
-      layers: [Pyramidale, Pyramidale]
+      layers: [SP, SP]
       proportions: [0.18, 1.0]
       mechanisms:
         GABA_A:
@@ -116,7 +116,7 @@ Synapses:
     BS:   
       type: inhibitory
       sections: [apical]
-      layers: [Radiatum]
+      layers: [SR]
       proportions: [0.194]
       mechanisms:
         GABA_A:
@@ -127,7 +127,7 @@ Synapses:
     Ivy:
       type: inhibitory
       sections: [apical]
-      layers: [Radiatum]
+      layers: [SR]
       proportions: [0.787]
       mechanisms:
         GABA_A:
@@ -138,7 +138,7 @@ Synapses:
     SCA:
       type: inhibitory
       sections: [apical]
-      layers: [Radiatum]
+      layers: [SR]
       proportions: [0.019]
       mechanisms:
         GABA_A:
@@ -150,7 +150,7 @@ Synapses:
     NGFC: 
       type: inhibitory
       sections: [apical]
-      layers: [LM]
+      layers: [SLM]
       proportions: [0.625]
       swctype mechanisms:
         apical:
@@ -164,10 +164,10 @@ Synapses:
             tau_decay: 200.0
             e:   -90
             g_unit: 0.000145
-    OLM: 
+    SLM: 
       type: inhibitory
       sections: [apical]
-      layers: [LM]
+      layers: [SLM]
       proportions: [0.375]
       swctype mechanisms:
         apical:
@@ -181,7 +181,7 @@ Synapses:
     CA2:
       type: excitatory
       sections: [basal]
-      layers: [Oriens]
+      layers: [SO]
       proportions: []
       mechanisms:
         AMPA:
@@ -195,7 +195,7 @@ Synapses:
     CA3:
       type: excitatory
       sections: [apical]
-      layers: [Radiatum]
+      layers: [SR]
       proportions: [1.0]
       mechanisms:
         AMPA:
@@ -209,7 +209,7 @@ Synapses:
     EC:
       type: excitatory
       sections: [apical]
-      layers: [LM]
+      layers: [SLM]
       proportions: [1.0]
       mechanisms:
         AMPA:
@@ -223,7 +223,7 @@ Synapses:
     SPYR:
       type: excitatory
       sections: [basal]
-      layers: [Oriens]
+      layers: [SO]
       proportions: []
       mechanisms:
         AMPA:
@@ -236,7 +236,7 @@ Synapses:
     DPYR:
       type: excitatory
       sections: [basal]
-      layers: [Oriens]
+      layers: [SO]
       proportions: []
       mechanisms:
         AMPA:
@@ -249,7 +249,7 @@ Synapses:
     AAC:
       type: inhibitory
       sections: [ais]
-      layers: [Pyramidale]
+      layers: [SP]
       proportions: [1.0]
       swctype mechanisms:
         ais:
@@ -261,7 +261,7 @@ Synapses:
     PVBC:   
       type: inhibitory
       sections: [soma]
-      layers: [Pyramidale]:1
+      layers: [SP]:1
 
       proportions: [0.82]
       mechanisms:
@@ -273,7 +273,7 @@ Synapses:
     CCKBC:  
       type: inhibitory
       sections: [soma, apical]
-      layers: [Pyramidale, Pyramidale]
+      layers: [SPyramidale, SP]
       proportions: [0.18, 1.0]
       mechanisms:
         GABA_A:
@@ -284,7 +284,7 @@ Synapses:
     BS:   
       type: inhibitory
       sections: [apical]
-      layers: [Radiatum]
+      layers: [SR]
       proportions: [0.194]
       mechanisms:
         GABA_A:
@@ -295,7 +295,7 @@ Synapses:
     Ivy:
       type: inhibitory
       sections: [apical]
-      layers: [Radiatum]
+      layers: [SR]
       proportions: [0.787]
       mechanisms:
         GABA_A:
@@ -306,7 +306,7 @@ Synapses:
     SCA:
       type: inhibitory
       sections: [apical]
-      layers: [Radiatum]
+      layers: [SR]
       proportions: [0.019]
       mechanisms:
         GABA_A:
@@ -318,7 +318,7 @@ Synapses:
     NGFC: 
       type: inhibitory
       sections: [apical]
-      layers: [LM]
+      layers: [SLM]
       proportions: [0.625]
       swctype mechanisms:
         apical:
@@ -332,10 +332,10 @@ Synapses:
             tau_decay: 200.0
             e:   -90
             g_unit: 0.000145
-    OLM: 
+    SLM: 
       type: inhibitory
       sections: [apical]
-      layers: [LM]
+      layers: [SLM]
       proportions: [0.375]
       swctype mechanisms:
         apical:
