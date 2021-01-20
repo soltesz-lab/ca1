@@ -22,10 +22,10 @@ export PYTHONPATH=$HOME/model:$NEURONROOT/lib/python:$SCRATCH/site-packages/inte
 cd $SLURM_SUBMIT_DIR
 
 
-ibrun python3 ./scripts/generate_soma_coordinates.py -v \
-    --config=./config/Full_Scale.yaml \
+ibrun -n 4 python3 ./scripts/generate_soma_coordinates.py -v \
+    --config=Full_Scale.yaml \
     --types-path=./datasets/ca1_h5types.h5 \
-    --output-path=$SCRATCH/datasets/CA1_Full_Scale_coords_20210119.h5 \
+    --output-path=$SCRATCH/CA1_Full_Scale_coords_20210119.h5 \
     --output-namespace='Generated Coordinates' 
 
 

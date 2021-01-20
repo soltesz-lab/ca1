@@ -14,7 +14,8 @@ from rbf.pde.nodes import min_energy_nodes
 from ca1.env import Env
 from neural_geometry.CA1_volume import make_CA1_volume
 from neural_geometry.alphavol import alpha_shape
-from neural_geometry.geometry import make_uvl_distance, make_volume, make_alpha_shape, load_alpha_shape, save_alpha_shape, get_total_extents, uvl_in_bounds
+from neural_geometry.geometry import make_uvl_distance, make_alpha_shape, load_alpha_shape, save_alpha_shape, get_total_extents, uvl_in_bounds
+from ca1.utils import get_script_logger, config_logging, list_find, viewitems
 
 script_name = os.path.basename(__file__)
 logger = get_script_logger(script_name)
@@ -32,8 +33,8 @@ def mpi_excepthook(type, value, traceback):
         MPI.COMM_WORLD.Abort(1)
 
 
-sys_excepthook = sys.excepthook
-sys.excepthook = mpi_excepthook
+#sys_excepthook = sys.excepthook
+#sys.excepthook = mpi_excepthook
 
 def random_subset( iterator, K ):
     result = []
@@ -55,12 +56,11 @@ def random_subset( iterator, K ):
 @click.option("--config", required=True, type=str)
 @click.option("--config-prefix", required=False, type=click.Path(exists=True, file_okay=False, dir_okay=True), default="config")
 @click.option("--types-path", required=True, type=click.Path(exists=True, file_okay=True, dir_okay=False))
-@click.option("--template-path", required=True, type=click.Path(exists=True, file_okay=False, dir_okay=True))
 @click.option("--geometry-path", required=False, type=click.Path(exists=False, file_okay=True, dir_okay=False))
 @click.option("--output-path", required=True, type=click.Path(exists=False, file_okay=True, dir_okay=False))
 @click.option("--output-namespace", type=str, default='Generated Coordinates')
 @click.option("--populations", '-i', type=str, multiple=True)
-@click.option("--resolution", type=(int,int,int), default=(30,30,10))
+@click.option("--resolution", type=(int,int,int), default=(20,20,20))
 @click.option("--alpha-radius", type=float, default=120.)
 @click.option("--nodeiter", type=int, default=10)
 @click.option("--optiter", type=int, default=200)
@@ -68,7 +68,7 @@ def random_subset( iterator, K ):
 @click.option("--chunk-size", type=int, default=1000)
 @click.option("--value-chunk-size", type=int, default=1000)
 @click.option("--verbose", '-v', type=bool, default=False, is_flag=True)
-def main(config, config_prefix, types_path, template_path, geometry_path, output_path, output_namespace, populations, resolution, alpha_radius, nodeiter, optiter, io_size, chunk_size, value_chunk_size, verbose):
+def main(config, config_prefix, types_path, geometry_path, output_path, output_namespace, populations, resolution, alpha_radius, nodeiter, optiter, io_size, chunk_size, value_chunk_size, verbose):
 
     config_logging(verbose)
     logger = get_script_logger(script_name)
@@ -117,9 +117,12 @@ def main(config, config_prefix, types_path, template_path, geometry_path, output
                 if this_layer_alpha_shape is not None:
                     has_layer_alpha_shape = True
             if not has_layer_alpha_shape:
-                this_layer_alpha_shape = make_alpha_shape(extents[0], extents[1],
-                                                          alpha_radius=alpha_radius,
-                                                          rotate=rotate, resolution=resolution)
+                logger.info("Constructing alpha shape for layers %s: extents: %s..." % (layer, str(extents)))
+                (extent_u, extent_v, extent_l) = get_total_extents(layer_extents)
+                vol = make_CA1_volume(extent_u, extent_v, extent_l,
+                                      rotate=rotate, resolution=resolution)
+
+                this_layer_alpha_shape = make_alpha_shape(vol, alpha_radius=alpha_radius)
                 layer_alpha_shapes[layer] = this_layer_alpha_shape
                 if geometry_path:
                     save_alpha_shape(geometry_path, this_layer_alpha_shape_path, this_layer_alpha_shape)
