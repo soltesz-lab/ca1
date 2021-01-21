@@ -28,7 +28,7 @@ Synapses:
       type: excitatory
       sections: [basal, apical]
       layers: [SO, SR]
-      proportions: [0.54, 1.0]
+      proportions: [0.5, 1.0]
       mechanisms:
         AMPA:
           tau_rise: 0.5
@@ -138,7 +138,7 @@ Synapses:
       type: inhibitory
       sections: [basal, apical, apical]
       layers: [SO, SR, SLM]
-      proportions: [0.003, 0.03, 0.005]
+      proportions: [0.003, 0.03, 0.010]
       mechanisms:
         GABA_A:
           tau_rise: 0.15
@@ -175,9 +175,8 @@ Synapses:
             tau_decay: 11.0
             e:   -60
             g_unit: 0.00120
-
   DPYR:
-     CA2:
+    CA2:
       type: excitatory
       sections: [basal]
       layers: [SO]
@@ -195,7 +194,7 @@ Synapses:
       type: excitatory
       sections: [basal, apical]
       layers: [SO, SR]
-      proportions: [0.54, 1.0]
+      proportions: [0.5, 1.0]
       mechanisms:
         AMPA:
           tau_rise: 0.5
@@ -305,7 +304,7 @@ Synapses:
       type: inhibitory
       sections: [basal, apical, apical]
       layers: [SO, SR, SLM]
-      proportions: [0.003, 0.03, 0.005]
+      proportions: [0.003, 0.03, 0.01]
       mechanisms:
         GABA_A:
           tau_rise: 0.15

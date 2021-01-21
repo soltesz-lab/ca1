@@ -93,7 +93,9 @@ class Env(object):
         self.SWC_Types = {}
         self.SWC_Type_index = {}
         self.Synapse_Types = {}
+        self.Synapse_Type_index = {}
         self.layers = {}
+        self.layer_type_index = {}
         self.globals = {}
 
         self.gidset = set([])
@@ -218,6 +220,8 @@ class Env(object):
         if 'Definitions' in self.model_config:
             self.parse_definitions()
             self.SWC_Type_index = dict([(item[1], item[0]) for item in viewitems(self.SWC_Types)])
+            self.Synapse_Type_index = dict([(item[1], item[0]) for item in viewitems(self.Synapse_Types)])
+            self.layer_type_index = dict([(item[1], item[0]) for item in viewitems(self.layers)])
 
             
         if 'Global Parameters' in self.model_config:
@@ -635,8 +639,7 @@ class Env(object):
                 try:
                     assert (np.isclose(v, 1.0))
                 except Exception as e:
-                    self.logger.error('Connection configuration: probabilities for %s do not sum to 1: %s = %f' %
-                                      (key_postsyn, str(k), v))
+                    self.logger.error(f'Connection configuration: probabilities for {key_postsyn} do not sum to 1: type: {self.Synapse_Type_index[k[0]]} section: {self.SWC_Type_index[k[1]]}  layer {self.layer_type_index[k[2]]} = {v}')
                     raise e
 
         self.connection_config = connection_dict
