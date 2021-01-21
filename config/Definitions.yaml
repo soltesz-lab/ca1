@@ -29,20 +29,20 @@ Layers:
   SR:    8  ## Radiatum
   SLM:   9  ## Lacunosum-moleculare
 Populations:
-  DPYR:  0
-  SPYR:  1
-  PVBC:  2
-  AAC:   3
-  BS:    4
-  CCKBC: 5
-  IVY:   6
-  NGFC:  7
-  OLM:   8
-  SCA:   9
-  IS:    10
-  CA3:   11
-  CA2:   12
-  EC:    13
+  DPYR:  100
+  SPYR:  101
+  PVBC:  102
+  AAC:   103
+  BS:    104
+  CCKBC: 105
+  IVY:   106
+  NGFC:  107
+  OLM:   108
+  SCA:   109
+  IS:    110
+  CA3:   111
+  CA2:   112
+  EC:    113
 Input Selectivity Types:
   random: 0
   ripple: 1
