@@ -1,27 +1,30 @@
 ## Ivy cell synapse density configuration
-# Number of excitatory and inhibitory connections obtained from conndata_403.data
-# dendrities length equal to width of oriens + width of radiatum multiplied by a factor of 20
-# assumed synapses distributed evenly across layers
-
+# Number of excitatory and inhibitory connections obtained from conndata_211.data
+# dendritic length estimated from https://pubmed.ncbi.nlm.nih.gov/18367092/ of 1260 microns
 
 
 apical:
   excitatory:
     Radiatum:
-      mean: 0.64
+      mean: 3.16
+      variance: 0.1
+    LM:
+      mean: 3.16
       variance: 0.1
   inhibitory:
     Radiatum:
-      mean: 0.06
-      variance: 0.1
+      mean: 0.60
+      variance: 0.10
+    LM:
+      mean: 0.60
+      variance: 0.10
       
 basal:
   excitatory:
     Oriens:
-      mean: 0.64
+      mean: 3.16
       variance: 0.1
-
   inhibitory:
     Oriens:
-      mean: 0.06
+      mean: 0.60
       variance: 0.1
