@@ -490,6 +490,167 @@ Synapses:
             e:   -60
             g_unit: 
             
+    
+  # need exc, weights
+  BS:
+    CA2:
+      type: excitatory
+      sections: []
+      layers: []
+      proportions: []
+      mechanisms:
+        AMPA:
+          tau_rise: 
+          tau_decay:
+          e: 0
+          g_unit: 
+    CA3:
+      type: excitatory
+      sections: []
+      layers: []
+      proportions: []
+      mechanisms:
+        AMPA:
+          tau_rise: 
+          tau_decay: 
+          e: 0
+          g_unit: 
+    EC:
+      type: excitatory
+      sections: []
+      layers: []
+      proportions: []
+      mechanisms:
+        AMPA:
+          tau_rise: 
+          tau_decay: 
+          e: 0
+          g_unit:      
+    SPYR:
+      type: excitatory
+      sections: []
+      layers: []
+      proportions: []
+      mechanisms:
+        AMPA:
+          tau_rise: 
+          tau_decay: 
+          e: 0
+          g_unit: 
+        NMDA:
+          g_unit: 
+    DPYR:
+      type: excitatory
+      sections: []
+      layers: []
+      proportions: []
+      mechanisms:
+        AMPA:
+          tau_rise: 
+          tau_decay: 
+          e: 0
+          g_unit: 
+        NMDA:
+          g_unit: 
+    PVBC:   
+      type: inhibitory
+      sections: [soma]
+      layers: [SP]
+      proportions: [0.33]
+      mechanisms:
+        GABA_A:
+          tau_rise: 0.180
+          tau_decay: 0.45
+          e: -60
+          g_unit:
+    CCKBC:  
+      type: inhibitory
+      sections: [soma, basal, apical, apical]
+      layers: [SP, SO, SR, SLM]
+      proportions: [0.67, 0.51, 0.30, 0.12]
+      mechanisms:
+        GABA_A:
+          tau_rise: 0.432
+          tau_decay: 4.9
+          e: -60
+          g_unit: 
+    BS:   
+      type: inhibitory
+      sections: [basal, apical, apical]
+      layers: [SO, SP, SR]
+      proportions: [0.28, 0.35, 0.08]
+      mechanisms:
+        GABA_A:
+          tau_rise: 0.287
+          tau_decay: 2.67
+          e: -60
+          g_unit: 
+    IVY:
+      type: inhibitory
+      sections: [basal, apical, apical, apical]
+      layers: [SO, SP, SR, SLM]
+      proportions: [0.12, 0.59, 0.54, 0.18]
+      mechanisms:
+        GABA_A:
+          tau_rise: 2.9
+          tau_decay: 3.1
+          e: -60
+          g_unit: 
+    SCA:
+      type: inhibitory
+      sections: [basal, apical, apical]
+      layers: [SO, SP, SR]
+      proportions: [0.02, 0.06, 0.04]
+      mechanisms:
+        GABA_A:
+          tau_rise: 0.419
+          tau_decay: 4.99
+          e: -60
+          g_unit: 
+
+    NGFC: 
+      type: inhibitory
+      sections: [apical, apical]
+      layers: [SR, SLM]
+      proportions: [0.04, 0.37]
+      swctype mechanisms:
+        apical:
+          GABA_A:
+            tau_rise:  8.0
+            tau_decay: 39.0
+            e:   -60
+            g_unit: 
+          GABA_B:
+            tau_rise:  180.0
+            tau_decay: 200.0
+            e:   -90
+            g_unit: 
+    OLM: 
+      type: inhibitory
+      sections: [apical]
+      layers: [SLM]
+      proportions: [0.33]
+      swctype mechanisms:
+        apical:
+          GABA_A:
+            tau_rise:  0.60
+            tau_decay: 15.0
+            e:   -60
+            g_unit:          
+    IS: 
+      type: inhibitory
+      sections: [apical]
+      layers: [SO]
+      proportions: [0.07]
+      swctype mechanisms:
+        apical:
+          GABA_A:
+            tau_rise:  1.1
+            tau_decay: 
+            e:   -60
+            g_unit: 
+            
+              
             
   # need exc, weights
   CCKBC:
@@ -566,7 +727,7 @@ Synapses:
     CCKBC:  
       type: inhibitory
       sections: [soma, basal, apical, apical]
-      layers: [SP, SO, SP, SP]
+      layers: [SP, SO, SR, SLM]
       proportions: [0.65, 0.28, 0.12, 0.04]
       mechanisms:
         GABA_A:
@@ -650,165 +811,3 @@ Synapses:
             tau_decay: 
             e:   -60
             g_unit: 
-            
-    
-  # need exc, weights
-  BS:
-    CA2:
-      type: excitatory
-      sections: []
-      layers: []
-      proportions: []
-      mechanisms:
-        AMPA:
-          tau_rise: 
-          tau_decay:
-          e: 0
-          g_unit: 
-    CA3:
-      type: excitatory
-      sections: []
-      layers: []
-      proportions: []
-      mechanisms:
-        AMPA:
-          tau_rise: 
-          tau_decay: 
-          e: 0
-          g_unit: 
-    EC:
-      type: excitatory
-      sections: []
-      layers: []
-      proportions: []
-      mechanisms:
-        AMPA:
-          tau_rise: 
-          tau_decay: 
-          e: 0
-          g_unit:      
-    SPYR:
-      type: excitatory
-      sections: []
-      layers: []
-      proportions: []
-      mechanisms:
-        AMPA:
-          tau_rise: 
-          tau_decay: 
-          e: 0
-          g_unit: 
-        NMDA:
-          g_unit: 
-    DPYR:
-      type: excitatory
-      sections: []
-      layers: []
-      proportions: []
-      mechanisms:
-        AMPA:
-          tau_rise: 
-          tau_decay: 
-          e: 0
-          g_unit: 
-        NMDA:
-          g_unit: 
-    PVBC:   
-      type: inhibitory
-      sections: [soma]
-      layers: [SP]
-      proportions: [0.23]
-      mechanisms:
-        GABA_A:
-          tau_rise: 0.180
-          tau_decay: 0.45
-          e: -60
-          g_unit:
-    CCKBC:  
-      type: inhibitory
-      sections: [soma, apical]
-      layers: [SP, SP]
-      proportions: [0.77, 1.0]
-      mechanisms:
-        GABA_A:
-          tau_rise: 0.432
-          tau_decay: 4.9
-          e: -60
-          g_unit: 
-    BS:   
-      type: inhibitory
-      sections: [apical]
-      layers: [SR]
-      proportions: [0.20]
-      mechanisms:
-        GABA_A:
-          tau_rise: 0.287
-          tau_decay: 2.67
-          e: -60
-          g_unit: 
-    IVY:
-      type: inhibitory
-      sections: [apical]
-      layers: [SR]
-      proportions: [0.75]
-      mechanisms:
-        GABA_A:
-          tau_rise: 2.9
-          tau_decay: 3.1
-          e: -60
-          g_unit: 
-    SCA:
-      type: inhibitory
-      sections: [apical]
-      layers: [SR]
-      proportions: [0.05]
-      mechanisms:
-        GABA_A:
-          tau_rise: 0.419
-          tau_decay: 4.99
-          e: -60
-          g_unit: 
-
-    NGFC: 
-      type: inhibitory
-      sections: [apical]
-      layers: [SLM]
-      proportions: [0.60]
-      swctype mechanisms:
-        apical:
-          GABA_A:
-            tau_rise:  8.0
-            tau_decay: 39.0
-            e:   -60
-            g_unit: 
-          GABA_B:
-            tau_rise:  180.0
-            tau_decay: 200.0
-            e:   -90
-            g_unit: 
-    OLM: 
-      type: inhibitory
-      sections: [apical]
-      layers: [SLM]
-      proportions: [0.4]
-      swctype mechanisms:
-        apical:
-          GABA_A:
-            tau_rise:  0.60
-            tau_decay: 15.0
-            e:   -60
-            g_unit:          
-    IS: 
-      type: inhibitory
-      sections: [apical]
-      layers: [SO]
-      proportions: [1.0]
-      swctype mechanisms:
-        apical:
-          GABA_A:
-            tau_rise:  1.1
-            tau_decay: 
-            e:   -60
-            g_unit: 
-            
-    
