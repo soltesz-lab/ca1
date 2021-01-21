@@ -797,8 +797,7 @@ Synapses:
             tau_rise:  0.60
             tau_decay: 15.0
             e:   -60
-            g_unit: 
-            
+            g_unit:          
     IS: 
       type: inhibitory
       sections: [apical]
