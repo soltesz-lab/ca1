@@ -267,7 +267,7 @@ Synapses:
           tau_rise: 0.30
           tau_decay: 6.2
           e: -60
-          g_unit: 0.000186
+          g_unit: 0.000372
     CCKBC:  
       type: inhibitory
       sections: [soma, basal, apical]
@@ -343,7 +343,7 @@ Synapses:
             e:   -60
             g_unit: 0.00120
 
-
+  # need exc, weights
   PVBC:
     CA2:
       type: excitatory
@@ -437,7 +437,7 @@ Synapses:
           tau_decay: 2.67
           e: -60
           g_unit: 
-    Ivy:
+    IVY:
       type: inhibitory
       sections: [apical]
       layers: [SR]
@@ -490,19 +490,165 @@ Synapses:
             e:   -60
             g_unit: 
             
-            g_unit: 
-    IS: 
-      type: inhibitory
+            
+  # need exc, weights
+  CCKBC:
+    CA2:
+      type: excitatory
       sections: []
       layers: []
       proportions: []
+      mechanisms:
+        AMPA:
+          tau_rise: 
+          tau_decay:
+          e: 0
+          g_unit: 
+    CA3:
+      type: excitatory
+      sections: []
+      layers: []
+      proportions: []
+      mechanisms:
+        AMPA:
+          tau_rise: 
+          tau_decay: 
+          e: 0
+          g_unit: 
+    EC:
+      type: excitatory
+      sections: []
+      layers: []
+      proportions: []
+      mechanisms:
+        AMPA:
+          tau_rise: 
+          tau_decay: 
+          e: 0
+          g_unit:      
+    SPYR:
+      type: excitatory
+      sections: []
+      layers: []
+      proportions: []
+      mechanisms:
+        AMPA:
+          tau_rise: 
+          tau_decay: 
+          e: 0
+          g_unit: 
+        NMDA:
+          g_unit: 
+    DPYR:
+      type: excitatory
+      sections: []
+      layers: []
+      proportions: []
+      mechanisms:
+        AMPA:
+          tau_rise: 
+          tau_decay: 
+          e: 0
+          g_unit: 
+        NMDA:
+          g_unit: 
+    PVBC:   
+      type: inhibitory
+      sections: [soma]
+      layers: [SP]
+      proportions: [0.24]
+      mechanisms:
+        GABA_A:
+          tau_rise: 0.287
+          tau_decay: 2.67
+          e: -60
+          g_unit:
+    CCKBC:  
+      type: inhibitory
+      sections: [soma, apical]
+      layers: [SP, SP]
+      proportions: [0.76, 1.0]
+      mechanisms:
+        GABA_A:
+          tau_rise: 0.432
+          tau_decay: 4.9
+          e: -60
+          g_unit: 
+    BS:   
+      type: inhibitory
+      sections: [apical]
+      layers: [SR]
+      proportions: [0.18]
+      mechanisms:
+        GABA_A:
+          tau_rise: 0.287
+          tau_decay: 2.67
+          e: -60
+          g_unit: 
+    IVY:
+      type: inhibitory
+      sections: [apical]
+      layers: [SR]
+      proportions: [0.79]
+      mechanisms:
+        GABA_A:
+          tau_rise: 2.9
+          tau_decay: 3.1
+          e: -60
+          g_unit: 
+    SCA:
+      type: inhibitory
+      sections: [apical]
+      layers: [SR]
+      proportions: [0.03]
+      mechanisms:
+        GABA_A:
+          tau_rise: 0.419
+          tau_decay: 4.99
+          e: -60
+          g_unit: 
+
+    NGFC: 
+      type: inhibitory
+      sections: [apical]
+      layers: [SLM]
+      proportions: [0.59]
       swctype mechanisms:
         apical:
           GABA_A:
-            tau_rise:  
-            tau_decay:
+            tau_rise:  8.0
+            tau_decay: 39.0
+            e:   -60
+            g_unit: 
+          GABA_B:
+            tau_rise:  180.0
+            tau_decay: 200.0
+            e:   -90
+            g_unit: 
+    OLM: 
+      type: inhibitory
+      sections: [apical]
+      layers: [SLM]
+      proportions: [0.41]
+      swctype mechanisms:
+        apical:
+          GABA_A:
+            tau_rise:  0.72
+            tau_decay: 20.20
             e:   -60
             g_unit: 
             
+    IS: 
+      type: inhibitory
+      sections: [apical]
+      layers: [SO]
+      proportions: [1.0]
+      swctype mechanisms:
+        apical:
+          GABA_A:
+            tau_rise:  1.1
+            tau_decay: 
+            e:   -60
+            g_unit: 
             
-
+    
