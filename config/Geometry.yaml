@@ -4,79 +4,79 @@ Parametric Surface:
     V: median
     L: max
   Layer Extents:
-    Oriens:     [[0.0,0.0,0.0], [4000.0,1250.0,100.0]]
-    Pyramidale: [[0.0,0.0,100.0],[4000.0,1250.0,150.0]]
-    Radiatum:   [[0.0,0.0,150.0], [4000.0,1250.0,350.0]]
-    LM:         [[0.0, 0.0,350.0], [4000.0, 1250.0, 450.0]]
+    SO:  [[0.0,0.0,0.0], [4000.0,1250.0,100.0]]
+    SP:  [[0.0,0.0,100.0],[4000.0,1250.0,150.0]]
+    SR:  [[0.0,0.0,150.0], [4000.0,1250.0,350.0]]
+    SLM: [[0.0, 0.0,350.0], [4000.0, 1250.0, 450.0]]
   Rotation: [0.0, 0.0, 0.0]
 Cell Distribution:
   DPYR:
-    Oriens:     0
-    Pyramidale: 155750
-    Radiatum:   0
-    LM:         0
+    SO:  0
+    SP:  155750
+    SR:  0
+    SLM: 0
   SPYR:
-    Oriens:     0
-    Pyramidale: 155750
-    Radiatum:   0
-    LM:         0
+    SO:  0
+    SP:  155750
+    SR:  0
+    SLM: 0
   PVBC:
-    Oriens:     1320
-    Pyramidale: 3880
-    Radiatum:   330
-    LM:         0
+    SO:  1320
+    SP:  3880
+    SR:  330
+    SLM: 0
   AAC:
-    Oriens:     350
-    Pyramidale: 1030
-    Radiatum:   0
-    LM:         0
+    SO:  350
+    SP:  1030
+    SR:  0
+    SLM: 0
   BS:
-    Oriens:     530
-    Pyramidale: 1550 
-    Radiatum:   130
-    LM:         0
+    SO:  530
+    SP:  1550 
+    SR:  130
+    SLM: 0
   CCKBC:
-    Oriens:     780
-    Pyramidale: 940
-    Radiatum:   1170
-    LM:         710
+    SO:  780
+    SP:  940
+    SR:  1170
+    SLM: 710
   IVY:
-    Oriens:     980
-    Pyramidale: 5410
-    Radiatum:   2420
-    LM:         0
+    SO:  980
+    SP:  5410
+    SR:  2420
+    SLM: 0
   NGFC:
-    Oriens:     0
-    Pyramidale: 0
-    Radiatum:   610
-    LM:         2970
+    SO:  0
+    SP:  0
+    SR:  610
+    SLM: 2970
   OLM:
-    Oriens:     1640
-    Pyramidale: 0
-    Radiatum:   0
-    LM:         0
+    SO:  1640
+    SP:  0
+    SR:  0
+    SLM: 0
   SCA:
-    Oriens:     0
-    Pyramidale: 0
-    Radiatum:   400
-    LM:         0
+    SO:  0
+    SP:  0
+    SR:  400
+    SLM: 0
   IS:
-    Oriens: 780
-    Pyramidale:  2710
-    Radiatum:  1000
-    LM: 1010
+    SO:  780
+    SP:  2710
+    SR:  1000
+    SLM: 1010
   CA3:
-    Oriens:     0
-    Pyramidale: 0
-    Radiatum:   204700
-    LM:         0
+    SO:  0
+    SP:  0
+    SR:  204700
+    SLM: 0
   CA2:
-    Oriens: 40000
-    Pyramidale: 0
-    Radiatum: 0
-    LM: 0
+    SO:  40000
+    SP:  0
+    SR:  0
+    SLM: 0
   EC:
-    Oriens:     0
-    Pyramidale: 0
-    Radiatum:   0
-    LM:         250000
+    SO:  0
+    SP:  0
+    SR:  0
+    SLM: 250000
