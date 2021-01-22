@@ -12,7 +12,7 @@ import rbf
 from rbf.pde.geometry import contains
 from rbf.pde.nodes import min_energy_nodes
 from ca1.env import Env
-from neural_geometry.CA1_volume import make_CA1_volume
+from neural_geometry.CA1_volume import make_CA1_volume, CA1_volume
 from neural_geometry.alphavol import alpha_shape
 from neural_geometry.geometry import make_uvl_distance, make_alpha_shape, load_alpha_shape, save_alpha_shape, get_total_extents, uvl_in_bounds
 from ca1.utils import get_script_logger, config_logging, list_find, viewitems
@@ -33,8 +33,8 @@ def mpi_excepthook(type, value, traceback):
         MPI.COMM_WORLD.Abort(1)
 
 
-#sys_excepthook = sys.excepthook
-#sys.excepthook = mpi_excepthook
+sys_excepthook = sys.excepthook
+sys.excepthook = mpi_excepthook
 
 def random_subset( iterator, K ):
     result = []
@@ -60,8 +60,8 @@ def random_subset( iterator, K ):
 @click.option("--output-path", required=True, type=click.Path(exists=False, file_okay=True, dir_okay=False))
 @click.option("--output-namespace", type=str, default='Generated Coordinates')
 @click.option("--populations", '-i', type=str, multiple=True)
-@click.option("--resolution", type=(int,int,int), default=(20,20,20))
-@click.option("--alpha-radius", type=float, default=120.)
+@click.option("--resolution", type=(int,int,int), default=(3,3,3))
+@click.option("--alpha-radius", type=float, default=1500.)
 @click.option("--nodeiter", type=int, default=10)
 @click.option("--optiter", type=int, default=200)
 @click.option("--io-size", type=int, default=-1)
@@ -126,11 +126,11 @@ def main(config, config_prefix, types_path, geometry_path, output_path, output_n
                 layer_alpha_shapes[layer] = this_layer_alpha_shape
                 if geometry_path:
                     save_alpha_shape(geometry_path, this_layer_alpha_shape_path, this_layer_alpha_shape)
-    
-    population_ranges = read_population_ranges(output_path, comm)[0]
-    if populations is None:
-        populations = sorted(populations_ranges.keys())
 
+    comm.barrier()
+    population_ranges = read_population_ranges(output_path, comm)[0]
+    if len(populations) == 0:
+        populations = sorted(population_ranges.keys())
 
     if rank == 0:
         color = 1
@@ -145,12 +145,13 @@ def main(config, config_prefix, types_path, geometry_path, output_path, output_n
         (population_start, population_count) = population_ranges[population]
 
         pop_layers = env.geometry['Cell Distribution'][population]
+        if rank == 0:
+            logger.info("Population %s: layer distribution is %s" % (population, str(pop_layers)))
+            
         pop_layer_count = 0
         for layer, count in viewitems(pop_layers):
             pop_layer_count += count
         assert(population_count == pop_layer_count)
-        if rank == 0:
-            logger.info("Population %s: layer distribution is %s" % (population, str(pop_layers)))
 
 
         xyz_coords = None
