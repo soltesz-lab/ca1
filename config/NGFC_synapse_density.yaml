@@ -1,23 +1,25 @@
 ## NGFC cell synapse density configuration
-# number of connections obtained from conndata_403.data
-# total dendritic length equal to width of radiatum and width of LM multipled by a factor of 20n
-# assumed synapses distributed evenly across layers
-
+# number of connections obtained from conndata_211.dat
+# dendrite length assumped to be 1000 um https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2230758/
 
 
 apical:
   excitatory:
-    LM:
-      mean: 0.175
-      variance: 0.1
     Radiatum:
-       mean: 0.175
+       mean: 1.04
        variance: 0.1
   inhibitory:
-    LM:
-      mean: 0.07
-      variance: 0.1
     Radiatum:
-      mean: 0.07
+      mean: 0.89
       variance: 0.1
       
+
+basal:
+  excitatory:
+    LM:
+      mean: 1.04
+      variance: 0.1
+  inhibitory:
+    LM:
+      mean: 0.89
+      variance: 0.01

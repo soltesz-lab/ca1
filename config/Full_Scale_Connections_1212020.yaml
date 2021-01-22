@@ -1102,3 +1102,101 @@ Synapses:
             e:   -60
             g_unit:          
            
+  NGFC:  
+    CA2:
+      type: excitatory
+      sections: []
+      layers: []
+      proportions: []
+      mechanisms:
+        AMPA:
+          tau_rise: 
+          tau_decay:
+          e: 0
+          g_unit: 
+    EC:
+      type: excitatory
+      sections: []
+      layers: []
+      proportions: []
+      mechanisms:
+        AMPA:
+          tau_rise: 
+          tau_decay: 
+          e: 0
+          g_unit:      
+
+    CCKBC:  
+      type: inhibitory
+      sections: [soma, apical, basal]
+      layers: [SLM, SR, SLM]
+      proportions: [1.0, 0.03, 0.04]
+      mechanisms:
+        GABA_A:
+          tau_rise: 0.432
+          tau_decay: 4.9
+          e: -60
+          g_unit: 
+    BS:   
+      type: inhibitory
+      sections: [apical]
+      layers: [SR]
+      proportions: [0.15]
+      mechanisms:
+        GABA_A:
+          tau_rise: 0.287
+          tau_decay: 2.67
+          e: -60
+          g_unit: 
+    IVY:
+      type: inhibitory
+      sections: [apical, basal]
+      layers: [SR, SLM]
+      proportions: [0.69, 0.17]
+      mechanisms:
+        GABA_A:
+          tau_rise: 2.9
+          tau_decay: 3.1
+          e: -60
+          g_unit: 
+    SCA:
+      type: inhibitory
+      sections: [apical]
+      layers: [SR]
+      proportions: [0.04]
+      mechanisms:
+        GABA_A:
+          tau_rise: 0.419
+          tau_decay: 4.99
+          e: -60
+          g_unit: 
+
+    NGFC: 
+      type: inhibitory
+      sections: [apical, basal]
+      layers: [SR, SLM]
+      proportions: [0.09, 0.42]
+      swctype mechanisms:
+        apical:
+          GABA_A:
+            tau_rise:  3.1
+            tau_decay: 42.0
+            e:   -60
+            g_unit: 
+          GABA_B:
+            tau_rise:  180.0
+            tau_decay: 200.0
+            e:   -90
+            g_unit: 
+    OLM: 
+      type: inhibitory
+      sections: [basal]
+      layers: [SLM]
+      proportions: [0.37]
+      swctype mechanisms:
+        apical:
+          GABA_A:
+            tau_rise:  1.3
+            tau_decay: 10.2
+            e:   -60
+            g_unit:   
