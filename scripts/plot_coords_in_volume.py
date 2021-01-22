@@ -1,9 +1,7 @@
 import sys
-
 import numpy as np
-
 import click
-from dentate import plot
+from ca1 import plot
 from mpi4py import MPI
 
 

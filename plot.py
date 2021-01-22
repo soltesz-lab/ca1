@@ -312,19 +312,19 @@ def plot_coords_in_volume(populations, coords_path, coords_namespace, config, sc
 
     logger.info('Constructing volume...')
 
-    from dentate.geometry import make_volume
+    from neural_geometry.geometry import make_CA1_volume
 
     if subvol:
         subvol = make_volume ((pop_min_extent[0], pop_max_extent[0]), \
                               (pop_min_extent[1], pop_max_extent[1]), \
                               (pop_min_extent[2], pop_max_extent[2]), \
-                              resolution=[20, 20, 3], \
+                              resolution=[3, 3, 3], \
                               rotate=rotate)
     else:
         vol = make_volume ((layer_min_extent[0], layer_max_extent[0]), \
                            (layer_min_extent[1], layer_max_extent[1]), \
                            (layer_min_extent[2], layer_max_extent[2]), \
-                           resolution=[20, 20, 3], \
+                           resolution=[3, 3, 3], \
                            rotate=rotate)
 
 
