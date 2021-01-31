@@ -1,11 +1,10 @@
 ## Schafer Collateral Associated synapse density configuration
 
 ## https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6782984/
-## Calbindin
-## Flip apical with basal orientation?
+## Calretinin
 
 
-apical:
+basal:
   excitatory:
     Radiatum:
       mean: 0.94
@@ -21,7 +20,7 @@ apical:
       mean: 0.16
       variance: 0.1
       
-basal:
+apical:
   excitatory:
     Oriens:
       mean: 0.61
