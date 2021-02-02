@@ -1,7 +1,7 @@
 import sys
 import numpy as np
 import click
-from ca1 import plot
+from ca1 import plot, utils
 from mpi4py import MPI
 
 
@@ -23,7 +23,8 @@ def list_find (f, lst):
 @click.option("--subvol", type=bool, default=False, is_flag=True)
 @click.option("--verbose", "-v", type=bool, default=False, is_flag=True)
 def main(config, coords_path, coords_namespace, populations, scale, subvol, verbose):
-        
+
+    utils.config_logging(verbose)
     plot.plot_coords_in_volume (populations, coords_path, coords_namespace, config, \
                                 subvol=subvol, scale=scale, verbose=verbose)
         

@@ -16,15 +16,17 @@ from matplotlib.colors import BoundaryNorm
 from matplotlib.offsetbox import AnchoredText
 from matplotlib.ticker import FormatStrFormatter, MaxNLocator
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-import dentate
-from dentate.io_utils import get_h5py_attr, set_h5py_attr
+import ca1
+from ca1.env import Env
+from ca1.utils import get_module_logger, Struct, viewitems
+from ca1.io_utils import get_h5py_attr, set_h5py_attr
 
 try:
-    from neural_geometry.geometry import CA1_volume, measure_distance_extents, get_total_extents
+    from neural_geometry.geometry import measure_distance_extents, get_total_extents
 except ImportError as e:
     print(('neural_geometry.plot: problem importing module required by dentate.geometry:', e))
 
-# This logger will inherit its settings from the root logger, created in dentate.env
+# This logger will inherit its settings from the root logger, created in ca1.env
 logger = get_module_logger(__name__)
 
 # Default figure configuration
@@ -253,28 +255,16 @@ def plot_coordinates(coords_path, population, namespace, index = 0, graph_type =
 
 
 
-def plot_coords_in_volume(populations, coords_path, coords_namespace, config, scale=25., subvol=False):
+def plot_coords_in_volume(populations, coords_path, coords_namespace, config, scale=25., subvol=False, verbose=False):
     
     env = Env(config_file=config)
 
     rotate = env.geometry['Parametric Surface']['Rotation']
-    min_extents = env.geometry['Parametric Surface']['Minimum Extent']
-    max_extents = env.geometry['Parametric Surface']['Maximum Extent']
+    layer_extents = env.geometry['Parametric Surface']['Layer Extents']
+    rotate = env.geometry['Parametric Surface']['Rotation']
 
-    layer_min_extent = None
-    layer_max_extent = None
-    for ((layer_name,max_extent),(_,min_extent)) in zip(viewitems(max_extents),viewitems(min_extents)):
-        if layer_min_extent is None:
-            layer_min_extent = np.asarray(min_extent)
-        else:
-            layer_min_extent = np.minimum(layer_min_extent, np.asarray(min_extent))
-        if layer_max_extent is None:
-            layer_max_extent = np.asarray(max_extent)
-        else:
-            layer_max_extent = np.maximum(layer_max_extent, np.asarray(max_extent))
+    (extent_u, extent_v, extent_l) = get_total_extents(layer_extents)
 
-    logger.info(("Layer minimum extents: %s" % (str(layer_min_extent))))
-    logger.info(("Layer maximum extents: %s" % (str(layer_max_extent))))
     logger.info('Reading coordinates...')
 
     pop_min_extent = None
@@ -286,20 +276,32 @@ def plot_coords_in_volume(populations, coords_path, coords_namespace, config, sc
     for population in populations:
         coords = read_cell_attributes(coords_path, population, namespace=coords_namespace)
 
+        count = 0
         for (k,v) in coords:
+            count += 1
             xcoords.append(v['X Coordinate'][0])
             ycoords.append(v['Y Coordinate'][0])
             zcoords.append(v['Z Coordinate'][0])
 
-        if pop_min_extent is None:
-            pop_min_extent = np.asarray(env.geometry['Cell Layers']['Minimum Extent'][population])
-        else:
-            pop_min_extent = np.minimum(pop_min_extent, np.asarray(env.geometry['Cell Layers']['Minimum Extent'][population]))
+        logger.info(f'Read {count} coordinates...')
+        
+        pop_distribution = env.geometry['Cell Distribution'][population]
+        pop_layers = []
+        for layer in pop_distribution:
+            num_layer = pop_distribution[layer]
+            if num_layer > 0:
+                pop_layers.append(layer)
+            
+                if pop_min_extent is None:
+                    pop_min_extent = np.asarray(layer_extents[layer][0])
+                else:
+                    pop_min_extent = np.minimum(pop_min_extent, np.asarray(layer_extents[layer][0]))
 
-        if pop_max_extent is None:
-            pop_max_extent = np.asarray(env.geometry['Cell Layers']['Maximum Extent'][population])
-        else:
-            pop_max_extent = np.minimum(pop_max_extent, np.asarray(env.geometry['Cell Layers']['Maximum Extent'][population]))
+                if pop_max_extent is None:
+                    pop_max_extent = np.asarray(layer_extents[layer][1])
+                else:
+                    pop_max_extent = np.maximum(pop_min_extent, np.asarray(layer_extents[layer][1]))
+
 
     pts = np.concatenate((np.asarray(xcoords).reshape(-1,1), \
                           np.asarray(ycoords).reshape(-1,1), \
@@ -307,26 +309,26 @@ def plot_coords_in_volume(populations, coords_path, coords_namespace, config, sc
 
     from mayavi import mlab
     
+    logger.info('Plotting coordinates...')
 
     mlab.points3d(*pts.T, color=(1, 1, 0), scale_factor=scale)
 
     logger.info('Constructing volume...')
 
-    from neural_geometry.geometry import make_CA1_volume
+    from neural_geometry.CA1_volume import make_CA1_volume
 
     if subvol:
-        subvol = make_volume ((pop_min_extent[0], pop_max_extent[0]), \
-                              (pop_min_extent[1], pop_max_extent[1]), \
-                              (pop_min_extent[2], pop_max_extent[2]), \
-                              resolution=[3, 3, 3], \
-                              rotate=rotate)
+        subvol = make_CA1_volume ((pop_min_extent[0], pop_max_extent[0]), \
+                                (pop_min_extent[1], pop_max_extent[1]), \
+                                (pop_min_extent[2], pop_max_extent[2]), \
+                                resolution=[3, 3, 3], \
+                                rotate=rotate)
     else:
-        vol = make_volume ((layer_min_extent[0], layer_max_extent[0]), \
-                           (layer_min_extent[1], layer_max_extent[1]), \
-                           (layer_min_extent[2], layer_max_extent[2]), \
-                           resolution=[3, 3, 3], \
-                           rotate=rotate)
-
+        vol = make_CA1_volume ((extent_u[0], extent_u[1]),
+                            (extent_v[0], extent_v[1]),
+                            (extent_l[0], extent_l[1]),
+                            resolution=[3, 3, 3],
+                            rotate=rotate)
 
     logger.info('Plotting volume...')
 
