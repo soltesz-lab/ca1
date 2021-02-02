@@ -276,11 +276,15 @@ def plot_coords_in_volume(populations, coords_path, coords_namespace, config, sc
     for population in populations:
         coords = read_cell_attributes(coords_path, population, namespace=coords_namespace)
 
+        count = 0
         for (k,v) in coords:
+            count += 1
             xcoords.append(v['X Coordinate'][0])
             ycoords.append(v['Y Coordinate'][0])
             zcoords.append(v['Z Coordinate'][0])
 
+        logger.info(f'Read {count} coordinates...')
+        
         pop_distribution = env.geometry['Cell Distribution'][population]
         pop_layers = []
         for layer in pop_distribution:
@@ -305,6 +309,7 @@ def plot_coords_in_volume(populations, coords_path, coords_namespace, config, sc
 
     from mayavi import mlab
     
+    logger.info('Plotting coordinates...')
 
     mlab.points3d(*pts.T, color=(1, 1, 0), scale_factor=scale)
 
