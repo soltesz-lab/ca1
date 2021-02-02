@@ -10,7 +10,7 @@ Axon Extent: !include Axon_Extent.yaml
 Connection Velocity: !include Connection_Velocity.yaml
 Synapses:
   SPYR:
-    CA2:
+    CA2: # CA2 -> DPYR is 3x high than CA3 Kohara et al Nat Neuro 2014
       type: excitatory
       sections: [basal]
       layers: [SO]
@@ -22,9 +22,9 @@ Synapses:
           e: 0
           g_unit: 0.0001
         NMDA:
-          g_unit:
+          g_unit: 0.00015
 
-    CA3:
+    CA3: # CA3 -> SPYR is 2x higher than CA3 -> DPYR (Masurkar et al Cell Rep 2017
       type: excitatory
       sections: [basal, apical]
       layers: [SO, SR]
@@ -34,9 +34,9 @@ Synapses:
           tau_rise: 0.5
           tau_decay: 3.0
           e: 0
-          g_unit: 0.0001
+          g_unit: 0.0002
         NMDA:
-          g_unit: 
+          g_unit: 0.0003
     
     EC:
       type: excitatory
@@ -50,7 +50,7 @@ Synapses:
           e: 0
           g_unit: 0.00015
         NMDA:
-          g_unit: 
+          g_unit: 0.000225
 
     SPYR:
       type: excitatory
@@ -64,7 +64,7 @@ Synapses:
           e: 0
           g_unit: 0.000405
         NMDA:
-          g_unit: 
+          g_unit: 0.0006075
     DPYR:
       type: excitatory
       sections: [basal]
@@ -77,7 +77,7 @@ Synapses:
           e: 0
           g_unit: 0.000405
         NMDA:
-          g_unit: 
+          g_unit: 0.0006075
     AAC:
       type: inhibitory
       sections: [ais]
@@ -189,7 +189,7 @@ Synapses:
           e: 0
           g_unit: 0.0003
         NMDA:
-          g_unit:
+          g_unit: 0.00045
 
     CA3:
       type: excitatory
@@ -203,7 +203,7 @@ Synapses:
           e: 0
           g_unit: 0.0001
         NMDA:
-          g_unit: 
+          g_unit: 0.00015
     
     EC:
       type: excitatory
@@ -215,9 +215,9 @@ Synapses:
           tau_rise: 0.5
           tau_decay: 3.0
           e: 0
-          g_unit: 0.000105
+          g_unit: 0.00015
         NMDA:
-          g_unit: 
+          g_unit: 0.000225
 
     SPYR:
       type: excitatory
@@ -231,7 +231,7 @@ Synapses:
           e: 0
           g_unit: 0.000405
         NMDA:
-          g_unit: 
+          g_unit: 0.0006075
     DPYR:
       type: excitatory
       sections: [basal]
@@ -244,7 +244,7 @@ Synapses:
           e: 0
           g_unit: 0.000405
         NMDA:
-          g_unit: 
+          g_unit: 0.0006075
     AAC:
       type: inhibitory
       sections: [ais]
@@ -343,19 +343,18 @@ Synapses:
             e:   -60
             g_unit: 0.00120
 
-  # need exc, weights
   PVBC:
-    CA2:
+    CA2: # Evidence of FF inhibition from CA2 -> PVBC in Nasralla Cell Reports 2019
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [basal]
+      layers: [SO]
+      proportions: [0.16]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay:
+          tau_rise: 2.0
+          tau_decay: 6.3
           e: 0
-          g_unit: 
+          g_unit: 0.00003
     CA3:
       type: excitatory
       sections: [apical]
@@ -366,7 +365,7 @@ Synapses:
           tau_rise: 2.0
           tau_decay: 6.3
           e: 0
-          g_unit: 
+          g_unit: 0.00003
     EC:
       type: excitatory
       sections: [apical]
@@ -377,33 +376,31 @@ Synapses:
           tau_rise: 2.0
           tau_decay: 6.3
           e: 0
-          g_unit:      
+          g_unit: 0.00009
     SPYR:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [soma, basal]
+      layers: [SP, SO]
+      proportions: [0.75, 0.63]
       mechanisms:
         AMPA:
           tau_rise: 0.07
           tau_decay: 0.20
           e: 0
-          g_unit: 
-        NMDA:
-          g_unit: 
+          g_unit: 0.00002
+
     DPYR:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [soma, basal]
+      layers: [SP, SO]
+      proportions: [0.25, 0.21]
       mechanisms:
         AMPA:
           tau_rise: 0.07
           tau_decay: 0.20
           e: 0
-          g_unit: 
-        NMDA:
-          g_unit: 
+          g_unit: 0.00002
+
     PVBC:   
       type: inhibitory
       sections: [soma]
@@ -414,7 +411,7 @@ Synapses:
           tau_rise: 0.08
           tau_decay: 4.8
           e: -60
-          g_unit:
+          g_unit: 0.000186
     CCKBC:  
       type: inhibitory
       sections: [soma, basal, apical, apical]
@@ -425,7 +422,7 @@ Synapses:
           tau_rise: 0.432
           tau_decay: 4.9
           e: -60
-          g_unit: 
+          g_unit: 0.00045
     BS:   
       type: inhibitory
       sections: [basal, apical, apical]
@@ -436,7 +433,7 @@ Synapses:
           tau_rise: 0.287
           tau_decay: 2.67
           e: -60
-          g_unit: 
+          g_unit: 0.00051
     IVY:
       type: inhibitory
       sections: [basal, apical, apica, apical]
@@ -447,7 +444,7 @@ Synapses:
           tau_rise: 2.9
           tau_decay: 3.1
           e: -60
-          g_unit: 
+          g_unit: 0.000077
     SCA:
       type: inhibitory
       sections: [basal, apical, apical]
@@ -458,7 +455,7 @@ Synapses:
           tau_rise: 0.419
           tau_decay: 4.99
           e: -60
-          g_unit: 
+          g_unit: 0.00085
 
     NGFC: 
       type: inhibitory
@@ -471,12 +468,12 @@ Synapses:
             tau_rise:  8.0
             tau_decay: 39.0
             e:   -60
-            g_unit: 
+            g_unit: 0.000145
           GABA_B:
             tau_rise:  180.0
             tau_decay: 200.0
             e:   -90
-            g_unit: 
+            g_unit: 0.000145
     OLM: 
       type: inhibitory
       sections: [apical]
@@ -488,68 +485,53 @@ Synapses:
             tau_rise:  0.25
             tau_decay: 7.5
             e:   -60
-            g_unit: 
-  # need exc, weights
+            g_unit: 0.0012
   AAC:
-    CA2:
-      type: excitatory
-      sections: []
-      layers: []
-      proportions: []
-      mechanisms:
-        AMPA:
-          tau_rise: 
-          tau_decay:
-          e: 0
-          g_unit: 
     CA3:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [apical]
+      layers: [SR]
+      proportions: [1.0]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay: 
+          tau_rise: 2.0
+          tau_decay: 6.3
           e: 0
-          g_unit: 
+          g_unit: 0.000045
     EC:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [apical]
+      layers: [SLM]
+      proportions: [1.0]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay: 
+          tau_rise: 2.0
+          tau_decay: 6.3
           e: 0
-          g_unit:      
+          g_unit: 0.000065
     SPYR:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [soma, apical]
+      layers: [SP, SO]
+      proportions: [0.5, 0.5]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay: 
+          tau_rise: 0.30
+          tau_decay: 0.60
           e: 0
-          g_unit: 
-        NMDA:
-          g_unit: 
+          g_unit: 0.00004
+
     DPYR:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [soma, apical]
+      layers: [SP, SO]
+      proportions: [0.5, 0.5]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay: 
+          tau_rise: 0.30
+          tau_decay: 0.60
           e: 0
-          g_unit: 
-        NMDA:
-          g_unit: 
+          g_unit: 0.00004 
     PVBC:   
       type: inhibitory
       sections: [soma]
@@ -560,7 +542,7 @@ Synapses:
           tau_rise: 0.180
           tau_decay: 0.45
           e: -60
-          g_unit:
+          g_unit: 0.000186
     CCKBC:  
       type: inhibitory
       sections: [soma, basal, apical, apical]
@@ -571,7 +553,7 @@ Synapses:
           tau_rise: 0.432
           tau_decay: 4.9
           e: -60
-          g_unit: 
+          g_unit: 0.00045
     BS:   
       type: inhibitory
       sections: [basal, apical, apical]
@@ -582,7 +564,7 @@ Synapses:
           tau_rise: 0.287
           tau_decay: 2.67
           e: -60
-          g_unit: 
+          g_unit: 0.00051
     IVY:
       type: inhibitory
       sections: [basal, apical, apical, apical]
@@ -593,7 +575,7 @@ Synapses:
           tau_rise: 2.9
           tau_decay: 3.1
           e: -60
-          g_unit: 
+          g_unit: 0.000077
     SCA:
       type: inhibitory
       sections: [basal, apical, apical]
@@ -604,7 +586,7 @@ Synapses:
           tau_rise: 0.419
           tau_decay: 4.99
           e: -60
-          g_unit: 
+          g_unit: 0.00085
 
     NGFC: 
       type: inhibitory
@@ -617,12 +599,12 @@ Synapses:
             tau_rise:  8.0
             tau_decay: 39.0
             e:   -60
-            g_unit: 
+            g_unit: 0.000145
           GABA_B:
             tau_rise:  180.0
             tau_decay: 200.0
             e:   -90
-            g_unit: 
+            g_unit: 0.000145
     OLM: 
       type: inhibitory
       sections: [apical]
@@ -634,70 +616,54 @@ Synapses:
             tau_rise:  0.728
             tau_decay: 10.0
             e:   -60
-            g_unit:          
+            g_unit: 0.0012
            
     
-  # need exc, weights
   BS:
-    CA2:
-      type: excitatory
-      sections: []
-      layers: []
-      proportions: []
-      mechanisms:
-        AMPA:
-          tau_rise: 
-          tau_decay:
-          e: 0
-          g_unit: 
     CA3:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [apical]
+      layers: [SR]
+      proportions: [1.0]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay: 
+          tau_rise: 2.0
+          tau_decay: 6.3
           e: 0
-          g_unit: 
+          g_unit: 0.00006
     EC:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [apical]
+      layers: [SLM]
+      proportions: [1.0]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay: 
+          tau_rise: 2.0
+          tau_decay: 6.3
           e: 0
-          g_unit:      
+          g_unit: 0.0001
     SPYR:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [soma, basal]
+      layers: [SP, SO]
+      proportions: [0.5, 0.5]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay: 
+          tau_rise: 0.11
+          tau_decay: 0.25
           e: 0
-          g_unit: 
-        NMDA:
-          g_unit: 
+          g_unit: 0.0032
     DPYR:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [soma, basal]
+      layers: [SP, SO]
+      proportions: [0.5, 0.5]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay: 
+          tau_rise: 0.11
+          tau_decay: 0.25
           e: 0
-          g_unit: 
-        NMDA:
-          g_unit: 
+          g_unit: 0.00032
     PVBC:   
       type: inhibitory
       sections: [soma]
@@ -708,7 +674,7 @@ Synapses:
           tau_rise: 0.180
           tau_decay: 0.45
           e: -60
-          g_unit:
+          g_unit: 0.000186
     CCKBC:  
       type: inhibitory
       sections: [soma, basal, apical, apical]
@@ -719,7 +685,7 @@ Synapses:
           tau_rise: 0.432
           tau_decay: 4.9
           e: -60
-          g_unit: 
+          g_unit: 0.00045
     BS:   
       type: inhibitory
       sections: [basal, apical, apical]
@@ -730,7 +696,7 @@ Synapses:
           tau_rise: 0.287
           tau_decay: 2.67
           e: -60
-          g_unit: 
+          g_unit: 0.00051
     IVY:
       type: inhibitory
       sections: [basal, apical, apical, apical]
@@ -741,7 +707,7 @@ Synapses:
           tau_rise: 2.9
           tau_decay: 3.1
           e: -60
-          g_unit: 
+          g_unit: 0.000077
     SCA:
       type: inhibitory
       sections: [basal, apical, apical]
@@ -752,7 +718,7 @@ Synapses:
           tau_rise: 0.419
           tau_decay: 4.99
           e: -60
-          g_unit: 
+          g_unit: 0.00085
 
     NGFC: 
       type: inhibitory
@@ -765,12 +731,12 @@ Synapses:
             tau_rise:  8.0
             tau_decay: 39.0
             e:   -60
-            g_unit: 
+            g_unit: 0.000145
           GABA_B:
             tau_rise:  180.0
             tau_decay: 200.0
             e:   -90
-            g_unit: 
+            g_unit: 0.000145
     OLM: 
       type: inhibitory
       sections: [apical]
@@ -782,7 +748,7 @@ Synapses:
             tau_rise:  0.60
             tau_decay: 15.0
             e:   -60
-            g_unit:          
+            g_unit: 0.0012         
     IS: 
       type: inhibitory
       sections: [apical]
@@ -794,69 +760,55 @@ Synapses:
             tau_rise:  1.5
             tau_decay: 10.0
             e:   -60
-            g_unit: 
+            g_unit: ## need to calculate this 
         
-  # need exc, weights
   CCKBC:
-    CA2:
-      type: excitatory
-      sections: []
-      layers: []
-      proportions: []
-      mechanisms:
-        AMPA:
-          tau_rise: 
-          tau_decay:
-          e: 0
-          g_unit: 
     CA3:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [apical]
+      layers: [SLM]
+      proportions: [1.0]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay: 
+          tau_rise: 2.0
+          tau_decay: 6.3
           e: 0
-          g_unit: 
+          g_unit: 0.0002
     EC:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [apical]
+      layers: [SLM]
+      proportions: [1.0]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay: 
+          tau_rise: 2.0
+          tau_decay: 6.3
           e: 0
-          g_unit:      
+          g_unit: 0.0003 
     SPYR:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [soma, apical]
+      layers: [SO, SP]
+      proportions: [0.5, 0.5]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay: 
+          tau_rise: 0.30
+          tau_decay: 0.60
           e: 0
-          g_unit: 
-        NMDA:
-          g_unit: 
+          g_unit: 0.000405
+
     DPYR:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [soma, apical]
+      layers: [SO, SP]
+      proportions: [0.5, 0.5]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay: 
+          tau_rise: 0.30
+          tau_decay: 0.60
           e: 0
-          g_unit: 
-        NMDA:
-          g_unit: 
+          g_unit: 0.000405
+
     PVBC:   
       type: inhibitory
       sections: [soma]
@@ -867,7 +819,7 @@ Synapses:
           tau_rise: 0.287
           tau_decay: 2.67
           e: -60
-          g_unit:
+          g_unit: 0.000186
     CCKBC:  
       type: inhibitory
       sections: [soma, basal, apical, apical]
@@ -878,7 +830,7 @@ Synapses:
           tau_rise: 0.432
           tau_decay: 4.9
           e: -60
-          g_unit: 
+          g_unit: 0.00045
     BS:   
       type: inhibitory
       sections: [basal, apical, apical]
@@ -889,7 +841,7 @@ Synapses:
           tau_rise: 0.287
           tau_decay: 2.67
           e: -60
-          g_unit: 
+          g_unit: 0.00051
     IVY:
       type: inhibitory
       sections: [basal, apical, apical, apical]
@@ -900,7 +852,7 @@ Synapses:
           tau_rise: 2.9
           tau_decay: 3.1
           e: -60
-          g_unit: 
+          g_unit: 0.000077
     SCA:
       type: inhibitory
       sections: [basal, apical, apical]
@@ -911,7 +863,7 @@ Synapses:
           tau_rise: 0.419
           tau_decay: 4.99
           e: -60
-          g_unit: 
+          g_unit: 0.00085
 
     NGFC: 
       type: inhibitory
@@ -924,12 +876,12 @@ Synapses:
             tau_rise:  8.0
             tau_decay: 39.0
             e:   -60
-            g_unit: 
+            g_unit: 0.000145
           GABA_B:
             tau_rise:  180.0
             tau_decay: 200.0
             e:   -90
-            g_unit: 
+            g_unit: 0.000145
     OLM: 
       type: inhibitory
       sections: [apical]
@@ -941,7 +893,7 @@ Synapses:
             tau_rise:  0.72
             tau_decay: 20.20
             e:   -60
-            g_unit: 
+            g_unit: 0.0012
             
     IS: 
       type: inhibitory
@@ -954,68 +906,53 @@ Synapses:
             tau_rise:  1.5
             tau_decay: 10.0
             e:   -60
-            g_unit: 
+            g_unit: ##
             
-  IVY: # here 
-    CA2:
-      type: excitatory
-      sections: []
-      layers: []
-      proportions: []
-      mechanisms:
-        AMPA:
-          tau_rise: 
-          tau_decay:
-          e: 0
-          g_unit: 
+  IVY:
     CA3:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [apical]
+      layers: [SR]
+      proportions: [1.0]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay: 
+          tau_rise: 2.0
+          tau_decay: 6.3
           e: 0
-          g_unit: 
+          g_unit: 0.0001
     EC:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [apical]
+      layers: [SLM]
+      proportions: [1.0]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay: 
+          tau_rise: 2.0
+          tau_decay: 6.3
           e: 0
-          g_unit:      
+          g_unit: 0.00015
     SPYR:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [soma, basal]
+      layers: [SP, SO]
+      proportions: [0.5, 0.5]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay: 
+          tau_rise: 0.3
+          tau_decay: 0.60
           e: 0
-          g_unit: 
-        NMDA:
-          g_unit: 
+          g_unit: 0.000405 
     DPYR:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [soma, basal]
+      layers: [SP, SO]
+      proportions: [0.5, 0.5]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay: 
+          tau_rise: 0.30
+          tau_decay: 0.60
           e: 0
-          g_unit: 
-        NMDA:
-          g_unit: 
+          g_unit: 0.000405
     PVBC:   
       type: inhibitory
       sections: [soma]
@@ -1026,7 +963,7 @@ Synapses:
           tau_rise: 0.287
           tau_decay: 2.67
           e: -60
-          g_unit:
+          g_unit: 0.000186
     CCKBC:  
       type: inhibitory
       sections: [soma, basal, apical, apical]
@@ -1037,7 +974,7 @@ Synapses:
           tau_rise: 0.432
           tau_decay: 4.9
           e: -60
-          g_unit: 
+          g_unit: 0.00045
     BS:   
       type: inhibitory
       sections: [basal, apical, apical]
@@ -1048,7 +985,7 @@ Synapses:
           tau_rise: 0.287
           tau_decay: 2.67
           e: -60
-          g_unit: 
+          g_unit: 0.00051
     IVY:
       type: inhibitory
       sections: [basal, apical, apical, apical]
@@ -1059,7 +996,7 @@ Synapses:
           tau_rise: 2.9
           tau_decay: 3.1
           e: -60
-          g_unit: 
+          g_unit: 0.000077
     SCA:
       type: inhibitory
       sections: [basal, apical, apical, apical]
@@ -1070,7 +1007,7 @@ Synapses:
           tau_rise: 0.419
           tau_decay: 4.99
           e: -60
-          g_unit: 
+          g_unit: 0.00085
 
     NGFC: 
       type: inhibitory
@@ -1083,12 +1020,12 @@ Synapses:
             tau_rise:  8.0
             tau_decay: 39.0
             e:   -60
-            g_unit: 
+            g_unit: 0.000145
           GABA_B:
             tau_rise:  180.0
             tau_decay: 200.0
             e:   -90
-            g_unit: 
+            g_unit: 0.000145
     OLM: 
       type: inhibitory
       sections: [apical]
@@ -1100,30 +1037,30 @@ Synapses:
             tau_rise:  0.250
             tau_decay: 7.50
             e:   -60
-            g_unit:                
+            g_unit: 0.0012             
   NGFC:  
-    CA2:
+    CA3:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [apical]
+      layers: [SR]
+      proportions: [1.0]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay:
+          tau_rise: 2.0
+          tau_decay: 6.3
           e: 0
-          g_unit: 
+          g_unit: 0.0002
     EC:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [basal]
+      layers: [SLM]
+      proportions: [1.0]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay: 
+          tau_rise: 2.0
+          tau_decay: 6.3
           e: 0
-          g_unit:      
+          g_unit: 0.003  
 
     CCKBC:  
       type: inhibitory
@@ -1135,7 +1072,7 @@ Synapses:
           tau_rise: 0.432
           tau_decay: 4.9
           e: -60
-          g_unit: 
+          g_unit: 0.00045 
     BS:   
       type: inhibitory
       sections: [apical]
@@ -1146,7 +1083,7 @@ Synapses:
           tau_rise: 0.287
           tau_decay: 2.67
           e: -60
-          g_unit: 
+          g_unit: 0.00051
     IVY:
       type: inhibitory
       sections: [apical, basal]
@@ -1157,7 +1094,7 @@ Synapses:
           tau_rise: 2.9
           tau_decay: 3.1
           e: -60
-          g_unit: 
+          g_unit: 0.000077
     SCA:
       type: inhibitory
       sections: [apical]
@@ -1168,7 +1105,7 @@ Synapses:
           tau_rise: 0.419
           tau_decay: 4.99
           e: -60
-          g_unit: 
+          g_unit: 0.00085
 
     NGFC: 
       type: inhibitory
@@ -1181,12 +1118,12 @@ Synapses:
             tau_rise:  3.1
             tau_decay: 42.0
             e:   -60
-            g_unit: 
+            g_unit: 0.000145
           GABA_B:
             tau_rise:  180.0
             tau_decay: 200.0
             e:   -90
-            g_unit: 
+            g_unit: 0.000145
     OLM: 
       type: inhibitory
       sections: [basal]
@@ -1198,58 +1135,33 @@ Synapses:
             tau_rise:  1.3
             tau_decay: 10.2
             e:   -60
-            g_unit:  
+            g_unit: 0.0012
             
-  OLM:  
-    CA3:
-      type: excitatory
-      sections: []
-      layers: []
-      proportions: []
-      mechanisms:
-        AMPA:
-          tau_rise: 
-          tau_decay:
-          e: 0
-          g_unit: 
-
-    CA2:
-      type: excitatory
-      sections: []
-      layers: []
-      proportions: []
-      mechanisms:
-        AMPA:
-          tau_rise: 
-          tau_decay:
-          e: 0
-          g_unit:
+  OLM:  # you are here
     
     DPYR:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [soma, basal]
+      layers: [SO, SO]
+      proportions: [0.5, 0.5]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay:
+          tau_rise: 0.3
+          tau_decay: 0.6
           e: 0
-          g_unit: 
+          g_unit: 0.000405
 
     SPYR:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [soma, basal]
+      layers: [SO, SO]
+      proportions: [0.5, 0.5]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay:
+          tau_rise: 0.3
+          tau_decay: 0.6
           e: 0
-          g_unit:
-    
-
+          g_unit: 0.0000405
     CCKBC:  
       type: inhibitory
       sections: [basal]
@@ -1260,7 +1172,7 @@ Synapses:
           tau_rise: 1.0
           tau_decay: 8.0
           e: -60
-          g_unit: 
+          g_unit: 0.00045
     BS:   
       type: inhibitory
       sections: [basal]
@@ -1271,7 +1183,7 @@ Synapses:
           tau_rise: 1.0
           tau_decay: 8.0
           e: -60
-          g_unit: 
+          g_unit: 0.00051
     IVY:
       type: inhibitory
       sections: [basal]
@@ -1282,7 +1194,7 @@ Synapses:
           tau_rise: 2.9
           tau_decay: 3.1
           e: -60
-          g_unit: 
+          g_unit: 0.000077
     SCA:
       type: inhibitory
       sections: [basal]
@@ -1293,7 +1205,7 @@ Synapses:
           tau_rise: 1.0
           tau_decay: 8.0
           e: -60
-          g_unit: 
+          g_unit: 0.00085
 
     OLM: 
       type: inhibitory
@@ -1306,7 +1218,7 @@ Synapses:
             tau_rise:  0.25
             tau_decay: 7.50
             e:   -60
-            g_unit:  
+            g_unit: 0.0012 
             
     IS: 
       type: inhibitory
@@ -1319,61 +1231,60 @@ Synapses:
             tau_rise: 1.5
             tau_decay: 10.0
             e:   -60
-            g_unit:  
-            
-           
+            g_unit: ##
+                  
   SCA:  
     CA3:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [basal]
+      layers: [SR]
+      proportions: [1.0]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay:
+          tau_rise: 2.0
+          tau_decay: 6.3
           e: 0
-          g_unit: 
+          g_unit: 0.0003
 
-    CA2:
+    EC:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [basal]
+      layers: [SLM]
+      proportions: [1.0]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay:
+          tau_rise: 2.0
+          tau_decay: 6.3
           e: 0
-          g_unit:
+          g_unit: 0.0003
     
     DPYR:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [soma, apical]
+      layers: [SR, SO]
+      proportions: [0.5, 0.5]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay:
+          tau_rise: 0.30
+          tau_decay: 0.60
           e: 0
-          g_unit: 
+          g_unit: 0.000405
 
     SPYR:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [soma, apical]
+      layers: [SR, SO]
+      proportions: [0.5, 0.5]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay:
+          tau_rise: 0.30
+          tau_decay: 0.60
           e: 0
-          g_unit:
+          g_unit: 0.000405
 
     PVBC:  
       type: inhibitory
-      sections: [soma
+      sections: [soma]
       layers: [SR]
       proportions: [0.27]
       mechanisms:
@@ -1381,8 +1292,7 @@ Synapses:
           tau_rise: 0.287
           tau_decay: 2.67
           e: -60
-          g_unit: 
-
+          g_unit: 0.000186
 
     CCKBC:  
       type: inhibitory
@@ -1394,7 +1304,7 @@ Synapses:
           tau_rise: 0.432
           tau_decay: 4.49
           e: -60
-          g_unit: 
+          g_unit: 0.00045
     BS:   
       type: inhibitory
       sections: [basal, apical, apical]
@@ -1405,7 +1315,7 @@ Synapses:
           tau_rise: 0.287
           tau_decay: 2.67
           e: -60
-          g_unit: 
+          g_unit: 0.00051
     IVY:
       type: inhibitory
       sections: [basal, apical, apical]
@@ -1416,7 +1326,7 @@ Synapses:
           tau_rise: 2.9
           tau_decay: 3.1
           e: -60
-          g_unit: 
+          g_unit: 0.000077
     SCA:
       type: inhibitory
       sections: [basal, apical]
@@ -1427,11 +1337,11 @@ Synapses:
           tau_rise: 0.20
           tau_decay: 2.0
           e: -60
-          g_unit: 
+          g_unit: 0.00085
 
     OLM: 
       type: inhibitory
-      sections: [basal]
+      sections: [apical]
       layers: [SO]
       proportions: [0.45]
       swctype mechanisms:
@@ -1440,9 +1350,25 @@ Synapses:
             tau_rise:  0.07
             tau_decay: 29.0
             e:   -60
-            g_unit:  
+            g_unit: 0.0012
             
-
+    NGFC: 
+      type: inhibitory
+      sections: [basal]
+      layers: [SR]
+      proportions: [0.26]
+      swctype mechanisms:
+        apical:
+          GABA_A:
+            tau_rise:  8.0
+            tau_decay: 39.0
+            e:   -60
+            g_unit: 0.000145
+          GABA_B:
+            tau_rise:  180.0
+            tau_decay: 200.0
+            e:   -90
+            g_unit: 0.000145
            
   IS:
     EC:
@@ -1452,10 +1378,10 @@ Synapses:
       proportions: [1.0]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay: 
+          tau_rise: 2.0
+          tau_decay: 6.3
           e: 0
-          g_unit:  
+          g_unit:  0.00015
     CA3:
       type: excitatory
       sections: [basal]
@@ -1463,46 +1389,34 @@ Synapses:
       proportions: [1.0]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay:
+          tau_rise: 2.0
+          tau_decay: 6.30
           e: 0
-          g_unit: 
-
-    CA2:
-      type: excitatory
-      sections: []
-      layers: []
-      proportions: []
-      mechanisms:
-        AMPA:
-          tau_rise: 
-          tau_decay:
-          e: 0
-          g_unit:
+          g_unit: 0.0001
     
     DPYR:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [soma, apical]
+      layers: [SR, SO]
+      proportions: [0.5, 0.5]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay:
+          tau_rise: 0.30
+          tau_decay: 0.60
           e: 0
-          g_unit: 
+          g_unit: 0.0000405
 
     SPYR:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [soma, apical]
+      layers: [SR, SO]
+      proportions: [0.5, 0.5]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay:
+          tau_rise: 0.30 
+          tau_decay: 0.60
           e: 0
-          g_unit:
+          g_unit: 0.000405
 
     IS:
       type: inhibitory
@@ -1515,5 +1429,5 @@ Synapses:
             tau_rise: 1.5 
             tau_decay: 10.0
             e:   -60
-            g_unit:  
+            g_unit:  ##
             
