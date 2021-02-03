@@ -315,7 +315,7 @@ def plot_coords_in_volume(populations, coords_path, coords_namespace, config, sc
 
     logger.info('Constructing volume...')
 
-    from neural_geometry.CA1_volume import make_CA1_volume
+    from ca1.CA1_volume import make_CA1_volume
 
     if subvol:
         subvol = make_CA1_volume ((pop_min_extent[0], pop_max_extent[0]), \
