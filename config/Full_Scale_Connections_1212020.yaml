@@ -26,7 +26,7 @@ Synapses:
       type: excitatory # CA3 -> SPYR is 2x higher than CA3 -> DPYR (Masurkar et al Cell Rep 2017
       sections: [basal, apical]
       layers: [SO, SR]
-      proportions: [0.54, 1.0]
+      proportions: [0.50, 1.0]
       mechanisms:
         AMPA:
           tau_rise: 0.5
@@ -134,7 +134,7 @@ Synapses:
       type: inhibitory
       sections: [basal, apical, apical]
       layers: [SO, SR, SLM]
-      proportions: [0.003, 0.03, 0.005]
+      proportions: [0.003, 0.03, 0.01]
       mechanisms:
         GABA_A:
           tau_rise: 0.15
@@ -188,7 +188,7 @@ Synapses:
       type: excitatory
       sections: [basal, apical]
       layers: [SO, SR]
-      proportions: [0.54, 1.0]
+      proportions: [0.50, 1.0]
       mechanisms:
         AMPA:
           tau_rise: 0.5
@@ -296,7 +296,7 @@ Synapses:
       type: inhibitory
       sections: [basal, apical, apical]
       layers: [SO, SR, SLM]
-      proportions: [0.003, 0.03, 0.005]
+      proportions: [0.003, 0.03, 0.01]
       mechanisms:
         GABA_A:
           tau_rise: 0.15
@@ -424,7 +424,7 @@ Synapses:
           g_unit: 0.00051
     IVY:
       type: inhibitory
-      sections: [basal, apical, apica, apical]
+      sections: [basal, apical, apical, apical]
       layers: [SO, SP, SR, SLM]
       proportions: [0.17, 0.58, 0.62, 0.29]
       mechanisms:
@@ -733,7 +733,7 @@ Synapses:
             g_unit: 0.0012
     IS: 
       type: inhibitory
-      sections: [apical]
+      sections: [basal]
       layers: [SO]
       proportions: [0.06]
       swctype mechanisms:
@@ -747,7 +747,7 @@ Synapses:
     CA3:
       type: excitatory
       sections: [apical]
-      layers: [SLM]
+      layers: [SR]
       proportions: [1.0]
       mechanisms:
         AMPA:
@@ -874,7 +874,7 @@ Synapses:
             g_unit: 0.0012 
     IS: 
       type: inhibitory
-      sections: [apical]
+      sections: [basal]
       layers: [SO]
       proportions: [0.02]
       swctype mechanisms:
@@ -1282,7 +1282,7 @@ Synapses:
       type: inhibitory
       sections: [basal, apical, apical]
       layers: [SR, SP, SO]
-      proportions: [0.65, 0.43, 0.21]
+      proportions: [0.62, 0.43, 0.21]
       mechanisms:
         GABA_A:
           tau_rise: 2.9
