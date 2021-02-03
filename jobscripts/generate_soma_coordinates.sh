@@ -25,7 +25,7 @@ cd $SLURM_SUBMIT_DIR
 ibrun -n 4 python3 ./scripts/generate_soma_coordinates.py -v \
     --config=Full_Scale.yaml \
     --types-path=./datasets/ca1_h5types.h5 \
-    --output-path=$SCRATCH/CA1_Full_Scale_coords_20210119.h5 \
+    --output-path=$SCRATCH/CA1_Full_Scale_coords_20210202.h5 \
     --output-namespace='Generated Coordinates' 
 
 
