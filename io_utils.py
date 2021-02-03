@@ -4,7 +4,7 @@ from mpi4py import MPI
 import h5py
 import numpy as np
 from ca1.utils import Struct, range, str, viewitems, basestring, Iterable, compose_iter, get_module_logger, get_trial_time_ranges
-from neuroh5.io import write_cell_attributes, append_cell_attributes, append_cell_trees, write_graph, read_cell_attribute_selection, read_tree_selection, read_graph_selection, scatter_read_tree_selection, scatter_read_cell_attribute_selection, scatter_read_graph_selection
+#from neuroh5.io import write_cell_attributes, append_cell_attributes, append_cell_trees, write_graph, read_cell_attribute_selection, read_tree_selection, read_graph_selection, scatter_read_tree_selection, scatter_read_cell_attribute_selection, scatter_read_graph_selection
 
 
 def set_union(a, b, datatype):
@@ -70,6 +70,7 @@ def make_h5types(env, output_path, gap_junctions=False):
             pop_count += layer_count
         populations.append((pop_name, pop_idx, pop_count))
     populations.sort(key=lambda x: x[1])
+    min_pop_idx = populations[0][1]
 
     projections = []
     if gap_junctions:
@@ -100,14 +101,12 @@ def make_h5types(env, output_path, gap_junctions=False):
         dset = h5_get_dataset(g, grp_populations, maxshape=(len(populations),), dtype=dt)
         dset.resize((len(populations),))
         a = np.zeros(len(populations), dtype=dt)
-
         start = 0
         for name, idx, count in populations:
-            a[idx]["Start"] = start
-            a[idx]["Count"] = count
-            a[idx]["Population"] = idx
+            a[idx-min_pop_idx]["Start"] = start
+            a[idx-min_pop_idx]["Count"] = count
+            a[idx-min_pop_idx]["Population"] = idx
             start += count
-
         dset[:] = a
 
         dt_projections = np.dtype([("Source", h5[path_population_labels].dtype),
