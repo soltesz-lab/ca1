@@ -1,5 +1,4 @@
 ## Information needed: CA2 projetions and strengths needed, NMDA unit strengths, IS infomration
-
 Synapse Mechanisms:
   AMPA: LinExp2Syn  # SatExp2Syn
   NMDA: FacilNMDA
@@ -23,7 +22,6 @@ Synapses:
           g_unit: 0.0001
         NMDA:
           g_unit: 0.00015
-
     CA3: # CA3 -> SPYR is 2x higher than CA3 -> DPYR (Masurkar et al Cell Rep 2017
       type: excitatory
       sections: [basal, apical]
@@ -37,7 +35,6 @@ Synapses:
           g_unit: 0.0002
         NMDA:
           g_unit: 0.0003
-    
     EC:
       type: excitatory
       sections: [apical]
@@ -51,7 +48,6 @@ Synapses:
           g_unit: 0.00015
         NMDA:
           g_unit: 0.000225
-
     SPYR:
       type: excitatory
       sections: [basal]
@@ -145,7 +141,6 @@ Synapses:
           tau_decay: 3.9
           e: -60
           g_unit: 0.000850
-
     NGFC: 
       type: inhibitory
       sections: [apical, apical]
@@ -202,7 +197,6 @@ Synapses:
           g_unit: 0.0001
         NMDA:
           g_unit: 0.00015
-    
     EC:
       type: excitatory
       sections: [apical]
@@ -216,7 +210,6 @@ Synapses:
           g_unit: 0.00015
         NMDA:
           g_unit: 0.000225
-
     SPYR:
       type: excitatory
       sections: [basal]
@@ -310,7 +303,6 @@ Synapses:
           tau_decay: 3.9
           e: -60
           g_unit: 0.000850
-
     NGFC: 
       type: inhibitory
       sections: [apical, apical]
@@ -340,7 +332,6 @@ Synapses:
             tau_decay: 11.0
             e:   -60
             g_unit: 0.00120
-
   PVBC:
     CA2: # Evidence of FF inhibition from CA2 -> PVBC in Nasralla Cell Reports 2019
       type: excitatory
@@ -398,7 +389,6 @@ Synapses:
           tau_decay: 0.20
           e: 0
           g_unit: 0.00002
-
     PVBC:   
       type: inhibitory
       sections: [soma]
@@ -454,7 +444,6 @@ Synapses:
           tau_decay: 4.99
           e: -60
           g_unit: 0.00085
-
     NGFC: 
       type: inhibitory
       sections: [apical, apical]
@@ -518,7 +507,6 @@ Synapses:
           tau_decay: 0.60
           e: 0
           g_unit: 0.00004
-
     DPYR:
       type: excitatory
       sections: [soma, apical]
@@ -585,7 +573,6 @@ Synapses:
           tau_decay: 4.99
           e: -60
           g_unit: 0.00085
-
     NGFC: 
       type: inhibitory
       sections: [apical, apical]
@@ -615,8 +602,6 @@ Synapses:
             tau_decay: 10.0
             e:   -60
             g_unit: 0.0012
-           
-    
   BS:
     CA3:
       type: excitatory
@@ -717,7 +702,6 @@ Synapses:
           tau_decay: 4.99
           e: -60
           g_unit: 0.00085
-
     NGFC: 
       type: inhibitory
       sections: [apical, apical]
@@ -758,8 +742,7 @@ Synapses:
             tau_rise:  1.5
             tau_decay: 10.0
             e:   -60
-            g_unit: ## need to calculate this 
-        
+            g_unit: ## need to calculate this      
   CCKBC:
     CA3:
       type: excitatory
@@ -794,7 +777,6 @@ Synapses:
           tau_decay: 0.60
           e: 0
           g_unit: 0.000405
-
     DPYR:
       type: excitatory
       sections: [soma, apical]
@@ -806,7 +788,6 @@ Synapses:
           tau_decay: 0.60
           e: 0
           g_unit: 0.000405
-
     PVBC:   
       type: inhibitory
       sections: [soma]
@@ -862,7 +843,6 @@ Synapses:
           tau_decay: 4.99
           e: -60
           g_unit: 0.00085
-
     NGFC: 
       type: inhibitory
       sections: [apical, apical]
@@ -891,8 +871,7 @@ Synapses:
             tau_rise:  0.72
             tau_decay: 20.20
             e:   -60
-            g_unit: 0.0012
-            
+            g_unit: 0.0012       
     IS: 
       type: inhibitory
       sections: [apical]
@@ -904,8 +883,7 @@ Synapses:
             tau_rise:  1.5
             tau_decay: 10.0
             e:   -60
-            g_unit: ##
-            
+            g_unit: ##         
   IVY:
     CA3:
       type: excitatory
@@ -1006,7 +984,6 @@ Synapses:
           tau_decay: 4.99
           e: -60
           g_unit: 0.00085
-
     NGFC: 
       type: inhibitory
       sections: [apical, apical]
@@ -1059,7 +1036,6 @@ Synapses:
           tau_decay: 6.3
           e: 0
           g_unit: 0.003  
-
     CCKBC:  
       type: inhibitory
       sections: [soma, apical, basal]
@@ -1104,7 +1080,6 @@ Synapses:
           tau_decay: 4.99
           e: -60
           g_unit: 0.00085
-
     NGFC: 
       type: inhibitory
       sections: [apical, basal]
@@ -1134,9 +1109,7 @@ Synapses:
             tau_decay: 10.2
             e:   -60
             g_unit: 0.0012
-            
-  OLM:  # you are here
-    
+  OLM:  # you are here 
     DPYR:
       type: excitatory
       sections: [soma, basal]
@@ -1148,7 +1121,6 @@ Synapses:
           tau_decay: 0.6
           e: 0
           g_unit: 0.000405
-
     SPYR:
       type: excitatory
       sections: [soma, basal]
@@ -1204,7 +1176,6 @@ Synapses:
           tau_decay: 8.0
           e: -60
           g_unit: 0.00085
-
     OLM: 
       type: inhibitory
       sections: [basal]
@@ -1216,8 +1187,7 @@ Synapses:
             tau_rise:  0.25
             tau_decay: 7.50
             e:   -60
-            g_unit: 0.0012 
-            
+            g_unit: 0.0012      
     IS: 
       type: inhibitory
       sections: [basal]
@@ -1229,8 +1199,7 @@ Synapses:
             tau_rise: 1.5
             tau_decay: 10.0
             e:   -60
-            g_unit: ##
-                  
+            g_unit: ##              
   SCA:  
     CA3:
       type: excitatory
@@ -1243,7 +1212,6 @@ Synapses:
           tau_decay: 6.3
           e: 0
           g_unit: 0.0003
-
     EC:
       type: excitatory
       sections: [basal]
@@ -1255,7 +1223,6 @@ Synapses:
           tau_decay: 6.3
           e: 0
           g_unit: 0.0003
-    
     DPYR:
       type: excitatory
       sections: [soma, apical]
@@ -1267,7 +1234,6 @@ Synapses:
           tau_decay: 0.60
           e: 0
           g_unit: 0.000405
-
     SPYR:
       type: excitatory
       sections: [soma, apical]
@@ -1279,7 +1245,6 @@ Synapses:
           tau_decay: 0.60
           e: 0
           g_unit: 0.000405
-
     PVBC:  
       type: inhibitory
       sections: [soma]
@@ -1291,7 +1256,6 @@ Synapses:
           tau_decay: 2.67
           e: -60
           g_unit: 0.000186
-
     CCKBC:  
       type: inhibitory
       sections: [soma, basal, apical, apical]
@@ -1336,7 +1300,6 @@ Synapses:
           tau_decay: 2.0
           e: -60
           g_unit: 0.00085
-
     OLM: 
       type: inhibitory
       sections: [apical]
@@ -1348,8 +1311,7 @@ Synapses:
             tau_rise:  0.07
             tau_decay: 29.0
             e:   -60
-            g_unit: 0.0012
-            
+            g_unit: 0.0012    
     NGFC: 
       type: inhibitory
       sections: [basal]
@@ -1366,8 +1328,7 @@ Synapses:
             tau_rise:  180.0
             tau_decay: 200.0
             e:   -90
-            g_unit: 0.000145
-           
+            g_unit: 0.000145       
   IS:
     EC:
       type: excitatory
@@ -1391,7 +1352,6 @@ Synapses:
           tau_decay: 6.30
           e: 0
           g_unit: 0.0001
-    
     DPYR:
       type: excitatory
       sections: [soma, apical]
@@ -1403,7 +1363,6 @@ Synapses:
           tau_decay: 0.60
           e: 0
           g_unit: 0.0000405
-
     SPYR:
       type: excitatory
       sections: [soma, apical]
@@ -1415,7 +1374,6 @@ Synapses:
           tau_decay: 0.60
           e: 0
           g_unit: 0.000405
-
     IS:
       type: inhibitory
       sections: [basal, basal, apical, apical]
