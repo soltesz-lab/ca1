@@ -34,7 +34,7 @@ Cell Types:
   IVY:
     template: IvyCell
     synapses:
-      density: !include Ivy_synapse_density.yaml
+      density: !include IVY_synapse_density.yaml
   NGFC:
     template: NGFCell
     synapses:
