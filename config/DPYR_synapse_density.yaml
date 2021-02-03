@@ -1,29 +1,29 @@
-## DEEP PYR synapse density configuration. 18% of PYR somatic inhibition comes from CCKBCs
+## DEEP PYR synapse density configuration.
 ## https://www.sciencedirect.com/science/article/pii/S0306452200004966?via%3Dihub
 
 apical:
   excitatory:
-    LM:
+    SLM:
       mean: 0.90
       variance: 0.1   
-    Radiatum:
+    SR:
       mean: 3.52
       variance: 0.1
 
   inhibitory:
-    LM:
+    SLM:
       mean: 0.15
       variance: 0.1
-    Radiatum:
+    SR:
       mean: 0.11
       variance: 0.1
 basal:
   excitatory:
-    Oriens:
+    SO:
       mean: 3.08 
       variance: 0.1
   inhibitory:
-    Oriens:
+    SO:
       mean: 0.11
       variance: 0.1
 soma:

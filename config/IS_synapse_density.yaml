@@ -6,28 +6,28 @@
 
 basal:
   excitatory:
-    Radiatum:
+    SR:
       mean: 0.94
       variance: 0.1
-    LM:
+    SLM:
       mean: 0.75
       variance: 0.1
   inhibitory:
-    Radiatum:
+    SR:
       mean: 0.18
       variance: 0.1
-    LM:
+    SLM:
       mean: 0.16
       variance: 0.1
       
 apical:
   excitatory:
-    Oriens:
+    SO:
       mean: 0.61
       variance: 0.1
 
   inhibitory:
-    Oriens:
+    SO:
       mean: 0.20
       variance: 0.1
 soma:

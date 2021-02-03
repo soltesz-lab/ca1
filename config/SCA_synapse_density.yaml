@@ -2,28 +2,33 @@
 
 ## https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6782984/
 ## Calbindin
-## Flip apical with basal orientation?
 
 
 apical:
   excitatory:
-    Oriens:
+    SO:
       mean: 0.55
       variance: 0.1
   inhibitory:
-    Oriens:
+    SO:
       mean: 0.38
       variance: 0.1
       
 basal:
   excitatory:
-    Radiatum:
+    SR:
+      mean: 0.75
+      variance: 0.1
+    SLM:
       mean: 0.75
       variance: 0.1
 
   inhibitory:
-    Radiatum:
+    SR:
       mean: 0.28
+      variance: 0.1
+    SLM:
+      mean: 0.75
       variance: 0.1
 soma:
   inhibitory:

@@ -5,11 +5,11 @@
 
 basal:
   excitatory:
-    Oriens:
+    SO:
       mean: 3.60
       variance: 0.1
   inhibitory:
-    Oriens:
+    SO:
       mean: 1.06
       variance: 0.1
       

@@ -5,21 +5,21 @@
 
 apical:
   excitatory:
-    Radiatum:
+    SR:
        mean: 1.04
        variance: 0.1
   inhibitory:
-    Radiatum:
+    SR:
       mean: 0.89
       variance: 0.1
       
 
 basal:
   excitatory:
-    LM:
+    SLM:
       mean: 1.04
       variance: 0.1
   inhibitory:
-    LM:
+    SLM:
       mean: 0.89
       variance: 0.01

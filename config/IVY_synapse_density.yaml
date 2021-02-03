@@ -1,0 +1,30 @@
+## Ivy cell synapse density configuration
+# Number of excitatory and inhibitory connections obtained from conndata_211.data
+# dendritic length estimated from https://pubmed.ncbi.nlm.nih.gov/18367092/ of 1260 microns
+
+
+apical:
+  excitatory:
+    SR:
+      mean: 3.16
+      variance: 0.1
+    SLM:
+      mean: 3.16
+      variance: 0.1
+  inhibitory:
+    SR:
+      mean: 0.60
+      variance: 0.10
+    SLM:
+      mean: 0.60
+      variance: 0.10
+      
+basal:
+  excitatory:
+    SO:
+      mean: 3.16
+      variance: 0.1
+  inhibitory:
+    SO:
+      mean: 0.60
+      variance: 0.1
