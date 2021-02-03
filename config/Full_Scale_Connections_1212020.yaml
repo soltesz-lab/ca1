@@ -9,8 +9,8 @@ Axon Extent: !include Axon_Extent.yaml
 Connection Velocity: !include Connection_Velocity.yaml
 Synapses:
   SPYR:
-    CA2: # CA2 -> DPYR is 3x high than CA3 Kohara et al Nat Neuro 2014
-      type: excitatory
+    CA2:
+      type: excitatory # CA2 -> DPYR is 3x high than CA3 Kohara et al Nat Neuro 2014
       sections: [basal]
       layers: [SO]
       proportions: [0.47]
