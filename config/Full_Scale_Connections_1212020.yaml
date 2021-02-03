@@ -8,7 +8,7 @@ Synapse Parameter Rules: !include Synapse_Parameter_Rules.yaml
 Axon Extent: !include Axon_Extent.yaml
 Connection Velocity: !include Connection_Velocity.yaml
 Synapses:
- SPYR:
+  SPYR:
     CA2: # CA2 -> DPYR is 3x high than CA3 Kohara et al Nat Neuro 2014
       type: excitatory
       sections: [basal]
