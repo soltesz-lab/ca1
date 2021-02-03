@@ -22,8 +22,8 @@ Synapses:
           g_unit: 0.0001
         NMDA:
           g_unit: 0.00015
-    CA3: # CA3 -> SPYR is 2x higher than CA3 -> DPYR (Masurkar et al Cell Rep 2017
-      type: excitatory
+    CA3:
+      type: excitatory # CA3 -> SPYR is 2x higher than CA3 -> DPYR (Masurkar et al Cell Rep 2017
       sections: [basal, apical]
       layers: [SO, SR]
       proportions: [0.54, 1.0]
@@ -333,8 +333,8 @@ Synapses:
             e:   -60
             g_unit: 0.00120
   PVBC:
-    CA2: # Evidence of FF inhibition from CA2 -> PVBC in Nasralla Cell Reports 2019
-      type: excitatory
+    CA2:
+      type: excitatory # Evidence of FF inhibition from CA2 -> PVBC in Nasralla Cell Reports 2019
       sections: [basal]
       layers: [SO]
       proportions: [0.16]
@@ -742,7 +742,7 @@ Synapses:
             tau_rise:  1.5
             tau_decay: 10.0
             e:   -60
-            g_unit: ## need to calculate this      
+            g_unit: 0.0
   CCKBC:
     CA3:
       type: excitatory
@@ -883,7 +883,7 @@ Synapses:
             tau_rise:  1.5
             tau_decay: 10.0
             e:   -60
-            g_unit: ##         
+            g_unit: 0.0
   IVY:
     CA3:
       type: excitatory
@@ -1109,7 +1109,7 @@ Synapses:
             tau_decay: 10.2
             e:   -60
             g_unit: 0.0012
-  OLM:  # you are here 
+  OLM:
     DPYR:
       type: excitatory
       sections: [soma, basal]
@@ -1199,7 +1199,7 @@ Synapses:
             tau_rise: 1.5
             tau_decay: 10.0
             e:   -60
-            g_unit: ##              
+            g_unit: 0.0
   SCA:  
     CA3:
       type: excitatory
@@ -1385,5 +1385,5 @@ Synapses:
             tau_rise: 1.5 
             tau_decay: 10.0
             e:   -60
-            g_unit:  ##
+            g_unit: 0.0
             
