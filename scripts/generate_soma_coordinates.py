@@ -12,9 +12,9 @@ import rbf
 from rbf.pde.geometry import contains
 from rbf.pde.nodes import min_energy_nodes
 from ca1.env import Env
-from neural_geometry.CA1_volume import make_CA1_volume, CA1_volume
 from neural_geometry.alphavol import alpha_shape
 from neural_geometry.geometry import make_uvl_distance, make_alpha_shape, load_alpha_shape, save_alpha_shape, get_total_extents, uvl_in_bounds
+from ca1.CA1_volume import make_CA1_volume, CA1_volume
 from ca1.utils import get_script_logger, config_logging, list_find, viewitems
 
 script_name = os.path.basename(__file__)
@@ -185,9 +185,12 @@ def main(config, config_prefix, types_path, geometry_path, output_path, output_n
                     # create N quasi-uniformly distributed nodes
                     out = min_energy_nodes(N,(vert,smp),iterations=nodeiter)
                     nodes = out[0]
-        
+
+                    # remove nodes with nan
+                    nodes1 = nodes[~np.logical_or.reduce((np.isnan(nodes[:,0]), np.isnan(nodes[:,1]), np.isnan(nodes[:,2])))]
+                    
                     # remove nodes outside of the domain
-                    in_nodes = nodes[contains(nodes,vert,smp)]
+                    in_nodes = nodes[contains(nodes1, vert, smp)]
                     
                     node_count = len(in_nodes)
                     N = int(1.5*N)
