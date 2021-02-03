@@ -171,7 +171,7 @@ Synapses:
             e:   -60
             g_unit: 0.00120
   DPYR:
-     CA2:
+    CA2:
       type: excitatory
       sections: [basal]
       layers: [SO]
