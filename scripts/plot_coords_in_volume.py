@@ -17,16 +17,17 @@ def list_find (f, lst):
 @click.command()
 @click.option("--config", required=True, type=click.Path(exists=True, file_okay=True, dir_okay=False))
 @click.option("--coords-path", '-c', required=True, type=click.Path(exists=True, file_okay=True, dir_okay=False))
-@click.option("--coords-namespace", '-n', type=str, default='Coordinates')
+@click.option("--coords-namespace", '-n', type=str, default='Generated Coordinates')
 @click.option("--populations", '-i', required=True, multiple=True, type=str)
 @click.option("--scale", type=float, default=25.0)
 @click.option("--subvol", type=bool, default=False, is_flag=True)
 @click.option("--verbose", "-v", type=bool, default=False, is_flag=True)
-def main(config, coords_path, coords_namespace, populations, scale, subvol, verbose):
+@click.option("--mayavi", "-m", type=bool, default=False, is_flag=True)
+def main(config, coords_path, coords_namespace, populations, scale, subvol, verbose, mayavi):
 
     utils.config_logging(verbose)
     plot.plot_coords_in_volume (populations, coords_path, coords_namespace, config, \
-                                subvol=subvol, scale=scale, verbose=verbose)
+                                subvol=subvol, scale=scale, verbose=verbose, mayavi=mayavi)
         
 
 if __name__ == '__main__':
