@@ -255,7 +255,7 @@ def plot_coordinates(coords_path, population, namespace, index = 0, graph_type =
 
 
 
-def plot_coords_in_volume(populations, coords_path, coords_namespace, config, scale=25., subvol=False, verbose=False):
+def plot_coords_in_volume(populations, coords_path, coords_namespace, config, scale=25., subvol=False, verbose=False, mayavi=False):
     
     env = Env(config_file=config)
 
@@ -307,14 +307,22 @@ def plot_coords_in_volume(populations, coords_path, coords_namespace, config, sc
                           np.asarray(ycoords).reshape(-1,1), \
                           np.asarray(zcoords).reshape(-1,1)),axis=1)
 
-    from mayavi import mlab
+    if mayavi:
+        from mayavi import mlab
+    else:
+        import matplotlib.pyplot as plt
+        from mpl_toolkits.mplot3d import Axes3D
+
     
     logger.info('Plotting coordinates...')
-
-    mlab.points3d(*pts.T, color=(1, 1, 0), scale_factor=scale)
-
+    if mayavi: 
+        mlab.points3d(*pts.T, color=(1, 1, 0), scale_factor=scale)
+    else:
+        fig = plt.figure()
+        ax  = fig.add_subplot(111, projection='3d')
+        ax.scatter(*pts.T, c='b', s=int(scale))
+        
     logger.info('Constructing volume...')
-
     from ca1.CA1_volume import make_CA1_volume
 
     if subvol:
@@ -333,8 +341,17 @@ def plot_coords_in_volume(populations, coords_path, coords_namespace, config, sc
     logger.info('Plotting volume...')
 
     if subvol:
-        subvol.mplot_surface(color=(0, 0.4, 0), opacity=0.33)
+        if mayavi:
+            subvol.mplot_surface(color=(0, 0.4, 0), opacity=0.33)
+        else:
+            subvol.mplot_surface(color='g', alpha=0.33, figax=[fig, ax])
     else:
-        vol.mplot_surface(color=(0, 1, 0), opacity=0.33)
-    
-    mlab.show()
+        if mayavi:
+            vol.mplot_surface(color=(0, 1, 0), opacity=0.33)
+        else:
+            vol.mplot_surface(color='g', alpha=0.33, figax=[fig, ax])
+    if mayavi:
+        mlab.show()
+    else:
+        ax.view_init(-90,0)
+        plt.show()
