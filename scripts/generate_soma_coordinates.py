@@ -120,10 +120,10 @@ def main(config, config_prefix, types_path, geometry_path, output_path, output_n
                 logger.info("Constructing alpha shape for layers %s: extents: %s..." % (layer, str(extents)))
                 #(extent_u, extent_v, extent_l) = get_total_extents(layer_extents)
                 (extent_u, extent_v, extent_l) = get_layer_extents(layer_extents, layer)
-                vol = make_CA1_volume(extent_u, extent_v, extent_l,
+                layer_vol = make_CA1_volume(extent_u, extent_v, extent_l,
                                       rotate=rotate, resolution=resolution)
 
-                this_layer_alpha_shape = make_alpha_shape(vol, alpha_radius=alpha_radius)
+                this_layer_alpha_shape = make_alpha_shape(layer_vol, alpha_radius=alpha_radius)
                 layer_alpha_shapes[layer] = this_layer_alpha_shape
                 if geometry_path:
                     save_alpha_shape(geometry_path, this_layer_alpha_shape_path, this_layer_alpha_shape)
@@ -150,7 +150,6 @@ def main(config, config_prefix, types_path, geometry_path, output_path, output_n
         if 'Cell Constraints' in env.geometry:
             if population in env.geometry['Cell Constraints']:
                 pop_constraint = env.geometry['Cell Constraints'][population]
-        print(pop_constraint)
         if rank == 0:
             logger.info("Population %s: layer distribution is %s" % (population, str(pop_layers)))
             
@@ -219,7 +218,6 @@ def main(config, config_prefix, types_path, geometry_path, output_path, output_n
             logger.info("Inverse interpolation of %i nodes..." % len(xyz_coords))
             uvl_coords_interp = vol.inverse(xyz_coords)
             xyz_coords_interp = vol(uvl_coords_interp[:,0],uvl_coords_interp[:,1],uvl_coords_interp[:,2],mesh=False).reshape(3,-1).T
-
             logger.info("Broadcasting generated nodes...")
 
             
