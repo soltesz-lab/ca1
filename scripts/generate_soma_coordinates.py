@@ -13,7 +13,7 @@ from rbf.pde.geometry import contains
 from rbf.pde.nodes import min_energy_nodes
 from ca1.env import Env
 from neural_geometry.alphavol import alpha_shape
-from neural_geometry.geometry import make_uvl_distance, make_alpha_shape, load_alpha_shape, save_alpha_shape, get_total_extents, uvl_in_bounds
+from neural_geometry.geometry import make_uvl_distance, make_alpha_shape, load_alpha_shape, save_alpha_shape, get_total_extents, get_layer_extents, uvl_in_bounds
 from ca1.CA1_volume import make_CA1_volume, CA1_volume
 from ca1.utils import get_script_logger, config_logging, list_find, viewitems
 
@@ -118,7 +118,8 @@ def main(config, config_prefix, types_path, geometry_path, output_path, output_n
                     has_layer_alpha_shape = True
             if not has_layer_alpha_shape:
                 logger.info("Constructing alpha shape for layers %s: extents: %s..." % (layer, str(extents)))
-                (extent_u, extent_v, extent_l) = get_total_extents(layer_extents)
+                #(extent_u, extent_v, extent_l) = get_total_extents(layer_extents)
+                (extent_u, extent_v, extent_l) = get_layer_extents(layer_extents, layer)
                 vol = make_CA1_volume(extent_u, extent_v, extent_l,
                                       rotate=rotate, resolution=resolution)
 
@@ -144,7 +145,12 @@ def main(config, config_prefix, types_path, geometry_path, output_path, output_n
 
         (population_start, population_count) = population_ranges[population]
 
-        pop_layers = env.geometry['Cell Distribution'][population]
+        pop_layers     = env.geometry['Cell Distribution'][population]
+        pop_constraint = None
+        if 'Cell Constraints' in env.geometry:
+            if population in env.geometry['Cell Constraints']:
+                pop_constraint = env.geometry['Cell Constraints'][population]
+        print(pop_constraint)
         if rank == 0:
             logger.info("Population %s: layer distribution is %s" % (population, str(pop_layers)))
             
@@ -163,7 +169,6 @@ def main(config, config_prefix, types_path, geometry_path, output_path, output_n
             xyz_coords_interp_lst = []
             uvl_coords_interp_lst = []
             for layer, count in viewitems(pop_layers):
-
                 if count <= 0:
                     continue
                 
@@ -191,6 +196,17 @@ def main(config, config_prefix, types_path, geometry_path, output_path, output_n
                     
                     # remove nodes outside of the domain
                     in_nodes = nodes[contains(nodes1, vert, smp)]
+                    valid_idxs = None
+                    if pop_constraint is not None:
+                        if layer in pop_constraint:
+                            valid_idxs = []
+                            current_xyz = in_nodes.reshape(-1,3)
+                            for i in range(len(current_xyz)):
+                                if current_xyz[i][2] >= pop_constraint[layer][0] and current_xyz[i][2] <= pop_constraint[layer][1]:
+                                    valid_idxs.append(i)
+                            in_nodes = in_nodes[valid_idxs]
+                     
+                    
                     
                     node_count = len(in_nodes)
                     N = int(1.5*N)
