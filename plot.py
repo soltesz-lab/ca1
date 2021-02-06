@@ -255,7 +255,7 @@ def plot_coordinates(coords_path, population, namespace, index = 0, graph_type =
 
 
 
-def plot_coords_in_volume(populations, coords_path, coords_namespace, config, scale=25., subvol=False, verbose=False, mayavi=False):
+def plot_coords_in_volume(populations, coords_path, coords_namespace, config, scale=25., subpopulation=-1, subvol=False, verbose=False, mayavi=False):
     
     env = Env(config_file=config)
 
@@ -273,16 +273,32 @@ def plot_coords_in_volume(populations, coords_path, coords_namespace, config, sc
     xcoords = []
     ycoords = []
     zcoords = []
-    for population in populations:
+    cmap = cm.get_cmap('Dark2')
+    cmap_range = np.linspace(0,1,num=len(populations))
+
+    colors = []
+    for (pop_id, population) in enumerate(populations):
         coords = read_cell_attributes(coords_path, population, namespace=coords_namespace)
 
         count = 0
+        cxcoords = []
+        cycoords = []
+        czcoords = []
         for (k,v) in coords:
             count += 1
-            xcoords.append(v['X Coordinate'][0])
-            ycoords.append(v['Y Coordinate'][0])
-            zcoords.append(v['Z Coordinate'][0])
+            cxcoords.append(v['X Coordinate'][0])
+            cycoords.append(v['Y Coordinate'][0])
+            czcoords.append(v['Z Coordinate'][0])
+        if subpopulation > -1 and count > subpopulation:
+            ridxs  = np.random.choice(np.arange(len(cxcoords)), replace=False, size=subpopulation)
+            cxcoords = list(np.asarray(cxcoords)[ridxs])
+            cycoords = list(np.asarray(cycoords)[ridxs])
+            czcoords = list(np.asarray(czcoords)[ridxs])
 
+        colors += [cmap(cmap_range[pop_id]) for _ in range(len(cxcoords))]
+        xcoords += cxcoords
+        ycoords += cycoords
+        zcoords += czcoords
         logger.info(f'Read {count} coordinates...')
         
         pop_distribution = env.geometry['Cell Distribution'][population]
@@ -320,7 +336,7 @@ def plot_coords_in_volume(populations, coords_path, coords_namespace, config, sc
     else:
         fig = plt.figure()
         ax  = fig.add_subplot(111, projection='3d')
-        ax.scatter(*pts.T, c='b', s=int(scale))
+        ax.scatter(*pts.T, c=colors, s=int(scale))
         
     logger.info('Constructing volume...')
     from ca1.CA1_volume import make_CA1_volume
@@ -344,12 +360,12 @@ def plot_coords_in_volume(populations, coords_path, coords_namespace, config, sc
         if mayavi:
             subvol.mplot_surface(color=(0, 0.4, 0), opacity=0.33)
         else:
-            subvol.mplot_surface(color='g', alpha=0.33, figax=[fig, ax])
+            subvol.mplot_surface(color='k', alpha=0.33, figax=[fig, ax])
     else:
         if mayavi:
             vol.mplot_surface(color=(0, 1, 0), opacity=0.33)
         else:
-            vol.mplot_surface(color='g', alpha=0.33, figax=[fig, ax])
+            vol.mplot_surface(color='k', alpha=0.33, figax=[fig, ax])
     if mayavi:
         mlab.show()
     else:
