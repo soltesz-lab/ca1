@@ -9,6 +9,12 @@ Parametric Surface:
     SR:  [[0.0,0.0,150.0], [4000.0,1250.0,350.0]]
     SLM: [[0.0, 0.0,350.0], [4000.0, 1250.0, 450.0]]
   Rotation: [0.0, 0.0, 0.0]
+Cell Constraints:
+  DPYR:
+    SP: [100., 125.]
+  SPYR:
+    SP: [125., 150.]
+    
 Cell Distribution:
   DPYR:
     SO:  0
@@ -20,47 +26,47 @@ Cell Distribution:
     SP:  155750
     SR:  0
     SLM: 0
-  PVBC:
+  PVBC: #5530
     SO:  1320
     SP:  3880
     SR:  330
     SLM: 0
-  AAC:
+  AAC: #1380
     SO:  350
     SP:  1030
     SR:  0
     SLM: 0
-  BS:
+  BS:  #2210
     SO:  530
     SP:  1550 
     SR:  130
     SLM: 0
-  CCKBC:
+  CCKBC: # 3600
     SO:  780
     SP:  940
     SR:  1170
     SLM: 710
-  IVY:
+  IVY: # 8810
     SO:  980
     SP:  5410
     SR:  2420
     SLM: 0
-  NGFC:
+  NGFC: #3580
     SO:  0
     SP:  0
     SR:  610
     SLM: 2970
-  OLM:
+  OLM: #1640
     SO:  1640
     SP:  0
     SR:  0
     SLM: 0
-  SCA:
+  SCA: #400
     SO:  0
     SP:  0
     SR:  400
     SLM: 0
-  IS:
+  IS: #5500
     SO:  780
     SP:  2710
     SR:  1000
