@@ -14,7 +14,7 @@ from rbf.pde.nodes import min_energy_nodes
 from ca1.env import Env
 from neural_geometry.alphavol import alpha_shape
 from neural_geometry.geometry import make_uvl_distance, make_alpha_shape, load_alpha_shape, save_alpha_shape, get_total_extents, get_layer_extents, uvl_in_bounds
-from ca1.CA1_volume import make_CA1_volume, CA1_volume
+from ca1.CA1_volume import make_CA1_volume, CA1_volume, CA1_volume_transform
 from ca1.utils import get_script_logger, config_logging, list_find, viewitems
 
 script_name = os.path.basename(__file__)
@@ -108,6 +108,8 @@ def main(config, config_prefix, types_path, geometry_path, output_path, output_n
 
     layer_alpha_shapes = {}
     layer_alpha_shape_path = 'Layer Alpha Shape/%d/%d/%d' % resolution
+    layer_extent_vals = {}
+    layer_extent_transformed_vals = {}
     if rank == 0:
         for layer, extents in viewitems(layer_extents):
             gc.collect()
@@ -122,6 +124,8 @@ def main(config, config_prefix, types_path, geometry_path, output_path, output_n
                 logger.info("Constructing alpha shape for layers %s: extents: %s..." % (layer, str(extents)))
                 #(extent_u, extent_v, extent_l) = get_total_extents(layer_extents)
                 (extent_u, extent_v, extent_l) = get_layer_extents(layer_extents, layer)
+                layer_extent_vals[layer] = (extent_u, extent_v, extent_l)
+                layer_extent_transformed_vals[layer] = CA1_volume_transform(extent_u, extent_v, extent_l)
                 layer_vol = make_CA1_volume(extent_u, extent_v, extent_l,
                                       rotate=rotate, resolution=resolution)
 
@@ -177,10 +181,12 @@ def main(config, config_prefix, types_path, geometry_path, output_path, output_n
 
                 vert = alpha.points
                 smp  = np.asarray(alpha.bounds, dtype=np.int64)
+                
+                extents_xyz = layer_extent_transformed_vals[layer]                              
                 for (vvi,vv) in enumerate(vert):
                     for (vi,v) in enumerate(vv):
-                        if v <= 0.0: 
-                            vert[vvi][vi] = 0.0
+                        if v < extents_xyz[vi][0]: vert[vvi][vi] = extents_xyz[vi][0]
+                        elif v > extents_xyz[vi][1]: vert[vvi][vi] = extents_xyz[vi][1]
 
                 N = int(count*2) # layer-specific number of nodes
                 node_count = 0
@@ -190,11 +196,11 @@ def main(config, config_prefix, types_path, geometry_path, output_path, output_n
                 if verbose:
                     rbf_logger = logging.Logger.manager.loggerDict['rbf.pde.nodes']
                     rbf_logger.setLevel(logging.DEBUG)
-                from rbf.pde.sampling import rejection_sampling
+                #from rbf.pde.sampling import rejection_sampling
                 while node_count < count:
                     # create N quasi-uniformly distributed nodes
-                    def rho(x):
-                        return np.ones(x.shape[0])
+                    #def rho(x):
+                    #    return np.ones(x.shape[0])
                     #nodes = rejection_sampling(N, rho, (vert, smp), start=0)
                     
                     out = min_energy_nodes(N,(vert,smp),iterations=nodeiter, 
@@ -214,7 +220,7 @@ def main(config, config_prefix, types_path, geometry_path, output_path, output_n
                             for i in range(len(current_xyz)):
                                 if current_xyz[i][2] >= pop_constraint[layer][0] and current_xyz[i][2] <= pop_constraint[layer][1]:
                                     valid_idxs.append(i)
-                            in_nodes = in_nodes[valid_idxs]
+                            in_nodes = in_nodes[valid_idxs]                        
                     node_count = len(in_nodes)
                     N = int(1.5*N)
                     logger.info("%i interior nodes out of %i nodes generated" % (node_count, len(nodes)))
