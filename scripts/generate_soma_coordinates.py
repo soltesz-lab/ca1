@@ -64,11 +64,13 @@ def random_subset( iterator, K ):
 @click.option("--alpha-radius", type=float, default=1500.)
 @click.option("--nodeiter", type=int, default=10)
 @click.option("--optiter", type=int, default=200)
+@click.option("--dispersion-delta", type=float, default=0.1)
+@click.option("--snap-delta", type=float, default=0.5)
 @click.option("--io-size", type=int, default=-1)
 @click.option("--chunk-size", type=int, default=1000)
 @click.option("--value-chunk-size", type=int, default=1000)
 @click.option("--verbose", '-v', type=bool, default=False, is_flag=True)
-def main(config, config_prefix, types_path, geometry_path, output_path, output_namespace, populations, resolution, alpha_radius, nodeiter, optiter, io_size, chunk_size, value_chunk_size, verbose):
+def main(config, config_prefix, types_path, geometry_path, output_path, output_namespace, populations, resolution, alpha_radius, nodeiter, optiter, dispersion_delta, snap_delta, io_size, chunk_size, value_chunk_size, verbose):
 
     config_logging(verbose)
     logger = get_script_logger(script_name)
@@ -175,6 +177,10 @@ def main(config, config_prefix, types_path, geometry_path, output_path, output_n
 
                 vert = alpha.points
                 smp  = np.asarray(alpha.bounds, dtype=np.int64)
+                for (vvi,vv) in enumerate(vert):
+                    for (vi,v) in enumerate(vv):
+                        if v <= 0.0: 
+                            vert[vvi][vi] = 0.0
 
                 N = int(count*2) # layer-specific number of nodes
                 node_count = 0
@@ -184,10 +190,15 @@ def main(config, config_prefix, types_path, geometry_path, output_path, output_n
                 if verbose:
                     rbf_logger = logging.Logger.manager.loggerDict['rbf.pde.nodes']
                     rbf_logger.setLevel(logging.DEBUG)
-
+                from rbf.pde.sampling import rejection_sampling
                 while node_count < count:
                     # create N quasi-uniformly distributed nodes
-                    out = min_energy_nodes(N,(vert,smp),iterations=nodeiter)
+                    def rho(x):
+                        return np.ones(x.shape[0])
+                    #nodes = rejection_sampling(N, rho, (vert, smp), start=0)
+                    
+                    out = min_energy_nodes(N,(vert,smp),iterations=nodeiter, 
+                                           **{'dispersion_delta':dispersion_delta, 'snap_delta': snap_delta})
                     nodes = out[0]
 
                     # remove nodes with nan
@@ -204,12 +215,8 @@ def main(config, config_prefix, types_path, geometry_path, output_path, output_n
                                 if current_xyz[i][2] >= pop_constraint[layer][0] and current_xyz[i][2] <= pop_constraint[layer][1]:
                                     valid_idxs.append(i)
                             in_nodes = in_nodes[valid_idxs]
-                     
-                    
-                    
                     node_count = len(in_nodes)
                     N = int(1.5*N)
-                
                     logger.info("%i interior nodes out of %i nodes generated" % (node_count, len(nodes)))
 
                 xyz_coords_lst.append(in_nodes.reshape(-1,3))
