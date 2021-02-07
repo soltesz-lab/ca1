@@ -65,7 +65,7 @@ def random_subset( iterator, K ):
 @click.option("--nodeiter", type=int, default=10)
 @click.option("--optiter", type=int, default=200)
 @click.option("--dispersion-delta", type=float, default=0.1)
-@click.option("--snap-delta", type=float, default=0.5)
+@click.option("--snap-delta", type=float, default=0.01)
 @click.option("--io-size", type=int, default=-1)
 @click.option("--chunk-size", type=int, default=1000)
 @click.option("--value-chunk-size", type=int, default=1000)
