@@ -4,8 +4,8 @@ from neural_geometry.geometry import transform_volume, make_alpha_shape
 from neural_geometry.linear_volume import LinearVolume
 
 
-max_u = 4000.
-max_v = 1250.
+max_u = 6000.
+max_v = 2500.
 
 def CA1_volume_transform(u, v, l):
     return u, v, l
