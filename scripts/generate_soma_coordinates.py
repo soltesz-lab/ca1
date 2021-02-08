@@ -13,6 +13,7 @@ import rbf
 from rbf.pde.geometry import contains
 from rbf.pde.nodes import min_energy_nodes, disperse
 from rbf.pde.sampling import rejection_sampling
+from scipy.spatial import cKDTree
 from ca1.env import Env
 from neural_geometry.alphavol import alpha_shape
 from neural_geometry.geometry import make_uvl_distance, make_alpha_shape, load_alpha_shape, save_alpha_shape, get_total_extents, get_layer_extents, uvl_in_bounds
@@ -100,14 +101,13 @@ def gen_min_energy_nodes(count, domain, constraint, nodeiter, dispersion_delta, 
 @click.option("--resolution", type=(int,int,int), default=(3,3,3))
 @click.option("--alpha-radius", type=float, default=1500.)
 @click.option("--nodeiter", type=int, default=10)
-@click.option("--optiter", type=int, default=200)
 @click.option("--dispersion-delta", type=float, default=0.1)
 @click.option("--snap-delta", type=float, default=0.01)
 @click.option("--io-size", type=int, default=-1)
 @click.option("--chunk-size", type=int, default=1000)
 @click.option("--value-chunk-size", type=int, default=1000)
 @click.option("--verbose", '-v', type=bool, default=False, is_flag=True)
-def main(config, config_prefix, types_path, geometry_path, output_path, output_namespace, populations, resolution, alpha_radius, nodeiter, optiter, dispersion_delta, snap_delta, io_size, chunk_size, value_chunk_size, verbose):
+def main(config, config_prefix, types_path, geometry_path, output_path, output_namespace, populations, resolution, alpha_radius, nodeiter, dispersion_delta, snap_delta, io_size, chunk_size, value_chunk_size, verbose):
 
     config_logging(verbose)
     logger = get_script_logger(script_name)
@@ -115,6 +115,8 @@ def main(config, config_prefix, types_path, geometry_path, output_path, output_n
     comm = MPI.COMM_WORLD
     rank = comm.rank
     size = comm.size
+
+    np.seterr(all='raise')
     
     if io_size == -1:
         io_size = comm.size
@@ -248,8 +250,28 @@ def main(config, config_prefix, types_path, geometry_path, output_path, output_n
 
         # Additional dispersion step to ensure no overlapping cell positions
         all_xyz_coords = np.row_stack(all_xyz_coords_lst)
-        #logger.info("Dispersion of %i nodes..." % len(all_xyz_coords))
-        all_xyz_coords1 = disperse(all_xyz_coords, vol_domain, delta=dispersion_delta)
+        mask = np.ones((all_xyz_coords.shape[0],), dtype=np.bool)
+        # distance to nearest neighbor
+        while True:
+            kdt = cKDTree(all_xyz_coords[mask, :])
+            nndist, nnindices = kdt.query(all_xyz_coords[mask, :], k=2)
+            nndist, nnindices = nndist[:, 1:], nnindices[:, 1:]
+
+            zindices = nnindices[np.argwhere(np.isclose(nndist, 0.0, atol=1e-3, rtol=1e-3))]
+            if len(zindices) > 0:
+                mask[np.argwhere(mask)[zindices]] = False
+            else:
+                break
+
+        coords_offset = 0
+        for population in populations:
+            pop_coords_count = generated_coords_count_dict[population]
+            pop_mask = mask[coords_offset:coords_offset + pop_coords_count]
+            generated_coords_count_dict[population] = np.count_nonzero(pop_mask)
+            coords_offset += pop_coords_count
+
+        logger.info("Dispersion of %i nodes..." % np.count_nonzero(mask))
+        all_xyz_coords1 = disperse(all_xyz_coords[mask, :], vol_domain, delta=dispersion_delta)
 
     if rank == 0:
         logger.info("Computing UVL coordinates of %i nodes..." % len(all_xyz_coords1))
@@ -297,7 +319,7 @@ def main(config, config_prefix, types_path, geometry_path, output_path, output_n
                     coords.append((xyz_coords1[0],xyz_coords1[1],xyz_coords1[2],
                                   uvl_coords[0],uvl_coords[1],uvl_coords[2]))
                 else:
-                    logger.info('Rank %i: %s cell %i not in bounds: %f %f %f' % (rank, population, i, uvl_coords[0], uvl_coords[1], uvl_coords[2]))
+                    logger.debug('Rank %i: %s cell %i not in bounds: %f %f %f' % (rank, population, i, uvl_coords[0], uvl_coords[1], uvl_coords[2]))
                     uvl_coords = None
                     xyz_coords1 = None
 
