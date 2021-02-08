@@ -14,7 +14,7 @@ strdef myroot
 objref syn, pre_list, templist, rootlist, this
 
 // external variables
-external numCellTypes, cellType
+//external numCellTypes, cellType
 
 // create the sections[segments]
 NumSoma=1
@@ -42,7 +42,7 @@ proc init() {
 	set_chanparams()	// local fcn: after all channels have been inserted, then their other parameters can be set	
 	// synapses
 	pre_list = new List() // define a list for the presynaptic connections
-	define_synapses($3)	// local fcn: define all possible synaptic connections received by this cell
+	//define_synapses($3)	// local fcn: define all possible synaptic connections received by this cell
 }
 
 proc connect_sections() { local i
@@ -330,6 +330,7 @@ proc get_root() {local i localobj sref
 
 strdef myStr
 
+/*
 objref newSecRef, syn
 proc define_synapses() {
 	ind = $1
@@ -374,4 +375,5 @@ proc define_synapses() {
 		findme = 1
 	}
 }
+*/
 endtemplate pvbasketcell
