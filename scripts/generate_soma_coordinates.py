@@ -99,7 +99,7 @@ def gen_min_energy_nodes(count, domain, constraint, nodeiter, dispersion_delta, 
 @click.option("--output-namespace", type=str, default='Generated Coordinates')
 @click.option("--populations", '-i', type=str, multiple=True)
 @click.option("--resolution", type=(int,int,int), default=(3,3,3))
-@click.option("--alpha-radius", type=float, default=1500.)
+@click.option("--alpha-radius", type=float, default=2500.)
 @click.option("--nodeiter", type=int, default=10)
 @click.option("--dispersion-delta", type=float, default=0.1)
 @click.option("--snap-delta", type=float, default=0.01)
