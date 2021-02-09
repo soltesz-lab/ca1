@@ -238,9 +238,16 @@ def main(config, config_prefix, types_path, geometry_path, output_path, output_n
                     rbf_logger = logging.Logger.manager.loggerDict['rbf.pde.nodes']
                     rbf_logger.setLevel(logging.DEBUG)
 
+                min_energy_constraint = None
+                if pop_constraint is not None and layer in pop_constraint:
+                    min_energy_constraint = pop_constraint[layer]
+                    
                 nodes = gen_min_energy_nodes(count, (vert, smp), 
-                                             pop_constraint[layer] if pop_constraint is not None else None, 
+                                             min_energy_constraint, 
                                              nodeiter, dispersion_delta, snap_delta)
+                #nodes = gen_min_energy_nodes(count, (vert, smp), 
+                #                             pop_constraint[layer] if pop_constraint is not None else None, 
+                #                             nodeiter, dispersion_delta, snap_delta)
                 
                 xyz_coords_lst.append(nodes.reshape(-1,3))
 
