@@ -1,3 +1,4 @@
+# Placing no constraints: OLM, NGFC (Wadiche-Overstreet, McBain. Nat Rev Neuro 2017), BS (Maccaferri J Physio 2000), IVY, IS
 Parametric Surface:
   Origin:
     U: median
@@ -11,9 +12,17 @@ Parametric Surface:
   Rotation: [0.0, 0.0, 0.0]
 Cell Constraints:
   DPYR:
-    SP: [100., 120.]
+    SP: [100., 120.] # Lee, ..., Soltesz. Neuron 2014
   SPYR:
-    SP: [120., 150.]
+    SP: [120., 150.] # Lee, ..., Soltesz. Neuron 2014
+  PVBC:
+    SR: [150., 200.0] # Booker, Vida. Cell & Tissue Research 2018
+  AAC:
+    SO: [80.0, 100.0] # Baude, ..., Klausberger Cerebral Cortex 2007 
+  CCKBC:
+    SLM: [350.0, 370.0] # Vida, ..., Buhl. J. Physioloy 1998
+  SCA:
+    SR: [330.0, 350.0] # Vida, ..., Buhl. J. Physiology 1998
     
 Cell Distribution:
   DPYR:
