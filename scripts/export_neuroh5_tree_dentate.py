@@ -165,14 +165,14 @@ def main(config, config_prefix, population, gid, input_file, output_file, dry_ru
 
     (forest_pop_ranges, _)  = read_population_ranges(output_file)
     (forest_population_start, forest_population_count) = forest_pop_ranges[population]
-                    
+    forest_population_end = forest_population_start + forest_population_count
     h.load_file(input_file)
     if verbose:
         h.topology()
     tree_dict = export_swc_dict()
 
     #trees_dict = { 0 : tree_dict }
-    if (gid < forest_population_start) or (gid > forest_population_start):
+    if (gid < forest_population_start) or (gid > forest_population_end):
         gid = forest_population_start
     trees_dict = { gid: tree_dict}
     logger.info(pprint.pformat(trees_dict))

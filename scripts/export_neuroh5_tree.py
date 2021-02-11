@@ -167,6 +167,7 @@ def main(config, config_prefix, population, gid, input_file, template_name, outp
 
     (forest_pop_ranges, _)  = read_population_ranges(output_file)
     (forest_population_start, forest_population_count) = forest_pop_ranges[population]
+    forest_population_end = forest_population_start + forest_population_count
     h.load_file(input_file)
     cell = getattr(h, template_name)(0, 0)
     if verbose:
