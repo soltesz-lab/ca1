@@ -174,8 +174,7 @@ def main(config, config_prefix, population, gid, input_file, output_file, dry_ru
     #trees_dict = { 0 : tree_dict }
     if (gid < forest_population_start) or (gid > forest_population_start):
         gid = forest_population_start
-    tree_dict = { gid: tree_dict}
-
+    trees_dict = { gid: tree_dict}
     logger.info(pprint.pformat(trees_dict))
 
     if not dry_run:
