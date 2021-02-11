@@ -145,12 +145,13 @@ def export_swc_dict(cell, sections=[("soma_list",1),("apical_list",4),("basal_li
 @click.option("--config", '-c', required=True, type=str)
 @click.option("--config-prefix", required=True, type=click.Path(exists=True, file_okay=False, dir_okay=True), default='config')
 @click.option("--population", '-p', required=True, type=str)
+@click.option("--gid", '-g', default=0, type=int)
 @click.option("--template-name", '-t', required=True, type=str)
 @click.option("--input-file", required=True, type=click.Path(exists=True, file_okay=True, dir_okay=False))
 @click.option("--output-file", required=True, type=click.Path(exists=False, file_okay=True, dir_okay=False))
 @click.option("--dry-run",  is_flag=True)
 @click.option("--verbose", '-v', is_flag=True)
-def main(config, config_prefix, population, input_file, template_name, output_file, dry_run, verbose):
+def main(config, config_prefix, population, gid, input_file, template_name, output_file, dry_run, verbose):
     
     utils.config_logging(verbose)
     logger = utils.get_script_logger(os.path.basename(__file__))
@@ -172,7 +173,9 @@ def main(config, config_prefix, population, input_file, template_name, output_fi
         h.topology()
     tree_dict = export_swc_dict(cell)
 
-    trees_dict = { 0 : tree_dict }
+    if (gid < forest_population_start) or (gid > forest_population_end):
+        gid = forest_population_start
+    trees_dict = { gid : tree_dict }
 
     logger.info(pprint.pformat(trees_dict))
 

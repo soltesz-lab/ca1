@@ -18,7 +18,7 @@ from matplotlib.ticker import FormatStrFormatter, MaxNLocator
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import ca1
 from ca1.env import Env
-from ca1.utils import get_module_logger, Struct, viewitems
+from ca1.utils import get_module_logger, Struct, viewitems, make_geometric_graph
 from ca1.io_utils import get_h5py_attr, set_h5py_attr
 
 try:
@@ -371,3 +371,87 @@ def plot_coords_in_volume(populations, coords_path, coords_namespace, config, sc
     else:
         ax.view_init(-90,0)
         plt.show()
+
+
+        
+def plot_cell_tree(population, gid, tree_dict, line_width=1., sample=0.05, color_edge_scalars=True, mst=False, conn_loc=True):
+    
+    import networkx as nx
+    from mayavi import mlab
+    
+    mlab.figure(bgcolor=(0,0,0))
+
+    xcoords = tree_dict['x']
+    ycoords = tree_dict['y']
+    zcoords = tree_dict['z']
+    swc_type = tree_dict['swc_type']
+    layer    = tree_dict['layer']
+    secnodes = tree_dict['section_topology']['nodes']
+    src      = tree_dict['section_topology']['src']
+    dst      = tree_dict['section_topology']['dst']
+    loc      = tree_dict['section_topology']['loc']
+    
+    x = xcoords.reshape(-1,)
+    y = ycoords.reshape(-1,)
+    z = zcoords.reshape(-1,)
+
+    edges = []
+    for sec, nodes in viewitems(secnodes):
+        for i in range(1, len(nodes)):
+            srcnode = nodes[i-1]
+            dstnode = nodes[i]
+            edges.append((srcnode, dstnode))
+
+    loc_x = []
+    loc_y = []
+    loc_z = []
+    for (s,d,l) in zip(src,dst,loc):
+        srcnode = secnodes[s][l]
+        dstnode = secnodes[d][0]
+        edges.append((srcnode, dstnode))
+        loc_x.append(x[srcnode])
+        loc_y.append(y[srcnode])
+        loc_z.append(z[srcnode])
+
+    conn_loc_x = np.asarray(loc_x, dtype=np.float64)
+    conn_loc_y = np.asarray(loc_y, dtype=np.float64)
+    conn_loc_z = np.asarray(loc_z, dtype=np.float64)
+        
+    # Make a NetworkX graph out of our point and edge data
+    g = make_geometric_graph(x, y, z, edges)
+
+    edges = g.edges
+    # Compute minimum spanning tree using networkx
+    # nx.mst returns an edge generator
+    if mst:
+        edges = nx.minimum_spanning_tree(g).edges(data=True)
+
+    edge_array = np.array(list(edges)).T
+    start_idx = edge_array[0, :]
+    end_idx = edge_array[1, :]
+
+    
+    start_idx = start_idx.astype(np.int)
+    end_idx   = end_idx.astype(np.int)
+    if color_edge_scalars:
+        edge_scalars = z[start_idx]
+        edge_color = None
+    else:
+        edge_scalars = None
+        edge_color = hex2rgb(rainbow_colors[gid%len(rainbow_colors)])
+        
+    fig = mlab.gcf()
+    
+    # Plot this with Mayavi
+    g = plot_graph(x, y, z, start_idx, end_idx, edge_scalars=edge_scalars, edge_color=edge_color, \
+                   opacity=0.8, colormap='summer', line_width=line_width, figure=fig)
+
+    if conn_loc:
+       conn_pts = mlab.points3d(conn_loc_x, conn_loc_y, conn_loc_z, figure=fig,
+                                mode='2dcross', colormap='copper', scale_factor=10)
+
+    
+    fig.scene.x_plus_view()
+    mlab.savefig('%s_%d_cell_tree.x3d' % (population, gid), figure=fig, magnification=10)
+    mlab.show()
+        
