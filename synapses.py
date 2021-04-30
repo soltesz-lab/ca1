@@ -5,6 +5,7 @@ import numpy as np
 import scipy
 import scipy.optimize as opt
 from neuroh5.io import write_cell_attributes
+from ca1.cells import make_section_graph
 #from ca1.cells import get_distance_to_node, get_donor, get_mech_rules_dict, get_param_val_by_distance, \
 #    import_mech_dict_from_file, make_section_graph, custom_filter_if_terminal, \
 #    custom_filter_modify_slope_if_terminal, custom_filter_by_branch_order
@@ -15,6 +16,178 @@ from ca1.utils import ExprClosure, Promise, NamedTupleWithDocstring, get_module_
 # This logger will inherit its settings from the root logger, created in dentate.env
 logger = get_module_logger(__name__)
 
+def get_node_attribute(name, content, sec, secnodes, x=None):
+    """
+
+    :param name:
+    :param content:
+    :param sec:
+    :param secnodes:
+    :param x:
+    :return:
+    """
+    if name in content:
+        if x is None:
+            return content[name]
+        elif sec.n3d() == 0:
+            return content[name][0]
+        else:
+            prev = None
+            for i in range(sec.n3d()):
+                pos = (sec.arc3d(i) / sec.L)
+                if pos >= x:
+                    if (prev is None) or (abs(pos - x) < abs(prev - x)):
+                        return content[name][secnodes[i]]
+                    else:
+                        return content[name][secnodes[i - 1]]
+                else:
+                    prev = pos
+    else:
+        return None
+
+
+def synapse_seg_density(syn_type_dict, layer_dict, layer_density_dicts, seg_dict, ran, neurotree_dict=None):
+    """
+    Computes per-segment density of synapse placement.
+    :param syn_type_dict:
+    :param layer_dict:
+    :param layer_density_dicts:
+    :param seg_dict:
+    :param ran:
+    :param neurotree_dict:
+    :return:
+    """
+    segdensity_dict = {}
+    layers_dict = {}
+
+    if neurotree_dict is not None:
+        secnodes_dict = neurotree_dict['section_topology']['nodes']
+    else:
+        secnodes_dict = None
+    for (syn_type_label, layer_density_dict) in viewitems(layer_density_dicts):
+        syn_type = syn_type_dict[syn_type_label]
+        rans = {}
+        for (layer_label, density_dict) in viewitems(layer_density_dict):
+            if layer_label == 'default':
+                layer = layer_label
+            else:
+                layer = int(layer_dict[layer_label])
+            rans[layer] = ran
+        segdensity = defaultdict(list)
+        layers = defaultdict(list)
+        total_seg_density = 0.
+        for sec_index, seg_list in viewitems(seg_dict):
+            for seg in seg_list:
+                L = seg.sec.L
+                nseg = seg.sec.nseg
+                if neurotree_dict is not None:
+                    secnodes = secnodes_dict[sec_index]
+                    layer = get_node_attribute('layer', neurotree_dict, seg.sec, secnodes, seg.x)
+                else:
+                    layer = -1
+                layers[sec_index].append(layer)
+
+                this_ran = None
+
+                if layer > -1:
+                    if layer in rans:
+                        this_ran = rans[layer]
+                    elif 'default' in rans:
+                        this_ran = rans['default']
+                    else:
+                        this_ran = None
+                elif 'default' in rans:
+                    this_ran = rans['default']
+                else:
+                    this_ran = None
+                if this_ran is not None:
+                    while True:
+                        dens = this_ran.normal(density_dict['mean'], density_dict['variance'])
+                        if dens > 0.0:
+                            break
+                else:
+                    dens = 0.
+                total_seg_density += dens
+                segdensity[sec_index].append(dens)
+
+        if total_seg_density < 1e-6:
+            logger.warning("sections with zero %s synapse density: %s; rans: %s; density_dict: %s; morphology: %s" % (
+            syn_type_label, str(segdensity), str(rans), str(density_dict), str(neurotree_dict)))
+
+        segdensity_dict[syn_type] = segdensity
+
+        layers_dict[syn_type] = layers
+    return (segdensity_dict, layers_dict)
+
+
+def synapse_seg_counts(syn_type_dict, layer_dict, layer_density_dicts, sec_index_dict, seg_dict, ran,
+                       neurotree_dict=None):
+    """
+    Computes per-segment relative counts of synapse placement.
+    :param syn_type_dict:
+    :param layer_dict:
+    :param layer_density_dicts:
+    :param sec_index_dict:
+    :param seg_dict:
+    :param seed:
+    :param neurotree_dict:
+    :return:
+    """
+    segcounts_dict = {}
+    layers_dict = {}
+    segcount_total = 0
+    if neurotree_dict is not None:
+        secnodes_dict = neurotree_dict['section_topology']['nodes']
+    else:
+        secnodes_dict = None
+    for (syn_type_label, layer_density_dict) in viewitems(layer_density_dicts):
+        syn_type = syn_type_dict[syn_type_label]
+        rans = {}
+        for (layer_label, density_dict) in viewitems(layer_density_dict):
+            if layer_label == 'default':
+                layer = layer_label
+            else:
+                layer = layer_dict[layer_label]
+
+            rans[layer] = ran
+        segcounts = []
+        layers = []
+        for sec_index, seg_list in viewitems(seg_dict):
+            for seg in seg_list:
+                L = seg.sec.L
+                nseg = seg.sec.nseg
+                if neurotree_dict is not None:
+                    secnodes = secnodes_dict[sec_index]
+                    layer = get_node_attribute('layer', neurotree_dict, seg.sec, secnodes, seg.x)
+                else:
+                    layer = -1
+                layers.append(layer)
+
+                ran = None
+
+                if layer > -1:
+                    if layer in rans:
+                        ran = rans[layer]
+                    elif 'default' in rans:
+                        ran = rans['default']
+                    else:
+                        ran = None
+                elif 'default' in rans:
+                    ran = rans['default']
+                else:
+                    ran = None
+                if ran is not None:
+                    l = (L / nseg)
+                    dens = ran.normal(density_dict['mean'], density_dict['variance'])
+                    rc = dens * l
+                    segcount_total += rc
+                    segcounts.append(rc)
+                else:
+                    segcounts.append(0)
+
+            segcounts_dict[syn_type] = segcounts
+            layers_dict[syn_type] = layers
+    return (segcounts_dict, segcount_total, layers_dict)
 
 
 

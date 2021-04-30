@@ -8,7 +8,7 @@ import ca1
 from ca1 import cells, neuron_utils, synapses, utils
 from ca1.env import Env
 from ca1.neuron_utils import configure_hoc_env
-from ca1.cells import load_cell_template
+from ca1.cells import load_cell_template, make_section_graph
 from ca1.utils import *
 import h5py
 
@@ -211,8 +211,11 @@ def main(config, config_prefix, template_path, output_path, forest_path, populat
             if gid is not None:
                 logger.info('Rank %i gid: %i' % (rank, gid))
                 cell = cells.make_neurotree_cell(template_class, neurotree_dict=morph_dict, gid=gid)
-                cell_sec_dict = {'apical': (cell.apical, None), 'basal': (cell.basal, None), 'soma': (cell.soma, None), 'ais': (cell.ais, None), 'hillock': (cell.hillock, None)}
-                cell_secidx_dict = {'apical': cell.apicalidx, 'basal': cell.basalidx, 'soma': cell.somaidx, 'ais': cell.aisidx, 'hillock': cell.hilidx}
+                cell_sec_dict = {'apical': (cell.apical_list, None), 'basal': (cell.basal_list, None),
+                                 'soma': (cell.soma_list, None), 'ais': (cell.ais_list, None),
+                                     'hillock': (cell.hillock_list, None)}
+                cell_secidx_dict = {'apical': cell.apicalidx, 'basal': cell.basalidx,
+                                    'soma': cell.somaidx, 'ais': cell.aisidx, 'hillock': cell.hilidx}
 
                 random_seed = env.model_config['Random Seeds']['Synapse Locations'] + gid
                 if distribution == 'uniform':
