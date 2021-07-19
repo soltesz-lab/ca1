@@ -18,7 +18,7 @@ from matplotlib.ticker import FormatStrFormatter, MaxNLocator
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import ca1
 from ca1.env import Env
-from ca1.utils import get_module_logger, Struct, viewitems, make_geometric_graph, zip_longest, signal_psd
+from ca1.utils import get_module_logger, Struct, viewitems, make_geometric_graph, zip_longest, signal_psd, signal_power_spectrogram
 from ca1.io_utils import get_h5py_attr, set_h5py_attr
 from ca1 import spikedata
 
@@ -819,5 +819,125 @@ def plot_lfp(input_path, config_path=None, time_range = None, compute_psd=False,
         # show fig
         if fig_options.showFig:
             show_figure()
+
+    return fig
+
+
+def plot_lfp_spectrogram(input_path, config_path = None, time_range = None, window_size=4096, overlap=0.9, frequency_range=(0, 400.), dt=None, **kwargs):
+    '''
+    Line plot of LFP power spectrogram. Returns figure handle.
+
+    config: path to model configuration file
+    input_path: file with LFP trace data
+    time_range ([start:stop]): Time range of spikes shown; if None shows all (default: None)
+    '''
+    fig_options = copy.copy(default_fig_options)
+    fig_options.update(kwargs)
+
+    env = None
+    if config_path is not None:
+        env = Env(config_file=config_path)
+
+    nrows = 1
+    if env is not None:
+        nrows = len(env.LFP_config)
+        
+    ncols = 1
+
+    fig, axes = plt.subplots(nrows=nrows, ncols=ncols, figsize=fig_options.figSize, squeeze=False)
+    if env is None:
+
+        lfp_array = np.loadtxt(input_path, dtype=np.dtype([("t", np.float32),
+                                                           ("v", np.float32)]))
+
+        if time_range is None:
+            t = lfp_array['t']
+            v = lfp_array['v']
+        else:
+            tlst = []
+            vlst = []
+            for (t,v) in zip(lfp_array['t'], lfp_array['v']):
+                if time_range[0] <= t <= time_range[1]:
+                    tlst.append(t)
+                    vlst.append(v)
+            t = np.asarray(tlst)
+            v = np.asarray(vlst)
+
+        if dt is None:
+            raise RuntimeError("plot_lfp_spectrogram: dt must be provided when config_path is None")
+        Fs = int(1000. / dt)
+
+        freqs, t, Sxx = signal_power_spectrogram(v, Fs, window_size, overlap)
+        freqinds = np.where((freqs >= frequency_range[0]) & (freqs <= frequency_range[1]))
+            
+        freqs  = freqs[freqinds]
+        sxx = Sxx[freqinds,:][0]
+
+        iplot = 0
+        axes[iplot, 0].set_ylim(*frequency_range)
+        axes[iplot, 0].set_title('LFP Spectrogram', fontsize=fig_options.fontSize)
+        axes[iplot, 0].pcolormesh(t, freqs, sxx, cmap='jet')
+        axes[iplot, 0].set_xlabel('Time (s)', fontsize=fig_options.fontSize)
+        axes[iplot, 0].set_ylabel('Frequency (Hz)', fontsize=fig_options.fontSize)
+
+        # save figure
+        if fig_options.saveFig:
+            if isinstance(fig_options.saveFig, str):
+                filename = fig_options.saveFig
+        else:
+            filename = namespace_id+'.%s' % fig_options.figFormat
+            plt.savefig(filename)
+                
+        # show fig
+        if fig_options.showFig:
+            show_figure()
+            
+    else:
+        for iplot, (lfp_label, lfp_config_dict) in enumerate(viewitems(env.LFP_config)):
+            namespace_id = "Local Field Potential %s" % str(lfp_label)
+            import h5py
+            infile = h5py.File(input_path)
+
+            logger.info('plot_lfp: reading data for %s...' % namespace_id)
+            if time_range is None:
+                t = infile[namespace_id]['t']
+                v = infile[namespace_id]['v']
+            else:
+                tlst = []
+                vlst = []
+                for (t,v) in zip(infile[namespace_id]['t'], infile[namespace_id]['v']):
+                    if time_range[0] <= t <= time_range[1]:
+                        tlst.append(t)
+                        vlst.append(v)
+                t = np.asarray(tlst)
+                v = np.asarray(vlst)
+
+            dt = lfp_config_dict['dt']
+
+            Fs = int(1000. / dt)
+
+            freqs, t, Sxx = signal_power_spectrogram(v, Fs, window_size, overlap)
+            freqinds = np.where((freqs >= frequency_range[0]) & (freqs <= frequency_range[1]))
+            
+            freqs  = freqs[freqinds]
+            sxx = Sxx[freqinds,:][0]
+            
+            axes[iplot, 0].set_ylim(*frequency_range)
+            axes[iplot, 0].set_title('%s' % (namespace_id), fontsize=fig_options.fontSize)
+            axes[iplot, 0].pcolormesh(t, freqs, sxx, cmap='jet')
+            axes[iplot, 0].set_xlabel('Time (s)', fontsize=fig_options.fontSize)
+            axes[iplot, 0].set_ylabel('Frequency (Hz)', fontsize=fig_options.fontSize)
+
+            # save figure
+            if fig_options.saveFig:
+                if isinstance(fig_options.saveFig, basestring):
+                    filename = fig_options.saveFig
+            else:
+                filename = namespace_id+'.%s' % fig_options.figFormat
+                plt.savefig(filename)
+                
+            # show fig
+            if fig_options.showFig:
+                show_figure()
 
     return fig

@@ -771,42 +771,6 @@ def add_bins(bins1, bins2, datatype):
     return bins1
 
 
-def power_spectrogram(signal, fs, window_size, window_overlap):
-    """
-    Computes the power spectrum of the specified signal.
-    
-    A Hanning window with the specified size and overlap is used.
-    
-    Parameters
-    ----------
-    signal: numpy.ndarray
-        The input signal
-    fs: int
-        Sampling frequency of the input signal
-    window_size: int
-        Size of the Hann windows in samples
-    window_overlap: float
-        Overlap between Hann windows as fraction of window_size
-
-    Returns
-    -------
-    f: numpy.ndarray
-        Array of frequency values for the first axis of the returned spectrogram
-    t: numpy.ndarray
-        Array of time values for the second axis of the returned spectrogram
-    sxx: numpy.ndarray
-        Power spectrogram of the input signal with axes [frequency, time]
-    """
-    from scipy.signal import spectrogram, get_window
-
-    nperseg    = window_size
-    win        = get_window('hanning', nperseg)
-    noverlap   = int(window_overlap * nperseg)
-
-    f, t, sxx = spectrogram(x=signal, fs=fs, window=win, noverlap=noverlap, mode="psd")
-
-    return f, t, sxx
-
 
 def baks(spktimes, time, a=1.5, b=None):
     """
@@ -1197,6 +1161,42 @@ def contiguous_ranges(condition, return_indices=False):
 
     return result
 
+
+def signal_power_spectrogram(signal, fs, window_size, window_overlap):
+    """
+    Computes the power spectrum of the specified signal.
+    
+    A Hanning window with the specified size and overlap is used.
+    
+    Parameters
+    ----------
+    signal: numpy.ndarray
+        The input signal
+    fs: int
+        Sampling frequency of the input signal
+    window_size: int
+        Size of the Hann windows in samples
+    window_overlap: float
+        Overlap between Hann windows as fraction of window_size
+
+    Returns
+    -------
+    f: numpy.ndarray
+        Array of frequency values for the first axis of the returned spectrogram
+    t: numpy.ndarray
+        Array of time values for the second axis of the returned spectrogram
+    sxx: numpy.ndarray
+        Power spectrogram of the input signal with axes [frequency, time]
+    """
+    from scipy.signal import spectrogram, get_window
+
+    nperseg    = window_size
+    win        = get_window('hanning', nperseg)
+    noverlap   = int(window_overlap * nperseg)
+
+    f, t, sxx = spectrogram(x=signal, fs=fs, window=win, noverlap=noverlap, mode="psd")
+
+    return f, t, sxx
 
 def signal_psd (s, Fs, frequency_range=(0,500), window_size=4096, overlap=0.9):
     
