@@ -27,6 +27,11 @@ def update_syn_stats(env, syn_stats_dict, syn_dict):
     syn_type_excitatory = env.Synapse_Types['excitatory']
     syn_type_inhibitory = env.Synapse_Types['inhibitory']
 
+    this_syn_stats_dict = { 'section': defaultdict(lambda: { 'excitatory': 0, 'inhibitory': 0 }), \
+        'layer': defaultdict(lambda: { 'excitatory': 0, 'inhibitory': 0 }), \
+        'swc_type': defaultdict(lambda: { 'excitatory': 0, 'inhibitory': 0 }), \
+        'total': { 'excitatory': 0, 'inhibitory': 0 } }
+
     for (syn_id,syn_sec,syn_type,swc_type,syn_layer) in \
         zip(syn_dict['syn_ids'],
                        syn_dict['syn_secs'],
@@ -46,7 +51,12 @@ def update_syn_stats(env, syn_stats_dict, syn_dict):
         syn_stats_dict['swc_type'][swc_type][syn_type_str] += 1
         syn_stats_dict['total'][syn_type_str] += 1
 
-    return syn_stats_dict
+        this_syn_stats_dict['section'][syn_sec][syn_type_str] += 1
+        this_syn_stats_dict['layer'][syn_layer][syn_type_str] += 1
+        this_syn_stats_dict['swc_type'][swc_type][syn_type_str] += 1
+        this_syn_stats_dict['total'][syn_type_str] += 1
+
+    return this_syn_stats_dict
 
 
 def global_syn_summary(comm, syn_stats, gid_count, root):

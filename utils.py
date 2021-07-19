@@ -1198,7 +1198,7 @@ def contiguous_ranges(condition, return_indices=False):
     return result
 
 
-def compute_psd (s, Fs, window_size=4096, overlap=0.9):
+def signal_psd (s, Fs, frequency_range=(0,500), window_size=4096, overlap=0.9):
     
     nperseg    = window_size
     win        = signal.get_window('hanning', nperseg)

@@ -18,7 +18,7 @@ from matplotlib.ticker import FormatStrFormatter, MaxNLocator
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import ca1
 from ca1.env import Env
-from ca1.utils import get_module_logger, Struct, viewitems, make_geometric_graph, zip_longest, compute_psd
+from ca1.utils import get_module_logger, Struct, viewitems, make_geometric_graph, zip_longest, signal_psd
 from ca1.io_utils import get_h5py_attr, set_h5py_attr
 from ca1 import spikedata
 
@@ -727,19 +727,19 @@ def plot_lfp(input_path, config_path=None, time_range = None, compute_psd=False,
 
         if dt is None:
             raise RuntimeError("plot_lfp: dt must be provided when config_path is None")
-        dt = lfp_config_dict['dt']
         Fs = 1000. / dt
-        
+
         if compute_psd:
-            freqs, psd, peak_index = compute_psd(v, Fs=Fs, window_size=window_size, overlap=overlap)
+            psd, freqs, peak_index = signal_psd(v, frequency_range=frequency_range, Fs=Fs, window_size=window_size, overlap=overlap)
 
         filtered_v = None
         if bandpass_filter:
             filtered_v = apply_filter(v, butter_bandpass(max(bandpass_filter[0], 1.0), bandpass_filter[1], Fs, order=2))
-                
+
+        iplot=0
         ax = plt.subplot(gs[iplot,0])
         ax.set_title('LFP', fontsize=fig_options.fontSize)
-        ax.plot(t, v, label=lfp_label, linewidth=fig_options.lw)
+        ax.plot(t, v, linewidth=fig_options.lw)
         ax.set_xlabel('Time (ms)', fontsize=fig_options.fontSize)
         ax.set_ylabel('Field Potential (mV)', fontsize=fig_options.fontSize)
         
@@ -758,7 +758,7 @@ def plot_lfp(input_path, config_path=None, time_range = None, compute_psd=False,
             if isinstance(fig_options.saveFig, str):
                 filename = fig_options.saveFig
             else:
-                filename = 'CA1 LFP' % fig_options.figFormat
+                filename = f'CA1 LFP.{fig_options.figFormat}'
                 plt.savefig(filename)
                 
         # show fig
@@ -789,7 +789,7 @@ def plot_lfp(input_path, config_path=None, time_range = None, compute_psd=False,
             Fs = 1000. / dt
         
             if compute_psd:
-                freqs, psd, peak_index = compute_psd(v, Fs=Fs, window_size=window_size, overlap=overlap)
+                freqs, psd, peak_index = signal_psd(v, Fs=Fs, frequency_range=frequency_range, window_size=window_size, overlap=overlap)
 
             filtered_v = None
             if bandpass_filter:

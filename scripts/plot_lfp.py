@@ -8,7 +8,7 @@ from ca1 import plot, utils
 script_name = os.path.basename(__file__)
 
 @click.command()
-@click.option("--config-path", '-c', required=True, type=click.Path())
+@click.option("--config-path", '-c', type=click.Path())
 @click.option("--input-path", '-p', required=True, type=click.Path())
 @click.option("--t-max", type=float)
 @click.option("--t-min", type=float)
