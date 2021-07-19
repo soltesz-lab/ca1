@@ -4,7 +4,7 @@ from mpi4py import MPI
 import h5py
 import numpy as np
 from ca1.utils import Struct, range, str, viewitems, basestring, Iterable, compose_iter, get_module_logger, get_trial_time_ranges
-#from neuroh5.io import write_cell_attributes, append_cell_attributes, append_cell_trees, write_graph, read_cell_attribute_selection, read_tree_selection, read_graph_selection, scatter_read_tree_selection, scatter_read_cell_attribute_selection, scatter_read_graph_selection
+from neuroh5.io import read_cell_attributes, write_cell_attributes, append_cell_attributes
 
 
 def set_union(a, b, datatype):
@@ -60,6 +60,124 @@ def h5_concat_dataset(dset, data):
     dset[dsize:] = data
     return dset
 
+
+def import_celltypes(celltype_path, output_path):
+
+    import csv
+
+    population_dict = {}
+    
+    with open(celltype_path, mode='r') as infile:
+        
+        reader = csv.DictReader(infile, delimiter="\t")
+        for row in reader:
+            celltype = row['celltype']
+            type_index = int(row['typeIndex'])
+            range_start = int(row['rangeStart'])
+            range_end = int(row['rangeEnd'])
+            count = range_end - range_start + 1
+            population_dict[celltype] = (type_index, count)
+            
+    populations = []
+    for pop_name, pop_info in viewitems(population_dict):
+        pop_idx = pop_info[0]
+        pop_count = pop_info[1]
+        populations.append((pop_name, pop_idx, pop_count))
+    populations.sort(key=lambda x: x[1])
+    min_pop_idx = populations[0][1]
+            
+    # create an HDF5 enumerated type for the population label
+    mapping = {name: idx for name, idx, count in populations}
+    dt_population_labels = h5py.special_dtype(enum=(np.uint16, mapping))
+
+    with h5py.File(output_path, "x") as h5:
+
+        h5[path_population_labels] = dt_population_labels
+
+        dt_populations = np.dtype([("Start", np.uint64), ("Count", np.uint32),
+                                   ("Population", h5[path_population_labels].dtype)])
+        h5[path_population_range] = dt_populations
+
+        # create an HDF5 compound type for population ranges
+        dt = h5[path_population_range].dtype
+
+        g = h5_get_group(h5, grp_h5types)
+
+        dset = h5_get_dataset(g, grp_populations, maxshape=(len(populations),), dtype=dt)
+        dset.resize((len(populations),))
+        a = np.zeros(len(populations), dtype=dt)
+        start = 0
+        for name, idx, count in populations:
+            a[idx-min_pop_idx]["Start"] = start
+            a[idx-min_pop_idx]["Count"] = count
+            a[idx-min_pop_idx]["Population"] = idx
+            start += count
+        dset[:] = a
+
+    h5.close()
+    return populations
+
+
+def import_spikeraster(celltype_path, spikeraster_path, output_path, output_npy=False, namespace="Spike Data", progress=False, comm=None):
+
+    if progress:
+        import tqdm
+
+    if comm is None:
+        comm = MPI.COMM_WORLD
+        
+    populations = import_celltypes(celltype_path, output_path)
+    n_pop = len(populations)
+    
+    start = 0
+    pop_range_bins = []
+    for name, idx, count in populations[:-1]:
+        pop_range_bins.append(start+count)
+        start = start+count
+
+    logger.info(f"populations: {populations} total: {start} pop_range_bins: {pop_range_bins}")
+
+    logger.info(f"Reading spike data from file {spikeraster_path}...")
+
+    if spikeraster_path.endswith('.npy'):
+        spike_array = np.load(spikeraster_path)
+    else:
+        spike_array = np.loadtxt(spikeraster_path, dtype=np.dtype([("time", np.float32),
+                                                                   ("gid", np.uint32)]))
+
+    if output_npy:
+        np.save(f'{spikeraster_path}.npy', spike_array)
+        
+    logger.info(f"Done reading spike data from file {spikeraster_path}")
+
+    gid_array = spike_array['gid']
+    gid_bins = np.digitize(gid_array, np.asarray(pop_range_bins))
+
+    pop_spk_dict = defaultdict(lambda: defaultdict(list))
+    if progress:
+        it = tqdm.tqdm(enumerate(zip(gid_array, gid_bins)), unit_scale=True)
+    else:
+        it = enumerate(zip(gid_array, gid_bins))
+        
+    for i, (gid, pop_idx) in it:
+
+        pop_name = populations[pop_idx][0]
+        pop_start = populations[pop_idx][0]
+        spk_t = spike_array["time"][i]
+        
+        pop_spk_dict[pop_name][gid].append(spk_t)
+
+    for pop_name, _, _ in populations:
+
+        this_spk_dict = pop_spk_dict[pop_name]
+        logger.info(f"Saving spike data for population {pop_name} gid set {sorted(this_spk_dict.keys())}")
+        output_dict = { gid: { 't': np.asarray(spk_ts, dtype=np.float32) } for gid, spk_ts in viewitems(this_spk_dict) }
+
+        write_cell_attributes(output_path, pop_name, output_dict, namespace=namespace, comm=comm)
+        logger.info(f"Saved spike data for population {pop_name} to file {output_path}")
+    
+    comm.barrier()
+    
 
 def make_h5types(env, output_path, gap_junctions=False):
     populations = []
