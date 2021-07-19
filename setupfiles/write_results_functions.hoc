@@ -23,7 +23,7 @@ of the simulation, including:
 			time, and load balance across processors.
 - TimeOutSerial: print out the time taken for each part of the simulation
 			job, by each processor.
-- highIndexOut: for each of the random number streams used, print
+- MaxHighIndex: for each of the random number streams used, print
 			out the maximum high index used (across all processors
 			and cell types).
 - setupSpikeHistogram: generate a histogram of numbers of spikes
@@ -247,7 +247,7 @@ proc highIndexOut() {local i, ij, gid localobj cell, f
 		}
 	}
 	pc.barrier()					// Wait for all processors to get to this point
-	maxsyn = pc.allreduce(perRankmax, 2)
+	maxsyn = pc.allreduce(perRankmax, 2)	// Get maximum value across all processors
 	
 	// Maximum highIndex for the stimulation RandomStream
 	perRankmax=0
@@ -264,13 +264,30 @@ proc highIndexOut() {local i, ij, gid localobj cell, f
 		}
 	}
 	pc.barrier()					// Wait for all processors to get to this point
-	maxstim = pc.allreduce(perRankmax, 2)
+	maxstim = pc.allreduce(perRankmax, 2)	// Get maximum value across all processors
+	
+	// Maximum highIndex for the initialization RandomStream
+	perRankmax=0
+	
+	// For each cell, check if the last highIndex used
+	//  was greater than the currently known maximum
+	//  highIndex. If so, then update the maximum highIndex.
+	for pcitr(&i, &ij, &gid, 0, ncell-1) {	
+		if (pc.gid_exists(gid)) {
+			cell = pc.gid2cell(gid)
+			if (raninitlist.object(cell.randi).seq()>perRankmax) {
+				perRankmax=raninitlist.object(cell.randi).seq()
+			}	
+		}
+	}
+	pc.barrier()					// Wait for all processors to get to this point
+	maxinit = pc.allreduce(perRankmax, 2)	// Get maximum value across all processors
 	
 	// Write out the maximum highIndices
 	//  used for each RandomStream type.
 	if (pc.id == 0) { 				// Write header to file 1 time only
 		f.wopen()
-		f.printf("connection_highIndex=%f;\nsynapse_highIndex=%f;\nstimulation_highIndex=%f;\n",maxconn,maxsyn,maxstim)
+		f.printf("connection_highIndex=%f;\nsynapse_highIndex=%f;\nstimulation_highIndex=%f;\ninitialization_highIndex=%f;\n",maxconn,maxsyn,maxstim,maxinit)
 		f.close()
 	}
 }
