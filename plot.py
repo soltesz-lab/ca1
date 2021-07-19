@@ -64,10 +64,7 @@ mpl.rcParams['text.usetex'] = False
 
 
 def show_figure():
-    try:
-        plt.show(block=False)
-    except:
-        plt.show()
+    plt.show()
 
 def close_figure(fig):
     plt.close(fig)
