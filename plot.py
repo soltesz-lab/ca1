@@ -18,7 +18,7 @@ from matplotlib.ticker import FormatStrFormatter, MaxNLocator
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import ca1
 from ca1.env import Env
-from ca1.utils import get_module_logger, Struct, viewitems, make_geometric_graph, zip_longest
+from ca1.utils import get_module_logger, Struct, viewitems, make_geometric_graph, zip_longest, compute_psd
 from ca1.io_utils import get_h5py_attr, set_h5py_attr
 from ca1 import spikedata
 
@@ -679,4 +679,148 @@ def plot_spike_raster (input_path, namespace_id, include = ['eachPop'], time_ran
     if fig_options.showFig:
         show_figure()
     
+    return fig
+
+
+def plot_lfp(input_path, config_path=None, time_range = None, compute_psd=False, window_size=4096, frequency_range=(0, 400.), overlap=0.9, bandpass_filter=False, dt=None, **kwargs):
+    '''
+    Line plot of LFP state variable (default: v). Returns figure handle.
+
+    config: path to model configuration file
+    input_path: file with LFP trace data
+    time_range ([start:stop]): Time range of spikes shown; if None shows all (default: None)
+    '''
+    fig_options = copy.copy(default_fig_options)
+    fig_options.update(kwargs)
+
+    env = None
+    if config_path is not None:
+        env = Env(config_file=config_path)
+    
+    nrows = 1
+    if env is not None:
+        nrows = len(env.LFP_config)
+    ncols = 1
+    psd_col = 1
+    if compute_psd:
+        ncols += 1
+
+    gs  = gridspec.GridSpec(nrows, ncols, width_ratios=[3,1] if ncols > 1 else [1])
+    fig = plt.figure(figsize=fig_options.figSize)
+    if env is None:
+
+        lfp_array = np.loadtxt(input_path, dtype=np.dtype([("t", np.float32),
+                                                           ("v", np.float32)]))
+
+        if time_range is None:
+            t = lfp_array['t']
+            v = lfp_array['v']
+        else:
+            tlst = []
+            vlst = []
+            for (t,v) in zip(lfp_array['t'], lfp_array['v']):
+                if time_range[0] <= t <= time_range[1]:
+                    tlst.append(t)
+                    vlst.append(v)
+            t = np.asarray(tlst)
+            v = np.asarray(vlst)
+
+        if dt is None:
+            raise RuntimeError("plot_lfp: dt must be provided when config_path is None")
+        dt = lfp_config_dict['dt']
+        Fs = 1000. / dt
+        
+        if compute_psd:
+            freqs, psd, peak_index = compute_psd(v, Fs=Fs, window_size=window_size, overlap=overlap)
+
+        filtered_v = None
+        if bandpass_filter:
+            filtered_v = apply_filter(v, butter_bandpass(max(bandpass_filter[0], 1.0), bandpass_filter[1], Fs, order=2))
+                
+        ax = plt.subplot(gs[iplot,0])
+        ax.set_title('LFP', fontsize=fig_options.fontSize)
+        ax.plot(t, v, label=lfp_label, linewidth=fig_options.lw)
+        ax.set_xlabel('Time (ms)', fontsize=fig_options.fontSize)
+        ax.set_ylabel('Field Potential (mV)', fontsize=fig_options.fontSize)
+        
+        if bandpass_filter:
+            if filtered_v is not None:
+                ax.plot(t, filtered_v, label='%s (filtered)' % lfp_label,
+                        color='red', linewidth=fig_options.lw)
+        if compute_psd:
+            ax = plt.subplot(gs[iplot,psd_col])
+            ax.plot(freqs, psd, linewidth=fig_options.lw)
+            ax.set_xlabel('Frequency (Hz)', fontsize=fig_options.fontSize)
+            ax.set_ylabel('Power Spectral Density (dB/Hz)', fontsize=fig_options.fontSize)
+            ax.set_title('PSD (peak: %.3g Hz)' % (freqs[peak_index]), fontsize=fig_options.fontSize)
+            
+        if fig_options.saveFig:
+            if isinstance(fig_options.saveFig, str):
+                filename = fig_options.saveFig
+            else:
+                filename = 'CA1 LFP' % fig_options.figFormat
+                plt.savefig(filename)
+                
+        # show fig
+        if fig_options.showFig:
+            show_figure()
+
+    else:
+        for iplot, (lfp_label, lfp_config_dict) in enumerate(viewitems(env.LFP_config)):
+            namespace_id = "Local Field Potential %s" % str(lfp_label)
+            import h5py
+            infile = h5py.File(input_path)
+
+            logger.info('plot_lfp: reading data for %s...' % namespace_id)
+            if time_range is None:
+                t = infile[namespace_id]['t']
+                v = infile[namespace_id]['v']
+            else:
+                tlst = []
+                vlst = []
+                for (t,v) in zip(infile[namespace_id]['t'], infile[namespace_id]['v']):
+                    if time_range[0] <= t <= time_range[1]:
+                        tlst.append(t)
+                        vlst.append(v)
+                t = np.asarray(tlst)
+                v = np.asarray(vlst)
+
+            dt = lfp_config_dict['dt']
+            Fs = 1000. / dt
+        
+            if compute_psd:
+                freqs, psd, peak_index = compute_psd(v, Fs=Fs, window_size=window_size, overlap=overlap)
+
+            filtered_v = None
+            if bandpass_filter:
+                filtered_v = apply_filter(v, butter_bandpass(max(bandpass_filter[0], 1.0), bandpass_filter[1], Fs, order=2))
+                
+            ax = plt.subplot(gs[iplot,0])
+            ax.set_title('%s' % (namespace_id), fontsize=fig_options.fontSize)
+            ax.plot(t, v, label=lfp_label, linewidth=fig_options.lw)
+            ax.set_xlabel('Time (ms)', fontsize=fig_options.fontSize)
+            ax.set_ylabel('Field Potential (mV)', fontsize=fig_options.fontSize)
+            if bandpass_filter:
+                if filtered_v is not None:
+                    ax.plot(t, filtered_v, label='%s (filtered)' % lfp_label,
+                            color='red', linewidth=fig_options.lw)
+            if compute_psd:
+                ax = plt.subplot(gs[iplot,psd_col])
+                ax.plot(freqs, psd, linewidth=fig_options.lw)
+                ax.set_xlabel('Frequency (Hz)', fontsize=fig_options.fontSize)
+                ax.set_ylabel('Power Spectral Density (dB/Hz)', fontsize=fig_options.fontSize)
+                ax.set_title('PSD (peak: %.3g Hz)' % (freqs[peak_index]), fontsize=fig_options.fontSize)
+
+        # save figure
+        if fig_options.saveFig:
+            if isinstance(fig_options.saveFig, str):
+                filename = fig_options.saveFig
+            else:
+                filename = namespace_id+'.%s' % fig_options.figFormat
+                plt.savefig(filename)
+                
+        # show fig
+        if fig_options.showFig:
+            show_figure()
+
     return fig

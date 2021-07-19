@@ -1197,3 +1197,23 @@ def contiguous_ranges(condition, return_indices=False):
 
     return result
 
+
+def compute_psd (s, Fs, window_size=4096, overlap=0.9):
+    
+    nperseg    = window_size
+    win        = signal.get_window('hanning', nperseg)
+    noverlap   = int(overlap * nperseg)
+
+    freqs, psd = signal.welch(s, fs=Fs, scaling='density', nperseg=nperseg, noverlap=noverlap,
+                              window=win, return_onesided=True)
+
+    freqinds = np.where((freqs >= frequency_range[0]) & (freqs <= frequency_range[1]))
+
+    freqs = freqs[freqinds]
+    psd = psd[freqinds]
+    if np.all(psd):
+        psd = 10. * np.log10(psd)
+
+    peak_index = np.where(psd == np.max(psd))[0]
+
+    return psd, freqs, peak_index
