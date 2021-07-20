@@ -12,8 +12,12 @@ begintemplate ppspont
 	}
 		proc actemp() {
 				pp = new MyNetStim(.5)
+				if (DegreeStim  > 0) {
 				pp.interval = 1000/DegreeStim // 100 for Rob and Jonas
 				pp.number = 1e9
+				} else {
+				pp.number = 0
+				}				       
 				pp.noise = 1				
 				pp.start = 0
 				pp.gid = $1
