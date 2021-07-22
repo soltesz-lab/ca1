@@ -18,7 +18,7 @@ from matplotlib.ticker import FormatStrFormatter, MaxNLocator
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import ca1
 from ca1.env import Env
-from ca1.utils import get_module_logger, Struct, viewitems, make_geometric_graph, zip_longest, signal_psd, signal_power_spectrogram
+from ca1.utils import get_module_logger, Struct, viewitems, make_geometric_graph, zip_longest, apply_filter, butter_bandpass_filter, signal_psd, signal_power_spectrogram
 from ca1.io_utils import get_h5py_attr, set_h5py_attr
 from ca1 import spikedata
 
@@ -731,7 +731,7 @@ def plot_lfp(input_path, config_path=None, time_range = None, compute_psd=False,
 
         filtered_v = None
         if bandpass_filter:
-            filtered_v = apply_filter(v, butter_bandpass(max(bandpass_filter[0], 1.0), bandpass_filter[1], Fs, order=2))
+            filtered_v = apply_filter(v, butter_bandpass_filter(max(bandpass_filter[0], 1.0), bandpass_filter[1], Fs, order=2))
 
         iplot=0
         ax = plt.subplot(gs[iplot,0])
@@ -742,7 +742,7 @@ def plot_lfp(input_path, config_path=None, time_range = None, compute_psd=False,
         
         if bandpass_filter:
             if filtered_v is not None:
-                ax.plot(t, filtered_v, label='%s (filtered)' % lfp_label,
+                ax.plot(t, filtered_v, label='Filtered LFP',
                         color='red', linewidth=fig_options.lw)
         if compute_psd:
             ax = plt.subplot(gs[iplot,psd_col])
