@@ -22,12 +22,21 @@ def mpi_excepthook(type, value, traceback):
 sys.excepthook = mpi_excepthook
 
 
-def export_swc_dict(cell, sections=[("soma_list",1),("apical_list",4),("basal_list",3),("axon_list",7)]):
+def export_swc_dict(cell, ref_axis=1, sections=[("soma_list",1),("apical_list",4),("basal_list",3),("axon_list",7)]):
     
     swc_point_idx = 0
     swc_points = []
     swc_point_sec_dict = defaultdict(list)
     sec_dict = {}
+
+    origin = getattr(cell, 'soma')[0]
+    if ref_axis == 0:
+        origin_ref = origin.x3d(0)
+    elif ref_axis == 1:
+        origin_ref = origin.y3d(0)
+    else:
+        origin_ref = origin.z3d(0)
+    
     for section, sectype in sections:
         if hasattr(cell, section):
             seclist = list(getattr(cell, section))
@@ -51,7 +60,9 @@ def export_swc_dict(cell, sections=[("soma_list",1),("apical_list",4),("basal_li
                     sec.pt3dinsert(1, mx, my, mz, dd)
                     n3d = sec.n3d()
                 L = sec.L
+                n3d = sec.n3d()
                 for i in range(n3d):
+
                     x = sec.x3d(i)
                     y = sec.y3d(i)
                     z = sec.z3d(i)
@@ -59,8 +70,13 @@ def export_swc_dict(cell, sections=[("soma_list",1),("apical_list",4),("basal_li
                     ll = sec.arc3d(i)
                     rad = d / 2.
                     loc = ll / L
+                    distance = h.distance(origin(0.5), sec(loc))
+                    coord = [x, y, z]
+                    if origin_ref > coord[ref_axis]:
+                        distance = -distance
                     first = True if i == 0 else False
-                    swc_point = (swc_point_idx, sectype, x, y, z, rad, loc, sec, first)
+                    layer = int(cell.get_layer(distance))
+                    swc_point = (swc_point_idx, sectype, x, y, z, rad, loc, sec, first, layer)
                     swc_points.append(swc_point)
                     swc_point_sec_dict[sec.name()].append(swc_point)
                     swc_point_idx += 1
@@ -83,7 +99,7 @@ def export_swc_dict(cell, sections=[("soma_list",1),("apical_list",4),("basal_li
     sec_graph.add_nodes_from(range(len(sec_name_dict)))
     
     for swc_point in swc_points:
-        (swc_point_idx, sectype, x, y, z, rad, loc, sec, first) = swc_point
+        (swc_point_idx, sectype, x, y, z, rad, loc, sec, first, layer) = swc_point
         parent_idx = -1
         if not first:
             parent_idx = swc_point_idx-1
@@ -97,7 +113,7 @@ def export_swc_dict(cell, sections=[("soma_list",1),("apical_list",4),("basal_li
                 this_sec_idx = sec_idx_dict[sec.name()]
                 sec_graph.add_edge(parent_sec_idx, this_sec_idx)
                 for parent_point in parent_points:
-                    (parent_point_idx, _, _, _, _, _, parent_point_loc, _, _) = parent_point
+                    (parent_point_idx, _, _, _, _, _, parent_point_loc, _, _, _) = parent_point
                     if parent_point_loc >= parent_x:
                         parent_idx = parent_point_idx
                         break
@@ -106,7 +122,7 @@ def export_swc_dict(cell, sections=[("soma_list",1),("apical_list",4),("basal_li
         pt_zs.append(z)
         pt_radius.append(rad)
         pt_parents.append(parent_idx)
-        pt_layers.append(0)
+        pt_layers.append(layer)
         pt_swc_types.append(sectype)
         
     sec_src = []
@@ -122,7 +138,7 @@ def export_swc_dict(cell, sections=[("soma_list",1),("apical_list",4),("basal_li
         sec_name = sec_name_dict[sec_idx]
         sec_pts = swc_point_sec_dict[sec_name]
         pt_sections.append(len(sec_pts))
-        for (swc_point_idx, sectype, x, y, z, rad, loc, sec, first) in sec_pts:
+        for (swc_point_idx, sectype, x, y, z, rad, loc, sec, first, layer) in sec_pts:
             pt_sections.append(swc_point_idx)
 
         
