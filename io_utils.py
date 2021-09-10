@@ -12,7 +12,7 @@ def set_union(a, b, datatype):
 
 mpi_op_set_union = MPI.Op.Create(set_union, commute=True)
 
-# This logger will inherit its settings from the root logger, created in dentate.env
+# This logger will inherit its settings from the root logger, created in env
 logger = get_module_logger(__name__)
 
 
@@ -512,7 +512,7 @@ def write_cell_selection(env, write_selection_file_path, populations=None, write
     """
     Writes out the data necessary to instantiate the selected cells.
 
-    :param env: an instance of the `dentate.Env` class
+    :param env: an instance of the `Env` class
     """
 
     if 'comm' not in write_kwds:
@@ -582,7 +582,7 @@ def write_connection_selection(env, write_selection_file_path, populations=None,
     Loads NeuroH5 connectivity file, and writes the corresponding
     synapse and network connection mechanisms for the selected postsynaptic cells.
 
-    :param env: an instance of the `dentate.Env` class
+    :param env: an instance of the `Env` class
     """
     
     if 'comm' not in write_kwds:
@@ -716,7 +716,7 @@ def write_input_cell_selection(env, input_sources, write_selection_file_path, po
     """
     Writes out predefined spike trains when only a subset of the network is instantiated.
 
-    :param env: an instance of the `dentate.Env` class
+    :param env: an instance of the `Env` class
     :param input_sources: a dictionary of the form { pop_name, gid_sources }
     """
 

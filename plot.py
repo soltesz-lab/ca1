@@ -25,7 +25,7 @@ from ca1 import spikedata
 try:
     from neural_geometry.geometry import measure_distance_extents, get_total_extents
 except ImportError as e:
-    print(('neural_geometry.plot: problem importing module required by dentate.geometry:', e))
+    print(('neural_geometry.plot: problem importing module required by neural_geometry.geometry:', e))
 
 # This logger will inherit its settings from the root logger, created in ca1.env
 logger = get_module_logger(__name__)
