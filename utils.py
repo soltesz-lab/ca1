@@ -2,7 +2,6 @@ from __future__ import absolute_import, division
 import copy, datetime, gc, itertools, logging, math, numbers, os.path, importlib
 import pprint, string, sys, time, click
 from builtins import input, map, next, object, range, str, zip
-from past.builtins import basestring
 from collections import MutableMapping, Iterable, defaultdict, namedtuple
 import numpy as np
 import scipy
@@ -343,7 +342,7 @@ def nested_convert_scalars(data):
     if isinstance(data, dict):
         for key in data:
             data[key] = nested_convert_scalars(data[key])
-    elif isinstance(data, Iterable) and not isinstance(data, (basestring, tuple)):
+    elif isinstance(data, Iterable) and not isinstance(data, (str, tuple)):
         data = list(data)
         for i in range(len(data)):
             data[i] = nested_convert_scalars(data[i])

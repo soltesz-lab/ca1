@@ -240,7 +240,7 @@ def plot_coordinates(coords_path, population, namespace, index = 0, graph_type =
     ax.set_title('Coordinate distribution for population: %s' % (population), fontsize=fig_options.fontSize)
     
     if fig_options.saveFig:
-        if isinstance(fig_options.saveFig, basestring):
+        if isinstance(fig_options.saveFig, str):
             filename = fig_options.saveFig
         else:
             filename = population+' Coordinates.%s' % fig_options.figFormat
@@ -930,7 +930,7 @@ def plot_lfp_spectrogram(input_path, config_path = None, time_range = None, wind
 
             # save figure
             if fig_options.saveFig:
-                if isinstance(fig_options.saveFig, basestring):
+                if isinstance(fig_options.saveFig, str):
                     filename = fig_options.saveFig
             else:
                 filename = namespace_id+'.%s' % fig_options.figFormat
