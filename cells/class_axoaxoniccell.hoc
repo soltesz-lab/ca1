@@ -14,7 +14,7 @@ strdef myroot
 objref syn, pre_list, templist, rootlist, myrootsec, this
 
 // external variables
-external numCellTypes, cellType
+//external numCellTypes, cellType
 
 // create the sections[segments]
 NumSoma=1
@@ -22,6 +22,20 @@ NumApical=16
 NumBasal=0
 NumAxon=0
 create soma[NumSoma], dend[NumApical]
+
+func get_layer() {
+    
+    d = $1
+    if (d > 300) {
+        return 9 // SLM
+    } else if (d > 150) {
+        return 8 
+    } else if (d < 0) {
+        return 5 
+    } else {
+        return 6
+    }
+}
 
 proc init() {
 	gid = $1
@@ -42,7 +56,7 @@ proc init() {
 
 	// synapses
 	pre_list = new List() // define a list for the presynaptic connections	
-	define_synapses($3)	// local fcn: define all possible synaptic connections received by this cell
+	//define_synapses($3)	// local fcn: define all possible synaptic connections received by this cell
 }
 
 
@@ -327,7 +341,7 @@ proc get_root() {local i localobj sref
 		print "WARNING: cell ", gid, " has ", i, " root sections!"
 	}
 }
-strdef myStr
+/*strdef myStr
 
 objref newSecRef, syn
 proc define_synapses() {
@@ -372,5 +386,5 @@ proc define_synapses() {
 		pre_list.append(templist)
 		findme = 1
 	}
-}
+}*/
 endtemplate axoaxoniccell
