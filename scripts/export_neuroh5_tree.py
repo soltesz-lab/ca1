@@ -7,6 +7,7 @@ from mpi4py import MPI
 import ca1
 import ca1.io_utils as io_utils
 import ca1.utils as utils
+import ca1.neuron_utils as neuron_utils
 from ca1.env import Env
 from neuron import h, gui
 from collections import defaultdict
@@ -43,23 +44,13 @@ def export_swc_dict(cell, ref_axis=1, sections=[("soma_list",1),("apical_list",4
             for sec in seclist:
                 if hasattr(sec, 'sec'):
                     sec = sec.sec
-                n3d = sec.n3d()
-                if n3d == 2:
-                    x1 = sec.x3d(0)
-                    y1 = sec.y3d(0)
-                    z1 = sec.z3d(0)
-                    d1 = sec.diam3d(0)
-                    x2 = sec.x3d(1)
-                    y2 = sec.y3d(1)
-                    z2 = sec.z3d(1)
-                    d2 = sec.diam3d(1)
-                    mx = (x2 + x1) / 2.
-                    my = (y2 + y1) / 2.
-                    mz = (z2 + z1) / 2.
-                    dd = d1 - (d1 - d2)/2.
-                    sec.pt3dinsert(1, mx, my, mz, dd)
-                    n3d = sec.n3d()
                 L = sec.L
+                npts_interp = int(round(L))
+                xyz_interp = neuron_utils.interplocs(sec, np.linspace(0, 1, npts_interp))
+                sec.pt3dclear()
+                h.pt3dadd(h.Vector(xyz_interp[:,0]), h.Vector(xyz_interp[:,1]),
+                          h.Vector(xyz_interp[:,2]), h.Vector(xyz_interp[:,3]),
+                          sec=sec)
                 n3d = sec.n3d()
                 for i in range(n3d):
 

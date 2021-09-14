@@ -110,3 +110,42 @@ def configure_hoc_env(env, bcast_template=False):
     ## sparse parallel transfer
     if hasattr(h, 'nrn_sparse_partrans'):
         h.nrn_sparse_partrans = 1
+
+
+        
+
+def interplocs(sec, locs):
+    """Computes xyz coords of locations in a section whose topology & geometry are defined by pt3d data.
+    Based on code by Ted Carnevale.
+    """
+    nn = sec.n3d()
+
+    xx = h.Vector(nn)
+    yy = h.Vector(nn)
+    zz = h.Vector(nn)
+    dd = h.Vector(nn)
+    ll = h.Vector(nn)
+    
+    for ii in range(0, nn):
+        xx.x[ii] = sec.x3d(ii)
+        yy.x[ii] = sec.y3d(ii)
+        zz.x[ii] = sec.z3d(ii)
+        dd.x[ii] = sec.diam
+        ll.x[ii] = sec.arc3d(ii)
+        
+    ## normalize length
+    ll.div(ll.x[nn - 1])
+
+    xx = xx.to_python()
+    yy = yy.to_python()
+    zz = zz.to_python()
+    dd = dd.to_python()
+    ll = ll.to_python()
+
+    pch_x = interpolate.pchip(ll, xx)
+    pch_y = interpolate.pchip(ll, yy)
+    pch_z = interpolate.pchip(ll, zz)
+    pch_diam = interpolate.pchip(ll, dd)
+
+    res = np.asarray([(pch_x(loc), pch_y(loc), pch_z(loc), pch_diam(loc)) for loc in locs], dtype=np.float32)
+    return res
