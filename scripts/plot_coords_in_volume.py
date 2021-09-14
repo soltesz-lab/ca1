@@ -22,9 +22,9 @@ def list_find (f, lst):
 @click.option("--subpopulation", required=False, default=-1, type=int)
 @click.option("--scale", type=float, default=25.0)
 @click.option("--subvol", type=bool, default=False, is_flag=True)
-@click.option("--verbose", "-v", type=bool, default=False, is_flag=True)
 @click.option("--mayavi", "-m", type=bool, default=False, is_flag=True)
-def main(config, coords_path, coords_namespace, populations, subpopulation, scale, subvol, verbose, mayavi):
+@click.option("--verbose", "-v", type=bool, default=False, is_flag=True)
+def main(config, coords_path, coords_namespace, populations, subpopulation, scale, subvol, mayavi, verbose):
 
     utils.config_logging(verbose)
     plot.plot_coords_in_volume (populations, coords_path, coords_namespace, config, \

@@ -372,12 +372,12 @@ def plot_coords_in_volume(populations, coords_path, coords_namespace, config, sc
 
 
         
-def plot_cell_tree(population, gid, tree_dict, line_width=1., sample=0.05, color_edge_scalars=True, mst=False, conn_loc=True):
+def plot_cell_tree(population, gid, tree_dict, line_width=1., sample=0.05, color_edge_scalars=True, mst=False, conn_loc=True, mayavi=False, **kwargs):
     
     import networkx as nx
-    from mayavi import mlab
-    
-    mlab.figure(bgcolor=(0,0,0))
+
+    fig_options = copy.copy(default_fig_options)
+    fig_options.update(kwargs)
 
     xcoords = tree_dict['x']
     ycoords = tree_dict['y']
@@ -437,22 +437,60 @@ def plot_cell_tree(population, gid, tree_dict, line_width=1., sample=0.05, color
     else:
         edge_scalars = None
         edge_color = hex2rgb(rainbow_colors[gid%len(rainbow_colors)])
-        
-    fig = mlab.gcf()
-    
-    # Plot this with Mayavi
-    g = plot_graph(x, y, z, start_idx, end_idx, edge_scalars=edge_scalars, edge_color=edge_color, \
-                   opacity=0.8, colormap='summer', line_width=line_width, figure=fig)
 
-    if conn_loc:
-       conn_pts = mlab.points3d(conn_loc_x, conn_loc_y, conn_loc_z, figure=fig,
-                                mode='2dcross', colormap='copper', scale_factor=10)
+    if mayavi:
+        
+        from mayavi import mlab
+        mlab.figure(bgcolor=(0,0,0))
+        fig = mlab.gcf()
+        
+        # Plot this with Mayavi
+        g = plot_graph(x, y, z, start_idx, end_idx, edge_scalars=edge_scalars, edge_color=edge_color, \
+                       opacity=0.8, colormap='summer', line_width=line_width, figure=fig)
+        
+        if conn_loc:
+            conn_pts = mlab.points3d(conn_loc_x, conn_loc_y, conn_loc_z, figure=fig,
+                                     mode='2dcross', colormap='copper', scale_factor=10)
+            
+            
+        fig.scene.x_plus_view()
+        if fig_options.saveFig:
+            mlab.savefig(f'{population}_{gid}_cell_tree.x3d', figure=fig, magnification=10)
+        if fig_options.showFig:
+            mlab.show()
+        
+    else:
+        from mpl_toolkits.mplot3d import Axes3D
+
+        fig = plt.figure(figsize=fig_options.figSize)
+        ax = Axes3D(fig)
+
+        ax.scatter(x, y, z, edgecolors='k', alpha=0.7)# colormap=fig_options.colormap)
+        for i,j in g.edges:
+
+            e_x = (x[i], x[j])
+            e_y = (y[i], y[j])
+            e_z = (z[i], z[j])
+
+            ax.plot(e_x, e_y, e_z, c='black', alpha=0.5)
+            ax.view_init(30)
+            ax.set_axis_off
+    
+        if fig_options.saveFig:
+            if isinstance(fig_options.saveFig, str):
+                filename = fig_options.saveFig
+            else:
+                filename = f'{population}_{gid}_cell_tree.{fig_options.figFormat}'
+            plt.savefig(filename)
+                
+        if fig_options.showFig:
+            show_figure()
+    
+    return fig
+        
+
 
     
-    fig.scene.x_plus_view()
-    mlab.savefig('%s_%d_cell_tree.x3d' % (population, gid), figure=fig, magnification=10)
-    mlab.show()
-        
 
     
 ## Plot spike raster

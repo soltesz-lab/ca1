@@ -22,8 +22,9 @@ def list_find (f, lst):
 @click.option("--conn-loc/--no-conn-loc", default=True)
 @click.option("--line-width", type=float, default=1.0)
 @click.option("--color-edge-scalars/--no-color-edge-scalars", default=True)
+@click.option("--mayavi", "-m", type=bool, default=False, is_flag=True)
 @click.option("--verbose", "-v", type=bool, default=False, is_flag=True)
-def main(forest_path, population, gid, conn_loc, line_width, color_edge_scalars, verbose):
+def main(forest_path, population, gid, conn_loc, line_width, color_edge_scalars, mayavi, verbose):
 
     (tree_iter, _) = read_tree_selection(forest_path, population, selection=[gid])
     (gid,tree_dict) = next(tree_iter)
@@ -31,7 +32,7 @@ def main(forest_path, population, gid, conn_loc, line_width, color_edge_scalars,
     plot.plot_cell_tree (population, gid, tree_dict, \
                          line_width=line_width,  \
                          color_edge_scalars=color_edge_scalars,
-                         conn_loc=conn_loc)
+                         conn_loc=conn_loc, mayavi=mayavi)
 
 if __name__ == '__main__':
     main(args=sys.argv[(list_find(lambda s: s.find(script_name) != -1,sys.argv)+1):])
