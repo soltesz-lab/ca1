@@ -1,0 +1,348 @@
+begintemplate OLMCell
+public init
+public mechinit, insert_mechs, set_biophys, get_root
+public pre_list, connect_pre, is_art, is_connected, gid
+public sections, all, basal_list, apical_list, soma_list, axon_list, dendrite_list, ais_list, hillock_list
+public x, y, z, position
+public dendidx, apicalidx, basalidx, somaidx, axonidx, aisidx, hilidx
+public syns, layers, ndendpts
+
+
+// strings
+strdef myroot
+
+// objects
+objref syn, pre_list, templist, rootlist, this
+objref dendidx, apicalidx, basalidx, somaidx, axonidx, aisidx, hilidx
+objref syns, layers, ndendpts
+
+create sections[1]
+
+proc assert() { local test strdef errmsg
+    
+    test = $1
+    errmsg = $s2
+    
+    if (!test) {
+        execerror ("Assertion failed: ", errmsg)
+    }
+}
+
+
+proc init() {
+	gid = $1
+        
+        apicalidx = new Vector()
+        basalidx = new Vector()
+        somaidx = new Vector()
+        dendidx = new Vector()
+        axonidx = new Vector()
+        aisidx = new Vector()
+        hilidx = new Vector()
+        layers = new List()
+        syns = new List()
+        
+        shape_from_python($o3,$o8,$o9,$o10,$o11)
+        topol_from_python($o3,$o5,$o6,$o7,$o12)
+        layers_from_python($o3,$o4)
+        
+	define_shape()		// builtin fcn: fill in 3d info for sections defined by only L and diam, translate 3d points for consistency with their connections 
+            
+  	append_sections()	// local fcn: append all sections to the section list
+	set_nseg()			// local fcn: set the number of segments in each section
+	get_root()			// local fcn: perform morphology checks
+
+	// electrophysiology
+	mechinit()			// local fcn: set values for max conductances and reversal potentials of ion channels and other ephys parameters that are subject to fitting
+	insert_mechs()		// local fcn: insert ion channels and actually set values determined in the mechinit fcn
+	set_chanparams()	// local fcn: after all channels have been inserted, then their other parameters can be set	
+}
+
+objref all, basal_list, apical_list, dendrite_list, soma_list, axon_list, ais_list, hillock_list
+proc append_sections() { local i
+	objref all, basal_list, apical_list, dendrite_list, soma_list, axon_list
+
+	all = new SectionList()
+	basal_list = new SectionList()
+	apical_list = new SectionList()
+	soma_list = new SectionList()
+	axon_list = new SectionList()
+	ais_list = new SectionList()
+	hillock_list = new SectionList()
+	dendrite_list = new SectionList()
+
+	sections[somaidx.x[0]] all.append()
+	sections[somaidx.x[0]] soma_list.append()
+        for i=0, dendidx.size()-1 {
+		sections[dendidx.x[i]] all.append()
+		sections[dendidx.x[i]] dendrite_list.append()
+	}
+
+	for i=0, apicalidx.size()-1 {
+		sections[apicalidx.x[i]] apical_list.append()
+	}
+
+	for i=0, basalidx.size()-1 {
+		sections[basalidx.x[i]] basal_list.append()
+	}
+
+	for i=0, axonidx.size()-1 {
+		sections[axonidx.x[i]] axon_list.append()
+	}
+}
+
+
+external lambda_f
+proc set_nseg() {
+  	forsec all { nseg = int((L/(0.1*lambda_f(100))+.9)/2)*2 + 1  }
+}
+
+
+
+proc mechinit() {	
+	// Temperature of simulation
+	celsius = 34.0  
+
+	Vrest = -67
+	
+	Rm = 20000*5
+	
+	gH = 0.0005
+	
+	gKvAsoma = 0.0165*.3*1.5
+	gKvAdend = 0.004*.7*1.5
+	
+	// *2.3 gives 2x frequency & no depol. block
+	gKvEaxon =  0.05104*2.3
+	gKvEsoma =  0.0319*2.3
+	gKvEdend =  2*0.023*2.3
+	
+	gNasoma = 0.0107
+	gNadend = 2*0.0117
+	gNaaxon = 0.01712
+	
+	eleak = -67	
+}
+
+proc insert_mechs() {
+  	forsec soma_list {
+		insert ch_KvAolm
+    		gmax_ch_KvAolm = gKvAsoma
+		insert ch_HCNolm
+			gmax_ch_HCNolm = gH 
+		insert ch_Kdrfast  // ch_Kvsoma
+			gmax_ch_Kdrfast = gKvEsoma 
+		insert ch_Nav // ch_Navsoma
+			gmax_ch_Nav = gNasoma
+		insert ch_leak
+			gmax_ch_leak = 1/Rm
+			e_ch_leak = eleak  	
+	}
+
+  	forsec basal_list {
+		insert ch_KvAolm
+    		gmax_ch_KvAolm = gKvAdend
+		insert ch_Kdrfast // ch_Kvdend
+			gmax_ch_Kdrfast = gKvEdend
+		insert ch_Nav // ch_Navdend
+			gmax_ch_Nav = gNadend
+		insert ch_leak
+			gmax_ch_leak = 1/Rm
+			e_ch_leak = eleak  	
+  	}
+  
+  	forsec axon_list {
+		insert ch_Kdrfast // ch_Kvsoma //ch_Kvaxon
+			gmax_ch_Kdrfast = gKvEaxon
+		insert ch_Nav // ch_Navsoma //ch_Navaxon
+			gmax_ch_Nav = gNaaxon
+		insert ch_leak
+			gmax_ch_leak = 1/Rm
+			e_ch_leak = eleak  	
+  	}
+}
+
+proc set_chanparams() {
+	forsec all {
+		Ra = 150	// Ra = Axial resistivity in ohm-cm. Ra is a
+					//  section variable that must be set for each
+					//  section. Default is 35.4.
+
+		cm = 1.3	// capacitance in uF/cm^2. default = 1.0
+		//ena = 55
+		//ek = -90
+	}  // make catau slower70e-3 	cao=2 cai=50.e-6 
+}
+
+	proc connect_pre() {  // $o1 target point process, $o2 returned NetCon
+	soma $o2 = new NetCon (&v(1), $o1)
+			$o2.threshold = -10
+
+	}
+
+	func is_art()  { return 0 }
+
+proc position(){ local i
+	forall {
+		for i = 0, n3d()-1 {
+			pt3dchange(i, $1-x+x3d(i), $2-y+y3d(i), $3-z+z3d(i), diam3d(i))
+		}
+	}
+	x = $1  y = $2  z = $3	
+}
+
+proc get_root() {local i localobj sref
+	rootlist = new SectionList()
+	rootlist.allroots()
+	i=0
+	forsec all {
+		sref = new SectionRef()
+		if (sref.has_parent==0) {
+			myroot = secname()
+			i=i+1
+		}
+		for(x,0) {
+			if (diam(x) <=0.01) print "WARNING: tiny diameter of ",  diam(x), " um at ", secname(), ", point ", x, "!"
+			if (diam3d(x) <=0.01) print "WARNING: tiny 3d diameter of ", diam3d(x), " um at ", secname(), ", point ", x, "!"
+		}
+		if (L <=0.001) print "WARNING: tiny length of ", L, " um at ", secname(), "!"
+	}
+	if (i>1) {
+		print "WARNING: cell ", gid, " has ", i, " root sections!"
+	    }
+        }
+        
+
+proc topol_from_python() { local i,j,p,s,dimsize localobj vidxs, vsrc, vdst, vloc, secnodes, swc_types, smembers
+    
+    secnodes = $o1
+    vsrc     = new Vector($o2)
+    vdst     = new Vector($o3)
+    vloc     = new Vector($o4)
+    swc_types = new Vector($o5)
+    smembers = new Vector()
+    ndendpts = new Vector()
+    ndendpts.resize(secnodes.__len__())
+    
+    nDends = 0
+    nSoma  = 0
+    nAxon  = 0
+    nAIS   = 0
+    nHill  = 0
+
+    for s=0, secnodes.__len__()-1 {
+        vidxs = new Vector(secnodes.__getitem__(s))
+        ndendpts.x[s] = vidxs.size()
+        l = vidxs.x[vidxs.size()-1]
+        swc_type = swc_types.x[l]
+        if (swc_type == 3) {
+            nDends = nDends + 1
+            basalidx.append(s)
+            dendidx.append(s)
+        }
+        if (swc_type == 4) {
+            nDends = nDends + 1
+            apicalidx.append(s)
+            dendidx.append(s)
+        }
+        if (swc_type == 8) {
+            hilidx.append(s)
+            nHill = nHill + 1
+            nAxon = nAxon + 1
+        }
+        if (swc_type == 7) {
+            aisidx.append(s)
+            nAIS = nAIS + 1
+            nAxon = nAxon + 1
+        }
+        if (swc_type == 2) {
+            axonidx.append(s)
+            nAxon = nAxon + 1
+        }
+        if (swc_type == 1) {
+            somaidx.append(s)
+            nSoma = nSoma + 1
+        }
+
+    }
+    
+    
+    for p = 0, vsrc.size-1 {
+        i = vsrc.x[p]
+        j = vdst.x[p]
+        l = vloc.x[p]
+        assert (i >= 0,  "compartment index in topology matrix is less than zero")
+        assert (j >= 0,  "compartment index in topology matrix is less than zero")
+        assert (i < nDends+nSoma+nAxon+1,  "compartment index in topology matrix is greater than the number of compartments")
+        assert (j < nDends+nSoma+nAxon+1,  "compartment index in topology matrix is greater than the number of compartments")
+        sections[i] loc = arc3d(l) / L
+        connect sections[j](0),sections[i](loc)
+        
+    }
+    
+    vloc.resize(0)
+    vsrc.resize(0)
+    vdst.resize(0)
+    smembers.resize(0)
+    swc_types.resize(0)
+}
+
+
+
+proc shape_from_python() { local i,j,k,s localobj secnodes, vx, vy, vz, vradius, idxs, vidxs
+    
+    secnodes = $o1
+    vx = new Vector($o2)
+    vy = new Vector($o3)
+    vz = new Vector($o4)
+    vradius = new Vector($o5)
+    
+    create sections[secnodes.__len__()]
+    for s=0, secnodes.__len__()-1 {
+        idxs = secnodes.__getitem__(s)
+        vidxs = new Vector(idxs)
+        sections[s] {
+            pt3dconst(0)
+            for i=0, vidxs.size()-1 {
+                k = vidxs.x[i]
+                pt3dadd(vx.x[k], vy.x[k], vz.x[k], 2*vradius.x[k]) 
+            }
+        }
+    }
+    
+    vx.resize(0)
+    vy.resize(0)
+    vz.resize(0)
+    vradius.resize(0)
+    
+}
+
+proc layers_from_python() { local i,j,k,s localobj secnodes, vlayer, seclayers, idxs, vidxs
+    
+    secnodes = $o1
+    vlayer = new Vector($o2)
+    
+    for s=0, secnodes.__len__()-1 {
+        layers.append(new Vector())
+    }
+    
+    for s=0, secnodes.__len__()-1 {
+        idxs = secnodes.__getitem__(s)
+        vidxs = new Vector()
+        vidxs.from_python(idxs)
+        seclayers = layers.o(s)
+        k = vidxs.x[0]
+        for i=0, vidxs.size()-1 {
+            k = vidxs.x[i]
+            seclayers.append(vlayer.x[k])
+        }
+    }
+    
+    vlayer.resize(0)
+}
+
+        
+        
+
+
+endtemplate OLMCell
