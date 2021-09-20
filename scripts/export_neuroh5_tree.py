@@ -24,7 +24,8 @@ sys.excepthook = mpi_excepthook
 
 
 def export_swc_dict(cell, ref_axis=1, sections=[("soma_list",1),("apical_list",4),("basal_list",3),("axon_list",7)]):
-    
+
+    min_sec_pts = 3
     swc_point_idx = 0
     swc_points = []
     swc_point_sec_dict = defaultdict(list)
@@ -45,13 +46,14 @@ def export_swc_dict(cell, ref_axis=1, sections=[("soma_list",1),("apical_list",4
                 if hasattr(sec, 'sec'):
                     sec = sec.sec
                 L = sec.L
-                npts_interp = int(round(L))
+                npts_interp = max(int(round(L)), min_sec_pts)
                 xyz_interp = neuron_utils.interplocs(sec, np.linspace(0, 1, npts_interp))
                 sec.pt3dclear()
                 h.pt3dadd(h.Vector(xyz_interp[:,0]), h.Vector(xyz_interp[:,1]),
                           h.Vector(xyz_interp[:,2]), h.Vector(xyz_interp[:,3]),
                           sec=sec)
                 n3d = sec.n3d()
+                assert(n3d >= min_sec_pts)
                 for i in range(n3d):
 
                     x = sec.x3d(i)
@@ -108,6 +110,10 @@ def export_swc_dict(cell, ref_axis=1, sections=[("soma_list",1),("apical_list",4
                     if parent_point_loc >= parent_x:
                         parent_idx = parent_point_idx
                         break
+                parent_idx = parent_point_idx
+                if parent_idx < 0:
+                    raise RuntimeError(f'export_neuroh5_tree: unable to locate parent point of point {swc_point}; '
+                                       f'parent segment is {parent_seg}: {pprint.pformat(parent_points)}')
         pt_xs.append(x)
         pt_ys.append(y)
         pt_zs.append(z)
@@ -153,12 +159,13 @@ def export_swc_dict(cell, ref_axis=1, sections=[("soma_list",1),("apical_list",4
 @click.option("--config-prefix", required=True, type=click.Path(exists=True, file_okay=False, dir_okay=True), default='config')
 @click.option("--population", '-p', required=True, type=str)
 @click.option("--gid", '-g', default=0, type=int)
+@click.option("--ref-axis", '-r', default=1, type=int)
 @click.option("--template-name", '-t', required=True, type=str)
 @click.option("--input-file", required=True, type=click.Path(exists=True, file_okay=True, dir_okay=False))
 @click.option("--output-file", required=True, type=click.Path(exists=False, file_okay=True, dir_okay=False))
 @click.option("--dry-run",  is_flag=True)
 @click.option("--verbose", '-v', is_flag=True)
-def main(config, config_prefix, population, gid, input_file, template_name, output_file, dry_run, verbose):
+def main(config, config_prefix, population, gid, ref_axis, input_file, template_name, output_file, dry_run, verbose):
     
     utils.config_logging(verbose)
     logger = utils.get_script_logger(os.path.basename(__file__))
@@ -179,7 +186,7 @@ def main(config, config_prefix, population, gid, input_file, template_name, outp
     cell = getattr(h, template_name)(0, 0)
     if verbose:
         h.topology()
-    tree_dict = export_swc_dict(cell)
+    tree_dict = export_swc_dict(cell, ref_axis=ref_axis)
 
     if (gid < forest_population_start) or (gid > forest_population_end):
         gid = forest_population_start

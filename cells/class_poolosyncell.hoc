@@ -9,9 +9,6 @@ public soma, apical, basal, axon
 public all, basal_list, apical_list, soma_list, axon_list, rad_list, lm_list, dendrite_list
 public x, y, z, position, myroot, Vrest
 
-public pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_list
-public ivycell_list, ngfcell_list, olmcell_list, pvbasketcell_list, scacell_list
-public eccell_list, ca3cell_list, mscell_list
 public NumSoma, NumApical, NumBasal, NumAxon
 
 // strings
@@ -21,7 +18,7 @@ strdef myroot
 objref syn, pre_list, templist, rootlist, this
 
 //external variables
-external numCellTypes, cellType
+//external numCellTypes, cellType
 
 // create the sections[segments]
 NumSoma=13
@@ -29,6 +26,22 @@ NumApical=127
 NumBasal=60
 NumAxon=2
 create soma[NumSoma], apical[NumApical], basal[NumBasal], axon[NumAxon]
+
+
+
+func get_layer() {
+    
+    d = $1
+    if (d > 300) {
+        return 9 // SLM
+    } else if (d > 150) {
+        return 8 
+    } else if (d < 0) {
+        return 5 
+    } else {
+        return 6
+    }
+}
 
 // set the initialization code, which is run whenever a new object
 // of this class is instantiated
@@ -56,7 +69,7 @@ proc init() {
 	rotate_shape()
 	
 	pre_list = new List() // define a list for the presynaptic connections
-	define_synapses($3)	// local fcn: define all possible synaptic connections received by this cell
+//	define_synapses($3)	// local fcn: define all possible synaptic connections received by this cell
 }
 
 proc connect_sections() {
@@ -268,9 +281,6 @@ proc connect_sections() {
 
 
 objref all, basal_list, apical_list, soma_list, axon_list, rad_list, lm_list, dendrite_list
-objref pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_list
-objref ivycell_list, ngfcell_list, olmcell_list, pvbasketcell_list, scacell_list
-objref eccell_list, ca3cell_list, mscell_list
 
 proc append_sections() { local i
 	NumSoma=13
@@ -279,9 +289,6 @@ proc append_sections() { local i
 	NumAxon=2
 
 	objref all, basal_list, apical_list, soma_list, axon_list, rad_list, lm_list, dendrite_list
-	objref pyramidalcell_list, axoaxoniccell_list, bistratifiedcell_list, cckcell_list
-	objref ivycell_list, ngfcell_list, olmcell_list, pvbasketcell_list, scacell_list
-	objref eccell_list, ca3cell_list, mscell_list
 
 	all = new SectionList()
 	basal_list = new SectionList()
@@ -292,18 +299,6 @@ proc append_sections() { local i
 	lm_list = new SectionList()
 	dendrite_list = new SectionList()
 
-	pyramidalcell_list = new SectionList()
-	axoaxoniccell_list = new SectionList()
-	bistratifiedcell_list = new SectionList()
-	cckcell_list = new SectionList()
-	ivycell_list = new SectionList()
-	ngfcell_list = new SectionList()
-	olmcell_list = new SectionList()
-	pvbasketcell_list = new SectionList()
-	scacell_list = new SectionList()
-	eccell_list = new SectionList()
-	ca3cell_list = new SectionList()
-	mscell_list = new SectionList()
 
 	axon[1] all.append()
 	axon[1] axon_list.append()
@@ -332,26 +327,7 @@ proc append_sections() { local i
 	for i=65, 75 apical[i] { lm_list.append()}
 	for i=81, 89 apical[i] { lm_list.append()}
 
-// precell lists
-	forsec basal_list {pyramidalcell_list.append()}
-	forsec axon_list {axoaxoniccell_list.append()}
-	forsec basal_list {bistratifiedcell_list.append()}
-	forsec rad_list {bistratifiedcell_list.append()}
-	forsec soma_list {cckcell_list.append()}
-	forsec basal_list {ivycell_list.append()}
-	forsec rad_list {ivycell_list.append()}
-	forsec lm_list {ngfcell_list.append()}
-	forsec lm_list {olmcell_list.append()}
-	forsec soma_list {pvbasketcell_list.append()}
-	forsec basal_list {scacell_list.append()}
-	forsec rad_list {scacell_list.append()}
-	forsec lm_list {eccell_list.append()}
-	forsec lm_list {eccell_list.append()}
-	forsec lm_list {eccell_list.append()} // append the same list 3 times to weight it more heavily against the basal list for synapse choice for eccells
-	forsec rad_list {ca3cell_list.append()}
-	forsec rad_list {mscell_list.append()}
-	forsec basal_list {eccell_list.append()}
-	forsec basal_list {ca3cell_list.append()}
+
 }
 
 
@@ -724,7 +700,7 @@ proc get_root() {local i localobj sref
 	}
 }
 
-strdef myStr
+/*strdef myStr
 
 objref newSecRef, syn
 proc define_synapses() {
@@ -769,5 +745,5 @@ proc define_synapses() {
 		pre_list.append(templist)
 		findme = 1
 	}
-}
+}*/
 endtemplate poolosyncell

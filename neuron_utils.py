@@ -118,6 +118,7 @@ def interplocs(sec, locs):
     """Computes xyz coords of locations in a section whose topology & geometry are defined by pt3d data.
     Based on code by Ted Carnevale.
     """
+    assert(len(locs) > 0)
     nn = sec.n3d()
 
     xx = h.Vector(nn)

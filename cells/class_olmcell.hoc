@@ -14,7 +14,7 @@ strdef myroot
 objref syn, pre_list, templist, rootlist, this
 
 // external variables
-external numCellTypes, cellType
+//external numCellTypes, cellType
 
 NumSoma=1
 NumApical=0
@@ -23,6 +23,16 @@ NumAxon=1
 
 create soma[NumSoma], dend[NumBasal], axon[NumAxon]
 
+
+func get_layer() {
+    
+    d = $1
+    if (d < 0) {
+        return 9 // SLM
+    } else {
+        return 5
+    }
+}
 
 proc init() {
 	gid = $1
@@ -42,7 +52,7 @@ proc init() {
 	set_chanparams()	// local fcn: after all channels have been inserted, then their other parameters can be set	
 	// synapses
 	pre_list = new List() // define a list for the presynaptic connections
-	define_synapses($3)	// local fcn: define all possible synaptic connections received by this cell
+	//define_synapses($3)	// local fcn: define all possible synaptic connections received by this cell
 }
 
 proc connect_sections() { local i
@@ -69,12 +79,12 @@ NumAxon=1
 	dend[0] {pt3dclear()
 		pt3dadd(0.0, 20.0, 0.0, 3.0) // distance from (0,0,0) = 0
 		pt3dadd(100.0, 120.0, 0.0, 3.0) // distance from (0,0,0) = 10
-		pt3dadd(177.0, 197.0, 0.0, 3.0) // distance from (0,0,0) = 20
+		pt3dadd(277.0, 297.0, 0.0, 3.0) // distance from (0,0,0) = 20
 	}
 	dend[1] {pt3dclear()
 		pt3dadd(0.0, 20.0, 0.0, 3.0) // distance from (0,0,0) = 0
 		pt3dadd(-100.0, 120.0, 0.0, 3.0) // distance from (0,0,0) = 10
-		pt3dadd(-177.0, 197.0, 0.0, 3.0) // distance from (0,0,0) = 20
+		pt3dadd(-277.0, 297.0, 0.0, 3.0) // distance from (0,0,0) = 20
 	}
 	axon[0] {pt3dclear()
 		pt3dadd(0.0, 0.0, 0.0, 1.5) // distance from (0,0,0) = 0
@@ -240,7 +250,7 @@ proc get_root() {local i localobj sref
 	}
 }
 
-strdef myStr
+/*strdef myStr
 
 objref newSecRef, syn
 proc define_synapses() {
@@ -285,5 +295,5 @@ proc define_synapses() {
 		pre_list.append(templist)
 		findme = 1
 	}
-}
+}*/
 endtemplate olmcell

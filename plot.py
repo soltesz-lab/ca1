@@ -48,7 +48,6 @@ rainbow_colors = ["#9400D3", "#4B0082", "#00FF00", "#FFFF00", "#FF7F00", "#FF000
 raster_colors = ['#8dd3c7', '#ffed6f', '#bebada', '#fb8072', '#80b1d3', '#fdb462',
                     '#b3de69', '#fccde5', '#d9d9d9', '#bc80bd', '#ccebc5']
 
-
 def hex2rgb(hexcode):
     if hasattr(hexcode, 'decode'):
         return tuple([ float(b)/255.0 for b in map(ord,hexcode[1:].decode('hex')) ])
@@ -465,7 +464,13 @@ def plot_cell_tree(population, gid, tree_dict, line_width=1., sample=0.05, color
         fig = plt.figure(figsize=fig_options.figSize)
         ax = Axes3D(fig)
 
-        ax.scatter(x, y, z, edgecolors='k', alpha=0.7)# colormap=fig_options.colormap)
+        layer_set = set(layer)
+        sct = ax.scatter(x, y, z, c=layer, alpha=0.7, )
+        # produce a legend with the unique colors from the scatter
+        legend_elements = sct.legend_elements()
+        layer_legend = ax.legend(*legend_elements, loc="upper right", title="Layer")
+        ax.add_artist(layer_legend)
+        
         for i,j in g.edges:
 
             e_x = (x[i], x[j])
@@ -475,7 +480,7 @@ def plot_cell_tree(population, gid, tree_dict, line_width=1., sample=0.05, color
             ax.plot(e_x, e_y, e_z, c='black', alpha=0.5)
             ax.view_init(30)
             ax.set_axis_off
-    
+        
         if fig_options.saveFig:
             if isinstance(fig_options.saveFig, str):
                 filename = fig_options.saveFig
