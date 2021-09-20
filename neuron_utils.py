@@ -136,12 +136,21 @@ def interplocs(sec, locs):
     ## normalize length
     ll.div(ll.x[nn - 1])
 
-    xx = xx.to_python()
-    yy = yy.to_python()
-    zz = zz.to_python()
-    dd = dd.to_python()
-    ll = ll.to_python()
+    xx = np.array(xx)
+    yy = np.array(yy)
+    zz = np.array(zz)
+    dd = np.array(dd)
+    ll = np.array(ll)
 
+    u, indices = np.unique(ll, return_index=True)                                                           
+    indices = np.asarray(indices)                                                                           
+    if len(u) < len(ll):                                                                                    
+        ll = ll[indices]                                                                                    
+        xx = xx[indices]                                                                                    
+        yy = yy[indices]                                                                                    
+        zz = zz[indices]                                                                                    
+        dd = dd[indices]                                                                                    
+ 
     pch_x = interpolate.pchip(ll, xx)
     pch_y = interpolate.pchip(ll, yy)
     pch_z = interpolate.pchip(ll, zz)
