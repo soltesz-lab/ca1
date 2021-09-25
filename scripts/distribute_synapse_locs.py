@@ -71,12 +71,12 @@ def global_syn_summary(comm, syn_stats, gid_count, root):
                 for syn_type in syn_stats_dict[part_name]:
                     global_syn_count = comm.gather(syn_stats_dict[part_name][syn_type], root=root)
                     if comm.rank == root:
-                        res.append("%s %s %s: mean %s synapses per cell: %f" % (population, part, part_name, syn_type, np.sum(global_syn_count) / global_count))
+                        res.append(f"{population} {part} {part_name}: mean {syn_type} synapses per cell: {np.sum(global_syn_count) / global_count:.2f}")
         total_syn_stats_dict = pop_syn_stats['total']
         for syn_type in total_syn_stats_dict:
             global_syn_count = comm.gather(total_syn_stats_dict[syn_type], root=root)
             if comm.rank == root:
-                res.append("%s: mean %s synapses per cell: %f" % (population, syn_type, np.sum(global_syn_count) / global_count))
+                res.append(f"{population}: mean {syn_type} synapses per cell: {np.sum(global_syn_count) / global_count:.2f}")
         
     return global_count, str.join('\n', res)
 
@@ -104,10 +104,10 @@ def check_syns(gid, morph_dict, syn_stats_dict, seg_density_per_sec, layer_set_d
             else:
                 warning_flag = True
     if warning_flag:
-        logger.warning('Rank %d: incomplete synapse layer set for cell %d: %s' % (env.comm.Get_rank(), gid, str(layer_stats)))
-        logger.info('layer_set_dict: %s' % str(layer_set_dict))
-        logger.info('gid %d: seg_density_per_sec: %s' % (gid, str(seg_density_per_sec)))
-        logger.info('gid %d: morph_dict: %s' % (gid, str(morph_dict)))
+        logger.warning(f'Rank {env.comm.Get_rank()}: incomplete synapse layer set for cell {gid}: {layer_stats}'
+                       f'  layer_set_dict: {layer_set_dict}\n'
+                       f'  seg_density_per_sec: {seg_density_per_sec}\n'
+                       f'  morph_dict: {morph_dict}')
     for syn_type, swc_set in viewitems(swc_set_dict):
         for swc_type in swc_set:
             if swc_type in swc_stats:
@@ -116,10 +116,10 @@ def check_syns(gid, morph_dict, syn_stats_dict, seg_density_per_sec, layer_set_d
             else:
                 warning_flag = True
     if warning_flag:
-        logger.warning('Rank %d: incomplete synapse swc type set for cell %d: %s' % (env.comm.Get_rank(), gid, str(swc_stats)))
-        logger.info('swc_set_dict: %s' % str(swc_set_dict.items))
-        logger.info('gid %d: seg_density_per_sec: %s' % (gid, str(seg_density_per_sec)))
-        logger.info('gid %d: morph_dict: %s' % (gid, str(morph_dict)))
+        logger.warning(f'Rank {env.comm.Get_rank()}: incomplete synapse swc type set for cell {gid}: {swc_stats}'
+                       f'  swc_set_dict: {swc_set_dict.items}\n'
+                       f'  seg_density_per_sec: {seg_density_per_sec}\n'
+                       f'   morph_dict: {morph_dict}')
                 
 
             
@@ -160,7 +160,7 @@ def main(config, config_prefix, template_path, output_path, forest_path, populat
     rank = comm.rank
     
     if rank == 0:
-        logger.info('%i ranks have been allocated' % comm.size)
+        logger.info(f'{comm.size} ranks have been allocated')
 
     env = Env(comm=comm, config_file=config, config_prefix=config_prefix, template_paths=template_path)
 
@@ -193,7 +193,7 @@ def main(config, config_prefix, template_path, output_path, forest_path, populat
 
 
     for population in populations:
-        logger.info('Rank %i population: %s' % (rank, population))
+        logger.info(f'Rank {rank} population: {population}')
         (population_start, _) = pop_ranges[population]
         template_class = load_cell_template(env, population, bcast_template=True)
 
@@ -219,7 +219,7 @@ def main(config, config_prefix, template_path, output_path, forest_path, populat
         for gid, morph_dict in NeuroH5TreeGen(forest_path, population, io_size=io_size, comm=comm, topology=True):
             local_time = time.time()
             if gid is not None:
-                logger.info('Rank %i gid: %i' % (rank, gid))
+                logger.info(f'Rank {rank} gid: {gid}')
                 cell = cells.make_neurotree_cell(template_class, neurotree_dict=morph_dict, gid=gid)
                 cell_sec_dict = {'apical': (cell.apical_list, None), 'basal': (cell.basal_list, None),
                                  'soma': (cell.soma_list, None), 'ais': (cell.ais_list, None),
@@ -247,11 +247,11 @@ def main(config, config_prefix, template_path, output_path, forest_path, populat
                 
                 del cell
                 num_syns = len(synapse_dict[gid]['syn_ids'])
-                logger.info('Rank %i took %i s to compute %d synapse locations for %s gid: %i' % (rank, time.time() - local_time, num_syns, population, gid))
-                logger.info('%s gid %i synapses: %s' % (population, gid, local_syn_summary(this_syn_stats)))
+                logger.info(f'Rank {rank} took {time.time() - local_time:.2f} s to compute {num_syns} synapse locations for {population} gid: {gid}\n'
+                            f'{local_syn_summary(this_syn_stats)}')
                 gid_count += 1
             else:
-                logger.info('Rank %i gid is None' % rank)
+                logger.info(f'Rank {rank} gid is None')
             gc.collect()
             if (not dry_run) and (write_size > 0) and (gid_count % write_size == 0):
                 append_cell_attributes(output_path, population, synapse_dict,
@@ -270,7 +270,8 @@ def main(config, config_prefix, template_path, output_path, forest_path, populat
 
         global_count, summary = global_syn_summary(comm, syn_stats, gid_count, root=0)
         if rank == 0:
-            logger.info('target: %s, %i ranks took %i s to compute synapse locations for %i cells' % (population, comm.size,time.time() - start_time, np.sum(global_count)))
+            logger.info(f'Population: {population}, {comm.size} ranks took {time.time() - start_time:.2f} s '
+                        f'to compute synapse locations for {np.sum(global_count)} cells')
             logger.info(summary)
 
         comm.barrier()

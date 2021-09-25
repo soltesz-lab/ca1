@@ -111,8 +111,10 @@ def synapse_seg_density(syn_type_dict, layer_dict, layer_density_dicts, seg_dict
                 segdensity[sec_index].append(dens)
 
         if total_seg_density < 1e-6:
-            logger.warning("sections with zero %s synapse density: %s; rans: %s; density_dict: %s; morphology: %s" % (
-            syn_type_label, str(segdensity), str(rans), str(density_dict), str(neurotree_dict)))
+            logger.warning(f"sections with zero {syn_type_label}"
+                           f"synapse density: {segdensity}; rans: {rans}; "
+                           f"density_dict: {density_dict}; layers: {layers} "
+                           f"morphology: {neurotree_dict}")
 
         segdensity_dict[syn_type] = segdensity
 

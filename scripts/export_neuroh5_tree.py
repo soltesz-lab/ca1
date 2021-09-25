@@ -46,8 +46,10 @@ def export_swc_dict(cell, ref_axis=1, sections=[("soma_list",1),("apical_list",4
                 if hasattr(sec, 'sec'):
                     sec = sec.sec
                 L = sec.L
+                pch_x, pch_y, pch_z, pch_diam = neuron_utils.interplocs(sec)
                 npts_interp = max(int(round(L)), min_sec_pts)
-                xyz_interp = neuron_utils.interplocs(sec, np.linspace(0, 1, npts_interp))
+                interp_locs = np.linspace(0, 1, npts_interp)
+                xyz_interp = np.column_stack((pch_x(interp_locs), pch_y(interp_locs), pch_z(interp_locs), pch_diam(interp_locs)))
                 sec.pt3dclear()
                 h.pt3dadd(h.Vector(xyz_interp[:,0]), h.Vector(xyz_interp[:,1]),
                           h.Vector(xyz_interp[:,2]), h.Vector(xyz_interp[:,3]),

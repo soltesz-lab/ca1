@@ -5,26 +5,35 @@
 
 apical:
   excitatory:
-    Radiatum:
+    SO:
       mean: 3.16
       variance: 0.1
-    LM:
+    SP:
       mean: 3.16
       variance: 0.1
   inhibitory:
-    Radiatum:
+    SO:
       mean: 0.60
       variance: 0.10
-    LM:
+    SP:
       mean: 0.60
       variance: 0.10
       
 basal:
   excitatory:
-    Oriens:
+    SR:
       mean: 3.16
       variance: 0.1
   inhibitory:
-    Oriens:
+    SR:
       mean: 0.60
+      variance: 0.1
+soma:
+  excitatory:
+    default:
+      mean: 10.0
+      variance: 0.1
+  inhibitory:
+    default:
+      mean: 1.0
       variance: 0.1
