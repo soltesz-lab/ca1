@@ -11,6 +11,25 @@ import yaml
         
 is_interactive = bool(getattr(sys, 'ps1', sys.flags.interactive))
 
+    
+class Struct(object):
+    def __init__(self, **items):
+        self.__dict__.update(items)
+
+    def update(self, items):
+        self.__dict__.update(items)
+
+    def __call__(self):
+        return self.__dict__
+
+    def __getitem__(self, key):
+        return self.__dict__[key]
+
+    def __repr__(self):
+        return f'Struct({self.__dict__})'
+
+    def __str__(self):
+        return f'<Struct>'
 
 class ExprClosure(object):
     """
@@ -1216,3 +1235,46 @@ def signal_psd (s, Fs, frequency_range=(0,500), window_size=4096, overlap=0.9):
     peak_index = np.where(psd == np.max(psd))[0]
 
     return psd, freqs, peak_index
+
+
+def baks(spktimes, time, a=1.5, b=None):
+    """
+    Bayesian Adaptive Kernel Smoother (BAKS)
+    BAKS is a method for estimating firing rate from spike train data that uses kernel smoothing technique 
+    with adaptive bandwidth determined using a Bayesian approach
+    ---------------INPUT---------------
+    - spktimes : spike event times [s]
+    - time : time points at which the firing rate is estimated [s]
+    - a : shape parameter (alpha) 
+    - b : scale parameter (beta)
+    ---------------OUTPUT---------------
+    - rate : estimated firing rate [nTime x 1] (Hz)
+    - h : adaptive bandwidth [nTime x 1]
+
+    Based on "Estimation of neuronal firing rate using Bayesian adaptive kernel smoother (BAKS)"
+    https://github.com/nurahmadi/BAKS
+    """
+    from scipy.special import gamma
+
+    n = len(spktimes)
+    sumnum = 0
+    sumdenom = 0
+
+    if b is None:
+        b = 0.42
+    b = float(n) ** b
+
+    for i in range(n):
+        numerator = (((time - spktimes[i]) ** 2) / 2. + 1. / b) ** (-a)
+        denominator = (((time - spktimes[i]) ** 2) / 2. + 1. / b) ** (-a - 0.5)
+        sumnum = sumnum + numerator
+        sumdenom = sumdenom + denominator
+
+    h = (gamma(a) / gamma(a + 0.5)) * (sumnum / sumdenom)
+    rate = np.zeros((len(time),))
+    for j in range(n):
+        x = np.asarray(-((time - spktimes[j]) ** 2) / (2. * h ** 2), dtype=np.float128)
+        K = (1. / (np.sqrt(2. * np.pi) * h)) * np.exp(x)
+        rate = rate + K
+
+    return rate, h

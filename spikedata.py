@@ -3,11 +3,14 @@ from collections import defaultdict
 import numpy as np
 from neuroh5.io import scatter_read_cell_attributes, read_cell_attributes, read_population_names, read_population_ranges, write_cell_attributes
 import ca1
-from ca1.utils import get_module_logger, viewitems, zip, get_trial_time_ranges
+from ca1.utils import get_module_logger, viewitems, zip, Struct, get_trial_time_ranges, baks
 
 ## This logger will inherit its setting from its root logger
 ## which is created in module env
 logger = get_module_logger(__name__)
+
+default_baks_analysis_options = Struct(**{'BAKS Alpha': 4.77,
+                                          'BAKS Beta': None})
 
 
 def get_env_spike_dict(env, include_artificial=True):
@@ -201,3 +204,85 @@ def read_spike_events(input_file, population_names, namespace_id, spike_train_at
             'tmin': tmin, 'tmax': tmax,
             'pop_active_cells': pop_active_cells, 'num_cell_spks': num_cell_spks,
             'n_trials': n_trials}
+
+def make_spike_dict(spkinds, spkts):
+    """
+    Given arrays with cell indices and spike times, returns a dictionary with per-cell spike times.
+    """
+    spk_dict = defaultdict(list)
+    for spkind, spkt in zip(np.nditer(spkinds), np.nditer(spkts)):
+        spk_dict[int(spkind)].append(float(spkt))
+    return spk_dict
+
+
+def spike_density_estimate(population, spkdict, time_bins, arena_id=None, trajectory_id=None, output_file_path=None,
+                            progress=False, inferred_rate_attr_name='Inferred Rate Map', **kwargs):
+    """
+    Calculates spike density function for the given spike trains.
+    :param population:
+    :param spkdict:
+    :param time_bins:
+    :param arena_id: str
+    :param trajectory_id: str
+    :param output_file_path:
+    :param progress:
+    :param inferred_rate_attr_name: str
+    :param kwargs: dict
+    :return: dict
+    """
+    if progress:
+        from tqdm import tqdm
+
+    analysis_options = copy.copy(default_baks_analysis_options)
+    analysis_options.update(kwargs)
+
+    def make_spktrain(lst, t_start, t_stop):
+        spkts = np.asarray(lst, dtype=np.float32)
+        return spkts[(spkts >= t_start) & (spkts <= t_stop)]
+
+    
+    t_start = time_bins[0]
+    t_stop = time_bins[-1]
+
+    spktrains = {ind: make_spktrain(lst, t_start, t_stop) for (ind, lst) in viewitems(spkdict)}
+    baks_args = dict()
+    baks_args['a'] = analysis_options['BAKS Alpha']
+    baks_args['b'] = analysis_options['BAKS Beta']
+    
+    if progress:
+        seq = tqdm(viewitems(spktrains))
+    else:
+        seq = viewitems(spktrains)
+        
+    spk_rate_dict = {ind: baks(spkts / 1000., time_bins / 1000., **baks_args)[0].reshape((-1,))
+                     if len(spkts) > 1 else np.zeros(time_bins.shape)
+                     for ind, spkts in seq}
+
+    if output_file_path is not None:
+        if arena_id is None or trajectory_id is None:
+            raise RuntimeError('spike_density_estimate: arena_id and trajectory_id required to write Spike Density'
+                               'Function namespace')
+        namespace = 'Spike Density Function %s %s' % (arena_id, trajectory_id)
+        attr_dict = {ind: {inferred_rate_attr_name: np.asarray(spk_rate_dict[ind], dtype='float32')}
+                     for ind in spk_rate_dict}
+        write_cell_attributes(output_file_path, population, attr_dict, namespace=namespace)
+
+    result = {ind: {'rate': rate, 'time': time_bins} for ind, rate in viewitems(spk_rate_dict)}
+
+        
+    result = { ind: { 'rate': rate, 'time': time_bins }
+              for ind, rate in viewitems(spk_rate_dict) }
+    
+    return result
+
+def spike_bin_counts(spkdict, time_bins):
+    bin_dict = {}
+    for (ind, lst) in viewitems(spkdict):
+
+        if len(lst) > 0:
+            spkts = np.asarray(lst, dtype=np.float32)
+            bins, bin_edges = np.histogram(spkts, bins=time_bins)
+            
+            bin_dict[ind] = bins
+
+    return bin_dict

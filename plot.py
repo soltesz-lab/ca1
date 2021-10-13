@@ -722,6 +722,202 @@ def plot_spike_raster (input_path, namespace_id, include = ['eachPop'], time_ran
     return fig
 
 
+
+
+def plot_spike_histogram (input_path, namespace_id, config_path=None, include = ['eachPop'], time_variable='t', time_range = None, 
+                          pop_rates = False, bin_size = 5., smooth = 0, quantity = 'rate', include_artificial=True, progress = False,
+                          overlay=True, graph_type='bar', **kwargs):
+    ''' 
+    Plots spike histogram. Returns figure handle.
+
+        - input_path: file with spike data
+        - namespace_id: attribute namespace for spike events
+        - include (['eachPop'|<population name>]): List of data series to include. 
+            (default: ['eachPop'] - expands to the name of each population)
+        - time_variable: Name of variable containing spike times (default: 't')
+        - time_range ([start:stop]): Time range of spikes shown; if None shows all (default: None)
+        - bin_size (int): Size in ms of each bin (default: 5)
+        - overlay (True|False): Whether to overlay the data lines or plot in separate subplots (default: True)
+        - graph_type ('line'|'bar'): Type of graph to use (line graph or bar plot) (default: 'line')
+        - quantity ('rate'|'count'): Quantity of y axis (firing rate in Hz, or spike count) (default: 'rate')
+    '''
+    fig_options = copy.copy(default_fig_options)
+    fig_options.update(kwargs)
+
+    baks_config = copy.copy(kwargs)
+
+    env = None
+    if config_path is not None:
+        env = Env(config_file=config_path)
+        if env.analysis_config is not None:
+            baks_config.update(env.analysis_config['Firing Rate Inference'])
+
+    (population_ranges, N) = read_population_ranges(input_path)
+    population_names  = read_population_names(input_path)
+
+    pop_num_cells = {}
+    for k in population_names:
+        pop_num_cells[k] = population_ranges[k][1]
+
+    
+    # Replace 'eachPop' with list of populations
+    if 'eachPop' in include: 
+        include.remove('eachPop')
+        for pop in population_names:
+            include.append(pop)
+        include.reverse()
+        
+    spkdata = spikedata.read_spike_events (input_path, include, namespace_id, spike_train_attr_name=time_variable,
+                                           time_range=time_range, include_artificial=include_artificial)
+
+    spkpoplst        = spkdata['spkpoplst']
+    spkindlst        = spkdata['spkindlst']
+    spktlst          = spkdata['spktlst']
+    num_cell_spks    = spkdata['num_cell_spks']
+    pop_active_cells = spkdata['pop_active_cells']
+    tmin             = spkdata['tmin']
+    tmax             = spkdata['tmax']
+
+    time_range = [tmin, tmax]
+
+    avg_rates = {}
+    maxN = 0
+    minN = N
+    if pop_rates:
+        tsecs = (time_range[1]-time_range[0]) / 1e3
+        for i,pop_name in enumerate(spkpoplst):
+            pop_num = len(pop_active_cells[pop_name])
+            maxN = max(maxN, max(pop_active_cells[pop_name]))
+            minN = min(minN, min(pop_active_cells[pop_name]))
+            if pop_num > 0:
+                if num_cell_spks[pop_name] == 0:
+                    avg_rates[pop_name] = 0
+                else:
+                    avg_rates[pop_name] = ((num_cell_spks[pop_name] / pop_num) / tsecs)
+            
+    # Y-axis label
+    if quantity == 'rate':
+        yaxisLabel = 'Mean cell firing rate (Hz)'
+    elif quantity == 'count':
+        yaxisLabel = 'Spike count'
+    elif quantity == 'active':
+        yaxisLabel = 'Active cell count'
+    else:
+        print('Invalid quantity value %s' % str(quantity))
+        return
+
+    # create fig
+    fig, axes = plt.subplots(len(spkpoplst), 1, figsize=fig_options.figSize, sharex=True)
+        
+    time_bins  = np.arange(time_range[0], time_range[1], bin_size)
+
+    
+    hist_dict = {}
+    if quantity == 'rate':
+        for subset, spkinds, spkts in zip(spkpoplst, spkindlst, spktlst):
+            spkdict = spikedata.make_spike_dict(spkinds, spkts)
+            sdf_dict = spikedata.spike_density_estimate(subset, spkdict, time_bins, progress=progress, **baks_config)
+            bin_dict = defaultdict(lambda: {'rates':0.0, 'active': 0})
+            for (ind, dct) in viewitems(sdf_dict):
+                rate = dct['rate']
+                for ibin in range(0, len(time_bins)):
+                    d = bin_dict[ibin]
+                    bin_rate = rate[ibin]
+                    d['rates']  += bin_rate
+                    d['active'] += 1
+            hist_dict[subset] = bin_dict
+            logger.info(('Calculated spike rates for %i cells in population %s' % (len(sdf_dict), subset)))
+    else:
+        for subset, spkinds, spkts in zip(spkpoplst, spkindlst, spktlst):
+            spkdict = spikedata.make_spike_dict(spkinds, spkts)
+            count_bin_dict = spikedata.spike_bin_counts(spkdict, time_bins)
+            bin_dict      = defaultdict(lambda: {'counts':0, 'active': 0})
+            for (ind, counts) in viewitems(count_bin_dict):
+                for ibin in range(0, len(time_bins)-1):
+                    d = bin_dict[ibin]
+                    d['counts'] += counts[ibin]
+                    d['active'] += 1
+            hist_dict[subset] = bin_dict
+            logger.info(('Calculated spike counts for %i cells in population %s' % (len(count_bin_dict), subset)))
+        
+            
+    del spkindlst, spktlst
+
+    # Plot separate line for each entry in include
+    for iplot, subset in enumerate(spkpoplst):
+
+        hist_x = time_bins+(bin_size / 2)
+        bin_dict = hist_dict[subset]
+
+        if quantity=='rate':
+            hist_y = np.asarray([(bin_dict[ibin]['rates'] / bin_dict[ibin]['active'])  if bin_dict[ibin]['active'] > 0 else 0.
+                                     for ibin in range(0, len(time_bins))])
+        elif quantity=='active':
+            hist_y = np.asarray([bin_dict[ibin]['active'] for ibin in range(0, len(time_bins))])
+        else:
+            hist_y = np.asarray([bin_dict[ibin]['counts'] for ibin in range(0, len(time_bins))])
+
+        del bin_dict
+        del hist_dict[subset]
+        
+        color = dflt_colors[iplot%len(dflt_colors)]
+
+        if pop_rates:
+            label = str(subset)  + ' (%i active; %.3g Hz)' % (len(pop_active_cells[subset]), avg_rates[subset])
+        else:
+            label = str(subset)  + ' (%i active)' % (len(pop_active_cells[subset]))
+
+        ax = plt.subplot(len(spkpoplst),1,(iplot+1))
+        plt.title (label, fontsize=fig_options.fontSize)
+        ax.tick_params(labelsize=fig_options.fontSize)
+        if iplot < len(spkpoplst)-1:
+            ax.xaxis.set_visible(False)
+            
+        if smooth:
+            hsignal = signal.savgol_filter(hist_y, window_length=2*((len(hist_y) / 16)) + 1, polyorder=smooth) 
+        else:
+            hsignal = hist_y
+        
+        if graph_type == 'line':
+            ax.plot (hist_x, hsignal, linewidth=fig_options.lw, color = color)
+        elif graph_type == 'bar':
+            ax.bar(hist_x, hsignal, width = bin_size, color = color, edgecolor='black', alpha=0.85)
+
+        if iplot == 0:
+            ax.set_ylabel(yaxisLabel, fontsize=fig_options.fontSize)
+        if iplot == len(spkpoplst)-1:
+            ax.set_xlabel('Time (ms)', fontsize=fig_options.fontSize)
+        else:
+            ax.tick_params(labelbottom='off')
+
+            
+        ax.set_xlim(time_range)
+
+
+    plt.tight_layout()
+
+    # Add legend
+    if overlay:
+        for i,subset in enumerate(spkpoplst):
+            plt.plot(0,0,color=dflt_colors[i%len(dflt_colors)],label=str(subset))
+        plt.legend(fontsize=fig_options.fontSize, bbox_to_anchor=(1.04, 1), loc=2, borderaxespad=0.)
+        maxLabelLen = min(10,max([len(str(l)) for l in include]))
+        plt.subplots_adjust(right=(0.9-0.012*maxLabelLen))
+
+
+    if fig_options.saveFig:
+        if isinstance(fig_options.saveFig, str):
+            filename = fig_options.saveFig
+        else:
+            filename = namespace_id+' '+'histogram.%s' % fig_options.figFormat
+        plt.savefig(filename)
+
+    if fig_options.showFig:
+        show_figure()
+
+    return fig
+
+
 def plot_lfp(input_path, config_path=None, time_range = None, compute_psd=False, window_size=4096, frequency_range=(0, 400.), overlap=0.9, bandpass_filter=False, dt=None, **kwargs):
     '''
     Line plot of LFP state variable (default: v). Returns figure handle.
@@ -919,9 +1115,11 @@ def plot_lfp_spectrogram(input_path, config_path = None, time_range = None, wind
         iplot = 0
         axes[iplot, 0].set_ylim(*frequency_range)
         axes[iplot, 0].set_title('LFP Spectrogram', fontsize=fig_options.fontSize)
-        axes[iplot, 0].pcolormesh(t, freqs, sxx, cmap='jet')
+        pcm = axes[iplot, 0].pcolormesh(t, freqs, sxx, cmap='jet')
         axes[iplot, 0].set_xlabel('Time (s)', fontsize=fig_options.fontSize)
         axes[iplot, 0].set_ylabel('Frequency (Hz)', fontsize=fig_options.fontSize)
+        axes[iplot, 0].tick_params(axis='both', labelsize=fig_options.fontSize)
+        fig.colorbar(pcm, ax=axes[iplot, 0])
 
         # save figure
         if fig_options.saveFig:
@@ -984,3 +1182,4 @@ def plot_lfp_spectrogram(input_path, config_path = None, time_range = None, wind
                 show_figure()
 
     return fig
+
