@@ -1,10 +1,10 @@
-## Information needed: CA2 projetions and strengths needed, NMDA unit strengths, IS infomration
+## Information needed: CA2 projections and strengths needed, NMDA unit strengths, IS 
 
 Synapse Mechanisms:
-  AMPA: LinExp2Syn  # SatExp2Syn
+  AMPA: LinExp2Syn 
   NMDA: FacilNMDA
-  GABA_A: LinExp2Syn  # SatExp2Syn
-  GABA_B: LinExp2Syn  # SatExp2Syn
+  GABA_A: LinExp2Syn
+  GABA_B: LinExp2Syn
 Synapse Parameter Rules: !include Synapse_Parameter_Rules.yaml
 Axon Extent: !include Axon_Extent.yaml
 Connection Velocity: !include Connection_Velocity.yaml
