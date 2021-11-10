@@ -13,6 +13,12 @@ strdef myroot
 // objects
 objref syn, pre_list, templist, rootlist, this
 
+func get_layer() {
+    
+    d = $1
+    return 9 // SLM
+}
+
 // external variables
 //external numCellTypes, cellType
 
