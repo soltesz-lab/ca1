@@ -4,9 +4,74 @@ try:
     from mpi4py import MPI  # Must come before importing NEURON
 except Exception:
     pass
-from ca1.utils import *
+from dentate.utils import get_module_logger
 from neuron import h
 from scipy import interpolate
+
+# This logger will inherit its settings from the root logger, created in ca1.env
+logger = get_module_logger(__name__)
+
+
+freq = 100  # Hz, frequency at which AC length constant will be computed
+d_lambda = 0.1  # no segment will be longer than this fraction of the AC length constant
+default_ordered_sec_types = ['soma', 'hillock', 'ais', 'axon', 'basal', 'trunk', 'apical', 'tuft', 'spine']
+default_hoc_sec_lists = {'soma': 'somaidx', 'hillock': 'hilidx', 'ais': 'aisidx', 'axon': 'axonidx',
+                         'basal': 'basalidx', 'apical': 'apicalidx', 'trunk': 'trunkidx', 'tuft': 'tuftidx'}
+
+def lambda_f(sec, f=freq):
+    """
+    Calculates the AC length constant for the given section at the frequency f
+    Used to determine the number of segments per hoc section to achieve the desired spatial and temporal resolution
+    :param sec: :class:'h.Section'
+    :param f: int
+    :return: int
+    """
+    diam = np.mean([seg.diam for seg in sec])
+    Ra = sec.Ra
+    cm = np.mean([seg.cm for seg in sec])
+    return 1e5 * math.sqrt(diam / (4. * math.pi * f * Ra * cm))
+
+
+def d_lambda_nseg(sec, lam=d_lambda, f=freq):
+    """
+    The AC length constant for this section and the user-defined fraction is used to determine the maximum size of each
+    segment to achieve the desired spatial and temporal resolution. This method returns the number of segments to set
+    the nseg parameter for this section. For tapered cylindrical sections, the diam parameter will need to be
+    reinitialized after nseg changes.
+    :param sec : :class:'h.Section'
+    :param lam : int
+    :param f : int
+    :return : int
+    """
+    L = sec.L
+    return int(((L / (lam * lambda_f(sec, f))) + 0.9) / 2) * 2 + 1
+
+
+def reinit_diam(sec, diam_bounds):
+    """
+    For a node associated with a hoc section that is a tapered cylinder, every time the spatial resolution
+    of the section (nseg) is changed, the section diameters must be reinitialized. This method checks the
+    node's content dictionary for diameter boundaries and recalibrates the hoc section associated with this node.
+    """
+    if not get_diam_bounds(sec) is None:
+        diam1, diam2 = diam_bounds
+        h(f'diam(0:1)={diam1}:{diam2}', sec=sec)
+        
+
+def init_nseg(sec, spatial_res=0, verbose=True):
+    """
+    Initializes the number of segments in this section (nseg) based on the AC length constant. Must be re-initialized
+    whenever basic cable properties Ra or cm are changed. The spatial resolution parameter increases the number of
+    segments per section by a factor of an exponent of 3.
+    :param sec: :class:'h.Section'
+    :param spatial_res: int
+    :param verbose: bool
+    """
+    sugg_nseg = d_lambda_nseg(sec)
+    sugg_nseg *= 3 ** spatial_res
+    if verbose:
+        logger.info(f'init_nseg: changed {sec.hname()}.nseg {sec.nseg} --> {sugg_nseg}')
+    sec.nseg = int(sugg_nseg)
 
 
 def load_cell_template(env, pop_name, bcast_template=False):
@@ -159,3 +224,70 @@ def interplocs(sec):
 
     return pch_x, pch_y, pch_z, pch_diam
 
+
+def make_rec(recid, population, gid, cell, sec=None, loc=None, ps=None, param='v', label=None, dt=None, description=''):
+    """
+    Makes a recording vector for the specified quantity in the specified section and location.
+
+    :param recid: str
+    :param population: str
+    :param gid: integer
+    :param cell: :class:'BiophysCell'
+    :param sec: :class:'HocObject'
+    :param loc: float
+    :param ps: :class:'HocObject'
+    :param param: str
+    :param dt: float
+    :param ylabel: str
+    :param description: str
+    """
+    vec = h.Vector()
+    if (sec is None) and (loc is None) and (ps is not None):
+        hocobj = ps
+        seg = ps.get_segment()
+        if seg is not None:
+            loc = seg.x
+            sec = seg.sec
+            origin = list(cell.soma)[0]
+            distance = h.distance(origin(0.5), seg)
+            ri = h.ri(loc, sec=sec)
+        else:
+            distance = None
+            ri = None
+    elif (sec is not None) and (loc is not None):
+        hocobj = sec(loc)
+        if cell.soma.__class__.__name__.lower() == "section":
+            origin = cell.soma
+        else:
+            origin = list(cell.soma)[0]
+        h.distance(sec=origin)
+        distance = h.distance(loc, sec=sec)
+        ri = h.ri(loc, sec=sec)
+    else:
+        raise RuntimeError('make_rec: either sec and loc or ps must be specified')
+    section_index = None
+    if sec is not None:
+        for i, this_section in enumerate(cell.sections):
+            if this_section == sec:
+                section_index = i
+                break
+    if label is None:
+        label = param
+    if dt is None:
+        vec.record(getattr(hocobj, f'_ref_{param}'))
+    else:
+        vec.record(getattr(hocobj, f'_ref_{param}'), dt)
+    rec_dict = {'name': recid,
+                'gid': gid,
+                'cell': cell,
+                'population': population,
+                'loc': loc,
+                'section': section_index,
+                'distance': distance,
+                'ri': ri,
+                'description': description,
+                'vec': vec,
+                'label': label
+                }
+
+    return rec_dict

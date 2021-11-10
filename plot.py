@@ -23,7 +23,6 @@ from ca1.io_utils import get_h5py_attr, set_h5py_attr
 from ca1 import spikedata
 
 try:
-    from neural_geometry.geometry import measure_distance_extents, get_total_extents
 except ImportError as e:
     print(('neural_geometry.plot: problem importing module required by neural_geometry.geometry:', e))
 
@@ -31,7 +30,7 @@ except ImportError as e:
 logger = get_module_logger(__name__)
 
 # Default figure configuration
-default_fig_options = Struct(figFormat='png', lw=2, figSize=(15,8), fontSize=14, saveFig=None, showFig=True,
+default_fig_options = Struct(figFormat='png', lw=2, figSize=(10,8), fontSize=14, saveFig=None, showFig=True,
                              colormap='jet', saveFigDir=None)
 
 dflt_colors = ["#009BFF", "#E85EBE", "#00FF00", "#0000FF", "#FF0000", "#01FFFE", "#FFA6FE", 
@@ -253,6 +252,8 @@ def plot_coordinates(coords_path, population, namespace, index = 0, graph_type =
 
 
 def plot_coords_in_volume(populations, coords_path, coords_namespace, config, scale=25., subpopulation=-1, subvol=False, verbose=False, mayavi=False):
+
+    from neural_geometry.geometry import get_total_extents
     
     env = Env(config_file=config)
 
@@ -1073,6 +1074,8 @@ def plot_lfp_spectrogram(input_path, config_path = None, time_range = None, wind
     fig_options = copy.copy(default_fig_options)
     fig_options.update(kwargs)
 
+    mpl.rcParams['font.size'] = fig_options.fontSize
+
     env = None
     if config_path is not None:
         env = Env(config_file=config_path)
@@ -1113,6 +1116,7 @@ def plot_lfp_spectrogram(input_path, config_path = None, time_range = None, wind
         sxx = Sxx[freqinds,:][0]
 
         iplot = 0
+        axes[iplot, 0].set_xlim([0.4, 0.8])
         axes[iplot, 0].set_ylim(*frequency_range)
         axes[iplot, 0].set_title('LFP Spectrogram', fontsize=fig_options.fontSize)
         pcm = axes[iplot, 0].pcolormesh(t, freqs, sxx, cmap='jet')
