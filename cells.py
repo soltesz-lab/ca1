@@ -9,6 +9,20 @@ from neuroh5.io import read_cell_attribute_selection, read_graph_selection, read
 # This logger will inherit its settings from the root logger, created in ca1.env
 logger = get_module_logger(__name__)
 
+class SectionNode(object):
+    __slots__ = []
+    
+    def __init__(self, section_type, index, section, diam_bounds=None):
+        self.section = section
+        self.index = index
+        self.section_type = section_type
+        self.diam_bounds = None
+        
+
+    @property
+    def sec(self):
+        return self.section
+    
 
 def make_neurotree_hoc_cell(template_class, gid=0, neurotree_dict={}):
     """
@@ -165,36 +179,39 @@ class BiophysCell(object):
         return self.sections.hillock
 
 
-def get_distance_to_node(cell, root_index, node_index, loc=None):
+def get_distance_to_node(cell, node, root=None, loc=None):
     """
     Returns the distance from the given location on the given node to its connection with a root node.
     :param node: int
     :param loc: float
     :return: int or float
     """
+    if root is None:
+        root = cell.root
+        
     length = 0.
-    if (node_index is root_index) or (node_index is None):
+    if (node is root) or (root is None) or (node is None):
         return length
-    node = cell.tree[node_index]
     if loc is not None:
-        length += loc * node['section'].L
-    rpath = nx.shortest_path(cell.tree, source=root_index, target=node_index).reverse()
+        length += loc * node.section.L
+    rpath = nx.shortest_path(cell.tree, source=root, target=node).reverse()
     while not rpath.empty():
-        node_index = rpath.pop()
+        node = rpath.pop()
         if not rpath.empty():
-            node = cell.tree[node_index]
-            loc = node['connection_loc']
-            parent = cell.tree[rpath.top()]
-            length += loc * parent['section'].L
+            parent = rpath.top()
+            e = G.get_edge_data(parent, node)
+            loc = e['parent_loc']
+            length += loc * parent.section.L
     return length
 
 
-def insert_section(cell, section_type, index, sec, parent_index=None):
-    if cell.tree.has_node(index):
+def insert_section_node(cell, section_type, index, sec):
+    node = SectionNode(section_type, index, sec)
+    if cell.tree.has_node(node):
         raise RuntimeError(f'insert_section: section index {index} already exists in cell {self.gid}')
-    cell.tree.add_node(index, section=sec, section_type=section_type)
-    cell.sections[section_type].append(sec)
-
+    cell.tree.add_node(node)
+    cell.sections[section_type].append(node)
+    return node
     
 def insert_section_tree(cell, sec_list, sec_dict, parent=None, connect_hoc_sections=False):
     sec_stack = []
@@ -206,30 +223,27 @@ def insert_section_tree(cell, sec_list, sec_dict, parent=None, connect_hoc_secti
         sec_children = sec.children()
         for child in sec_children:
             sec_stack.append((sec, child))
-        sec_index = cell.insert_section(sec, sec_dict[sec]['type'], sec_dict[sec]['index'],
-                                        parent_index=sec_dict[sec_parent]['index'])
-        sec_parent_index = sec_dict[sec_parent]['index']
+        sec_node = insert_section_node(cell, sec_dict[sec].section_type, sec_dict[sec].index, sec)
         if sec_parent is not None:
-            cell.tree = connect_nodes(cell.tree, sec_parent_index, sec_index,
+            sec_parent_node = sec_dict[parent]
+            cell.tree = connect_nodes(cell.tree, sec_parent_node, sec_node,
                                       connect_hoc_sections=connect_hoc_sections)
     
 
                           
-def connect_nodes(tree, parent_index, child_index, parent_loc=1., child_loc=0., connect_hoc_sections=False):
+def connect_nodes(tree, parent, child, parent_loc=1., child_loc=0., connect_hoc_sections=False):
     """
     Connects the given section node to a parent node, and if specified, establishes a connection between their associated
     hoc sections.
-    :param parent_index: int
-    :param child_index: int
+    :param parent: SectionNode
+    :param child: SectionNode
     :param parent_loc: float in [0,1] : connect to this end of the parent hoc section
     :param child_loc: float in [0,1] : connect this end of the child hoc section
     :param connect_hoc_sections: bool
     """
-    parent = tree[parent_index]
-    child = tree[child_index]
-    tree.add_edge(parent_index, child_index)
+    tree.add_edge(parent, child, parent_loc=parent_loc, child_loc=child_loc)
     if connect_hoc_sections:
-        child['section'].connect(parent['section'], parent_loc, child_loc)
+        child.section.connect(parent.section, parent_loc, child_loc)
     return tree
 
 
@@ -286,7 +300,7 @@ def init_cable(cell, verbose=False):
             reset_cable_by_node(cell, node, verbose=verbose)
 
             
-def reset_cable_by_node(cell, node_index, verbose=True):
+def reset_cable_by_node(cell, node, verbose=True):
     """
     Consults a dictionary specifying parameters of NEURON cable properties such as axial resistance ('Ra'),
     membrane specific capacitance ('cm'), and a spatial resolution parameter to specify the number of separate
@@ -295,16 +309,15 @@ def reset_cable_by_node(cell, node_index, verbose=True):
     :param node_index: int
     :param verbose: bool
     """
-    node = cell.tree[node_index]
-    sec_type = node['section_type']
+    sec_type = node.section_type
     if sec_type in cell.mech_dict and 'cable' in cell.mech_dict[sec_type]:
         mech_content = cell.mech_dict[sec_type]['cable']
         if mech_content is not None:
-            update_mechanism_by_node(cell, node, 'cable', mech_content, verbose=verbose)
+            update_mechanisms_by_node(cell, node, 'cable', mech_content, verbose=verbose)
     else:
-        init_nseg(node['section'], verbose=verbose)
+        init_nseg(node.section, verbose=verbose)
         if hasattr(node, 'diam_bounds'):
-            reinit_diam(node['section'], getattr(node, 'diam_bounds'))
+            reinit_diam(node.section, getattr(node, 'diam_bounds'))
 
         
 def connect2target(cell, sec, loc=1., param='_ref_v', delay=None, weight=None, threshold=None, target=None):
@@ -350,7 +363,7 @@ def init_spike_detector(cell, node=None, distance=100., threshold=-30, delay=0.0
     dictionary of the cell, if one exists.
 
     :param cell: :class:'BiophysCell'
-    :param node: :class:'SHocNode
+    :param node: :class:'SectionNode'
     :param distance: float
     :param threshold: float
     :param delay: float
@@ -387,8 +400,31 @@ def init_spike_detector(cell, node=None, distance=100., threshold=-30, delay=0.0
         else:
             raise RuntimeError('init_spike_detector: cell has neither soma nor axon compartment')
 
-    cell.spike_detector = connect2target(cell, node.sec, loc=loc, delay=delay, threshold=threshold)
+    cell.spike_detector = connect2target(cell, node.section, loc=loc, delay=delay, threshold=threshold)
 
     cell.onset_delay = onset_delay
             
     return cell.spike_detector
+
+
+def update_mechanism_by_node(cell, node, mech_name, mech_content, verbose=True):
+    """
+    This method loops through all the parameters for a single mechanism specified in the mechanism dictionary and
+    calls apply_mech_rules to interpret the rules and set the values for the given node.
+    :param cell: :class:'BiophysCell'
+    :param node: :class:'SectionNode'
+    :param mech_name: str
+    :param mech_content: dict
+    :param verbose: bool
+    """
+    if mech_content is not None:
+        for param_name in mech_content:
+            # accommodate either a dict, or a list of dicts specifying multiple location constraints for
+            # a single parameter
+            if isinstance(mech_content[param_name], dict):
+                apply_mech_rules(cell, node, mech_name, param_name, mech_content[param_name], verbose=verbose)
+            elif isinstance(mech_content[param_name], list):
+                for mech_content_entry in mech_content[param_name]:
+                    apply_mech_rules(cell, node, mech_name, param_name, mech_content_entry, verbose=verbose)
+    else:
+        node.section.insert(mech_name)
