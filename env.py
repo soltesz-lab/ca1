@@ -4,8 +4,9 @@ from collections import defaultdict, namedtuple
 import numpy as np
 from mpi4py import MPI
 import yaml
-from ca1.utils import IncludeLoader, ExprClosure, get_root_logger, str, viewitems, zip, read_from_yaml
 from neuroh5.io import read_cell_attribute_info, read_population_names, read_population_ranges, read_projection_names
+from ca1.utils import IncludeLoader, ExprClosure, get_root_logger, str, viewitems, zip, read_from_yaml
+from dentate.synapses import SynapseAttributes, get_syn_filter_dict
 
 SynapseConfig = namedtuple('SynapseConfig',
                            ['type',
@@ -567,6 +568,8 @@ class Env(object):
 
         syn_mech_names = connection_config['Synapse Mechanisms']
         syn_param_rules = connection_config['Synapse Parameter Rules']
+
+        self.synapse_attributes = SynapseAttributes(self, syn_mech_names, syn_param_rules)
 
         extent_config = connection_config['Axon Extent']
         self.connection_extents = {}

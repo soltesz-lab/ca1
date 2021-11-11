@@ -20,17 +20,14 @@ import ca1
 from ca1.env import Env
 from ca1.utils import get_module_logger, Struct, viewitems, make_geometric_graph, zip_longest, apply_filter, butter_bandpass_filter, signal_psd, signal_power_spectrogram
 from ca1.io_utils import get_h5py_attr, set_h5py_attr
-from ca1 import spikedata
-
-try:
-except ImportError as e:
-    print(('neural_geometry.plot: problem importing module required by neural_geometry.geometry:', e))
+from ca1 import spikedata, cells
 
 # This logger will inherit its settings from the root logger, created in ca1.env
 logger = get_module_logger(__name__)
 
 # Default figure configuration
-default_fig_options = Struct(figFormat='png', lw=2, figSize=(10,8), fontSize=14, saveFig=None, showFig=True,
+default_fig_options = Struct(figFormat='png', lw=2, figSize=(10,8), fontSize=14,
+                             saveFig=None, showFig=True,
                              colormap='jet', saveFigDir=None)
 
 dflt_colors = ["#009BFF", "#E85EBE", "#00FF00", "#0000FF", "#FF0000", "#01FFFE", "#FFA6FE", 
@@ -77,9 +74,9 @@ def save_figure(file_name_prefix, fig=None, **kwargs):
     """
     fig_options = copy.copy(default_fig_options)
     fig_options.update(kwargs)
-    fig_file_path = '%s.%s' % (file_name_prefix, fig_options.figFormat)
+    fig_file_path = f'{file_name_prefix}.{fig_options.figFormat}'
     if fig_options.saveFigDir is not None:
-        fig_file_path = '%s/%s' % (fig_options.saveFigDir, fig_file_path)
+        fig_file_path = f'{fig_options.saveFigDir}/{fig_file_path}'
     if fig is not None:
         fig.savefig(fig_file_path)
     else:
@@ -168,7 +165,7 @@ def plot_spatial_bin_graph(graph_dict, **kwargs):
     hvpl = hv.HivePlot(snodes, edges, nodes_cmap, edges_cmap)
     hvpl.draw()
 
-    filename = '%s.%s' % (label, fig_options.figFormat)
+    filename = f'{label}.{fig_options.figFormat}'
     plt.savefig(filename)
     
 
@@ -226,7 +223,7 @@ def plot_coordinates(coords_path, population, namespace, index = 0, graph_type =
         p = ax.contourf(X[:-1,:-1] + (bin_size / 2), Y[:-1,:-1]+(bin_size / 2), H.T, levels=levels, cmap=cmap)
         fig.colorbar(p, ax=ax, shrink=0.5, aspect=20)
     else:
-        raise ValueError('Unknown graph type %s' % graph_type)
+        raise ValueError(f'Unknown graph type {graph_type}')
 
     if xyz:
         ax.set_xlabel('X coordinate (um)', fontsize=fig_options.fontSize)
@@ -235,13 +232,14 @@ def plot_coordinates(coords_path, population, namespace, index = 0, graph_type =
         ax.set_xlabel('U coordinate (septal - temporal)', fontsize=fig_options.fontSize)
         ax.set_ylabel('V coordinate (supra - infrapyramidal)', fontsize=fig_options.fontSize)
         
-    ax.set_title('Coordinate distribution for population: %s' % (population), fontsize=fig_options.fontSize)
+    ax.set_title(f'Coordinate distribution for population: {population}',
+                 fontsize=fig_options.fontSize)
     
     if fig_options.saveFig:
         if isinstance(fig_options.saveFig, str):
             filename = fig_options.saveFig
         else:
-            filename = population+' Coordinates.%s' % fig_options.figFormat
+            filename = f'{population} Coordinates.{fig_options.figFormat}' 
             plt.savefig(filename)
 
     if fig_options.showFig:
@@ -600,7 +598,7 @@ def plot_spike_raster (input_path, namespace_id, include = ['eachPop'], time_ran
 
         if max_spikes is not None:
             if int(max_spikes) < len(pop_spkinds):
-               logger.info(('  Displaying only randomly sampled %i out of %i spikes for population %s' % (max_spikes, len(pop_spkts), pop_name)))
+               logger.info('  Displaying only randomly sampled {max_spikes} out of {len(pop_spkts)} spikes for population {pop_name}')
                sample_inds = np.random.randint(0, len(pop_spkinds)-1, size=int(max_spikes))
                pop_spkts   = pop_spkts[sample_inds]
                pop_spkinds = pop_spkinds[sample_inds]
@@ -804,7 +802,7 @@ def plot_spike_histogram (input_path, namespace_id, config_path=None, include = 
     elif quantity == 'active':
         yaxisLabel = 'Active cell count'
     else:
-        print('Invalid quantity value %s' % str(quantity))
+        logger.error(f'Invalid quantity value {quantity}')
         return
 
     # create fig
@@ -1187,3 +1185,83 @@ def plot_lfp_spectrogram(input_path, config_path = None, time_range = None, wind
 
     return fig
 
+
+## Plot biophys cell tree 
+def plot_biophys_cell_tree (env, biophys_cell, node_filters={'swc_types': ['apical', 'basal']},
+                            plot_synapses=False, synapse_filters=None, syn_source_threshold=0.0,
+                            line_width=8., **kwargs): 
+    ''' 
+    Plot cell morphology and optionally synapse locations.
+
+    '''
+
+    fig_options = copy.copy(default_fig_options)
+    fig_options.update(kwargs)
+
+    import networkx as nx
+    from mayavi import mlab
+
+    morph_graph = cells.make_morph_graph(biophys_cell, node_filters=node_filters)
+    
+    colormap = kwargs.get("colormap", 'coolwarm')
+    mlab.figure(bgcolor=kwargs.get("bgcolor", (0,0,0)))
+    
+    xcoords = np.asarray([ x for (i, x) in morph_graph.nodes.data('x') ], dtype=np.float32)
+    ycoords = np.asarray([ y for (i, y) in morph_graph.nodes.data('y') ], dtype=np.float32)
+    zcoords = np.asarray([ z for (i, z) in morph_graph.nodes.data('z') ], dtype=np.float32)
+    #layers = np.asarray([ layer for (i, layer) in morph_graph.nodes.data('layer') ], dtype=np.int32)
+
+    #edges = nx.minimum_spanning_tree(morph_graph).edges(data=True)
+    edges = morph_graph.edges(data=True)
+    start_idx, end_idx, _ = np.array(list(edges)).T
+    start_idx = start_idx.astype(np.int)
+    end_idx   = end_idx.astype(np.int)
+    #edge_scalars = layers[start_idx]
+    
+    logger.info(f'plotting tree {biophys_cell.gid}')
+    
+    # Plot morphology graph with Mayavi
+    plot_graph(xcoords, ycoords, zcoords, start_idx, end_idx, edge_color=(1,1,1),
+                opacity=0.8, line_width=line_width)
+
+
+    # Obtain and plot synapse xyz locations
+    syn_attrs = env.synapse_attributes
+    synapse_filters = get_syn_filter_dict(env, synapse_filters, convert=True)
+    syns_dict = syn_attrs.filter_synapses(biophys_cell.gid, **synapse_filters)
+    syn_sec_dict = defaultdict(list)
+    if (syn_source_threshold is not None) and (syn_source_threshold > 0.0):
+        syn_source_count = defaultdict(int)
+        for syn_id, syn in viewitems(syns_dict):
+            syn_source_count[syn.source.gid] += 1
+        syn_source_max = 0
+        syn_source_pctile = {}
+        for source_id, source_id_count in viewitems(syn_source_count):
+            syn_source_max = max(syn_source_max, source_id_count)
+        logger.info("synapse source max count is %d" % (syn_source_max))
+        for syn_id, syn in viewitems(syns_dict):
+            count = syn_source_count[syn.source.gid]
+            syn_source_pctile[syn_id] = float(count) / float(syn_source_max)
+        syns_dict = { syn_id: syn for syn_id, syn in viewitems(syns_dict)
+                          if syn_source_pctile[syn_id] >= syn_source_threshold}
+    for syn_id, syn in viewitems(syns_dict):
+        syn_sec_dict[syn.syn_section].append(syn)
+    syn_xyz_sec_dict = {}
+    syn_src_sec_dict = {}
+    for sec_id, syns in viewitems(syn_sec_dict):
+        sec = biophys_cell.hoc_cell.sections[sec_id]
+        syn_locs = [syn.syn_loc for syn in syns]
+        syn_xyz_sec_dict[sec_id] = interplocs(sec, syn_locs)
+        syn_sources = [syn.source.gid for syn in syns]
+        syn_src_sec_dict[sec_id] = np.asarray(syn_sources)
+
+    #pprint.pprint(syns_dict)
+    logger.info(f'plotting {len(syns_dict)} synapses')
+    for sec_id, syn_xyz in viewitems(syn_xyz_sec_dict):
+        syn_sources = syn_src_sec_dict[sec_id]
+        mlab.points3d(syn_xyz[:,0], syn_xyz[:,1], syn_xyz[:,2], syn_sources, scale_mode='vector',scale_factor=10.0)
+        
+    mlab.gcf().scene.x_plus_view()
+    mlab.show()
+    
+    return mlab.gcf()

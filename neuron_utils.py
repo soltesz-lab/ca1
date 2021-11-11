@@ -1,5 +1,6 @@
 
-import os, os.path
+import os, os.path, math
+import numpy as np
 try:
     from mpi4py import MPI  # Must come before importing NEURON
 except Exception:
@@ -53,7 +54,7 @@ def reinit_diam(sec, diam_bounds):
     of the section (nseg) is changed, the section diameters must be reinitialized. This method checks the
     node's content dictionary for diameter boundaries and recalibrates the hoc section associated with this node.
     """
-    if not get_diam_bounds(sec) is None:
+    if diam_bounds is not None:
         diam1, diam2 = diam_bounds
         h(f'diam(0:1)={diam1}:{diam2}', sec=sec)
         
