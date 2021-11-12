@@ -11,19 +11,44 @@ logger = get_module_logger(__name__)
 
 class SectionNode(object):
     
-    def __init__(self, section_type, index, section, diam_bounds=None):
+    def __init__(self, section_type, index, section, content=None):
+        self.name = f'{section_type}{index}'
         self.section = section
         self.index = index
         self.section_type = section_type
-        self.diam_bounds = None
-        
+        if content is None:
+            content = dict()
+        self.content = content
+
+    @property
+    def diam_bounds(self):
+        return self.content.get('diam_bounds', None)
+
+    def get_layer(self, x=None):
+        """
+        NEURON sections can be assigned a layer type for convenience in order to later specify synaptic mechanisms and
+        properties for each layer. If 3D points are used to specify cell morphology, each element in the list
+        corresponds to the layer of the 3D point with the same index.
+        :param x: float in [0, 1] : optional relative location in section
+        :return: list or float or None
+        """
+        layer = self.content.get('layer', None)
+        if x is None:
+            result = layer
+        else:
+            for i in range(self.sec.n3d()):
+                result = layer[i]
+                if (self.sec.arc3d(i) / self.sec.L) >= x:
+                    break
+        return result
+
 
     @property
     def sec(self):
         return self.section
     
 
-def make_neurotree_hoc_cell(template_class, gid=0, neurotree_dict={}):
+def make_neurotree_hoc_cell(template_class, gid=0, neurotree_dict={}, section_content=None):
     """
     :param template_class:
     :param local_id:
@@ -44,8 +69,22 @@ def make_neurotree_hoc_cell(template_class, gid=0, neurotree_dict={}):
     vloc = neurotree_dict['section_topology']['loc']
     swc_type = neurotree_dict['swc_type']
     cell = template_class(gid, secnodes, vlayer, vsrc, vdst, vloc, vx, vy, vz, vradius, swc_type)
-    
-    return cell
+
+    section_content_dict = dict()
+    if section_content:
+        if isinstance(section_content, dict):
+            section_content_dict = section_content
+        for section_index in secnodes:
+            nodes = secnodes[section_index]
+            node_layers = np.asarray([vlayer[n] for n in nodes], dtype=np.uint8)
+            if not section_index in section_content_dict:
+                section_content_dict[section_index] = dict()
+            section_content_dict[section_index]['layer'] = node_layers
+
+    if section_content:
+        return cell, section_content_dict
+    else:
+        return cell
 
 def make_hoc_cell(env, pop_name, gid, neurotree_dict=False):
     """
@@ -164,25 +203,27 @@ class BiophysCell(object):
         self.mech_dict = dict(mech_dict) if mech_dict is not None else None
         self.spike_detector = None
         self.spike_onset_delay = 0.
-        self.hoc_cell = hoc_cell
         if hoc_cell is not None:
             import_morphology_from_hoc(self, hoc_cell)
         elif neurotree_dict is not None:
-            hoc_cell = make_neurotree_hoc_cell(template_class, gid, neurotree_dict)
-            import_morphology_from_hoc(self, hoc_cell)
+            hoc_cell, section_content = make_neurotree_hoc_cell(self.template_class, gid, neurotree_dict, section_content=True)
+            h.topology()
+            import_morphology_from_hoc(self, hoc_cell, section_content=section_content)
         if (mech_dict is None) and (mech_file_path is not None):
             import_mech_dict_from_file(self, self.mech_file_path)
         elif mech_dict is None:
             # Allows for a cell to be created and for a new mech_dict to be constructed programmatically from scratch
             self.init_mech_dict = dict()
             self.mech_dict = dict()
+        self.hoc_cell = hoc_cell
         self.root = None
         sorted_nodes = list(nx.topological_sort(self.tree))
         if len(sorted_nodes) > 0:
             self.root = sorted_nodes[0]
-            
+
         init_cable(self)
         init_spike_detector(self)
+
 
     @property
     def gid(self):
@@ -256,13 +297,13 @@ def get_distance_to_node(cell, node, root=None, loc=None):
 
 
 def get_node_parent(cell, node, return_edge_data=False):
-    ancestors = nx.ancestors(cell.tree, node)
-    if len(ancestors) > 1:
-        raise RuntimeException(f'get_node_parent: node {node} has more than one parent')
+    predecessors = list(cell.tree.predecessors(node))
+    if len(predecessors) > 1:
+        raise RuntimeError(f'get_node_parent: node {node.name} {node.sec.hname()} has more than one parent')
     parent = None
     edge_data = None
-    if len(ancestors) == 1:
-        parent = next(iter(ancestors))
+    if len(predecessors) == 1:
+        parent = next(iter(predecessors))
         edge_data = cell.tree.get_edge_data(parent, node)
     if return_edge_data:
         return parent, edge_data
@@ -270,10 +311,10 @@ def get_node_parent(cell, node, return_edge_data=False):
         return parent
 
 def get_node_children(cell, node, return_edge_data=False):
-    descendants = nx.descendants(cell.tree, node)
+    successors = cell.tree.successors(node)
     edge_data = []
     children = []
-    for d in descendants:
+    for d in successors:
         children.append(d)
         edge_data.append(cell.tree.get_edge_data(node, d))
     if return_edge_data:
@@ -283,9 +324,9 @@ def get_node_children(cell, node, return_edge_data=False):
     
     
 
-def insert_section_node(cell, section_type, index, sec):
-    node = SectionNode(section_type, index, sec)
-    if cell.tree.has_node(node):
+def insert_section_node(cell, section_type, index, sec, content=None):
+    node = SectionNode(section_type, index, sec, content=content)
+    if cell.tree.has_node(node) or node in cell.nodes[section_type]:
         raise RuntimeError(f'insert_section: section index {index} already exists in cell {self.gid}')
     cell.tree.add_node(node)
     cell.nodes[section_type].append(node)
@@ -299,9 +340,10 @@ def insert_section_tree(cell, sec_list, sec_dict, parent=None, connect_hoc_secti
         sec_parent, sec = sec_stack.pop()
         sec_info = sec_dict[sec]
         sec_children = sec.children()
+        sec_node = insert_section_node(cell, sec_info['section_type'], sec_info['section_index'], sec,
+                                       content=sec_info.get('section_content', None))
         for child in sec_children:
-            sec_stack.append((sec, child))
-        sec_node = insert_section_node(cell, sec_info['section_type'], sec_info['section_index'], sec)
+            sec_stack.append((sec_node, child))
         if sec_parent is not None:
             cell.tree = connect_nodes(cell.tree, sec_parent, sec_node,
                                       connect_hoc_sections=connect_hoc_sections)
@@ -324,11 +366,12 @@ def connect_nodes(tree, parent, child, parent_loc=1., child_loc=0., connect_hoc_
     return tree
 
 
-def import_morphology_from_hoc(cell, hoc_cell):
+def import_morphology_from_hoc(cell, hoc_cell, section_content=None):
     """
     Append sections from an existing instance of a NEURON cell template to a Python cell wrapper.
     :param cell: :class:'BiophysCell'
     :param hoc_cell: :class:'h.hocObject': instance of a NEURON cell template
+    
     """
     sec_info_dict = {}
     root_sec = None
@@ -346,7 +389,13 @@ def import_morphology_from_hoc(cell, hoc_cell):
             if sec_type == 'soma':
                 root_sec = sec_list[0]
             for sec, index in zip(sec_list, sec_indexes):
-                sec_info_dict[sec] = { 'section_type': sec_type, 'section_index': int(index) }
+                if section_content is not None:
+                    sec_info_dict[sec] = { 'section_type': sec_type,
+                                           'section_index': int(index),
+                                           'section_content': section_content[index] }
+                else:
+                    sec_info_dict[sec] = { 'section_type': sec_type,
+                                           'section_index': int(index) }
     if root_sec:
         insert_section_tree(cell, [root_sec], sec_info_dict)
     else:
@@ -396,8 +445,7 @@ def reset_cable_by_node(cell, node, verbose=True):
             update_mechanisms_by_node(cell, node, 'cable', mech_content, verbose=verbose)
     else:
         init_nseg(node.section, verbose=verbose)
-        if hasattr(node, 'diam_bounds'):
-            reinit_diam(node.section, getattr(node, 'diam_bounds'))
+        reinit_diam(node.section, node.diam_bounds)
 
         
 def connect2target(cell, sec, loc=1., param='_ref_v', delay=None, weight=None, threshold=None, target=None):
@@ -523,7 +571,7 @@ def apply_mech_rules(cell, node, mech_name, param_name, rules, verbose=True):
     if mech_name == 'cable':
         setattr(node.sec, param_name, baseline)
         init_nseg(node.section, get_spatial_res(cell, node), verbose=verbose)
-        reinit_diam(node.section, getattr(node, 'diam_bounds'))
+        reinit_diam(node.section, node.diam_bounds)
     else:
         set_mech_param(cell, node, mech_name, param_name, baseline, rules)
 
@@ -569,12 +617,12 @@ def filter_nodes(cell, sections=None, layers=None, swc_types=None):
             
     result = [v for v in nodes
                   if matches([(layers, v.get_layer()),
-                              (sections, v.get_sec())])]
+                              (sections, v.sec)])]
 
     return result
 
 
-def report_topology(cell, env, node=None):
+def report_topology(env, cell, node=None):
     """
     Traverse a cell and report topology and number of synapses.
     :param cell:
@@ -582,7 +630,7 @@ def report_topology(cell, env, node=None):
     :param node:
     """
     if node is None:
-        node = cell.tree.root
+        node = cell.root
     syn_attrs = env.synapse_attributes
     num_exc_syns = len(syn_attrs.filter_synapses(cell.gid, syn_sections=[node.index],
                                                  syn_types=[env.Synapse_Types['excitatory']]))
@@ -591,14 +639,14 @@ def report_topology(cell, env, node=None):
 
     diams_str = ', '.join('%.2f' % node.sec.diam3d(i) for i in range(node.sec.n3d()))
     report = f'node: {node.name}, L: {node.sec.L:.1f}, diams: [{diams_str}], nseg: {node.sec.nseg}, ' \
-             f'children: {len(node.children)}, exc_syns: {num_exc_syns}, inh_syns: {num_inh_syns}'
+             f'children: {len(node.sec.children())}, exc_syns: {num_exc_syns}, inh_syns: {num_inh_syns}'
     parent, edge_data = get_node_parent(cell, node, return_edge_data=True)
     if parent is not None:
-        report += f", parent: {node.parent.name}; connection_loc: {edge_data['connection_loc']:.1f}"
+        report += f", parent: {parent.name}; connection_loc: {edge_data['parent_loc']:.1f}"
     logger.info(report)
     children = get_node_children(cell, node)
     for child in children:
-        report_topology(cell, env, child)
+        report_topology(env, cell, child)
 
 
 def make_morph_graph(biophys_cell, node_filters={}):
@@ -610,7 +658,8 @@ def make_morph_graph(biophys_cell, node_filters={}):
     import networkx as nx
 
     nodes = filter_nodes(biophys_cell, **node_filters)
-
+    tree = biophys_cell.tree
+    
     sec_layers = {}
     src_sec = []
     dst_sec = []
@@ -639,7 +688,7 @@ def make_morph_graph(biophys_cell, node_filters={}):
             sec_pts[node.index].append(pt_idx)
             pt_idx += 1
 
-        for child in node.children:
+        for child in tree.successors(node):
             src_sec.append(node.index)
             dst_sec.append(child.index)
             connection_locs.append(h.parent_connection(sec=child.sec))
@@ -912,8 +961,7 @@ def make_biophys_cell(env, population_name, gid,
                                                 topology=True, validate=validate_tree)
         _, tree_dict = next(tree_attr_iter)
 
-    hoc_cell = make_hoc_cell(env, population_name, gid, neurotree_dict=tree_dict)
-    cell = BiophysCell(gid=gid, population_name=population_name, hoc_cell=hoc_cell, env=env,
+    cell = BiophysCell(gid=gid, population_name=population_name, neurotree_dict=tree_dict, env=env,
                        mech_file_path=mech_file_path, mech_dict=mech_dict)
     circuit_flag = load_edges or load_weights or load_synapses or synapses_dict or weight_dict or connection_graph
     if circuit_flag:
@@ -924,5 +972,6 @@ def make_biophys_cell(env, population_name, gid,
                              set_edge_delays=set_edge_delays, **kwargs)
     
     env.biophys_cells[population_name][gid] = cell
+
     return cell
 

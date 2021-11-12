@@ -20,7 +20,8 @@ import ca1
 from ca1.env import Env
 from ca1.utils import get_module_logger, Struct, viewitems, make_geometric_graph, zip_longest, apply_filter, butter_bandpass_filter, signal_psd, signal_power_spectrogram
 from ca1.io_utils import get_h5py_attr, set_h5py_attr
-from ca1 import spikedata, cells
+from ca1.neuron_utils import interplocs
+from ca1 import spikedata, cells, synapses
 
 # This logger will inherit its settings from the root logger, created in ca1.env
 logger = get_module_logger(__name__)
@@ -115,7 +116,7 @@ def plot_graph(x, y, z, start_idx, end_idx, edge_scalars=None, edge_color=None, 
                         **kwargs)
     b = mlab.points3d(x[0],y[0],z[0],
                       mode='cone',
-                      scale_factor=10,
+                      scale_factor=3,
                       **kwargs)
     if edge_scalars is not None:
         vec.glyph.color_mode = 'color_by_scalar'
@@ -1222,12 +1223,12 @@ def plot_biophys_cell_tree (env, biophys_cell, node_filters={'swc_types': ['apic
     
     # Plot morphology graph with Mayavi
     plot_graph(xcoords, ycoords, zcoords, start_idx, end_idx, edge_color=(1,1,1),
-                opacity=0.8, line_width=line_width)
+                opacity=0.6, line_width=line_width)
 
 
     # Obtain and plot synapse xyz locations
     syn_attrs = env.synapse_attributes
-    synapse_filters = get_syn_filter_dict(env, synapse_filters, convert=True)
+    synapse_filters = synapses.get_syn_filter_dict(env, synapse_filters, convert=True)
     syns_dict = syn_attrs.filter_synapses(biophys_cell.gid, **synapse_filters)
     syn_sec_dict = defaultdict(list)
     if (syn_source_threshold is not None) and (syn_source_threshold > 0.0):
@@ -1251,15 +1252,21 @@ def plot_biophys_cell_tree (env, biophys_cell, node_filters={'swc_types': ['apic
     for sec_id, syns in viewitems(syn_sec_dict):
         sec = biophys_cell.hoc_cell.sections[sec_id]
         syn_locs = [syn.syn_loc for syn in syns]
-        syn_xyz_sec_dict[sec_id] = interplocs(sec, syn_locs)
+        ip_x, ip_y, ip_z, ip_diam = interplocs(sec)
+        syn_xyz_sec_dict[sec_id] = np.column_stack((ip_x(syn_locs), ip_y(syn_locs), ip_z(syn_locs)))
         syn_sources = [syn.source.gid for syn in syns]
         syn_src_sec_dict[sec_id] = np.asarray(syn_sources)
 
     #pprint.pprint(syns_dict)
     logger.info(f'plotting {len(syns_dict)} synapses')
     for sec_id, syn_xyz in viewitems(syn_xyz_sec_dict):
-        syn_sources = syn_src_sec_dict[sec_id]
-        mlab.points3d(syn_xyz[:,0], syn_xyz[:,1], syn_xyz[:,2], syn_sources, scale_mode='vector',scale_factor=10.0)
+         syn_sources = syn_src_sec_dict[sec_id]
+         if None in syn_sources:
+             mlab.points3d(syn_xyz[:,0], syn_xyz[:,1], syn_xyz[:,2],
+                           scale_mode='vector',colormap=colormap,scale_factor=10.0,color=(1,0,0))
+         else:
+             mlab.points3d(syn_xyz[:,0], syn_xyz[:,1], syn_xyz[:,2], syn_sources,
+                           scale_mode='vector',colormap=colormap,scale_factor=10.0,color=(1,0,0))
         
     mlab.gcf().scene.x_plus_view()
     mlab.show()
