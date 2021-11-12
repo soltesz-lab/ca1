@@ -1190,7 +1190,7 @@ def plot_lfp_spectrogram(input_path, config_path = None, time_range = None, wind
 ## Plot biophys cell tree 
 def plot_biophys_cell_tree (env, biophys_cell, node_filters={'swc_types': ['apical', 'basal']},
                             plot_synapses=False, synapse_filters=None, syn_source_threshold=0.0,
-                            line_width=8., **kwargs): 
+                            line_width=8., mayavi=False, **kwargs): 
     ''' 
     Plot cell morphology and optionally synapse locations.
 
@@ -1200,33 +1200,12 @@ def plot_biophys_cell_tree (env, biophys_cell, node_filters={'swc_types': ['apic
     fig_options.update(kwargs)
 
     import networkx as nx
-    from mayavi import mlab
-
     morph_graph = cells.make_morph_graph(biophys_cell, node_filters=node_filters)
-    
-    colormap = kwargs.get("colormap", 'coolwarm')
-    mlab.figure(bgcolor=kwargs.get("bgcolor", (0,0,0)))
-    
-    xcoords = np.asarray([ x for (i, x) in morph_graph.nodes.data('x') ], dtype=np.float32)
-    ycoords = np.asarray([ y for (i, y) in morph_graph.nodes.data('y') ], dtype=np.float32)
-    zcoords = np.asarray([ z for (i, z) in morph_graph.nodes.data('z') ], dtype=np.float32)
-    #layers = np.asarray([ layer for (i, layer) in morph_graph.nodes.data('layer') ], dtype=np.int32)
 
-    #edges = nx.minimum_spanning_tree(morph_graph).edges(data=True)
-    edges = morph_graph.edges(data=True)
-    start_idx, end_idx, _ = np.array(list(edges)).T
-    start_idx = start_idx.astype(np.int)
-    end_idx   = end_idx.astype(np.int)
-    #edge_scalars = layers[start_idx]
-    
-    logger.info(f'plotting tree {biophys_cell.gid}')
-    
-    # Plot morphology graph with Mayavi
-    plot_graph(xcoords, ycoords, zcoords, start_idx, end_idx, edge_color=(1,1,1),
-                opacity=0.6, line_width=line_width)
+    gid = biophys_cell.gid
+    population = biophys_cell.population_name
 
-
-    # Obtain and plot synapse xyz locations
+    # Obtain synapse xyz locations
     syn_attrs = env.synapse_attributes
     synapse_filters = synapses.get_syn_filter_dict(env, synapse_filters, convert=True)
     syns_dict = syn_attrs.filter_synapses(biophys_cell.gid, **synapse_filters)
@@ -1257,18 +1236,93 @@ def plot_biophys_cell_tree (env, biophys_cell, node_filters={'swc_types': ['apic
         syn_sources = [syn.source.gid for syn in syns]
         syn_src_sec_dict[sec_id] = np.asarray(syn_sources)
 
-    #pprint.pprint(syns_dict)
-    logger.info(f'plotting {len(syns_dict)} synapses')
-    for sec_id, syn_xyz in viewitems(syn_xyz_sec_dict):
-         syn_sources = syn_src_sec_dict[sec_id]
-         if None in syn_sources:
-             mlab.points3d(syn_xyz[:,0], syn_xyz[:,1], syn_xyz[:,2],
-                           scale_mode='vector',colormap=colormap,scale_factor=10.0,color=(1,0,0))
-         else:
-             mlab.points3d(syn_xyz[:,0], syn_xyz[:,1], syn_xyz[:,2], syn_sources,
-                           scale_mode='vector',colormap=colormap,scale_factor=10.0,color=(1,0,0))
-        
-    mlab.gcf().scene.x_plus_view()
-    mlab.show()
+    fig = None
+    if mayavi:
+        from mayavi import mlab
+
     
-    return mlab.gcf()
+        colormap = kwargs.get("colormap", 'coolwarm')
+        mlab.figure(bgcolor=kwargs.get("bgcolor", (0,0,0)))
+    
+        xcoords = np.asarray([ x for (i, x) in morph_graph.nodes.data('x') ], dtype=np.float32)
+        ycoords = np.asarray([ y for (i, y) in morph_graph.nodes.data('y') ], dtype=np.float32)
+        zcoords = np.asarray([ z for (i, z) in morph_graph.nodes.data('z') ], dtype=np.float32)
+        layer = np.asarray([ layer for (i, layer) in morph_graph.nodes.data('layer') ], dtype=np.int32)
+        
+        #edges = nx.minimum_spanning_tree(morph_graph).edges(data=True)
+        edges = morph_graph.edges(data=True)
+        start_idx, end_idx, _ = np.array(list(edges)).T
+        start_idx = start_idx.astype(np.int)
+        end_idx   = end_idx.astype(np.int)
+        #edge_scalars = layers[start_idx]
+        
+        logger.info(f'plotting tree {biophys_cell.gid}')
+    
+        # Plot morphology graph with Mayavi
+        plot_graph(xcoords, ycoords, zcoords, start_idx, end_idx, edge_color=(1,1,1),
+                   opacity=0.6, line_width=line_width)
+
+
+        logger.info(f'plotting {len(syns_dict)} synapses')
+        for sec_id, syn_xyz in viewitems(syn_xyz_sec_dict):
+            syn_sources = syn_src_sec_dict[sec_id]
+            if None in syn_sources:
+                mlab.points3d(syn_xyz[:,0], syn_xyz[:,1], syn_xyz[:,2],
+                              scale_mode='vector',colormap=colormap,scale_factor=10.0,color=(1,0,0))
+            else:
+                mlab.points3d(syn_xyz[:,0], syn_xyz[:,1], syn_xyz[:,2], syn_sources,
+                              scale_mode='vector',colormap=colormap,scale_factor=10.0,color=(1,0,0))
+        
+        mlab.gcf().scene.x_plus_view()
+        mlab.show()
+    
+        fig = mlab.gcf()
+    
+    else:
+        from mpl_toolkits.mplot3d import Axes3D
+
+        fig = plt.figure(figsize=fig_options.figSize)
+        ax = Axes3D(fig)
+
+        xcoords = np.asarray([ x for (i, x) in morph_graph.nodes.data('x') ], dtype=np.float32)
+        ycoords = np.asarray([ y for (i, y) in morph_graph.nodes.data('y') ], dtype=np.float32)
+        zcoords = np.asarray([ z for (i, z) in morph_graph.nodes.data('z') ], dtype=np.float32)
+        layer = np.asarray([ layer for (i, layer) in morph_graph.nodes.data('layer') ], dtype=np.int32)
+
+        sct = ax.scatter(xcoords, ycoords, zcoords, c=layer, alpha=0.7, )
+        # produce a legend with the unique colors from the scatter
+        legend_elements = sct.legend_elements()
+        layer_legend = ax.legend(*legend_elements, loc="upper right", title="Layer")
+        ax.add_artist(layer_legend)
+
+        for i,j in morph_graph.edges:
+
+            e_x = (xcoords[i], xcoords[j])
+            e_y = (ycoords[i], ycoords[j])
+            e_z = (zcoords[i], zcoords[j])
+
+            ax.plot(e_x, e_y, e_z, c='black', alpha=0.5)
+
+        
+        for sec_id, syn_xyz in viewitems(syn_xyz_sec_dict):
+            syn_sources = syn_src_sec_dict[sec_id]
+            if None in syn_sources:
+                ax.scatter(syn_xyz[:,0], syn_xyz[:,1], syn_xyz[:,2], marker='^', s=100)
+            else:
+                ax.scatter(syn_xyz[:,0], syn_xyz[:,1], syn_xyz[:,2], c=syn_sources, marker='o')
+
+        ax.view_init(30)
+        ax.set_axis_off
+            
+        if fig_options.saveFig:
+            if isinstance(fig_options.saveFig, str):
+                filename = fig_options.saveFig
+            else:
+                filename = f'{population}_{gid}_cell_tree.{fig_options.figFormat}'
+            plt.savefig(filename)
+                
+        if fig_options.showFig:
+            show_figure()
+
+    return fig
+        

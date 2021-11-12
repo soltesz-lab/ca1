@@ -207,7 +207,6 @@ class BiophysCell(object):
             import_morphology_from_hoc(self, hoc_cell)
         elif neurotree_dict is not None:
             hoc_cell, section_content = make_neurotree_hoc_cell(self.template_class, gid, neurotree_dict, section_content=True)
-            h.topology()
             import_morphology_from_hoc(self, hoc_cell, section_content=section_content)
         if (mech_dict is None) and (mech_file_path is not None):
             import_mech_dict_from_file(self, self.mech_file_path)

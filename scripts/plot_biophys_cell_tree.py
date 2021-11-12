@@ -28,8 +28,9 @@ script_name = os.path.basename(__file__)
 @click.option("--font-size", type=float, default=14)
 @click.option("--bgcolor", type=(float,float,float), default=(0.,0.,0.))
 @click.option("--colormap", type=str, default='coolwarm')
+@click.option("--mayavi", type=bool, default=False, is_flag=True)
 @click.option("--verbose", "-v", type=bool, default=False, is_flag=True)
-def main(config_file, population, gid, template_paths, dataset_prefix, config_prefix, data_file, load_synapses, syn_types, syn_sources, syn_source_threshold, font_size, bgcolor, colormap, verbose):
+def main(config_file, population, gid, template_paths, dataset_prefix, config_prefix, data_file, load_synapses, syn_types, syn_sources, syn_source_threshold, font_size, bgcolor, colormap, mayavi, verbose):
 
     utils.config_logging(verbose)
     logger = utils.get_script_logger(script_name)
@@ -75,7 +76,7 @@ def main(config_file, population, gid, template_paths, dataset_prefix, config_pr
     plot.plot_biophys_cell_tree (env, biophys_cell, saveFig=True,
                                  syn_source_threshold=syn_source_threshold,
                                  synapse_filters={'syn_types': syn_types, 'sources': syn_sources},
-                                 bgcolor=bgcolor, colormap=colormap)
+                                 bgcolor=bgcolor, colormap=colormap, mayavi=mayavi)
     
 
 if __name__ == '__main__':
