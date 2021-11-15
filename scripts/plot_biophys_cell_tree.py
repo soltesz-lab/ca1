@@ -1,10 +1,10 @@
 
 import os, sys, click
-import dentate
 from ca1 import env, plot, utils, cells, neuron_utils
 from ca1.neuron_utils import h, configure_hoc_env
 from ca1.env import Env
 from ca1.cells import make_biophys_cell
+from ca1.synapses import init_syn_mech_attrs, config_biophys_cell_syns
 from mpi4py import MPI
 
 script_name = os.path.basename(__file__)
@@ -28,9 +28,9 @@ script_name = os.path.basename(__file__)
 @click.option("--font-size", type=float, default=14)
 @click.option("--bgcolor", type=(float,float,float), default=(0.,0.,0.))
 @click.option("--colormap", type=str, default='coolwarm')
-@click.option("--mayavi", type=bool, default=False, is_flag=True)
+@click.option("--plot-method", type=click.Choice(['matplotlib', 'mayavi', 'neuron'], case_sensitive=False), default='neuron')
 @click.option("--verbose", "-v", type=bool, default=False, is_flag=True)
-def main(config_file, population, gid, template_paths, dataset_prefix, config_prefix, data_file, load_synapses, syn_types, syn_sources, syn_source_threshold, font_size, bgcolor, colormap, mayavi, verbose):
+def main(config_file, population, gid, template_paths, dataset_prefix, config_prefix, data_file, load_synapses, syn_types, syn_sources, syn_source_threshold, font_size, bgcolor, colormap, plot_method, verbose):
 
     utils.config_logging(verbose)
     logger = utils.get_script_logger(script_name)
@@ -61,6 +61,10 @@ def main(config_file, population, gid, template_paths, dataset_prefix, config_pr
                                      load_weights=load_weights, 
                                      load_edges=load_edges,
                                      mech_file_path=mech_file_path)
+    cells.init_biophysics(biophys_cell, reset_cable=True, 
+                          correct_cm=False, correct_g_pas=False, env=env)
+    if load_synapses:
+        init_syn_mech_attrs(biophys_cell, env, update_targets=True)
 
     cells.report_topology(env, biophys_cell)
     
@@ -76,7 +80,7 @@ def main(config_file, population, gid, template_paths, dataset_prefix, config_pr
     plot.plot_biophys_cell_tree (env, biophys_cell, saveFig=True,
                                  syn_source_threshold=syn_source_threshold,
                                  synapse_filters={'syn_types': syn_types, 'sources': syn_sources},
-                                 bgcolor=bgcolor, colormap=colormap, mayavi=mayavi)
+                                 bgcolor=bgcolor, colormap=colormap, plot_method=plot_method)
     
 
 if __name__ == '__main__':

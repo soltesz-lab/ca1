@@ -20,7 +20,7 @@ import ca1
 from ca1.env import Env
 from ca1.utils import get_module_logger, Struct, viewitems, make_geometric_graph, zip_longest, apply_filter, butter_bandpass_filter, signal_psd, signal_power_spectrogram
 from ca1.io_utils import get_h5py_attr, set_h5py_attr
-from ca1.neuron_utils import interplocs
+from ca1.neuron_utils import interplocs, h
 from ca1 import spikedata, cells, synapses
 
 # This logger will inherit its settings from the root logger, created in ca1.env
@@ -1190,7 +1190,7 @@ def plot_lfp_spectrogram(input_path, config_path = None, time_range = None, wind
 ## Plot biophys cell tree 
 def plot_biophys_cell_tree (env, biophys_cell, node_filters={'swc_types': ['apical', 'basal']},
                             plot_synapses=False, synapse_filters=None, syn_source_threshold=0.0,
-                            line_width=8., mayavi=False, **kwargs): 
+                            line_width=8., plot_method='neuron', **kwargs): 
     ''' 
     Plot cell morphology and optionally synapse locations.
 
@@ -1237,7 +1237,7 @@ def plot_biophys_cell_tree (env, biophys_cell, node_filters={'swc_types': ['apic
         syn_src_sec_dict[sec_id] = np.asarray(syn_sources)
 
     fig = None
-    if mayavi:
+    if plot_method == 'mayavi':
         from mayavi import mlab
 
     
@@ -1278,7 +1278,7 @@ def plot_biophys_cell_tree (env, biophys_cell, node_filters={'swc_types': ['apic
     
         fig = mlab.gcf()
     
-    else:
+    elif plot_method == 'matplotlib':
         from mpl_toolkits.mplot3d import Axes3D
 
         fig = plt.figure(figsize=fig_options.figSize)
@@ -1323,6 +1323,16 @@ def plot_biophys_cell_tree (env, biophys_cell, node_filters={'swc_types': ['apic
                 
         if fig_options.showFig:
             show_figure()
-
+    else:
+        sl = h.SectionList([sec for sec in biophys_cell.hoc_cell.all])
+        for sec in sl:
+            sec.v = 0
+        h.topology()
+        h.psection(list(sl)[0])
+        ps = h.PlotShape(sl, False)  # False tells h.PlotShape not to use NEURON's gui
+        ax = ps.plot(plt)
+        plt.show()
+        
+            
     return fig
         

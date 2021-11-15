@@ -5,6 +5,7 @@ import numpy as np
 import scipy
 import scipy.optimize as opt
 from neuroh5.io import write_cell_attributes
+from ca1.neuron_utils import default_ordered_sec_types
 from ca1.cells import make_section_graph
 from ca1.utils import ExprClosure, Promise, NamedTupleWithDocstring, get_module_logger, generator_ifempty, map, range, str, \
      viewitems, viewkeys, zip, zip_longest, partitionn, rejection_sampling
