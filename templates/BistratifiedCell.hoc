@@ -97,14 +97,17 @@ proc append_sections() { local i
 	}
 
 	for i=0, apicalidx.size()-1 {
+                dendidx.append(s)
 		sections[apicalidx.x[i]] apical_list.append()
 	}
 
 	for i=0, basalidx.size()-1 {
+                dendidx.append(s)
 		sections[basalidx.x[i]] basal_list.append()
 	}
 
 	for i=0, axonidx.size()-1 {
+		sections[axonidx.x[i]] all.append()
 		sections[axonidx.x[i]] axon_list.append()
 	}
 }

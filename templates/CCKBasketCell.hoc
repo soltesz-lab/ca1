@@ -103,6 +103,7 @@ proc append_sections() { local i
 	}
 
 	for i=0, axonidx.size()-1 {
+		sections[axonidx.x[i]] all.append()
 		sections[axonidx.x[i]] axon_list.append()
 	}
 }
@@ -308,10 +309,12 @@ proc topol_from_python() { local i,j,l,p,s,p_layer,loc,vlen localobj vsrc, vdst,
 
         if (swc_type == 4) {
             nDends = nDends + 1
+            dendidx.append(s)
             apicalidx.append(s)
         }
         if (swc_type == 3) {
             nDends = nDends + 1
+            dendidx.append(s)
             basalidx.append(s)
         }
         if (swc_type == 8) {
