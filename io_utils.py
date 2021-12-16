@@ -61,6 +61,27 @@ def h5_concat_dataset(dset, data):
     return dset
 
 
+def show_celltypes(input_path, output=print):
+
+    with h5py.File(input_path, "r") as h5:
+
+        dt_population_labels = h5[path_population_labels]
+        enum_dtype_dict = h5py.h5t.check_enum_dtype(dt_population_labels.dtype)
+        population_idx_dict = { enum_dtype_dict[k]: k for k in enum_dtype_dict } 
+        
+        g = h5_get_group(h5, grp_h5types)
+
+        populations = h5_get_dataset(g, grp_populations)
+        output (f"{'Name':<10} {'Start':<8} {'Count':<8}")
+        output (f"{'====':<10} {'=====':<8} {'=====':<8}")
+        for i in range(len(populations)):
+            start, count, idx = populations[i]
+            name = population_idx_dict[idx]
+            output (f"{name:<10} {start:<8} {count:<8}")
+
+    h5.close()
+
+
 def import_celltypes(celltype_path, output_path):
 
     import csv
