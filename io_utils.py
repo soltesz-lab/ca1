@@ -4,7 +4,7 @@ from mpi4py import MPI
 import h5py
 import numpy as np
 from ca1.utils import Struct, range, str, viewitems, Iterable, compose_iter, get_module_logger, get_trial_time_ranges
-from neuroh5.io import read_cell_attributes, write_cell_attributes, append_cell_attributes
+from neuroh5.io import read_cell_attributes, write_cell_attributes, append_cell_attributes, read_cell_attribute_info
 
 
 def set_union(a, b, datatype):
@@ -819,3 +819,22 @@ def write_input_cell_selection(env, input_sources, write_selection_file_path, po
                 
         write_cell_attributes(write_selection_file_path, pop_name, spikes_output_dict,  \
                               namespace=env.spike_input_ns, **write_kwds)
+
+        
+def query_cell_attributes(input_file, population_names, namespace_ids=None):
+
+    pop_state_dict = {}
+
+    logger.info('Querying cell attribute data...')
+
+    attr_info_dict = read_cell_attribute_info(input_file, populations=population_names, read_cell_index=True)
+
+    namespace_id_lst = []
+    for pop_name in attr_info_dict:
+        cell_index = None
+        pop_state_dict[pop_name] = {}
+        if namespace_ids is None:
+            namespace_id_lst = attr_info_dict[pop_name].keys()
+        else:
+            namespace_id_lst = namespace_ids
+    return namespace_id_lst, attr_info_dict
