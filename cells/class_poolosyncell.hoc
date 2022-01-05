@@ -288,8 +288,6 @@ proc append_sections() { local i
 	NumBasal=60
 	NumAxon=2
 
-	objref all, basal_list, apical_list, soma_list, axon_list, rad_list, lm_list, dendrite_list
-
 	all = new SectionList()
 	basal_list = new SectionList()
 	apical_list = new SectionList()
@@ -300,10 +298,10 @@ proc append_sections() { local i
 	dendrite_list = new SectionList()
 
 
-	axon[1] all.append()
-	axon[1] axon_list.append()
-	axon[0] all.append()
-	axon[0] axon_list.append()
+	axon[1] { all.append()
+            axon_list.append() }
+	axon[0] { all.append()
+            axon_list.append() }
 	
 	for i=0,NumSoma-1 soma[i] { all.append()
 								soma_list.append()}	

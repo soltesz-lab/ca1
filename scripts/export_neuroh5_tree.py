@@ -23,7 +23,7 @@ def mpi_excepthook(type, value, traceback):
 sys.excepthook = mpi_excepthook
 
 
-def export_swc_dict(cell, ref_axis=1, sections=[("soma_list",1),("apical_list",4),("basal_list",3),("axon_list",7)]):
+def export_swc_dict(cell, ref_axis=1, sections=[("soma_list",1),("apical_list",4),("basal_list",3),("axon_list",2)]):
 
     min_sec_pts = 3
     swc_point_idx = 0
@@ -86,7 +86,7 @@ def export_swc_dict(cell, ref_axis=1, sections=[("soma_list",1),("apical_list",4
 
     sec_idx_dict = {}
     sec_name_dict = {}
-    for sec_idx, sec_name in enumerate(swc_point_sec_dict.keys()):
+    for sec_idx, sec_name in enumerate(sorted(swc_point_sec_dict.keys())):
         sec_idx_dict[sec_name] = sec_idx
         sec_name_dict[sec_idx] = sec_name
 
@@ -130,7 +130,7 @@ def export_swc_dict(cell, ref_axis=1, sections=[("soma_list",1),("apical_list",4
     for (src,dst) in sec_graph.edges:
         sec_src.append(src)
         sec_dst.append(dst)
-    
+
     pt_sections = []
     pt_sections.append(len(sec_name_dict))
     for sec_idx in sorted(sec_name_dict.keys()):

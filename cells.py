@@ -47,7 +47,12 @@ class SectionNode(object):
     def sec(self):
         return self.section
     
-
+    def __str__(self):
+        return self.name
+    
+    def __repr__(self):
+        return self.name
+    
 def make_neurotree_hoc_cell(template_class, gid=0, neurotree_dict={}, section_content=None):
     """
     :param template_class:
@@ -196,7 +201,7 @@ class BiophysCell(object):
             for sec_type in env.SWC_Types:
                 if sec_type not in default_ordered_sec_types:
                     raise AttributeError('Unexpected SWC Type definitions found in Env')
-                
+
         self.nodes = {key: [] for key in default_ordered_sec_types}
         self.mech_file_path = mech_file_path
         self.init_mech_dict = dict(mech_dict) if mech_dict is not None else None
@@ -278,18 +283,18 @@ def get_distance_to_node(cell, node, root=None, loc=None):
     """
     if root is None:
         root = cell.root
-        
+
     length = 0.
     if (node is root) or (root is None) or (node is None):
         return length
     if loc is not None:
         length += loc * node.section.L
-    rpath = nx.shortest_path(cell.tree, source=root, target=node).reverse()
+    rpath = list(reversed(nx.shortest_path(cell.tree, source=root, target=node)))
     while not len(rpath) == 0:
         node = rpath.pop()
-        if not len(rpath()) == 0:
-            parent = rpath.top()
-            e = cell.tree.get_edge_data(parent, node)
+        if not len(rpath) == 0:
+            parent = rpath[-1]
+            e = cell.tree.get_edge_data(node, parent)
             loc = e['parent_loc']
             length += loc * parent.section.L
     return length
@@ -512,7 +517,7 @@ def init_spike_detector(cell, node=None, distance=100., threshold=-30, delay=0.0
             for node in cell.axon:
                 sec_seg_locs = [seg.x for seg in node.sec]
                 for loc in sec_seg_locs:
-                    if get_distance_to_node(cell, cell.root, node, loc=loc) >= distance:
+                    if get_distance_to_node(cell, node, root=cell.root, loc=loc) >= distance:
                         break
                 else:
                     continue
@@ -523,7 +528,7 @@ def init_spike_detector(cell, node=None, distance=100., threshold=-30, delay=0.0
         elif cell.ais:
             node = cell.ais[0]
         elif cell.soma:
-            node = cell.soma[0]
+            node = cell.soma[-1]
         else:
             raise RuntimeError('init_spike_detector: cell has neither soma nor axon compartment')
 

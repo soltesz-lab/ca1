@@ -24,7 +24,7 @@ Cell Types:
     synapses:
       density: !include CCKBC_synapse_density.yaml
   DPYR:
-    template: PyramidalCell
+    template: PoolosPyramidalCell
     synapses:
       density: !include DPYR_synapse_density.yaml
   IS:
@@ -52,7 +52,7 @@ Cell Types:
     synapses:
       density: !include SCA_synapse_density.yaml
   SPYR:
-    template: PyramicalCell
+    template: PoolosPyramidalCell
     synapses:
       density: !include SPYR_synapse_density.yaml
   CA3:
