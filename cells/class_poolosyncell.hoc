@@ -6,7 +6,7 @@ public init, topol, basic_shape, subsets, geom, biophys
 public pre_list, connect_pre
 
 public soma, apical, basal, axon
-public all, basal_list, apical_list, soma_list, axon_list, rad_list, lm_list, dendrite_list
+public all, basal_list, apical_list, soma_list, ais_list, axon_list, allaxon_list, rad_list, lm_list, dendrite_list
 public x, y, z, position, myroot, Vrest
 
 public NumSoma, NumApical, NumBasal, NumAxon
@@ -280,7 +280,7 @@ proc connect_sections() {
 }
 
 
-objref all, basal_list, apical_list, soma_list, axon_list, rad_list, lm_list, dendrite_list
+objref all, basal_list, apical_list, soma_list, ais_list, axon_list, allaxon_list, rad_list, lm_list, dendrite_list
 
 proc append_sections() { local i
 	NumSoma=13
@@ -292,16 +292,20 @@ proc append_sections() { local i
 	basal_list = new SectionList()
 	apical_list = new SectionList()
 	soma_list = new SectionList()
+	ais_list = new SectionList()
 	axon_list = new SectionList()
+	allaxon_list = new SectionList()
 	rad_list = new SectionList()
 	lm_list = new SectionList()
 	dendrite_list = new SectionList()
 
 
 	axon[1] { all.append()
+            allaxon_list.append() 
             axon_list.append() }
 	axon[0] { all.append()
-            axon_list.append() }
+            allaxon_list.append() 
+            ais_list.append() }
 	
 	for i=0,NumSoma-1 soma[i] { all.append()
 								soma_list.append()}	

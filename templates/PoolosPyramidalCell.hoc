@@ -131,6 +131,11 @@ proc append_sections() { local i
 		sections[axonidx.x[i]] axon_list.append()
 	}
 
+	for i=0, aisidx.size()-1 {
+		sections[aisidx.x[i]] all.append()
+		sections[aisidx.x[i]] ais_list.append()
+	}
+
 
 }
 

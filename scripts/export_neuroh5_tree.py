@@ -23,7 +23,7 @@ def mpi_excepthook(type, value, traceback):
 sys.excepthook = mpi_excepthook
 
 
-def export_swc_dict(cell, ref_axis=1, sections=[("soma_list",1),("apical_list",4),("basal_list",3),("axon_list",2)]):
+def export_swc_dict(cell, ref_axis=1, sections=[("soma_list",1),("apical_list",4),("basal_list",3),("axon_list",2),("ais_list",7)]):
 
     min_sec_pts = 3
     swc_point_idx = 0
