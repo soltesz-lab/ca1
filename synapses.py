@@ -5,7 +5,7 @@ import numpy as np
 import scipy
 import scipy.optimize as opt
 from neuroh5.io import write_cell_attributes
-from ca1.neuron_utils import default_ordered_sec_types
+from ca1.neuron_utils import default_ordered_sec_types, interplocs
 from ca1.cells import make_section_graph
 from ca1.utils import ExprClosure, Promise, NamedTupleWithDocstring, get_module_logger, generator_ifempty, map, range, str, \
      viewitems, viewkeys, zip, zip_longest, partitionn, rejection_sampling
@@ -206,6 +206,7 @@ def distribute_uniform_synapses(density_seed, syn_type_dict, swc_type_dict, laye
     """
     syn_ids = []
     syn_locs = []
+    syn_cdists = []
     syn_secs = []
     syn_layers = []
     syn_types = []
@@ -215,6 +216,7 @@ def distribute_uniform_synapses(density_seed, syn_type_dict, swc_type_dict, laye
     r = np.random.RandomState()
     local_random.seed(int(seed))
 
+    sec_interp_loc_dict = {}
     segcounts_per_sec = {}
     for (sec_name, layer_density_dict) in viewitems(sec_layer_density_dict):
         sec_index_dict = cell_secidx_dict[sec_name]
@@ -223,6 +225,9 @@ def distribute_uniform_synapses(density_seed, syn_type_dict, swc_type_dict, laye
         L_total = 0
         (seclst, maxdist) = cell_sec_dict[sec_name]
         secidxlst = cell_secidx_dict[sec_name]
+        for sec, idx in zip(seclst, secidxlst):
+            npts_interp = max(int(round(sec.L)), 3)
+            sec_interp_loc_dict[idx] = interplocs(sec)
         sec_dict = {int(idx): sec for sec, idx in zip(seclst, secidxlst)}
         seg_dict = {}
         for (sec_index, sec) in viewitems(sec_dict):
@@ -248,6 +253,7 @@ def distribute_uniform_synapses(density_seed, syn_type_dict, swc_type_dict, laye
             segcounts = segcounts_dict[syn_type]
             layers = layers_dict[syn_type]
             for sec_index, seg_list in viewitems(seg_dict):
+                interp_loc = sec_interp_loc_dict[sec_index]
                 for seg, layer, seg_count in zip(seg_list, layers, segcounts):
                     seg_start = seg.x - (0.5 / seg.sec.nseg)
                     seg_end = seg.x + (0.5 / seg.sec.nseg)
@@ -258,6 +264,8 @@ def distribute_uniform_synapses(density_seed, syn_type_dict, swc_type_dict, laye
                         syn_loc = seg_start + seg_range * (syn_count + 1) / math.ceil(seg_count)
                         assert ((syn_loc <= 1) & (syn_loc >= 0))
                         if syn_loc < 1.0:
+                            syn_cdist = math.sqrt(reduce(lambda a, b: a+b, ( interp_loc[i](syn_loc)**2 for i in range(3) )))
+                            syn_cdists.append(syn_cdist)
                             syn_locs.append(syn_loc)
                             syn_ids.append(syn_index)
                             syn_secs.append(sec_index_dict[seg.sec])
@@ -269,6 +277,7 @@ def distribute_uniform_synapses(density_seed, syn_type_dict, swc_type_dict, laye
 
     assert (len(syn_ids) > 0)
     syn_dict = {'syn_ids': np.asarray(syn_ids, dtype='uint32'),
+                'syn_cdists': np.asarray(syn_cdists, dtype='float32'),
                 'syn_locs': np.asarray(syn_locs, dtype='float32'),
                 'syn_secs': np.asarray(syn_secs, dtype='uint32'),
                 'syn_layers': np.asarray(syn_layers, dtype='int8'),
@@ -296,6 +305,7 @@ def distribute_poisson_synapses(density_seed, syn_type_dict, swc_type_dict, laye
     import networkx as nx
 
     syn_ids = []
+    syn_cdists = []
     syn_locs = []
     syn_secs = []
     syn_layers = []
@@ -315,6 +325,7 @@ def distribute_poisson_synapses(density_seed, syn_type_dict, swc_type_dict, laye
         logger.debug('sec_graph: %s' % str(list(sec_graph.edges)))
         logger.debug('neurotree_dict: %s' % str(neurotree_dict))
 
+    sec_interp_loc_dict = {}
     seg_density_per_sec = {}
     r = np.random.RandomState()
     r.seed(int(density_seed))
@@ -326,6 +337,9 @@ def distribute_poisson_synapses(density_seed, syn_type_dict, swc_type_dict, laye
 
         (seclst, maxdist) = cell_sec_dict[sec_name]
         secidxlst = cell_secidx_dict[sec_name]
+        for sec, idx in zip(seclst, secidxlst):
+            npts_interp = max(int(round(sec.L)), 3)
+            sec_interp_loc_dict[idx] = interplocs(sec)
         sec_dict = {int(idx): sec for sec, idx in zip(seclst, secidxlst)}
         if len(sec_dict) > 1:
             sec_subgraph = sec_graph.subgraph(list(sec_dict.keys()))
@@ -364,6 +378,7 @@ def distribute_poisson_synapses(density_seed, syn_type_dict, swc_type_dict, laye
             layers = layers_dict[syn_type]
             end_distance = {}
             for sec_parent, sec_index in sec_edges:
+                interp_loc = sec_interp_loc_dict[sec_index]
                 seg_list = seg_dict[sec_index]
                 sec_seg_layers = layers[sec_index]
                 sec_seg_density = seg_density[sec_index]
@@ -391,6 +406,8 @@ def distribute_poisson_synapses(density_seed, syn_type_dict, swc_type_dict, laye
                                 syn_loc = (interval / L)
                                 assert ((syn_loc <= 1) and (syn_loc >= seg_start))
                                 if syn_loc < 1.0:
+                                    syn_cdist = math.sqrt(reduce(lambda a, b: a+b, ( interp_loc[i](syn_loc)**2 for i in range(3) )))
+                                    syn_cdists.append(syn_cdist)
                                     syn_locs.append(syn_loc)
                                     syn_ids.append(syn_index)
                                     syn_secs.append(sec_index)
@@ -405,6 +422,7 @@ def distribute_poisson_synapses(density_seed, syn_type_dict, swc_type_dict, laye
 
     assert (len(syn_ids) > 0)
     syn_dict = {'syn_ids': np.asarray(syn_ids, dtype='uint32'),
+                'syn_cdists': np.asarray(syn_cdists, dtype='float32'),
                 'syn_locs': np.asarray(syn_locs, dtype='float32'),
                 'syn_secs': np.asarray(syn_secs, dtype='uint32'),
                 'syn_layers': np.asarray(syn_layers, dtype='int8'),
@@ -1441,7 +1459,7 @@ def config_hoc_cell_syns(env, gid, postsyn_name, cell=None, syn_ids=None, unique
     param_closure_dict = {}
     if 'closure' in weights_dict:
         param_closure_dict['weight'] = weights_dict['closure']
-    
+     
     if unique is None:
         if 'unique' in synapse_config:
             unique = synapse_config['unique']
@@ -1509,8 +1527,6 @@ def config_hoc_cell_syns(env, gid, postsyn_name, cell=None, syn_ids=None, unique
                                                f'value set for parameter {param_name}')
                         if isinstance(param_val, Promise):
                             new_param_val = param_val.clos(*param_val.args)
-                        elif param_name in param_closure_dict and isinstance(param_val, list):
-                            new_param_val = param_closure_dict[param_name](*param_val)
                         else:
                             new_param_val = param_val
                         upd_params[param_name] = new_param_val
@@ -1561,12 +1577,17 @@ def config_syn(syn_name, rules, mech_names=None, syn=None, nc=None, **params):
                 failed = False
             else:
                 if isinstance(val, ExprClosure) and (nc is not None):
-                    if val.parameters[0] == 'delay':
-                        setattr(syn, param, val(nc.delay))
-                        mech_param = True
-                        failed = False
-                    else:
-                        failed = True
+                    param_vals = []
+                    for clos_param in val.parameters:
+                        if hasattr(nc, clos_param):
+                            param_vals.append(getattr(nc, clos_param))
+                            mech_param = True
+                            failed = False
+                        else:
+                            failed = True
+                            break
+                    if not failed:
+                        setattr(syn, param, val(*param_vals))
                 else:
                     setattr(syn, param, val)
                     mech_param = True
@@ -1580,13 +1601,17 @@ def config_syn(syn_name, rules, mech_names=None, syn=None, nc=None, **params):
                 if int(nc.wcnt()) >= i:
                     old = nc.weight[i]
                     if isinstance(val, ExprClosure):
-                        if val.parameters[0] == 'delay':
-                            new = val(nc.delay)
-                            nc.weight[i] = new
-                            nc_param = True
-                            failed = False
-                        else:
-                            failed = True
+                        param_vals = []
+                        for clos_param in val.parameters:
+                            if hasattr(nc, clos_param):
+                                param_vals.append(getattr(nc, clos_param))
+                                nc_param = True
+                                failed = False
+                            else:
+                                failed = True
+                                break
+                        if not failed:
+                            nc.weight[i] = val(*param_vals)
                     else:
                         if val is None:
                             raise AttributeError(f'config_syn: netcon attribute {param} is None for synaptic mechanism: {mech_name}')

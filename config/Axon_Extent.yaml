@@ -1,4 +1,16 @@
 # Axonal extent in um [S-T, M-L]
+EC:
+  default:
+    width: [2000.0, 2000.0]
+    offset: [0,0]
+CA3:
+  default:
+    width: [2000.0, 2000.0]
+    offset: [0,0]
+CA2:
+  default:
+    width: [2000.0, 2000.0]
+    offset: [0,0]
 DPYR:
   default:
     width: [1000.0, 1000.0]
