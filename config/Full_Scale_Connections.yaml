@@ -1,5 +1,13 @@
 ## Information needed: CA2 projections and strengths needed, NMDA unit strengths, IS 
-
+## TODO:
+## PVBC:
+##  - excitatory connections on soma in SP
+##  - inhibitory connections on PVBC basal SO
+## SPYR:
+##  - CA2 connections in SR
+## DPYR:
+##  - excitatory connections on soma in SP
+##  - CA2 connections in SR
 Synapse Mechanisms:
   AMPA: LinExp2Syn 
   NMDA: FacilNMDA
@@ -343,26 +351,26 @@ Synapses:
   PVBC:
     CA2:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [apical, basal]
+      layers: [SR, SO]
+      proportions: [0.2, 0.1]
       mechanisms:
         AMPA:
-          tau_rise: 
-          tau_decay:
+          tau_rise: 0.5
+          tau_decay: 3.0
           e: 0
-          g_unit: 
+          g_unit: 0.001
     CA3:
       type: excitatory
-      sections: [apical]
-      layers: [SR]
-      proportions: [1.0]
+      sections: [apical, basal]
+      layers: [SR, SO]
+      proportions: [0.8, 0.3]
       mechanisms:
         AMPA:
           tau_rise: 2.0
           tau_decay: 6.3
           e: 0
-          g_unit: 
+          g_unit: 0.001
     EC:
       type: excitatory
       sections: [apical]
@@ -373,44 +381,44 @@ Synapses:
           tau_rise: 2.0
           tau_decay: 6.3
           e: 0
-          g_unit:      
+          g_unit: 0.002     
     SPYR:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [basal, soma]
+      layers: [SO, SP]
+      proportions: [0.3, 0.5]
       mechanisms:
         AMPA:
           tau_rise: 0.07
-          tau_decay: 0.20
+          tau_decay: 2.0
           e: 0
-          g_unit: 
+          g_unit: 0.0005
         NMDA:
-          g_unit: 
+          g_unit: 0.0005
     DPYR:
       type: excitatory
-      sections: []
-      layers: []
-      proportions: []
+      sections: [basal, soma]
+      layers: [SO, SP]
+      proportions: [0.3, 0.5]
       mechanisms:
         AMPA:
           tau_rise: 0.07
           tau_decay: 0.20
           e: 0
-          g_unit: 
+          g_unit: 0.0005
         NMDA:
-          g_unit: 
+          g_unit: 0.0005
     PVBC:   
       type: inhibitory
-      sections: [soma, apical]
-      layers: [SP, SP]
-      proportions: [0.16, 0.16]
+      sections: [soma, apical, basal]
+      layers: [SP, SP, SO]
+      proportions: [0.16, 0.16, 1.0]
       mechanisms:
         GABA_A:
           tau_rise: 0.08
           tau_decay: 4.8
           e: -60
-          g_unit:
+          g_unit: 0.001
     CCKBC:  
       type: inhibitory
       sections: [soma, apical]
@@ -421,7 +429,7 @@ Synapses:
           tau_rise: 0.432
           tau_decay: 4.9
           e: -60
-          g_unit: 
+          g_unit: 0.001
     BS:   
       type: inhibitory
       sections: [apical]
@@ -432,7 +440,7 @@ Synapses:
           tau_rise: 0.287
           tau_decay: 2.67
           e: -60
-          g_unit: 
+          g_unit: 0.001
     IVY:
       type: inhibitory
       sections: [apical]
@@ -443,7 +451,7 @@ Synapses:
           tau_rise: 2.9
           tau_decay: 3.1
           e: -60
-          g_unit: 
+          g_unit: 0.001
     SCA:
       type: inhibitory
       sections: [apical]
@@ -454,7 +462,7 @@ Synapses:
           tau_rise: 0.419
           tau_decay: 4.99
           e: -60
-          g_unit: 
+          g_unit: 0.001
 
     NGFC: 
       type: inhibitory
@@ -467,12 +475,12 @@ Synapses:
             tau_rise:  8.0
             tau_decay: 39.0
             e:   -60
-            g_unit: 
+            g_unit: 0.001
           GABA_B:
             tau_rise:  180.0
             tau_decay: 200.0
             e:   -90
-            g_unit: 
+            g_unit: 0.001
     OLM: 
       type: inhibitory
       sections: [apical]
@@ -484,7 +492,7 @@ Synapses:
             tau_rise:  0.25
             tau_decay: 7.5
             e:   -60
-            g_unit: 
+            g_unit: 0.001
             
             
   # need exc, weights
