@@ -60,8 +60,8 @@ proc init() {
         pyenv = new PythonObject()
     	nrnpython("import numpy as np")
         
-        shape_from_python($o3,$o8,$o9,$o10,$o11)
-        topol_from_python($o3,$o4,$o5,$o6,$o7,$o12)
+        shape_from_python($o2,$o7,$o8,$o9,$o10)
+        topol_from_python($o2,$o3,$o4,$o5,$o6,$o11)
         
 	define_shape()		// builtin fcn: fill in 3d info for sections defined by only L and diam, translate 3d points for consistency with their connections 
             
@@ -97,12 +97,10 @@ proc append_sections() { local i
 	}
 
 	for i=0, apicalidx.size()-1 {
-                dendidx.append(s)
 		sections[apicalidx.x[i]] apical_list.append()
 	}
 
 	for i=0, basalidx.size()-1 {
-                dendidx.append(s)
 		sections[basalidx.x[i]] basal_list.append()
 	}
 
@@ -263,7 +261,6 @@ proc get_root() {local i localobj sref
 		print "WARNING: cell ", gid, " has ", i, " root sections!"
 	}
 }
-        
 
 proc topol_from_python() { local i,j,l,p,s,p_layer,loc,vlen localobj vsrc, vdst, vloc, secnodes, layers, swc_types
     
@@ -290,10 +287,12 @@ proc topol_from_python() { local i,j,l,p,s,p_layer,loc,vlen localobj vsrc, vdst,
 
         if (swc_type == 4) {
             nDends = nDends + 1
+            dendidx.append(s)
             apicalidx.append(s)
         }
         if (swc_type == 3) {
             nDends = nDends + 1
+            dendidx.append(s)
             basalidx.append(s)
         }
         if (swc_type == 8) {
