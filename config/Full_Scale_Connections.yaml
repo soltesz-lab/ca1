@@ -189,9 +189,9 @@ Synapses:
 
     CA3:
       type: excitatory
-      sections: [basal, apical]
-      layers: [SO, SR]
-      proportions: [0.5, 1.0]
+      sections: [basal, apical, soma]
+      layers: [SO, SR, SP]
+      proportions: [0.5, 1.0, 1.0]
       mechanisms:
         AMPA:
           tau_rise: 0.5
